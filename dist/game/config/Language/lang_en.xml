@@ -247,6 +247,11 @@
 	<!-- Baium IA -->
 	<message id="dp_ia_baium_no_respawn" text=": You cant respawn Baium while Baium is alive"/>
 	
+	<!-- LOTO IA -->
+	<message id="dp_loto_return" text="Return"/>
+	<message id="dp_loto_above" text="Your lucky numbers have been selected above."/>
+	<message id="dp_loto_no_winning" text="There has been no winning lottery ticket."/>
+	
 	<!-- Wedding -->
 	<message id="dp_wedding_married" text="Congratulations you are married!"/>
 	<message id="dp_wedding_married_notice" text="Congratulations to %s% and %i%! They have been married."/>
