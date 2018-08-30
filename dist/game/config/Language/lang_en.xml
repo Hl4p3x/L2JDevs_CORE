@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- @author u3games -->
+<!-- @author Swarlog -->
 <localization lang="English">
 	
 	<!-- Lang Setting -->
@@ -8,25 +8,16 @@
 	<!-- Recipes Data -->
 	<message id="no_recipe_id" text="No recipe for: %s%."/>
 	
-	<!-- Clan -->
-	<message id="clan_create_units_fail" text="You can't create any more sub-units of this type."/>
-	<message id="clan_leader_fail" text="Leader is not correct."/>
-	<message id="clan_alliance_done" text="Alliance %s% has been created."/>
-	<message id="clan_academy_member_grade" text="You cannot change academy member grade."/>
-	<message id="clan_file_transfer_error" text="File transfer error."/>
-	<message id="clan_no_such" text="No such clan."/>
-	<message id="clan_no_war" text="You aren't at war with this clan."/>
-	
-	<!-- Dimensional -->
+	<!-- Dimensional Messages -->
 	<message id="dimensional_rift_full" text="Rift is full. Try later.."/>
 	<message id="no_invite_in_rift" text="You cannot invite a player when you are in the Dimensional Rift."/>
 	<message id="no_dismiss_player_in_rift" text="You can't dismiss party member when you are in Dimensional Rift."/>
 	
-	<!-- Duel -->
+	<!-- Duel Messages -->
 	<message id="duel_canceled" text="The duel was canceled because a duelist engaged in PvP combat."/>
 	<message id="duel_no_action" text="You cannot do this while duelling."/>
 	
-	<!-- Events -->
+	<!-- Events Messages -->
 	<message id="event_no_register_in_other_event" text="Couldnt register you due other event participation."/>
 	<message id="event_team_blue_full" text="The Blue Team is full."/>
 	<message id="event_team_red_full" text="The Red Team is full."/>
@@ -39,7 +30,7 @@
 	<message id="event_no_observe_games" text="You can not observe games while registered on an event."/>
 	<message id="event_no_unregister" text="You cannot unregister to this event."/>
 	
-	<!-- Territory War -->
+	<!-- Territory War Messages -->
 	<message id="tw_not_register" text="Non participants can't pickup Territory Wards!"/>
 	<message id="tw_register_id" text="Registred TerrId: %s%."/>
 	<message id="tw_no_points" text="No points for you!"/>
@@ -54,25 +45,28 @@
 	<message id="auction_bidded" text="You have been out bidded."/>
 	<message id="auction_won" text="Congratulation you have won ClanHall!"/>
 	<message id="auction_fast" text="You are bidding too fast."/>
+	<message id="auction_far" text="You are far away from Item Brocker."/>
 	<message id="auction_next" text="The next auction will begin on the %s%."/>
 	
-	<!-- Clan Hall -->
+	<!-- Clan -->
+	<message id="clan_create_units_fail" text="You can't create any more sub-units of this type."/>
+	<message id="clan_leader_fail" text="Leader is not correct."/>
+	<message id="clan_alliance_done" text="Alliance %s% has been created."/>
+	<message id="clan_academy_member_grade" text="You cannot change academy member grade."/>
+	<message id="clan_file_transfer_error" text="File transfer error."/>
+	<message id="clan_no_such" text="No such clan."/>
+	<message id="clan_no_war" text="You aren't at war with this clan."/>
+	
+	<!-- Clan Hall Sieges Messages -->
+	<message id="chs_level_restriction" text="Only clans of level %s% or higher may register for a castle siege."/>
+	<message id="no_register_defender" text="You cannot register as a defender because %s% is owned by NPC."/>
+	
+	<!-- Clan Hall Messages -->
 	<message id="ch_no_owner" text="This clan hall has no owner, you cannot change the configuration."/>
 	<message id="ch_cursed_weapon" text="The wielder of a cursed weapon cannot receive outside heals or buffs."/>
 	
-	<!-- Clan Hall Sieges -->
-	<message id="chs_level_restriction" text="Only clans of level %s% or higher may register for a Siegable Hall."/>
-	<message id="no_register_defender" text="You cannot register as a defender because %s% is owned by NPC."/>
-	
-	<!-- Frestress -->
+	<!-- Frestress Messages -->
 	<message id="fort_no_owner" text="This fortress has no owner, you cannot change the configuration."/>
-	
-	<!-- Castle -->
-	<message id="castle_no_lord_open_door" text="Only Castle doors can be open."/>
-	<message id="castle_no_lord_closed_door" text="Only Castle doors can be closed."/>
-	<message id="castle_no_clan_own" text="Your clan does not own a castle."/>
-	<message id="castle_gate_closed" text="The gate is being closed."/>
-	<message id="castle_manor_deactivated" text="Manor system is deactivated."/>
 	
 	<!-- Seven Signs -->
 	<message id="ss_teleported_nearest_seal" text="You have been teleported to the nearest town due to the beginning of the Seal Validation period."/>
@@ -160,7 +154,7 @@
 	<message id="unstuck_time_minutes" text="You use Escape: %s% minutes."/>
 	<message id="unstuck_time_seconds" text="You use Escape: %s% seconds."/>
 	
-	<!-- Command -->
+	<!-- Command Channel -->
 	<message id="command_channel_declined" text="The player declined to join your Command Channel."/>
 	<message id="command_channel_no_party" text="%s% doesn't have party and cannot be invited to Command Channel."/>
 	<message id="command_channel_invite" text="You invited %s% to your Command Channel."/>
@@ -224,6 +218,13 @@
 	<message id="request_engage_accepted" text="Request to Engage has been Accepted!"/>
 	<message id="request_engage_denied" text="Request to Engage has been Denied!"/>
 	
+	<!-- Krateis Cube -->
+	<message id="krateis_cube_s1_seconds_before_the_match_begin" text="%s% second(s) before the match begins!"/>
+	<message id="krateis_cube_resurrection_delay_s1_seconds" text="Resurrection will take place in the waiting room after %s% second(s)!"/>
+	
+	<!-- Prime Shop -->
+	<message id="prime_shop_conditions" text="The Prime Shop can only be used in peace zones!"/>
+	
 	<!-- GM -->
 	<message id="gm_buy_list_info" text="Buy List [%s%]"/>
 	<message id="gm_remove_object" text="Removed NPC: %s%"/>
@@ -231,6 +232,8 @@
 	<message id="gm_command_disabled" text="User commandID %s% not implemented yet."/>
 	<message id="gm_command_not_exist" text="The command %s% does not exist!"/>
 	<message id="gm_command_not_access" text="You don't have the access rights to use this command!"/>
+	
+	<!-- #################################### DATAPACK #################################### -->
 	
 	<!-- ALL IA -->
 	<message id="dp_ia_skipping" text=": Skipping waiting time ..."/>
@@ -262,6 +265,13 @@
 	<message id="dp_wedding_married_notice" text="Congratulations to %s% and %i%! They have been married."/>
 	<message id="dp_wedding_declined" text="You declined your partner's marriage request."/>
 	<message id="dp_wedding_declined_notice" text="Your partner declined your marriage request."/>
+	
+	<!-- Castle Voiced Command -->
+	<message id="castle_no_lord_open_door" text="Only Castle doors can be open."/>
+	<message id="castle_no_lord_closed_door" text="Only Castle doors can be closed."/>
+	<message id="castle_no_clan_own" text="Your clan does not own a castle."/>
+	<message id="castle_gate_closed" text="The gate is being closed."/>
+	<message id="castle_manor_deactivated" text="Manor System is deactivated."/>
 	
 	<!-- HANDLER -->
 	<message id="dp_handler_jail_error" text="You cannot use this function while you are jailed."/>

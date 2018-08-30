@@ -146,6 +146,9 @@ public class EnterWorld extends L2GameClientPacket
 		
 		getClient().setClientTracert(tracert);
 		
+		// Load lang of player
+		LanguageData.getInstance().setLanguage(activeChar, activeChar.getLang());
+		
 		// Restore to instanced area if enabled
 		if (Config.RESTORE_PLAYER_INSTANCE)
 		{
