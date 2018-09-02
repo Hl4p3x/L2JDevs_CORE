@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- @author hellEVIL -->
+<localization lang="Russian">
+	
+	<!-- Lang Setting -->
+	<message id="lang_current_successfully" text="Язык успешно перключен на:"/>
+	
+	<!-- Recipes Data -->
+	<message id="no_recipe_id" text="Нет рецепта для: %s%."/>
+	
+	<!-- Dimensional Messages -->
+	<message id="dimensional_rift_full" text="Нету свободного места. Попробуйте позже."/>
+	<message id="no_invite_in_rift" text="Нельзя приглашать игрока, пока вы находитесь в разломе."/>
+	<message id="no_dismiss_player_in_rift" text="Нельзя выгнать из группы в разломе."/>
+	
+	<!-- Duel Messages -->
+	<message id="duel_canceled" text="Дуэль была отменена, так как дуэлянт находился в состоянии PvP."/>
+	<message id="duel_no_action" text="Вы не можете сделать этого во время дуэли."/>
+	
+	<!-- Events Messages -->
+	<message id="event_no_register_in_other_event" text="Не удалось зарегистрировать участие в других ивентах."/>
+	<message id="event_team_blue_full" text="Синяя команда переполнена."/>
+	<message id="event_team_red_full" text="Красная команда переполнена."/>
+	<message id="event_time_register_over" text="Период регистрации для этого ивента завершен."/>
+	<message id="event_max_ip_reached" text="Вы достигли максимально допустимых участников с IP-адреса."/>
+	<message id="event_no_logout" text="Превосходящая сила не позволяет вам покинуть ивент."/>
+	<message id="event_team_need_points" text="У Вашей команды должно быть не менее 10 очков."/>
+	<message id="event_no_participant" text="Этот игрок не является участником ивента."/>
+	<message id="event_no_observation" text="Невозможно использовать во время текущего ивента."/>
+	<message id="event_no_observe_games" text="Вы не можете наблюдать за играми, зарегистрированными на ивентах."/>
+	<message id="event_no_unregister" text="Вы не можете отменить регистрацию этого ивента."/>
+	
+	<!-- Territory War Messages -->
+	<message id="tw_not_register" text="Толь участники Территориальных Войн могут забрать!"/>
+	<message id="tw_register_id" text="Вы зарегистрировались в войне: %s%."/>
+	<message id="tw_no_points" text="Для вас нет очков!"/>
+	<message id="tw_jobs" text="Ваша роль:"/>
+	
+	<!-- Auctions -->
+	<message id="auction_wrong_conditions" text="Неправильные условия."/>
+	<message id="auction_canceled" text="Ваш аукцион был отменен."/>
+	<message id="auction_invalid" text="Недействительный аукцион!"/>
+	<message id="auction_invalid_bid" text="Недействительная ставка!"/>
+	<message id="auction_invalid_duration" text="Недействительная продолжительность аукциона!"/>
+	<message id="auction_bidded" text="Вы отменили ставку."/>
+	<message id="auction_won" text="Поздравляю Вы выиграли Клан Холл!"/>
+	<message id="auction_fast" text="Вы торгуетесь слишком быстро."/>
+	<message id="auction_far" text="Вы находитесь далеко от букмекера."/>
+	<message id="auction_next" text="Следующий аукцион начнется в %s%."/>
+	
+	<!-- Clan -->
+	<message id="clan_create_units_fail" text="Вы не можете создавать какие-либо подэлементы этого типа."/>
+	<message id="clan_leader_fail" text="Клан лидер неверен."/>
+	<message id="clan_alliance_done" text="Альянс %s% создан."/>
+	<message id="clan_academy_member_grade" text="Вы не можете изменить класс члена академии."/>
+	<message id="clan_file_transfer_error" text="Ошибка передачи файлов."/>
+	<message id="clan_no_such" text="Клан не найден."/>
+	<message id="clan_no_war" text="Вы не воюете с этим кланом."/>
+	
+	<!-- Clan Hall Sieges Messages -->
+	<message id="chs_level_restriction" text="Только кланы уровня %s% или выше могут зарегистрироваться для осады замка."/>
+	<message id="no_register_defender" text="Вы не можете зарегистрироваться на защиту, так как %s% принадлежит НПЦ."/>
+	
+	<!-- Clan Hall Messages -->
+	<message id="ch_no_owner" text="У этого клан-холла нет владельца, вы не можете изменить конфигурацию."/>
+	<message id="ch_cursed_weapon" text="Владелец проклятого оружия не может вылечиться или получить вспомогательную магию."/>
+	
+	<!-- Frestress Messages -->
+	<message id="fort_no_owner" text="У этой крепости нет владельца, вы не можете изменить конфигурацию."/>
+	
+	<!-- Seven Signs -->
+	<message id="ss_teleported_nearest_seal" text="Вы были телепортированы в самый близкий город из-за начала периода Борьбы Печатей."/>
+	<message id="ss_teleported_nearest_cabal" text="Вы были телепортированы в самый близкий город, так как Вы не принимаете участие в борьбе Семи Печатей."/>
+	<message id="ss_festival_ended_time" text="Фестиваль тьмы закончится через %s% минут."/>
+	<message id="ss_festival_ended" text="Фестиваль закончился. Ваш лидер группы должен теперь зарегистрировать Ваш счет прежде, чем начнется следующий фестиваль."/>
+	<message id="ss_remove_player" text="Вы были удалены с фестивальной арены."/>
+	<message id="ss_remove_party" text="%s% был удален с фестиваля."/>
+	<message id="ss_no_logout_player" text="Вы не можете выйти, пока вы являетесь участником Фестиваля."/>
+	<message id="ss_no_restart_player" text="Вы не можете перезайти, пока Вы на фестивале."/>
+	<message id="ss_no_resurrect_player" text="Вы не можете воскрешать участников на фестивале."/>
+	<message id="ss_no_sign_up" text="Вы не можете зайти во время фестиваля."/>
+	<message id="ss_no_register" text="Вы не можете зарегистрировать счет во время фестиваля."/>
+	<message id="ss_no_contribute" text="У Вас нету Жертвенной Крови, чтобы сделать взнос."/>
+	<message id="ss_no_leave_party" text="Только лидер группы может покинуть фестиваль, когда в группе минимальное число членов."/>
+	<message id="ss_no_bonus" text="Бонусы не могут быть выплачены в течение периода соревнований."/>
+	
+	<!-- Teleport -->
+	<message id="teleport_no_level" text="У вас нет достаточного уровня доступа для телепортации."/>
+	<message id="teleport_go_away" text="Уходите, вам здесь не рады."/>
+	<message id="respawn_in_seconds" text="Вы будете воскрешены через %s% секунд."/>
+	<message id="coords_fail" text="Ошибка! Пожалуйста попросите помощи у Гма!"/>
+	
+	<!-- Village -->
+	<message id="no_sub_classes_available" text="Нет доступных сабклассов."/>
+	<message id="no_sub_classes_add" text="Сабкласс не может быть добавлен, Вы вернулись к Вашему базовому классу."/>
+	<message id="pledge_name_change" text="Название залого изменено."/>
+	<message id="pledge_no_exists" text="Залога не существует."/>
+	
+	<!-- Illegal Action -->
+	<message id="info_illegal_action" text="АНТИ-ЧИТЕР: Противозаконное действие!"/>
+	<message id="jail_player_illegal_action" text="АНТИ-ЧИТЕР: Вы будете телепортированы и заключены в тюрьму."/>
+	<message id="kick_player_illegal_action" text="АНТИ-ЧИТЕР: Вы будете кикнуты за противозаконные действия."/>
+	<message id="ban_player_illegal_action" text="АНТИ-ЧИТЕР: Вы забанены за противозаконные действия."/>
+	<message id="cheat_detected" text="АНТИ-ЧИТЕР: Обман не работает? Теперь У Вас проблема!"/>
+	
+	<!-- Petition -->
+	<message id="engage_accepted" text="Запрос был -ПРИНЯТ-"/>
+	<message id="engage_denied" text="Запрос был -ОТКЛОНЕН-"/>
+	<message id="petition_fail" text="Ваше петиция была отклонена. Пожалуйста, повторите попытку позже."/>
+	
+	<!-- Action -->
+	<message id="target_null" text="Не выбрано ни одной цели."/>
+	<message id="sit_forced" text="Темная сила вне Вашего смертного понимания заставляет Ваши колени дрожать, когда Вы пытаетесь встать..."/>
+	<message id="item_cannot_use" text="Вы не можете использовать этот предмет."/>
+	<message id="remove_previous_connection" text="Сначала удалите предыдущие подключения."/>
+	<message id="get_item_pet_too_fast" text="Вы получаете предметы от питомца слишком быстро."/>
+	<message id="give_item_pet_too_fast" text="Вы даете предметы питомцу слишком быстро."/>
+	<message id="depositing_too_fast" text="Вы кладете предметы слишком быстро."/>
+	<message id="withdrawing_too_fast" text="Вы забираете предметы слишком быстро."/>
+	<message id="trading_too_fast" text="Вы торгуете слишком быстро."/>
+	<message id="buying_too_fast" text="Вы покупаете слишком быстро."/>
+	<message id="refund_too_fast" text="Вы используете возврат слишком быстро."/>
+	<message id="buying_seeds_too_fast" text="Вы покупаете семена слишком быстро."/>
+	<message id="selling_too_fast" text="Вы продаете предметы слишком быстро."/>
+	<message id="crystallizing_too_fast" text="Вы слишком быстро кристаллизуете."/>
+	<message id="destroying_items_too_fast" text="Вы слишком быстро уничтожаете предметы."/>
+	<message id="no_adena_count" text="У Вас недостаточно Аден."/>
+	<message id="no_trade_mode" text="Этот персонаж не торгует."/>
+	<message id="no_trade_in_olys" text="Пользователь, который в настоящее время участвует в олимпиаде, не может принять или запросить торговлю."/>
+	<message id="no_trade_in_chaotic_state" text="Вы не можете торговать, пока находитесь в хаотическом состоянииo."/>
+	<message id="no_tradet_to_chaotic_target" text="Вы не можете запросить сделку, пока ваша цель находится в хаотическом состоянии."/>
+	<message id="no_drop_in_jail" text="Вы не можете выбрасывать вещи в Тюрьме."/>
+	<message id="no_trade_in_jail" text="Вы не можете торговать, когда находитесь в Тюрьме."/>
+	<message id="no_invite_in_jail" text="Вы не можете пригласить игрока в Тюрьму."/>
+	<message id="no_chat_in_jail" text="Вы не можете разговаривать с игроками за пределами тюрьмы."/>
+	<message id="no_elemental_power_trading" text="Вы не можете добавить энергию стихии при торговле."/>
+	<message id="no_recipe_while_trading" text="Вы не можете вносить изменения в свою книгу рецептов во время торговли."/>
+	<message id="no_exchange_items" text="Вы не можете обменивать предметы во время торговли."/>
+	<message id="no_create_while_trading" text="Вы не можете создавать предметы во время торговли."/>
+	<message id="no_restart_while_trading" text="Рестарт невозможен, торгуя."/>
+	<message id="transactions_disabled" text="Транзакции отключены для вашего уровня доступа."/>
+	<message id="no_pickup_mercenaries_party" text="Вы не можете брать наемников, находясь в группе."/>
+	<message id="no_pickup_mercenaries_lord" text="Только лорд замка может нанимать наемников."/>
+	<message id="password_no_repeated" text="Новые пароли не совпадают!"/>
+	<message id="password_shorter" text="Новый пароль короче 3х символов! Попробуйте более длинный."/>
+	<message id="password_longer" text="Новый пароль длиннее 30 символов! Попробуйте более короткий вариант."/>
+	<message id="password_invalid" text="Вы должны заполнить все поля!"/>
+	<message id="password_problem" text="При смене пароля возникла проблема!"/>
+	<message id="no_hero_speak" text="Действие потерпело неудачу. Только герои в состоянии говорить в глобальном канале каждые 10 секунд."/>
+	<message id="no_spam_channel" text="Не флудите на канале."/>
+	<message id="no_summon_wyvern_in_siege" text="Вы не можете вызвать Виверна, находясь в осаде."/>
+	<message id="no_buff_adventurer" text="Только персонажи, которые не закончили передачу третьего класса, могут получить эти баффы."/>
+	<message id="no_unstuck_in_jail" text="Вы не можете использовать /unstuck во время нахождения в тюрьме."/>
+	<message id="unstuck_time_minutes" text="Вы телепортируетесь через: %s% минут(ы)."/>
+	<message id="unstuck_time_seconds" text="Вы телепортируетесь через: %s% сек."/>
+	
+	<!-- Command Channel -->
+	<message id="command_channel_declined" text="Игрок отказался присоединяться к каналу Вашей Команды."/>
+	<message id="command_channel_no_party" text="%s% не имеет группы и не может быть приглашен в командный канал."/>
+	<message id="command_channel_invite" text="Вы пригласили %s% на канал Вашей Команды."/>
+	
+	<!-- Pets -->
+	<message id="pet_name_check" text="Имя вашего питомца может содержать до 16 символов."/>
+	<message id="no_mount_in_flag_mode" text="Вы не можете оседлать коня, пока удерживаете флаг."/>
+	
+	<!-- Craft -->
+	<message id="item_creation_disabled" text="Создание в настоящее время невозможно."/>
+	<message id="item_manufacture_aborted" text="Изготовление прерывалось."/>
+	<message id="item_creation_aborted" text="Создание предмета прервалось."/>
+	<message id="item_manufacture_used" text="Изготавливается по %s%: используется %c% - %i%."/>
+	<message id="item_manufacture_error" text="Ошибка рецепта!!! пожалуйста сообщите это Вашему Гму."/>
+	
+	<!-- OutPost -->
+	<message id="outpost_residence_id" text="Вы должны быть на земле форта или замка, чтобы построить заставу или флаг."/>
+	<message id="outpost_siege_active" text="Вы можете построить заставу или флаг только в области осады."/>
+	<message id="outpost_only_leader" text="Вы должны быть лидером клана, чтобы построить заставу или флаг."/>
+	
+	<!-- Zones -->
+	<message id="zone_temporary_enter" text="Вы вошли во временную зону!"/>
+	<message id="zone_temporary_exit" text="Вы вышли из временной зоны!"/>
+	<message id="zone_jail_no_out" text="Вы не сможете выйти отсюда. Вы должны ждать, пока Ваше тюремное заключение не закончится!"/>
+	
+	<!-- Skills -->
+	<message id="skill_invalid_level" text="Неправильный уровень навыка, свяжитесь с админом!"/>
+	<message id="skill_learned" text="Выучено новых навыков %s%."/>
+	<message id="skill_sit_down" text="Нельзя сидеть, кастуя."/>
+	<message id="skill_target_null" text="Целевой тип умения в данный момент не обрабатывается."/>
+	
+	<!-- Modes -->
+	<message id="player_already_block" text="Уже в игнор списке."/>
+	<message id="player_target_block" text="Вы в игнор списке."/>
+	<message id="player_no_connect" text="%s% не находится в Мире."/>
+	<message id="player_offline" text="Игрок находится в оффлайн режиме."/>
+	<message id="player_craft_mode" text="Вы находитесь в режиме ремесло."/>
+	<message id="player_kicked" text="Вас кикнул ГМ."/>
+	<message id="player_chat_banned_time" text="Вас забанили в чате на %s%"/>
+	<message id="player_chat_banned_forever" text="Вас забанили в чате навсегда."/>
+	<message id="player_chat_banned_lifted" text="Вас разбанили в чате."/>
+	<message id="player_jail_time" text="Вас посадили в тюрьму на %s%"/>
+	<message id="player_jail_forever" text="Вас посадили в тюрьму навсегда."/>
+	<message id="player_jailed" text="Игрок находится в тюрьме."/>
+	<message id="player_debug_on" text="Отладка отключена."/>
+	<message id="player_debug_off" text="Отладка включена."/>
+	<message id="player_fishing_off" text="Рыбалка отключена!"/>
+	
+	<!-- Login -->
+	<message id="enter_in_mode_invulnerable" text="Вы вошли в мир в режиме Неуязвимости."/>
+	<message id="enter_in_mode_invisible" text="Вы вошли в мир в режиме Невидимки."/>
+	<message id="enter_in_mode_silence" text="Вы вошли в мир в режиме тишины."/>
+	<message id="enter_with_partner" text="Ваш Партнер зашел в игру."/>
+	
+	<!-- Others -->
+	<message id="feature_disabled" text="Эта функция отключена."/>
+	<message id="fish_dot_defined" text="Ошибка. Рыба не определена."/>
+	<message id="teleport_protection_ended" text="Защита телепорта снята."/>
+	
+	<!-- Request Engage -->
+	<message id="request_engage_accepted" text="Запрос на участие был принят!"/>
+	<message id="request_engage_denied" text="Запрос на участие был отклонен!"/>
+	
+	<!-- Krateis Cube -->
+	<message id="krateis_cube_s1_seconds_before_the_match_begin" text="%s% секунд перед началом матча!"/>
+	<message id="krateis_cube_resurrection_delay_s1_seconds" text="Воскрешение произойдет в зале ожидания через %s% секунд!"/>
+	
+	<!-- Prime Shop -->
+	<message id="prime_shop_conditions" text="Прайм-шоп можно использовать только в зонах мира!"/>
+	
+	<!-- GM -->
+	<message id="gm_buy_list_info" text="Список покупок [%s%]"/>
+	<message id="gm_remove_object" text="Удален НПЦ: %s%"/>
+	<message id="gm_add_object" text="Добавлен НПЦ: %s%"/>
+	<message id="gm_command_disabled" text="ID пользовательской команды %s% не осуществлено."/>
+	<message id="gm_command_not_exist" text="Нет такой команды %s%!"/>
+	<message id="gm_command_not_access" text="У Вас нету прав доступа использовать эту команду!"/>
+	
+	<!-- #################################### DATAPACK #################################### -->
+	
+	<!-- ALL IA -->
+	<message id="dp_ia_skipping" text=": Пропуск времени ожидания ..."/>
+	<message id="dp_ia_no_skip" text=": Вы не можете пропустить время ожидания сейчас!"/>
+	<message id="dp_ia_aborted" text=": Бой был прерван!"/>
+	<message id="dp_ia_no_aborted" text=": Вы не можете прервать бой сейчас!"/>
+	<message id="dp_ia_minions" text=": Все миньоны были удалены!"/>
+	<message id="dp_ia_no_minions" text=": Вы не можете уничтожить миньонов сейчас!"/>
+	
+	<!-- Antharas IA -->
+	<message id="dp_ia_antharas_respaw" text=": Антарас возродился."/>
+	<message id="dp_ia_antharas_live" text=": Вы не можете возродить Антараса, пока Антарас жив!"/>
+	
+	<!-- Baium IA -->
+	<message id="dp_ia_baium_no_respawn" text=": Вы не можете возродить Баюма, пока Баюм жив!"/>
+	
+	<!-- LOTO IA -->
+	<message id="dp_loto_return" text="Назад"/>
+	<message id="dp_loto_above" text="Купить лотерейный билет"/>
+	<message id="dp_loto_no_winning" text="Выигрышный лотерейный билет отсутствует."/>
+	<message id="dp_loto_event_number" text="Тираж. Выбранные номера"/>
+	<message id="dp_loto_1st_prize" text="- 1й Приз"/>
+	<message id="dp_loto_2nd_prize" text="- 2й Приз"/>
+	<message id="dp_loto_3th_prize" text="- 3й Приз"/>
+	<message id="dp_loto_4th_prize" text="- 4й Приз"/>
+	
+	<!-- Wedding -->
+	<message id="dp_wedding_married" text="Поздравляю Вы женаты!"/>
+	<message id="dp_wedding_married_notice" text="Поздравляем %s% и %i%! Они поженились."/>
+	<message id="dp_wedding_declined" text="Вы отклонили запрос партнера на бракосочетание."/>
+	<message id="dp_wedding_declined_notice" text="Ваш партнер отклонил запрос на бракосочетание."/>
+	
+	<!-- Castle Voiced Command -->
+	<message id="castle_no_lord_open_door" text="Только может открыть двери замка."/>
+	<message id="castle_no_lord_closed_door" text="Только может закрыть двери замка."/>
+	<message id="castle_no_clan_own" text="Ваш клан не владеет замком."/>
+	<message id="castle_gate_closed" text="Врата закрываются."/>
+	<message id="castle_manor_deactivated" text="Система фермерства выключена."/>
+	
+	<!-- HANDLER -->
+	<message id="dp_handler_jail_error" text="Вы не можете использовать эту функцию, пока находитесь в тюрьме."/>
+	<message id="dp_handler_time" text="Время сервера: %s%"/>
+	<message id="dp_handler_unstuck_time_m" text="Вы телепортируетесь через: %s% минут(ы)."/>
+	<message id="dp_handler_unstuck_time_s" text="Вы телепортируетесь через: %s% сек."/>
+	<message id="dp_handler_hellbound_locked" text="В настоящее время Остров Ада заблокирован."/>
+	<message id="dp_handler_hellbound_level" text="Уровень Острова Ада: %s%"/>
+	<message id="dp_handler_setvcmd_clan_privileges" text="Привилегии клана были переданы с %s% на %i%."/>
+</localization>
