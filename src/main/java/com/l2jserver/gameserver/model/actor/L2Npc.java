@@ -174,6 +174,13 @@ public class L2Npc extends L2Character
 		_currentCollisionRadius = getTemplate().getfCollisionRadius();
 		
 		setIsFlying(template.isFlying());
+		// Copy the skills of the L2Summon from its template to the L2Character Instance
+		// The skills list can be affected by spell effects so it's necessary to make a copy
+		// to avoid that a spell affecting a L2Summon, affects others L2Summon of the same type too.
+		for (Skill skill : template.getSkills().values())
+		{
+			addSkill(skill);
+		}
 	}
 	
 	/**

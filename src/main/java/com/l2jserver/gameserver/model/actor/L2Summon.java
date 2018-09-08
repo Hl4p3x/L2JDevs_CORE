@@ -105,6 +105,13 @@ public abstract class L2Summon extends L2Playable
 		getAI();
 		
 		setXYZInvisible(owner.getX() + Rnd.get(-100, 100), owner.getY() + Rnd.get(-100, 100), owner.getZ());
+		// Copy the skills of the L2Summon from its template to the L2Character Instance
+		// The skills list can be affected by spell effects so it's necessary to make a copy
+		// to avoid that a spell affecting a L2Summon, affects others L2Summon of the same type too.
+		for (Skill skill : template.getSkills().values())
+		{
+			addSkill(skill);
+		}
 	}
 	
 	@Override
