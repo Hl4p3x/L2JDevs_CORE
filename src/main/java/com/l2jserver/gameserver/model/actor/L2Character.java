@@ -327,29 +327,11 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			// Copy the Standard Calculators of the L2NPCInstance in _calculators
 			_calculators = NPC_STD_CALCULATOR;
 			
-			// Copy the skills of the L2NPCInstance from its template to the L2Character Instance
-			// The skills list can be affected by spell effects so it's necessary to make a copy
-			// to avoid that a spell affecting a L2NpcInstance, affects others L2NPCInstance of the same type too.
-			for (Skill skill : template.getSkills().values())
-			{
-				addSkill(skill);
-			}
 		}
 		else
 		{
 			// If L2Character is a L2PcInstance or a L2Summon, create the basic calculator set
 			_calculators = new Calculator[Stats.NUM_STATS];
-			
-			if (isSummon())
-			{
-				// Copy the skills of the L2Summon from its template to the L2Character Instance
-				// The skills list can be affected by spell effects so it's necessary to make a copy
-				// to avoid that a spell affecting a L2Summon, affects others L2Summon of the same type too.
-				for (Skill skill : template.getSkills().values())
-				{
-					addSkill(skill);
-				}
-			}
 			
 			Formulas.addFuncsToNewCharacter(this);
 		}
