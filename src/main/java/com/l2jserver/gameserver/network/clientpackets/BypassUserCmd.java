@@ -54,7 +54,7 @@ public class BypassUserCmd extends L2GameClientPacket
 		{
 			if (player.isGM())
 			{
-				player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "gm_command_disabled").replace("%s%", _command + ""));
+				player.sendMessage(LanguageData.getInstance().getMsg(player, "gm_command_disabled").replace("%s%", _command + ""));
 			}
 		}
 		else

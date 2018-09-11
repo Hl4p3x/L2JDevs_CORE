@@ -131,7 +131,7 @@ public class PcKnownList extends PlayableKnownList
 		
 		if (Config.CHECK_KNOWN && (object instanceof L2Npc) && getActiveChar().isGM())
 		{
-			getActiveChar().sendMessage(LanguageData.getInstance().getMsgByLang(getActiveChar(), "gm_remove_object").replace("%s%", object.getName() + ""));
+			getActiveChar().sendMessage(LanguageData.getInstance().getMsg(getActiveChar(), "gm_remove_object").replace("%s%", object.getName() + ""));
 		}
 		
 		return true;

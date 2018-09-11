@@ -1861,13 +1861,13 @@ public class L2Clan implements IIdentifiable, INamable
 			}
 			else
 			{
-				player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "clan_create_units_fail"));
+				player.sendMessage(LanguageData.getInstance().getMsg(player, "clan_create_units_fail"));
 			}
 			return null;
 		}
 		if (_leader.getObjectId() == leaderId)
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "clan_leader_fail"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "clan_leader_fail"));
 			return null;
 		}
 		
@@ -2466,7 +2466,7 @@ public class L2Clan implements IIdentifiable, INamable
 		player.sendPacket(new ExBrExtraUserInfo(player));
 		
 		// TODO: Need correct message id
-		player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "clan_alliance_done").replace("%s%", allyName + ""));
+		player.sendMessage(LanguageData.getInstance().getMsg(player, "clan_alliance_done").replace("%s%", allyName + ""));
 	}
 	
 	public void dissolveAlly(L2PcInstance player)

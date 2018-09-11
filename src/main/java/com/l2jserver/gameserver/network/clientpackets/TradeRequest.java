@@ -58,7 +58,7 @@ public final class TradeRequest extends L2GameClientPacket
 		
 		if (!player.getAccessLevel().allowTransaction())
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "transactions_disabled"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "transactions_disabled"));
 			sendPacket(ActionFailed.STATIC_PACKET);
 			return;
 		}
@@ -103,7 +103,7 @@ public final class TradeRequest extends L2GameClientPacket
 		final L2PcInstance partner = target.getActingPlayer();
 		if (partner.isInOlympiadMode() || player.isInOlympiadMode())
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "no_trade_in_olys"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "no_trade_in_olys"));
 			return;
 		}
 		
@@ -126,19 +126,19 @@ public final class TradeRequest extends L2GameClientPacket
 		// L2J Customs: Karma punishment
 		if (!Config.ALT_GAME_KARMA_PLAYER_CAN_TRADE && (player.getKarma() > 0))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "no_trade_in_chaotic_state"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "no_trade_in_chaotic_state"));
 			return;
 		}
 		
 		if (!Config.ALT_GAME_KARMA_PLAYER_CAN_TRADE && (partner.getKarma() > 0))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "no_tradet_to_chaotic_target"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "no_tradet_to_chaotic_target"));
 			return;
 		}
 		
 		if (Config.JAIL_DISABLE_TRANSACTION && (player.isJailed() || partner.isJailed()))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "no_trade_in_jail"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "no_trade_in_jail"));
 			return;
 		}
 		
@@ -173,7 +173,7 @@ public final class TradeRequest extends L2GameClientPacket
 		
 		if (partner.getTradeRefusal())
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "no_trade_mode"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "no_trade_mode"));
 			return;
 		}
 		

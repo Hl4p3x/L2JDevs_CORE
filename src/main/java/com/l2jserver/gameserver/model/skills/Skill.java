@@ -1027,7 +1027,7 @@ public class Skill implements IIdentifiable
 			}
 		}
 		
-		activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "skill_target_null"));
+		activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar.getActingPlayer(), "skill_target_null"));
 		return EMPTY_TARGET_LIST;
 	}
 	

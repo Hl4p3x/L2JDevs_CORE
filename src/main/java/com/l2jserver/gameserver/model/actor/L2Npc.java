@@ -1444,7 +1444,7 @@ public class L2Npc extends L2Character
 		{
 			if (Config.CHECK_KNOWN && activeChar.isGM())
 			{
-				activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "gm_add_object").replace("%s%", getName() + ""));
+				activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "gm_add_object").replace("%s%", getName() + ""));
 			}
 			
 			if (getRunSpeed() == 0)

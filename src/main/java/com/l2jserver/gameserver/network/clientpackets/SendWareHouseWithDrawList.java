@@ -85,7 +85,7 @@ public final class SendWareHouseWithDrawList extends L2GameClientPacket
 		
 		if (!getClient().getFloodProtectors().getTransaction().tryPerformAction("withdraw"))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "withdrawing_too_fast"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "withdrawing_too_fast"));
 			return;
 		}
 		
@@ -103,7 +103,7 @@ public final class SendWareHouseWithDrawList extends L2GameClientPacket
 		
 		if (!(warehouse instanceof PcWarehouse) && !player.getAccessLevel().allowTransaction())
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "transactions_disabled"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "transactions_disabled"));
 			return;
 		}
 		

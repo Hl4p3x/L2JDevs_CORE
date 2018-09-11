@@ -70,7 +70,7 @@ public final class RequestFriendInvite extends L2GameClientPacket
 		// Target blocked active player.
 		if (BlockList.isBlocked(friend, activeChar))
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "player_target_block"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "player_target_block"));
 			return;
 		}
 		SystemMessage sm;

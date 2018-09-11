@@ -175,7 +175,7 @@ public final class HandysBlockCheckerManager
 			
 			if (player.isOnEvent() || player.isInOlympiadMode())
 			{
-				player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "event_no_register_in_other_event"));
+				player.sendMessage(LanguageData.getInstance().getMsg(player, "event_no_register_in_other_event"));
 				return false;
 			}
 			
@@ -261,12 +261,12 @@ public final class HandysBlockCheckerManager
 			
 			if (isFromRed && (holder.getBlueTeamSize() == 6))
 			{
-				player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "event_team_red_full"));
+				player.sendMessage(LanguageData.getInstance().getMsg(player, "event_team_red_full"));
 				return;
 			}
 			else if (!isFromRed && (holder.getRedTeamSize() == 6))
 			{
-				player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "event_team_blue_full"));
+				player.sendMessage(LanguageData.getInstance().getMsg(player, "event_team_blue_full"));
 				return;
 			}
 			

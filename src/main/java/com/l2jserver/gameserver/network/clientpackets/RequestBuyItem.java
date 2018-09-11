@@ -84,7 +84,7 @@ public final class RequestBuyItem extends L2GameClientPacket
 		
 		if (!getClient().getFloodProtectors().getTransaction().tryPerformAction("buy"))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "buying_too_fast"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "buying_too_fast"));
 			return;
 		}
 		
@@ -186,7 +186,7 @@ public final class RequestBuyItem extends L2GameClientPacket
 			
 			if ((price == 0) && !player.isGM() && Config.ONLY_GM_ITEMS_FREE)
 			{
-				player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "cheat_detected"));
+				player.sendMessage(LanguageData.getInstance().getMsg(player, "cheat_detected"));
 				Util.handleIllegalPlayerAction(player, "Warning!! Character " + player.getName() + " of account " + player.getAccountName() + " tried buy item for 0 adena.", Config.DEFAULT_PUNISH);
 				return;
 			}

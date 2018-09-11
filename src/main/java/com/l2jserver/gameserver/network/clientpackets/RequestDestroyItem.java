@@ -75,7 +75,7 @@ public final class RequestDestroyItem extends L2GameClientPacket
 		
 		if (!getClient().getFloodProtectors().getTransaction().tryPerformAction("destroy"))
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "destroying_items_too_fast"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "destroying_items_too_fast"));
 			return;
 		}
 		
@@ -138,7 +138,7 @@ public final class RequestDestroyItem extends L2GameClientPacket
 		
 		if (!activeChar.getInventory().canManipulateWithItemId(itemToRemove.getId()))
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "item_cannot_use"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "item_cannot_use"));
 			return;
 		}
 		

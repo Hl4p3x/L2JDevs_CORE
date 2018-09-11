@@ -138,7 +138,7 @@ public final class RequestBypassToServer extends L2GameClientPacket
 				{
 					if (activeChar.isGM())
 					{
-						activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "gm_command_not_exist").replace("%s%", command.substring(6) + ""));
+						activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "gm_command_not_exist").replace("%s%", command.substring(6) + ""));
 					}
 					_log.warning(activeChar + " requested not registered admin command '" + command + "'");
 					return;
@@ -146,7 +146,7 @@ public final class RequestBypassToServer extends L2GameClientPacket
 				
 				if (!AdminData.getInstance().hasAccess(command, activeChar.getAccessLevel()))
 				{
-					activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "gm_command_not_access"));
+					activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "gm_command_not_access"));
 					_log.warning("Character " + activeChar.getName() + " tried to use admin command " + command + ", without proper access level!");
 					return;
 				}

@@ -67,7 +67,7 @@ public final class RequestJoinParty extends L2GameClientPacket
 		
 		if ((target.getClient() == null) || target.getClient().isDetached())
 		{
-			requestor.sendMessage(LanguageData.getInstance().getMsgByLang(requestor, "player_offline"));
+			requestor.sendMessage(LanguageData.getInstance().getMsg(requestor, "player_offline"));
 			return;
 		}
 		
@@ -123,7 +123,7 @@ public final class RequestJoinParty extends L2GameClientPacket
 		
 		if (target.isJailed() || requestor.isJailed())
 		{
-			requestor.sendMessage(LanguageData.getInstance().getMsgByLang(requestor, "no_invite_in_jail"));
+			requestor.sendMessage(LanguageData.getInstance().getMsg(requestor, "no_invite_in_jail"));
 			return;
 		}
 		
@@ -148,7 +148,7 @@ public final class RequestJoinParty extends L2GameClientPacket
 		{
 			if (requestor.getParty().isInDimensionalRift())
 			{
-				requestor.sendMessage(LanguageData.getInstance().getMsgByLang(requestor, "no_invite_in_rift"));
+				requestor.sendMessage(LanguageData.getInstance().getMsg(requestor, "no_invite_in_rift"));
 			}
 			else
 			{

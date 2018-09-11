@@ -131,7 +131,7 @@ public class TerritoryWard
 		}
 		else if (TerritoryWarManager.getInstance().getRegisteredTerritoryId(player) == 0)
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "tw_not_register"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "tw_not_register"));
 			player.destroyItem("CombatFlag", item, null, true);
 			spawnMe();
 			return false;

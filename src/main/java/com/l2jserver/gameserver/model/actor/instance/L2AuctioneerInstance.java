@@ -67,7 +67,7 @@ public final class L2AuctioneerInstance extends L2Npc
 		if (condition <= COND_ALL_FALSE)
 		{
 			// TODO: html
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "auction_wrong_conditions"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "auction_wrong_conditions"));
 			return;
 		}
 		else if (condition == COND_BUSY_BECAUSE_OF_SIEGE)
@@ -131,12 +131,12 @@ public final class L2AuctioneerInstance extends L2Npc
 					}
 					catch (Exception e)
 					{
-						player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "auction_invalid_bid"));
+						player.sendMessage(LanguageData.getInstance().getMsg(player, "auction_invalid_bid"));
 					}
 				}
 				catch (Exception e)
 				{
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "auction_invalid_duration"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "auction_invalid_duration"));
 				}
 				return;
 			}
@@ -150,7 +150,7 @@ public final class L2AuctioneerInstance extends L2Npc
 				}
 				catch (Exception e)
 				{
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "auction_invalid"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "auction_invalid"));
 				}
 				return;
 			}
@@ -207,7 +207,7 @@ public final class L2AuctioneerInstance extends L2Npc
 				}
 				catch (Exception e)
 				{
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "auction_invalid"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "auction_invalid"));
 				}
 				return;
 			}
@@ -233,12 +233,12 @@ public final class L2AuctioneerInstance extends L2Npc
 					}
 					catch (Exception e)
 					{
-						player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "auction_invalid_bid"));
+						player.sendMessage(LanguageData.getInstance().getMsg(player, "auction_invalid_bid"));
 					}
 				}
 				catch (Exception e)
 				{
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "auction_invalid"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "auction_invalid"));
 				}
 				return;
 			}
@@ -282,7 +282,7 @@ public final class L2AuctioneerInstance extends L2Npc
 				}
 				catch (Exception e)
 				{
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "auction_invalid"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "auction_invalid"));
 				}
 				return;
 			}
@@ -563,7 +563,7 @@ public final class L2AuctioneerInstance extends L2Npc
 				if (AuctionManager.getInstance().getAuction(player.getClan().getHideoutId()) != null)
 				{
 					AuctionManager.getInstance().getAuction(player.getClan().getHideoutId()).cancelAuction();
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "auction_canceled"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "auction_canceled"));
 				}
 				return;
 			}
@@ -634,7 +634,7 @@ public final class L2AuctioneerInstance extends L2Npc
 				}
 				catch (Exception e)
 				{
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "auction_invalid"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "auction_invalid"));
 				}
 				return;
 			}

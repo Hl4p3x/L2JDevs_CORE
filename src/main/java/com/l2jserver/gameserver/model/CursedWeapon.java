@@ -723,7 +723,7 @@ public class CursedWeapon implements INamable
 		}
 		else
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "player_no_connect").replace("%s%", _name + ""));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "player_no_connect").replace("%s%", _name + ""));
 		}
 	}
 	

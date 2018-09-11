@@ -1420,7 +1420,7 @@ public class SevenSigns
 				{
 					player.teleToLocation(TeleportWhereType.TOWN);
 					player.setIsIn7sDungeon(false);
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "ss_teleported_nearest_seal"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "ss_teleported_nearest_seal"));
 				}
 			}
 			else
@@ -1429,7 +1429,7 @@ public class SevenSigns
 				{
 					player.teleToLocation(TeleportWhereType.TOWN);
 					player.setIsIn7sDungeon(false);
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "ss_teleported_nearest_cabal"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "ss_teleported_nearest_cabal"));
 				}
 			}
 		}

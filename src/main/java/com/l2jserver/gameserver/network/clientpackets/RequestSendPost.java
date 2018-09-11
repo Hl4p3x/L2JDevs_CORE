@@ -128,7 +128,7 @@ public final class RequestSendPost extends L2GameClientPacket
 		
 		if (!activeChar.getAccessLevel().allowTransaction())
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "transactions_disabled"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "transactions_disabled"));
 			return;
 		}
 		

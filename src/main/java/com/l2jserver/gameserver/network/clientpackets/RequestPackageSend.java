@@ -84,7 +84,7 @@ public class RequestPackageSend extends L2GameClientPacket
 		
 		if (!getClient().getFloodProtectors().getTransaction().tryPerformAction("deposit"))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "depositing_too_fast"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "depositing_too_fast"));
 			return;
 		}
 		

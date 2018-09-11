@@ -54,7 +54,7 @@ public final class RequestBidItemAuction extends L2GameClientPacket
 		// can't use auction fp here
 		if (!getClient().getFloodProtectors().getTransaction().tryPerformAction("auction"))
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "auction_fast"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "auction_fast"));
 			return;
 		}
 		

@@ -74,7 +74,7 @@ public final class Petition
 		{
 			if (endState == PetitionState.RESPONDER_REJECT)
 			{
-				getPetitioner().sendMessage(LanguageData.getInstance().getMsgByLang(getPetitioner(), "petition_fail"));
+				getPetitioner().sendMessage(LanguageData.getInstance().getMsg(getPetitioner(), "petition_fail"));
 			}
 			else
 			{

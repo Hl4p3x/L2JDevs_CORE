@@ -51,7 +51,7 @@ public final class RequestOustPartyMember extends L2GameClientPacket
 		{
 			if (activeChar.getParty().isInDimensionalRift() && !activeChar.getParty().getDimensionalRift().getRevivedAtWaitingRoom().contains(activeChar))
 			{
-				activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "no_dismiss_player_in_rift"));
+				activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "no_dismiss_player_in_rift"));
 			}
 			else
 			{

@@ -81,7 +81,7 @@ public class RequestExEnchantItemAttribute extends L2GameClientPacket
 			// Cancel trade
 			player.cancelActiveTrade();
 			player.setActiveEnchantAttrItemId(L2PcInstance.ID_NONE);
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "no_elemental_power_trading"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "no_elemental_power_trading"));
 			return;
 		}
 		

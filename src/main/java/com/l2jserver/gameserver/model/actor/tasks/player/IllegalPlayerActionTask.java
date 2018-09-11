@@ -53,7 +53,7 @@ public final class IllegalPlayerActionTask implements Runnable
 		{
 			case KICK:
 			{
-				_actor.sendMessage(LanguageData.getInstance().getMsgByLang(_actor, "kick_player_illegal_action"));
+				_actor.sendMessage(LanguageData.getInstance().getMsg(_actor, "kick_player_illegal_action"));
 				break;
 			}
 			case KICKBAN:
@@ -63,13 +63,13 @@ public final class IllegalPlayerActionTask implements Runnable
 					_actor.setAccessLevel(-1);
 					_actor.setAccountAccesslevel(-1);
 				}
-				_actor.sendMessage(LanguageData.getInstance().getMsgByLang(_actor, "ban_player_illegal_action"));
+				_actor.sendMessage(LanguageData.getInstance().getMsg(_actor, "ban_player_illegal_action"));
 				break;
 			}
 			case JAIL:
 			{
-				_actor.sendMessage(LanguageData.getInstance().getMsgByLang(_actor, "info_illegal_action"));
-				_actor.sendMessage(LanguageData.getInstance().getMsgByLang(_actor, "jail_player_illegal_action"));
+				_actor.sendMessage(LanguageData.getInstance().getMsg(_actor, "info_illegal_action"));
+				_actor.sendMessage(LanguageData.getInstance().getMsg(_actor, "jail_player_illegal_action"));
 				break;
 			}
 		}

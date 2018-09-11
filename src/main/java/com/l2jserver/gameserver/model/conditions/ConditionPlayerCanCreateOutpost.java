@@ -68,17 +68,17 @@ public class ConditionPlayerCanCreateOutpost extends Condition
 		
 		if (((fort != null) && (fort.getResidenceId() == 0)) || ((castle != null) && (castle.getResidenceId() == 0)))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "outpost_residence_id"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "outpost_residence_id"));
 			canCreateOutpost = false;
 		}
 		else if (((fort != null) && !fort.getZone().isActive()) || ((castle != null) && !castle.getZone().isActive()))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "outpost_siege_active"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "outpost_siege_active"));
 			canCreateOutpost = false;
 		}
 		else if (!player.isClanLeader())
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "outpost_only_leader"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "outpost_only_leader"));
 			canCreateOutpost = false;
 		}
 		else if (TerritoryWarManager.getInstance().getHQForClan(player.getClan()) != null)

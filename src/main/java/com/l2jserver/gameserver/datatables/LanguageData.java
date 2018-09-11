@@ -31,7 +31,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import com.l2jserver.gameserver.model.actor.L2Character;
+import com.l2jserver.Config;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 
 /**
@@ -40,16 +40,14 @@ import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
  */
 public final class LanguageData
 {
-	// Logger
+	// Logger for class
 	private final Logger LOGGER = Logger.getLogger(LanguageData.class.getName());
 	
-	// Default
+	// Folder of languages
 	private final String DIRECTORY = "config/Language";
-	private final String DEFAULT_LANG = "en";
 	
 	// Maps
-	private final Map<Integer, String> _playerCurrentLang = new HashMap<>();
-	private final Map<String, String> _msgMap = new HashMap<>();
+	private final Map<String, String> _msgServer = new HashMap<>();
 	private final Map<String, String> _languages = new HashMap<>();
 	
 	// Mist
@@ -57,6 +55,11 @@ public final class LanguageData
 	private Node n;
 	
 	public LanguageData()
+	{
+		loadFiles();
+	}
+	
+	private void loadFiles()
 	{
 		try
 		{
@@ -103,7 +106,7 @@ public final class LanguageData
 			}
 			catch (Exception e)
 			{
-				LOGGER.warning(LanguageData.class.getSimpleName() + ": -> Could not load language (" + lang + ") file for event engine: " + e);
+				LOGGER.warning(LanguageData.class.getSimpleName() + ": -> Could not load language (" + lang + ") in file lang: " + e);
 				e.printStackTrace();
 			}
 			
@@ -126,39 +129,44 @@ public final class LanguageData
 					final NamedNodeMap attrs = d.getAttributes();
 					final String id = attrs.getNamedItem("id").getNodeValue();
 					final String text = attrs.getNamedItem("text").getNodeValue();
-					_msgMap.put(lang + "_" + id, text);
+					_msgServer.put(lang + "_" + id, text);
 					count++;
 				}
 			}
 		}
 		
-		LOGGER.info("Loaded language file for language: " + lang.toUpperCase() + " with " + count + " messages.");
+		LOGGER.info("Loaded language file: " + lang.toUpperCase() + " with " + count + " messages.");
 	}
 	
 	/**
+	 * Get message key of player to send translation.
 	 * @param player
 	 * @param text
-	 * @return String
 	 */
-	public String getMsgByLang(L2PcInstance player, String text)
+	public String getMsg(L2PcInstance player, String text)
 	{
-		final String lang = getLanguage(player);
+		String lang = player.getLang();
+		if (lang == null)
+		{
+			lang = Config.L2JMOD_MULTILANG_DEFAULT;
+		}
+		
 		final StringBuilder msg = new StringBuilder(50);
 		final StringTokenizer st = new StringTokenizer(text, " ");
-		
 		while (st.hasMoreTokens())
 		{
 			final String textLang = st.nextToken();
-			if (_msgMap.containsKey(lang + "_" + textLang))
+			if (_msgServer.containsKey(lang + "_" + textLang))
 			{
-				msg.append(_msgMap.get(lang + "_" + textLang));
+				msg.append(_msgServer.get(lang + "_" + textLang));
 			}
-			else if (_msgMap.containsKey(lang + "_" + textLang))
+			else if (_msgServer.containsKey("en_" + textLang))
 			{
-				msg.append(_msgMap.get("en_" + textLang));
+				msg.append(_msgServer.get("en_" + textLang));
 			}
 			else
 			{
+				LOGGER.warning("Lang System failed! Message " + textLang + " not found.");
 				msg.append(textLang);
 			}
 		}
@@ -167,104 +175,29 @@ public final class LanguageData
 	}
 	
 	/**
-	 * @param character
-	 * @param text
-	 * @return String
-	 */
-	public String getMsgByLang(L2Character character, String text)
-	{
-		final String lang = getLanguage(character);
-		final StringBuilder msg = new StringBuilder(50);
-		final StringTokenizer st = new StringTokenizer(text, " ");
-		
-		while (st.hasMoreTokens())
-		{
-			final String textLang = st.nextToken();
-			if (_msgMap.containsKey(lang + "_" + textLang))
-			{
-				msg.append(_msgMap.get(lang + "_" + textLang));
-			}
-			else if (_msgMap.containsKey(lang + "_" + textLang))
-			{
-				msg.append(_msgMap.get("en_" + textLang));
-			}
-			else
-			{
-				msg.append(textLang);
-			}
-		}
-		
-		return msg.toString();
-	}
-	
-	/**
-	 * @param text
-	 * @return String
-	 */
-	public String getMsgByLang(String text)
-	{
-		final String lang = getLanguage(null);
-		final StringBuilder msg = new StringBuilder(50);
-		final StringTokenizer st = new StringTokenizer(text, " ");
-		
-		while (st.hasMoreTokens())
-		{
-			final String textLang = st.nextToken();
-			if (_msgMap.containsKey(lang + "_" + textLang))
-			{
-				msg.append(_msgMap.get(lang + "_" + textLang));
-			}
-			else if (_msgMap.containsKey(lang + "_" + textLang))
-			{
-				msg.append(_msgMap.get("en_" + textLang));
-			}
-			else
-			{
-				msg.append(textLang);
-			}
-		}
-		
-		return msg.toString();
-	}
-	
-	/**
-	 * @param player
+	 * Get values of player
+	 * @param activeChar
 	 * @param lang
 	 */
-	public void setLanguage(L2PcInstance player, String lang)
+	public void setPlayerLang(L2PcInstance activeChar, String lang)
 	{
-		_playerCurrentLang.put(player.getObjectId(), lang);
-	}
-	
-	/**
-	 * @param player
-	 * @return String
-	 */
-	public String getLanguage(L2PcInstance player)
-	{
-		if (_playerCurrentLang.containsKey(player.getObjectId()))
+		if (activeChar != null)
 		{
-			return _playerCurrentLang.get(player.getObjectId());
+			if (lang == null)
+			{
+				activeChar.setLang(Config.L2JMOD_MULTILANG_DEFAULT);
+			}
+			else
+			{
+				activeChar.setLang(lang);
+			}
 		}
 		
-		return DEFAULT_LANG;
+		return;
 	}
 	
 	/**
-	 * @param character
-	 * @return String
-	 */
-	private String getLanguage(L2Character character)
-	{
-		if (_playerCurrentLang.containsKey(character.getObjectId()))
-		{
-			return _playerCurrentLang.get(character.getObjectId());
-		}
-		
-		return DEFAULT_LANG;
-	}
-	
-	/**
+	 * Get all languages.
 	 * @return
 	 */
 	public Map<String, String> getLanguages()

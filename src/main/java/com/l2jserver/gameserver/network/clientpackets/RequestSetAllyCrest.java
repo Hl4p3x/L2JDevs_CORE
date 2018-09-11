@@ -61,7 +61,7 @@ public final class RequestSetAllyCrest extends L2GameClientPacket
 		
 		if (_length < 0)
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "clan_file_transfer_error"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "clan_file_transfer_error"));
 			return;
 		}
 		

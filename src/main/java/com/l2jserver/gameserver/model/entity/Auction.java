@@ -377,7 +377,7 @@ public class Auction
 				}
 				if (L2World.getInstance().getPlayer(_highestBidderName) != null)
 				{
-					L2World.getInstance().getPlayer(_highestBidderName).sendMessage(LanguageData.getInstance().getMsgByLang(L2World.getInstance().getPlayer(_highestBidderName), "auction_bidded"));
+					L2World.getInstance().getPlayer(_highestBidderName).sendMessage(LanguageData.getInstance().getMsg(bidder, "auction_bidded"));
 				}
 			}
 			
@@ -423,9 +423,10 @@ public class Auction
 			}
 			else
 			{
-				if (L2World.getInstance().getPlayer(b.getName()) != null)
+				final L2PcInstance player = L2World.getInstance().getPlayer(b.getName());
+				if (player != null)
 				{
-					L2World.getInstance().getPlayer(b.getName()).sendMessage(LanguageData.getInstance().getMsgByLang(L2World.getInstance().getPlayer(b.getName()), "auction_won"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "auction_won"));
 				}
 			}
 			ClanTable.getInstance().getClanByName(b.getClanName()).setAuctionBiddedAt(0, true);

@@ -257,7 +257,7 @@ public class RecipeData implements IXmlReader
 		L2RecipeList recipeList = _recipes.get(id);
 		if ((recipeList == null) || (recipeList.getRecipes().length == 0))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "no_recipe_id").replace("%s%", id + ""));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "no_recipe_id").replace("%s%", id + ""));
 			player.isInCraftMode(false);
 			return null;
 		}

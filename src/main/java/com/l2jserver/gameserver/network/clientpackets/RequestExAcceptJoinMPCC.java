@@ -71,7 +71,7 @@ public final class RequestExAcceptJoinMPCC extends L2GameClientPacket
 			}
 			else
 			{
-				requestor.sendMessage(LanguageData.getInstance().getMsgByLang(requestor, "command_channel_declined"));
+				requestor.sendMessage(LanguageData.getInstance().getMsg(requestor, "command_channel_declined"));
 			}
 			
 			player.setActiveRequester(null);

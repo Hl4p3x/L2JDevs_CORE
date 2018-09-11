@@ -72,7 +72,7 @@ public final class RequestRecipeShopMakeItem extends L2GameClientPacket
 		
 		if (activeChar.getPrivateStoreType() != PrivateStoreType.NONE)
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "no_create_while_trading"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "no_create_while_trading"));
 			return;
 		}
 		if (manufacturer.getPrivateStoreType() != PrivateStoreType.MANUFACTURE)
@@ -83,7 +83,7 @@ public final class RequestRecipeShopMakeItem extends L2GameClientPacket
 		
 		if (activeChar.isInCraftMode() || manufacturer.isInCraftMode())
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "player_craft_mode"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "player_craft_mode"));
 			return;
 		}
 		if (Util.checkIfInRange(150, activeChar, manufacturer, true))

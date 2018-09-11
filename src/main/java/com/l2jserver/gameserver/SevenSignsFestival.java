@@ -1916,7 +1916,8 @@ public class SevenSignsFestival implements SpawnListener
 					}
 					else
 					{
-						festivalInst.sendMessageToParticipants(LanguageData.getInstance().getMsgByLang(null, "ss_festival_ended_time").replace("%s%", end + ""));
+						// TODO: Need fix, no send message
+						festivalInst.sendMessageToParticipants(LanguageData.getInstance().getMsg(null, "ss_festival_ended_time").replace("%s%", end + ""));
 					}
 				}
 				
@@ -2322,7 +2323,7 @@ public class SevenSignsFestival implements SpawnListener
 						}
 						
 						relocatePlayer(participant, false);
-						participant.sendMessage(LanguageData.getInstance().getMsgByLang(participant, "ss_festival_ended"));
+						participant.sendMessage(LanguageData.getInstance().getMsg(participant, "ss_festival_ended"));
 					}
 					catch (NullPointerException e)
 					{
@@ -2377,7 +2378,7 @@ public class SevenSignsFestival implements SpawnListener
 				
 				participant.getAI().setIntention(CtrlIntention.AI_INTENTION_IDLE);
 				participant.teleToLocation(new Location(origPosition._x, origPosition._y, origPosition._z), true);
-				participant.sendMessage(LanguageData.getInstance().getMsgByLang(participant, "ss_remove_player"));
+				participant.sendMessage(LanguageData.getInstance().getMsg(participant, "ss_remove_player"));
 			}
 			catch (Exception e)
 			{
@@ -2385,7 +2386,7 @@ public class SevenSignsFestival implements SpawnListener
 				try
 				{
 					participant.teleToLocation(TeleportWhereType.TOWN);
-					participant.sendMessage(LanguageData.getInstance().getMsgByLang(participant, "ss_remove_player"));
+					participant.sendMessage(LanguageData.getInstance().getMsg(participant, "ss_remove_player"));
 				}
 				catch (NullPointerException e2)
 				{

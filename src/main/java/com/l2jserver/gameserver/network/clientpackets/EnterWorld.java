@@ -146,8 +146,9 @@ public class EnterWorld extends L2GameClientPacket
 		
 		getClient().setClientTracert(tracert);
 		
-		// Load lang of player
-		LanguageData.getInstance().setLanguage(activeChar, activeChar.getLang());
+		// Load Language of player
+		final String lang = activeChar.getLang();
+		LanguageData.getInstance().setPlayerLang(activeChar, lang);
 		
 		// Restore to instanced area if enabled
 		if (Config.RESTORE_PLAYER_INSTANCE)
@@ -615,7 +616,7 @@ public class EnterWorld extends L2GameClientPacket
 		final L2PcInstance partner = L2World.getInstance().getPlayer(cha.getPartnerId());
 		if (partner != null)
 		{
-			partner.sendMessage(LanguageData.getInstance().getMsgByLang(partner, "enter_with_partner"));
+			partner.sendMessage(LanguageData.getInstance().getMsg(partner, "enter_with_partner"));
 		}
 	}
 	

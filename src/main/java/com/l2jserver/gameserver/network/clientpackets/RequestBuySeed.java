@@ -84,7 +84,7 @@ public class RequestBuySeed extends L2GameClientPacket
 		}
 		else if (!getClient().getFloodProtectors().getManor().tryPerformAction("BuySeed"))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "buying_seeds_too_fast"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "buying_seeds_too_fast"));
 			return;
 		}
 		else if (_items == null)

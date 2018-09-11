@@ -54,13 +54,13 @@ public final class RequestRecipeItemMakeSelf extends L2GameClientPacket
 		
 		if (activeChar.getPrivateStoreType() != PrivateStoreType.NONE)
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "no_create_while_trading"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "no_create_while_trading"));
 			return;
 		}
 		
 		if (activeChar.isInCraftMode())
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "player_craft_mode"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "player_craft_mode"));
 			return;
 		}
 		

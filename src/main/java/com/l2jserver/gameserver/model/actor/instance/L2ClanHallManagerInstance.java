@@ -263,7 +263,7 @@ public class L2ClanHallManagerInstance extends L2MerchantInstance
 						{
 							if (getClanHall().getOwnerId() == 0)
 							{
-								player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "ch_no_owner"));
+								player.sendMessage(LanguageData.getInstance().getMsg(player, "ch_no_owner"));
 								return;
 							}
 							val = st.nextToken();
@@ -774,7 +774,7 @@ public class L2ClanHallManagerInstance extends L2MerchantInstance
 						{
 							if (getClanHall().getOwnerId() == 0)
 							{
-								player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "ch_no_owner"));
+								player.sendMessage(LanguageData.getInstance().getMsg(player, "ch_no_owner"));
 								return;
 							}
 							val = st.nextToken();
@@ -898,7 +898,7 @@ public class L2ClanHallManagerInstance extends L2MerchantInstance
 								{
 									if (getClanHall().getOwnerId() == 0)
 									{
-										player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "ch_no_owner"));
+										player.sendMessage(LanguageData.getInstance().getMsg(player, "ch_no_owner"));
 										return;
 									}
 									if (Config.DEBUG)
@@ -1151,7 +1151,7 @@ public class L2ClanHallManagerInstance extends L2MerchantInstance
 						{
 							if (getClanHall().getOwnerId() == 0)
 							{
-								player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "ch_no_owner"));
+								player.sendMessage(LanguageData.getInstance().getMsg(player, "ch_no_owner"));
 								return;
 							}
 							val = st.nextToken();
@@ -1372,7 +1372,7 @@ public class L2ClanHallManagerInstance extends L2MerchantInstance
 				if (player.isCursedWeaponEquipped())
 				{
 					// Custom system message
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "ch_cursed_weapon"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "ch_cursed_weapon"));
 					return;
 				}
 				setTarget(player);
@@ -1429,12 +1429,12 @@ public class L2ClanHallManagerInstance extends L2MerchantInstance
 					}
 					catch (Exception e)
 					{
-						player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "skill_invalid_level"));
+						player.sendMessage(LanguageData.getInstance().getMsg(player, "skill_invalid_level"));
 					}
 				}
 				catch (Exception e)
 				{
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "skill_invalid_level"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "skill_invalid_level"));
 				}
 				return;
 			}

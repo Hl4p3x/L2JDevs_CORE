@@ -93,7 +93,7 @@ public final class Logout extends L2GameClientPacket
 		
 		if (L2Event.isParticipant(player))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "event_no_logout"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "event_no_logout"));
 			player.sendPacket(ActionFailed.STATIC_PACKET);
 			return;
 		}
@@ -105,7 +105,7 @@ public final class Logout extends L2GameClientPacket
 		{
 			if (SevenSignsFestival.getInstance().isFestivalInitialized())
 			{
-				player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "ss_no_logout_player"));
+				player.sendMessage(LanguageData.getInstance().getMsg(player, "ss_no_logout_player"));
 				player.sendPacket(ActionFailed.STATIC_PACKET);
 				return;
 			}

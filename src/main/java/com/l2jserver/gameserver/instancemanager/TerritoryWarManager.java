@@ -699,7 +699,7 @@ public final class TerritoryWarManager implements Siegable
 	
 	public void debugReward(L2PcInstance player)
 	{
-		player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "tw_register_id").replace("%s%", player.getSiegeSide() + ""));
+		player.sendMessage(LanguageData.getInstance().getMsg(player, "tw_register_id").replace("%s%", player.getSiegeSide() + ""));
 		if (_participantPoints.containsKey(player.getObjectId()))
 		{
 			Integer[] temp = _participantPoints.get(player.getObjectId());
@@ -713,11 +713,11 @@ public final class TerritoryWarManager implements Siegable
 		}
 		else
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "tw_register_id").replace("%s%", player.getSiegeSide() + ""));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "tw_register_id").replace("%s%", player.getSiegeSide() + ""));
 		}
 		if (_territoryList.containsKey(player.getSiegeSide() - 80))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "tw_jobs"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "tw_jobs"));
 			player.sendMessage("npcKill: " + _territoryList.get(player.getSiegeSide() - 80).getQuestDone()[0]);
 			player.sendMessage("WardCaptured: " + _territoryList.get(player.getSiegeSide() - 80).getQuestDone()[1]);
 		}

@@ -104,7 +104,7 @@ public final class RequestRestartPoint extends L2GameClientPacket
 				ThreadPoolManager.getInstance().scheduleGeneral(new DeathTask(activeChar), castle.getSiege().getAttackerRespawnDelay());
 				if (castle.getSiege().getAttackerRespawnDelay() > 0)
 				{
-					activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "respawn_in_seconds").replace("%s%", (castle.getSiege().getAttackerRespawnDelay() / 1000) + ""));
+					activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "respawn_in_seconds").replace("%s%", (castle.getSiege().getAttackerRespawnDelay() / 1000) + ""));
 				}
 				return;
 			}

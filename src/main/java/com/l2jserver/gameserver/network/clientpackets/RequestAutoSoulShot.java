@@ -72,7 +72,7 @@ public final class RequestAutoSoulShot extends L2GameClientPacket
 			{
 				if (!activeChar.getInventory().canManipulateWithItemId(item.getId()))
 				{
-					activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "item_cannot_use"));
+					activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "item_cannot_use"));
 					return;
 				}
 				

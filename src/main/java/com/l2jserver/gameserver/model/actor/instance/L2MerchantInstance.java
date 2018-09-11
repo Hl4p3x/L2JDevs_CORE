@@ -110,7 +110,7 @@ public class L2MerchantInstance extends L2NpcInstance
 		player.setInventoryBlockingStatus(true);
 		if (player.isGM())
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "gm_buy_list_info").replace("%s%", buyList.getListId() + ""));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "gm_buy_list_info").replace("%s%", buyList.getListId() + ""));
 		}
 		player.sendPacket(new BuyList(buyList, player.getAdena(), taxRate));
 		player.sendPacket(new ExBuySellList(player, false));

@@ -87,7 +87,7 @@ public final class SendWareHouseDepositList extends L2GameClientPacket
 		
 		if (!getClient().getFloodProtectors().getTransaction().tryPerformAction("deposit"))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "depositing_too_fast"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "depositing_too_fast"));
 			return;
 		}
 		
@@ -106,7 +106,7 @@ public final class SendWareHouseDepositList extends L2GameClientPacket
 		
 		if (!isPrivate && !player.getAccessLevel().allowTransaction())
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "transactions_disabled"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "transactions_disabled"));
 			return;
 		}
 		

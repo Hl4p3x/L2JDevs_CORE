@@ -57,7 +57,7 @@ public final class RequestRecipeBookOpen extends L2GameClientPacket
 		
 		if (activeChar.getActiveRequester() != null)
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "no_recipe_while_trading"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "no_recipe_while_trading"));
 			return;
 		}
 		

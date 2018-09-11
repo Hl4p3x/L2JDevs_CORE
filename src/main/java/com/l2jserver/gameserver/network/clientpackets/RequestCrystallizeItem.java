@@ -65,7 +65,7 @@ public final class RequestCrystallizeItem extends L2GameClientPacket
 		
 		if (!getClient().getFloodProtectors().getTransaction().tryPerformAction("crystallize"))
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "crystallizing_too_fast"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "crystallizing_too_fast"));
 			return;
 		}
 		
@@ -128,7 +128,7 @@ public final class RequestCrystallizeItem extends L2GameClientPacket
 		
 		if (!activeChar.getInventory().canManipulateWithItemId(itemToRemove.getId()))
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "item_cannot_use"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "item_cannot_use"));
 			return;
 		}
 		

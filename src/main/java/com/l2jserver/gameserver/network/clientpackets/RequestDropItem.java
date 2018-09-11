@@ -112,13 +112,13 @@ public final class RequestDropItem extends L2GameClientPacket
 		
 		if (Config.JAIL_DISABLE_TRANSACTION && activeChar.isJailed())
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "no_drop_in_jail"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "no_drop_in_jail"));
 			return;
 		}
 		
 		if (!activeChar.getAccessLevel().allowTransaction())
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "transactions_disabled"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "transactions_disabled"));
 			activeChar.sendPacket(SystemMessageId.NOTHING_HAPPENED);
 			return;
 		}
@@ -181,7 +181,7 @@ public final class RequestDropItem extends L2GameClientPacket
 		
 		if (!activeChar.getInventory().canManipulateWithItemId(item.getId()))
 		{
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "item_cannot_use"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "item_cannot_use"));
 			return;
 		}
 		

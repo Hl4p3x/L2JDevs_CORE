@@ -126,7 +126,7 @@ public final class L2TeleporterInstance extends L2Npc
 				}
 				else
 				{
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "teleport_no_level"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "teleport_no_level"));
 				}
 				return;
 			}
@@ -268,7 +268,7 @@ public final class L2TeleporterInstance extends L2Npc
 			}
 			else if (!Config.ALT_GAME_KARMA_PLAYER_CAN_USE_GK && (player.getKarma() > 0)) // karma
 			{
-				player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "teleport_go_away"));
+				player.sendMessage(LanguageData.getInstance().getMsg(player, "teleport_go_away"));
 				return;
 			}
 			else if (player.isCombatFlagEquipped())

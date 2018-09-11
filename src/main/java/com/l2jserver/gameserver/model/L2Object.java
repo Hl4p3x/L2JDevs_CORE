@@ -580,8 +580,9 @@ public abstract class L2Object extends ListenersContainer implements IIdentifiab
 		}
 		else if (isPlayer())
 		{
-			((L2Character) this).teleToLocation(new Location(0, 0, 0), false);
-			((L2Character) this).sendMessage(LanguageData.getInstance().getMsgByLang(((L2Character) this), "coords_fail"));
+			final L2PcInstance player = (L2PcInstance) this;
+			player.teleToLocation(new Location(0, 0, 0), false);
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "coords_fail"));
 		}
 	}
 	

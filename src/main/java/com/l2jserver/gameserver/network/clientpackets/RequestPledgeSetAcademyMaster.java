@@ -116,7 +116,7 @@ public final class RequestPledgeSetAcademyMaster extends L2GameClientPacket
 			if ((apprenticeMember.getSponsor() != 0) || (sponsorMember.getApprentice() != 0) || (apprenticeMember.getApprentice() != 0) || (sponsorMember.getSponsor() != 0))
 			{
 				// TODO retail message
-				activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "remove_previous_connection"));
+				activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "remove_previous_connection"));
 				return;
 			}
 			if (apprentice != null)

@@ -84,7 +84,7 @@ public final class AddTradeItem extends L2GameClientPacket
 		
 		if (!player.getAccessLevel().allowTransaction())
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "transactions_disabled"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "transactions_disabled"));
 			player.cancelActiveTrade();
 			return;
 		}

@@ -58,14 +58,14 @@ public final class RequestStopPledgeWar extends L2GameClientPacket
 		
 		if (clan == null)
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "clan_no_such"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "clan_no_such"));
 			player.sendPacket(ActionFailed.STATIC_PACKET);
 			return;
 		}
 		
 		if (!playerClan.isAtWarWith(clan.getId()))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "clan_no_war"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "clan_no_war"));
 			player.sendPacket(ActionFailed.STATIC_PACKET);
 			return;
 		}

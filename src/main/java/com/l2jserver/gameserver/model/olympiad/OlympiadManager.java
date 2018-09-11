@@ -330,7 +330,7 @@ public class OlympiadManager
 				if (teamPoints < 10)
 				{
 					// TODO: replace with retail message
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "event_team_need_points"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "event_team_need_points"));
 					// remove previously registered party members
 					if (Config.L2JMOD_DUALBOX_CHECK_MAX_OLYMPIAD_PARTICIPANTS_PER_IP > 0)
 					{
@@ -491,7 +491,7 @@ public class OlympiadManager
 		final int charId = noble.getObjectId();
 		if (noble.isOnEvent())
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "event_no_register_in_other_event"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "event_no_register_in_other_event"));
 			return false;
 		}
 		

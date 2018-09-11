@@ -81,7 +81,7 @@ public class L2JailZone extends L2ZoneType
 			{
 				// when a player wants to exit jail even if he is still jailed, teleport him back to jail
 				ThreadPoolManager.getInstance().scheduleGeneral(new TeleportTask(player, JAIL_IN_LOC), 2000);
-				character.sendMessage(LanguageData.getInstance().getMsgByLang(character, "zone_jail_no_out"));
+				character.sendMessage(LanguageData.getInstance().getMsg(character.getActingPlayer(), "zone_jail_no_out"));
 			}
 			if (Config.JAIL_DISABLE_TRANSACTION)
 			{

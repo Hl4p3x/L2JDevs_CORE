@@ -88,7 +88,7 @@ public final class RequestPrivateStoreSell extends L2GameClientPacket
 		
 		if (!getClient().getFloodProtectors().getTransaction().tryPerformAction("privatestoresell"))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "selling_too_fast"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "selling_too_fast"));
 			return;
 		}
 		
@@ -127,7 +127,7 @@ public final class RequestPrivateStoreSell extends L2GameClientPacket
 		
 		if (!player.getAccessLevel().allowTransaction())
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "transactions_disabled"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "transactions_disabled"));
 			sendPacket(ActionFailed.STATIC_PACKET);
 			return;
 		}

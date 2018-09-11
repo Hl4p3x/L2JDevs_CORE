@@ -375,7 +375,7 @@ public class L2FortManagerInstance extends L2MerchantInstance
 						{
 							if (getFort().getOwnerClan() == null)
 							{
-								player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "fort_no_owner"));
+								player.sendMessage(LanguageData.getInstance().getMsg(player, "fort_no_owner"));
 								return;
 							}
 							val = st.nextToken();
@@ -661,7 +661,7 @@ public class L2FortManagerInstance extends L2MerchantInstance
 						{
 							if (getFort().getOwnerClan() == null)
 							{
-								player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "fort_no_owner"));
+								player.sendMessage(LanguageData.getInstance().getMsg(player, "fort_no_owner"));
 								return;
 							}
 							val = st.nextToken();
@@ -925,12 +925,12 @@ public class L2FortManagerInstance extends L2MerchantInstance
 					}
 					catch (Exception e)
 					{
-						player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "skill_invalid_level"));
+						player.sendMessage(LanguageData.getInstance().getMsg(player, "skill_invalid_level"));
 					}
 				}
 				catch (Exception e)
 				{
-					player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "skill_invalid_level"));
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "skill_invalid_level"));
 				}
 				return;
 			}

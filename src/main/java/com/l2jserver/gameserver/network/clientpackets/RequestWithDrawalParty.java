@@ -57,7 +57,7 @@ public final class RequestWithDrawalParty extends L2GameClientPacket
 		{
 			if (party.isInDimensionalRift() && !party.getDimensionalRift().getRevivedAtWaitingRoom().contains(player))
 			{
-				player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "no_dismiss_player_in_rift"));
+				player.sendMessage(LanguageData.getInstance().getMsg(player, "no_dismiss_player_in_rift"));
 			}
 			else
 			{

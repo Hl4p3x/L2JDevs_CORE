@@ -290,7 +290,7 @@ public final class DimensionalRiftManager
 		// max parties inside is rooms count - 1
 		if (!isAllowedEnter(type))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "dimensional_rift_full"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "dimensional_rift_full"));
 			return;
 		}
 		

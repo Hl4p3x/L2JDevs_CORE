@@ -131,7 +131,7 @@ public final class CHSiegeManager
 	{
 		if (clan.getLevel() < Config.CHS_CLAN_MINLEVEL)
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "chs_level_restriction").replace("%s%", Config.CHS_CLAN_MINLEVEL + ""));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "chs_level_restriction").replace("%s%", Config.CHS_CLAN_MINLEVEL + ""));
 		}
 		else if (hall.isWaitingBattle())
 		{

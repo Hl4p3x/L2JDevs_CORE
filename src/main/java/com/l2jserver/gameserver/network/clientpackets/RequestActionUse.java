@@ -370,7 +370,7 @@ public final class RequestActionUse extends L2GameClientPacket
 				}
 				else
 				{
-					activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "feature_disabled"));
+					activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "feature_disabled"));
 				}
 				break;
 			case 67: // Steer

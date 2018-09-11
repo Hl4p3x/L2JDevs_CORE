@@ -302,7 +302,7 @@ public class RecipeController
 		{
 			if (!Config.IS_CRAFTING_ENABLED)
 			{
-				_target.sendMessage(LanguageData.getInstance().getMsgByLang(_target, "item_creation_disabled"));
+				_target.sendMessage(LanguageData.getInstance().getMsg(_target, "item_creation_disabled"));
 				abort();
 				return;
 			}
@@ -325,12 +325,12 @@ public class RecipeController
 			{
 				if (_target != _player)
 				{
-					_target.sendMessage(LanguageData.getInstance().getMsgByLang(_target, "item_manufacture_aborted"));
-					_player.sendMessage(LanguageData.getInstance().getMsgByLang(_player, "item_manufacture_aborted"));
+					_target.sendMessage(LanguageData.getInstance().getMsg(_target, "item_manufacture_aborted"));
+					_player.sendMessage(LanguageData.getInstance().getMsg(_target, "item_manufacture_aborted"));
 				}
 				else
 				{
-					_player.sendMessage(LanguageData.getInstance().getMsgByLang(_player, "item_creation_aborted"));
+					_player.sendMessage(LanguageData.getInstance().getMsg(_target, "item_creation_aborted"));
 				}
 				
 				abort();
@@ -512,7 +512,7 @@ public class RecipeController
 				}
 				else
 				{
-					_target.sendMessage(LanguageData.getInstance().getMsgByLang(_target, "ss_teleported_nearest_seal").replace("%s%", _player.getName() + "").replace("%c%", count + "").replace("%i%", item.getItemName() + ""));
+					_target.sendMessage(LanguageData.getInstance().getMsg(_target, "ss_teleported_nearest_seal").replace("%s%", _player.getName() + "").replace("%c%", count + "").replace("%i%", item.getItemName() + ""));
 				}
 			}
 		}
@@ -600,7 +600,7 @@ public class RecipeController
 				else
 				{
 					// there is an unknown StatUse value
-					_target.sendMessage(LanguageData.getInstance().getMsgByLang(_target, "item_manufacture_error"));
+					_target.sendMessage(LanguageData.getInstance().getMsg(_target, "item_manufacture_error"));
 					ret = false;
 					abort();
 				}

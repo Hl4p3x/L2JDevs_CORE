@@ -76,7 +76,7 @@ public final class RequestRestart extends L2GameClientPacket
 		
 		if (player.getPrivateStoreType() != PrivateStoreType.NONE)
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "no_restart_while_trading"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "no_restart_while_trading"));
 			sendPacket(RestartResponse.valueOf(false));
 			return;
 		}
@@ -100,7 +100,7 @@ public final class RequestRestart extends L2GameClientPacket
 		{
 			if (SevenSignsFestival.getInstance().isFestivalInitialized())
 			{
-				player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "ss_no_restart_player"));
+				player.sendMessage(LanguageData.getInstance().getMsg(player, "ss_no_restart_player"));
 				sendPacket(RestartResponse.valueOf(false));
 				return;
 			}

@@ -387,8 +387,8 @@ public class Siege implements Siegable
 			}
 			
 			if (getDefenderClans().isEmpty() && // If defender doesn't exist (Pc vs Npc)
-			(getAttackerClans().size() == 1 // Only 1 attacker
-			))
+				(getAttackerClans().size() == 1 // Only 1 attacker
+				))
 			{
 				L2SiegeClan sc_newowner = getAttackerClan(getCastle().getOwnerId());
 				removeAttacker(sc_newowner);
@@ -948,7 +948,7 @@ public class Siege implements Siegable
 	{
 		if (getCastle().getOwnerId() <= 0)
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "no_register_defender").replace("%s%", getCastle().getName() + ""));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "no_register_defender").replace("%s%", getCastle().getName() + ""));
 			return;
 		}
 		

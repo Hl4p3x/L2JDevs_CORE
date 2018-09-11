@@ -57,7 +57,7 @@ public final class RequestGetItemFromPet extends L2GameClientPacket
 		
 		if (!getClient().getFloodProtectors().getTransaction().tryPerformAction("getfrompet"))
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "get_item_pet_too_fast"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "get_item_pet_too_fast"));
 			return;
 		}
 		
@@ -75,7 +75,8 @@ public final class RequestGetItemFromPet extends L2GameClientPacket
 		
 		if (_amount > item.getCount())
 		{
-			Util.handleIllegalPlayerAction(player, getClass().getSimpleName() + ": Character " + player.getName() + " of account " + player.getAccountName() + " tried to get item with oid " + _objectId + " from pet but has invalid count " + _amount + " item count: " + item.getCount(), Config.DEFAULT_PUNISH);
+			Util.handleIllegalPlayerAction(player, getClass().getSimpleName() + ": Character " + player.getName() + " of account " + player.getAccountName() + " tried to get item with oid " + _objectId + " from pet but has invalid count " + _amount + " item count: "
+				+ item.getCount(), Config.DEFAULT_PUNISH);
 			return;
 		}
 		

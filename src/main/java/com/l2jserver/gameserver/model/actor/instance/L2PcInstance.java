@@ -5127,11 +5127,11 @@ public final class L2PcInstance extends L2Playable
 				if (answer == 1)
 				{
 					CoupleManager.getInstance().createCouple(ptarget, L2PcInstance.this);
-					ptarget.sendMessage(LanguageData.getInstance().getMsgByLang(ptarget, "request_engage_accepted"));
+					ptarget.sendMessage(LanguageData.getInstance().getMsg(ptarget, "request_engage_accepted"));
 				}
 				else
 				{
-					ptarget.sendMessage(LanguageData.getInstance().getMsgByLang(ptarget, "request_engage_denied"));
+					ptarget.sendMessage(LanguageData.getInstance().getMsg(ptarget, "request_engage_denied"));
 				}
 			}
 		}
@@ -6581,7 +6581,7 @@ public final class L2PcInstance extends L2Playable
 			{
 				sendPacket(ActionFailed.STATIC_PACKET);
 				// FIXME: Wrong Message
-				sendMessage(LanguageData.getInstance().getMsgByLang(this, "no_mount_in_flag_mode"));
+				sendMessage(LanguageData.getInstance().getMsg(this, "no_mount_in_flag_mode"));
 				return false;
 			}
 			else if (pet.isHungry())
@@ -7728,7 +7728,7 @@ public final class L2PcInstance extends L2Playable
 			final L2PcInstance cha = target.getActingPlayer();
 			if ((cha != null) && (cha.getDuelId() != getDuelId()))
 			{
-				sendMessage(LanguageData.getInstance().getMsgByLang(this, "duel_no_action"));
+				sendMessage(LanguageData.getInstance().getMsg(cha, "duel_no_action"));
 				sendPacket(ActionFailed.STATIC_PACKET);
 				return false;
 			}
@@ -9497,7 +9497,7 @@ public final class L2PcInstance extends L2Playable
 			{
 				teleToLocation(TeleportWhereType.TOWN);
 				setIsIn7sDungeon(false);
-				sendMessage(LanguageData.getInstance().getMsgByLang(this, "ss_teleported_nearest_seal"));
+				sendMessage(LanguageData.getInstance().getMsg(this, "ss_teleported_nearest_seal"));
 			}
 		}
 		else
@@ -9506,7 +9506,7 @@ public final class L2PcInstance extends L2Playable
 			{
 				teleToLocation(TeleportWhereType.TOWN);
 				setIsIn7sDungeon(false);
-				sendMessage(LanguageData.getInstance().getMsgByLang(this, "ss_teleported_nearest_cabal"));
+				sendMessage(LanguageData.getInstance().getMsg(this, "ss_teleported_nearest_cabal"));
 			}
 		}
 		
@@ -9514,15 +9514,15 @@ public final class L2PcInstance extends L2Playable
 		{
 			if (isInvul())
 			{
-				sendMessage(LanguageData.getInstance().getMsgByLang(this, "enter_in_mode_invulnerable"));
+				sendMessage(LanguageData.getInstance().getMsg(this, "enter_in_mode_invulnerable"));
 			}
 			if (isInvisible())
 			{
-				sendMessage(LanguageData.getInstance().getMsgByLang(this, "enter_in_mode_invisible"));
+				sendMessage(LanguageData.getInstance().getMsg(this, "enter_in_mode_invisible"));
 			}
 			if (isSilenceMode())
 			{
-				sendMessage(LanguageData.getInstance().getMsgByLang(this, "enter_in_mode_silence"));
+				sendMessage(LanguageData.getInstance().getMsg(this, "enter_in_mode_silence"));
 			}
 		}
 		
@@ -9740,7 +9740,7 @@ public final class L2PcInstance extends L2Playable
 		}
 		if (isTeleportProtected())
 		{
-			sendMessage(LanguageData.getInstance().getMsgByLang(this, "teleport_protection_ended"));
+			sendMessage(LanguageData.getInstance().getMsg(this, "teleport_protection_ended"));
 		}
 		setProtection(false);
 		setTeleportProtection(false);
@@ -10583,7 +10583,7 @@ public final class L2PcInstance extends L2Playable
 		List<L2Fish> fish = FishData.getInstance().getFish(lvl, group, grade);
 		if ((fish == null) || fish.isEmpty())
 		{
-			sendMessage(LanguageData.getInstance().getMsgByLang(this, "fish_dot_defined"));
+			sendMessage(LanguageData.getInstance().getMsg(this, "fish_dot_defined"));
 			endFishing(false);
 			return;
 		}

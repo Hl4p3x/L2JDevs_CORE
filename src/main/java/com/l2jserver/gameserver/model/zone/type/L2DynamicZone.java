@@ -65,7 +65,7 @@ public class L2DynamicZone extends L2ZoneType
 	{
 		if (character.isPlayer())
 		{
-			character.sendMessage(LanguageData.getInstance().getMsgByLang(character, "zone_temporary_enter"));
+			character.sendMessage(LanguageData.getInstance().getMsg(character.getActingPlayer(), "zone_temporary_enter"));
 		}
 		if (_owner != null)
 		{
@@ -78,7 +78,7 @@ public class L2DynamicZone extends L2ZoneType
 	{
 		if (character.isPlayer())
 		{
-			character.sendMessage(LanguageData.getInstance().getMsgByLang(character, "zone_temporary_exit")); // TODO: Custom message?
+			character.sendMessage(LanguageData.getInstance().getMsg(character.getActingPlayer(), "zone_temporary_exit")); // TODO: Custom message?
 		}
 		
 		if (character == _owner)

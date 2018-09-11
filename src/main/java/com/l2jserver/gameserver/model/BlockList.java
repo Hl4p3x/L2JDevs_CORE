@@ -184,7 +184,7 @@ public class BlockList
 		
 		if (listOwner.getBlockList().getBlockList().contains(targetId))
 		{
-			listOwner.sendMessage(LanguageData.getInstance().getMsgByLang(listOwner, "player_already_block"));
+			listOwner.sendMessage(LanguageData.getInstance().getMsg(listOwner, "player_already_block"));
 			return;
 		}
 		

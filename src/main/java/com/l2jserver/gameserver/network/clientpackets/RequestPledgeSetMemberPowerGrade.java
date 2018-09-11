@@ -75,7 +75,7 @@ public final class RequestPledgeSetMemberPowerGrade extends L2GameClientPacket
 		if (member.getPledgeType() == L2Clan.SUBUNIT_ACADEMY)
 		{
 			// also checked from client side
-			activeChar.sendMessage(LanguageData.getInstance().getMsgByLang(activeChar, "clan_academy_member_grade"));
+			activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "clan_academy_member_grade"));
 			return;
 		}
 		

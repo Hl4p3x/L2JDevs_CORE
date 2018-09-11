@@ -388,7 +388,7 @@ public class L2VillageMasterInstance extends L2NpcInstance
 							else
 							{
 								// TODO: Retail message
-								player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "no_sub_classes_available"));
+								player.sendMessage(LanguageData.getInstance().getMsg(player, "no_sub_classes_available"));
 							}
 							return;
 						}
@@ -599,7 +599,7 @@ public class L2VillageMasterInstance extends L2NpcInstance
 						if ((subsAvailable == null) || subsAvailable.isEmpty())
 						{
 							// TODO: Retail message
-							player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "no_sub_classes_available"));
+							player.sendMessage(LanguageData.getInstance().getMsg(player, "no_sub_classes_available"));
 							return;
 						}
 						
@@ -660,7 +660,7 @@ public class L2VillageMasterInstance extends L2NpcInstance
 							 */
 							player.changeActiveClass(0); // Also updates _classIndex plus switching _classid to baseclass.
 							
-							player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "no_sub_classes_add"));
+							player.sendMessage(LanguageData.getInstance().getMsg(player, "no_sub_classes_add"));
 							return;
 						}
 						break;
@@ -1059,7 +1059,7 @@ public class L2VillageMasterInstance extends L2NpcInstance
 		
 		if (subPledge == null)
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "pledge_no_exists"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "pledge_no_exists"));
 			return;
 		}
 		if (!isValidName(pledgeName) || (pledgeName.length() < 2))
@@ -1076,7 +1076,7 @@ public class L2VillageMasterInstance extends L2NpcInstance
 		subPledge.setName(pledgeName);
 		clan.updateSubPledgeInDB(subPledge.getId());
 		clan.broadcastClanStatus();
-		player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "pledge_name_change"));
+		player.sendMessage(LanguageData.getInstance().getMsg(player, "pledge_name_change"));
 	}
 	
 	private static final void assignSubPledgeLeader(L2PcInstance player, String clanName, String leaderName)

@@ -253,7 +253,7 @@ public class L2Event
 	{
 		if (eventState != EventState.STANDBY)
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "event_time_register_over"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "event_time_register_over"));
 			return;
 		}
 		
@@ -263,7 +263,7 @@ public class L2Event
 		}
 		else
 		{
-			player.sendMessage(LanguageData.getInstance().getMsgByLang(player, "event_max_ip_reached"));
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "event_max_ip_reached"));
 			return;
 		}
 		
