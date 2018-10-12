@@ -68,6 +68,7 @@ import com.l2jserver.gameserver.model.Location;
 import com.l2jserver.gameserver.model.PcCondOverride;
 import com.l2jserver.gameserver.model.TeleportWhereType;
 import com.l2jserver.gameserver.model.TimeStamp;
+import com.l2jserver.gameserver.model.actor.instance.L2GuardInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PetInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2RiftInvaderInstance;
@@ -5842,7 +5843,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 									player.updatePvPStatus();
 								}
 							}
-							else if (target.isAttackable())
+							else if (target.isAttackable() && !(target instanceof L2GuardInstance))
 							{
 								player.updatePvPStatus();
 							}
