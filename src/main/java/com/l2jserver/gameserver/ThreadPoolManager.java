@@ -128,7 +128,7 @@ public class ThreadPoolManager
 		_generalPacketsThreadPool = new ThreadPoolExecutor(Config.THREAD_CORE_POOL_SIZE_GENERAL_PACKETS <= 0 ? Runtime.getRuntime().availableProcessors() : Config.THREAD_CORE_POOL_SIZE_GENERAL_PACKETS, Integer.MAX_VALUE, 15, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new PriorityThreadFactory("Normal Packet Pool", Thread.NORM_PRIORITY + 1));
 		_ioPacketsThreadPool = new ThreadPoolExecutor(Config.THREAD_CORE_POOL_SIZE_IO_PACKETS <= 0 ? Runtime.getRuntime().availableProcessors() : Config.THREAD_CORE_POOL_SIZE_IO_PACKETS, Integer.MAX_VALUE, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new PriorityThreadFactory("I/O Packet Pool", Thread.NORM_PRIORITY + 1));
 		//@formatter:on
-		scheduleGeneralAtFixedRate(new PurgeTask(_aiScheduledThreadPool, _effectsScheduledThreadPool, _eventsScheduledThreadPool, _generalScheduledThreadPool), 1, 1, TimeUnit.MINUTES);
+		scheduleGeneralAtFixedRate(new PurgeTask(_aiScheduledThreadPool, _effectsScheduledThreadPool, _eventsScheduledThreadPool, _generalScheduledThreadPool, _eventsThreadPool, _generalThreadPool, _generalPacketsThreadPool, _ioPacketsThreadPool), 10, 5, TimeUnit.MINUTES);
 	}
 	
 	/**
@@ -557,79 +557,26 @@ public class ThreadPoolManager
 		try
 		{
 			_aiScheduledThreadPool.shutdown();
+			_aiScheduledThreadPool.awaitTermination(1, TimeUnit.SECONDS);
 			_effectsScheduledThreadPool.shutdown();
+			_effectsScheduledThreadPool.awaitTermination(1, TimeUnit.SECONDS);
 			_eventsScheduledThreadPool.shutdown();
+			_eventsScheduledThreadPool.awaitTermination(1, TimeUnit.SECONDS);
 			_generalScheduledThreadPool.shutdown();
+			_generalScheduledThreadPool.awaitTermination(1, TimeUnit.SECONDS);
 			_eventsThreadPool.shutdown();
+			_eventsThreadPool.awaitTermination(1, TimeUnit.SECONDS);
 			_generalThreadPool.shutdown();
+			_generalThreadPool.awaitTermination(1, TimeUnit.SECONDS);
 			_generalPacketsThreadPool.shutdown();
+			_generalPacketsThreadPool.awaitTermination(1, TimeUnit.SECONDS);
 			_ioPacketsThreadPool.shutdown();
-			_aiScheduledThreadPool.awaitTermination(15, TimeUnit.SECONDS);
-			_effectsScheduledThreadPool.awaitTermination(15, TimeUnit.SECONDS);
-			_eventsScheduledThreadPool.awaitTermination(15, TimeUnit.SECONDS);
-			_generalScheduledThreadPool.awaitTermination(15, TimeUnit.SECONDS);
-			_eventsThreadPool.awaitTermination(15, TimeUnit.SECONDS);
-			_generalThreadPool.awaitTermination(15, TimeUnit.SECONDS);
-			_generalPacketsThreadPool.awaitTermination(15, TimeUnit.SECONDS);
-			_ioPacketsThreadPool.awaitTermination(15, TimeUnit.SECONDS);
+			_ioPacketsThreadPool.awaitTermination(1, TimeUnit.SECONDS);
 			LOG.info("All ThreadPools are now stopped");
 		}
 		catch (InterruptedException e)
 		{
 			LOG.warn("There has been a problem shuting down the thread pool manager!", e);
-		}
-		
-		if (!_aiScheduledThreadPool.isTerminated())
-		{
-			_aiScheduledThreadPool.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
-			_aiScheduledThreadPool.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
-			try
-			{
-				_aiScheduledThreadPool.awaitTermination(5, TimeUnit.SECONDS);
-			}
-			catch (Throwable t)
-			{
-				LOG.warn("", t);
-			}
-		}
-		else if (!_effectsScheduledThreadPool.isTerminated())
-		{
-			_effectsScheduledThreadPool.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
-			_effectsScheduledThreadPool.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
-			try
-			{
-				_effectsScheduledThreadPool.awaitTermination(5, TimeUnit.SECONDS);
-			}
-			catch (Throwable t)
-			{
-				LOG.warn("", t);
-			}
-		}
-		else if (!_eventsScheduledThreadPool.isTerminated())
-		{
-			_eventsScheduledThreadPool.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
-			_eventsScheduledThreadPool.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
-			try
-			{
-				_eventsScheduledThreadPool.awaitTermination(5, TimeUnit.SECONDS);
-			}
-			catch (Throwable t)
-			{
-				LOG.warn("", t);
-			}
-		}
-		else if (!_generalScheduledThreadPool.isTerminated())
-		{
-			_generalScheduledThreadPool.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
-			_generalScheduledThreadPool.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
-			try
-			{
-				_generalScheduledThreadPool.awaitTermination(5, TimeUnit.SECONDS);
-			}
-			catch (Throwable t)
-			{
-				LOG.warn("", t);
-			}
 		}
 	}
 	
@@ -648,6 +595,7 @@ public class ThreadPoolManager
 		_generalThreadPool.purge();
 		_generalPacketsThreadPool.purge();
 		_ioPacketsThreadPool.purge();
+		LOG.info("{}: All ThreadPools have been purged", ThreadPoolManager.class.getSimpleName());
 	}
 	
 	public String getPacketStats()
@@ -743,14 +691,22 @@ public class ThreadPoolManager
 		private final ScheduledThreadPoolExecutor _effectsScheduled;
 		private final ScheduledThreadPoolExecutor _eventsScheduled;
 		private final ScheduledThreadPoolExecutor _generalScheduled;
+		private final ThreadPoolExecutor _events;
+		private final ThreadPoolExecutor _general;
+		private final ThreadPoolExecutor _generalPackets;
+		private final ThreadPoolExecutor _ioPackets;
 		
-		PurgeTask(ScheduledThreadPoolExecutor aiScheduledThreadPool, ScheduledThreadPoolExecutor effectsScheduledThreadPool, //
-			ScheduledThreadPoolExecutor eventsScheduledThreadPool, ScheduledThreadPoolExecutor generalScheduledThreadPool)
+		PurgeTask(ScheduledThreadPoolExecutor aiScheduled, ScheduledThreadPoolExecutor effectsScheduled, ScheduledThreadPoolExecutor eventsScheduled, ScheduledThreadPoolExecutor generalScheduled, //
+			ThreadPoolExecutor events, ThreadPoolExecutor general, ThreadPoolExecutor generalPackets, ThreadPoolExecutor ioPackets)
 		{
-			_aiScheduled = aiScheduledThreadPool;
-			_effectsScheduled = effectsScheduledThreadPool;
-			_eventsScheduled = eventsScheduledThreadPool;
-			_generalScheduled = generalScheduledThreadPool;
+			_aiScheduled = aiScheduled;
+			_effectsScheduled = effectsScheduled;
+			_eventsScheduled = eventsScheduled;
+			_generalScheduled = generalScheduled;
+			_events = events;
+			_general = general;
+			_generalPackets = generalPackets;
+			_ioPackets = ioPackets;
 		}
 		
 		@Override
@@ -760,6 +716,10 @@ public class ThreadPoolManager
 			_effectsScheduled.purge();
 			_eventsScheduled.purge();
 			_generalScheduled.purge();
+			_events.purge();
+			_general.purge();
+			_generalPackets.purge();
+			_ioPackets.purge();
 		}
 	}
 	
