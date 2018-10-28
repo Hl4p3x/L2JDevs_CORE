@@ -21,14 +21,16 @@ package com.l2jserver.gameserver.model.event;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Level;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -48,61 +50,73 @@ import com.l2jserver.gameserver.util.Broadcast;
 /**
  * Parent class for long time events.<br>
  * Maintains config reading, spawn of NPC's, adding of event's drop.
- * @author GKR
+ * @author GKR, Sacrifice
  */
 public class LongTimeEvent extends Quest
 {
-	private String _eventName;
-	
-	// Messages
-	private String _onEnterMsg = "Event is in process";
-	protected String _endMsg = "Event ends!";
-	
-	private DateRange _eventPeriod = null;
-	private DateRange _dropPeriod;
-	
-	// NPC's to spawm and their spawn points
-	private final List<NpcSpawn> _spawnList = new ArrayList<>();
+	private static final Logger LOG = LoggerFactory.getLogger(LongTimeEvent.class);
 	
 	// Drop data for event
-	private final List<GeneralDropItem> _dropList = new ArrayList<>();
+	private final List<GeneralDropItem> dropList = new ArrayList<>();
 	
-	private class NpcSpawn
-	{
-		protected final Location loc;
-		protected final int npcId;
-		
-		protected NpcSpawn(int pNpcId, Location spawnLoc)
-		{
-			loc = spawnLoc;
-			npcId = pNpcId;
-		}
-	}
+	// NPC's to spawm and their spawn points
+	private final List<NpcSpawn> spawnList = new ArrayList<>();
+	
+	private DateRange dropEventPeriod;
+	private String eventName;
+	private DateRange eventPeriod = null;
+	
+	// Messages
+	private String onEnterMsg = "Event is in process";
+	protected String endMsg = "Event ends!";
 	
 	public LongTimeEvent(String name, String descr)
 	{
 		super(-1, name, descr);
-		
 		loadConfig();
 		
-		if (_eventPeriod != null)
+		if (eventPeriod != null)
 		{
-			if (_eventPeriod.isWithinRange(new Date()))
+			if (eventPeriod.isWithinRange(new Date()))
 			{
 				startEvent();
-				_log.info("Event " + _eventName + " active till " + _eventPeriod.getEndDate());
+				LOG.info("Event {} active till {}", eventName, eventPeriod.getEndDate());
 			}
-			else if (_eventPeriod.getStartDate().after(new Date()))
+			else if (eventPeriod.getStartDate().after(new Date()))
 			{
-				long delay = _eventPeriod.getStartDate().getTime() - System.currentTimeMillis();
-				ThreadPoolManager.getInstance().scheduleGeneral(new ScheduleStart(), delay);
-				_log.info("Event " + _eventName + " will be started at " + _eventPeriod.getStartDate());
+				final long delay = eventPeriod.getStartDate().getTime() - System.currentTimeMillis();
+				ThreadPoolManager.getInstance().scheduleEvent(new ScheduleStart(), delay);
+				LOG.info("Event {} will be started at {}", eventName, eventPeriod.getStartDate());
 			}
 			else
 			{
-				_log.info("Event " + _eventName + " has passed... Ignored ");
+				LOG.info("The event {} has already passed...Ignored", eventName);
 			}
 		}
+	}
+	
+	/**
+	 * @return event period
+	 */
+	public DateRange getEventPeriod()
+	{
+		return eventPeriod;
+	}
+	
+	/**
+	 * @return {@code true} if now is drop period
+	 */
+	public boolean isDropPeriod()
+	{
+		return dropEventPeriod.isWithinRange(new Date());
+	}
+	
+	/**
+	 * @return {@code true} if now is event period
+	 */
+	public boolean isEventPeriod()
+	{
+		return eventPeriod.isWithinRange(new Date());
 	}
 	
 	/**
@@ -110,45 +124,68 @@ public class LongTimeEvent extends Quest
 	 */
 	private void loadConfig()
 	{
-		File configFile = new File("data/scripts/events/" + getName() + "/config.xml");
+		final File configFile = new File("data/scripts/events/" + getName() + "/config.xml");
+		final String currentYear = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 		try
 		{
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(configFile);
+			final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			final DocumentBuilder db = dbf.newDocumentBuilder();
+			final Document doc = db.parse(configFile);
 			if (!doc.getDocumentElement().getNodeName().equalsIgnoreCase("event"))
 			{
 				throw new NullPointerException("WARNING!!! " + getName() + " event: bad config file!");
 			}
-			_eventName = doc.getDocumentElement().getAttributes().getNamedItem("name").getNodeValue();
-			String period = doc.getDocumentElement().getAttributes().getNamedItem("active").getNodeValue();
-			_eventPeriod = DateRange.parse(period, new SimpleDateFormat("dd MM yyyy", Locale.US));
+			eventName = doc.getDocumentElement().getAttributes().getNamedItem("name").getNodeValue();
+			final String period = doc.getDocumentElement().getAttributes().getNamedItem("active").getNodeValue();
+			
+			if (period.length() == 21) // dd MM yyyy-dd MM yyyy
+			{
+				eventPeriod = DateRange.parse(period, new SimpleDateFormat("dd MM yyyy", Locale.US));
+			}
+			else if (period.length() == 11) // dd MM-dd MM
+			{
+				final String start = period.split("-")[0].concat(" ").concat(currentYear);
+				final String end = period.split("-")[1].concat(" ").concat(currentYear);
+				final String activePeriod = start.concat("-").concat(end);
+				eventPeriod = DateRange.parse(activePeriod, new SimpleDateFormat("dd MM yyyy", Locale.US));
+			}
 			
 			if (doc.getDocumentElement().getAttributes().getNamedItem("dropPeriod") != null)
 			{
-				String dropPeriod = doc.getDocumentElement().getAttributes().getNamedItem("dropPeriod").getNodeValue();
-				_dropPeriod = DateRange.parse(dropPeriod, new SimpleDateFormat("dd MM yyyy", Locale.US));
-				// Check if drop period is within range of event period
-				if (!_eventPeriod.isWithinRange(_dropPeriod.getStartDate()) || !_eventPeriod.isWithinRange(_dropPeriod.getEndDate()))
+				final String dropPeriod = doc.getDocumentElement().getAttributes().getNamedItem("dropPeriod").getNodeValue();
+				
+				if (dropPeriod.length() == 21) // dd MM yyyy-dd MM yyyy
 				{
-					_dropPeriod = _eventPeriod;
+					dropEventPeriod = DateRange.parse(dropPeriod, new SimpleDateFormat("dd MM yyyy", Locale.US));
+				}
+				else if (dropPeriod.length() == 11) // dd MM-dd MM
+				{
+					final String start = dropPeriod.split("-")[0].concat(" ").concat(currentYear);
+					final String end = dropPeriod.split("-")[1].concat(" ").concat(currentYear);
+					final String activeDropPeriod = start.concat("-").concat(end);
+					dropEventPeriod = DateRange.parse(activeDropPeriod, new SimpleDateFormat("dd MM yyyy", Locale.US));
+				}
+				
+				// Check if drop period is within range of event period
+				if (!eventPeriod.isWithinRange(dropEventPeriod.getStartDate()) || !eventPeriod.isWithinRange(dropEventPeriod.getEndDate()))
+				{
+					dropEventPeriod = eventPeriod;
 				}
 			}
 			else
 			{
-				_dropPeriod = _eventPeriod; // Drop period, if not specified, assumes all event period.
+				dropEventPeriod = eventPeriod; // Drop period, if not specified, assumes all event period.
 			}
 			
-			if (_eventPeriod == null)
+			if (eventPeriod == null)
 			{
 				throw new NullPointerException("WARNING!!! " + getName() + " event: illegal event period");
 			}
 			
-			Date today = new Date();
-			
-			if (_eventPeriod.getStartDate().after(today) || _eventPeriod.isWithinRange(today))
+			final Date today = new Date();
+			if (eventPeriod.getStartDate().after(today) || eventPeriod.isWithinRange(today))
 			{
-				Node first = doc.getDocumentElement().getFirstChild();
+				final Node first = doc.getDocumentElement().getFirstChild();
 				for (Node n = first; n != null; n = n.getNextSibling())
 				{
 					// Loading droplist
@@ -160,10 +197,10 @@ public class LongTimeEvent extends Quest
 							{
 								try
 								{
-									int itemId = Integer.parseInt(d.getAttributes().getNamedItem("item").getNodeValue());
-									int minCount = Integer.parseInt(d.getAttributes().getNamedItem("min").getNodeValue());
-									int maxCount = Integer.parseInt(d.getAttributes().getNamedItem("max").getNodeValue());
-									String chance = d.getAttributes().getNamedItem("chance").getNodeValue();
+									final int itemId = Integer.parseInt(d.getAttributes().getNamedItem("item").getNodeValue());
+									final int minCount = Integer.parseInt(d.getAttributes().getNamedItem("min").getNodeValue());
+									final int maxCount = Integer.parseInt(d.getAttributes().getNamedItem("max").getNodeValue());
+									final String chance = d.getAttributes().getNamedItem("chance").getNodeValue();
 									int finalChance = 0;
 									
 									if (!chance.isEmpty() && chance.endsWith("%"))
@@ -173,27 +210,26 @@ public class LongTimeEvent extends Quest
 									
 									if (ItemTable.getInstance().getTemplate(itemId) == null)
 									{
-										_log.warning(getName() + " event: " + itemId + " is wrong item id, item was not added in droplist");
+										LOG.warn("{} event: {} is wrong item id, item was not added in droplist", getName(), itemId);
 										continue;
 									}
 									
 									if (minCount > maxCount)
 									{
-										_log.warning(getName() + " event: item " + itemId + " - min greater than max, item was not added in droplist");
+										LOG.warn("{} event: item {} - min greater than max, item was not added in droplist", getName(), itemId);
 										continue;
 									}
 									
 									if ((finalChance < 10000) || (finalChance > 1000000))
 									{
-										_log.warning(getName() + " event: item " + itemId + " - incorrect drop chance, item was not added in droplist");
+										LOG.warn("{} event: item {} - incorrect drop chance, item was not added in droplist", getName(), itemId);
 										continue;
 									}
-									
-									_dropList.add((GeneralDropItem) DropListScope.STATIC.newDropItem(itemId, minCount, maxCount, finalChance));
+									dropList.add((GeneralDropItem) DropListScope.STATIC.newDropItem(itemId, minCount, maxCount, finalChance));
 								}
 								catch (NumberFormatException nfe)
 								{
-									_log.warning("Wrong number format in config.xml droplist block for " + getName() + " event");
+									LOG.warn("Wrong number format in config.xml droplist block for {} event", getName());
 								}
 							}
 						}
@@ -207,23 +243,22 @@ public class LongTimeEvent extends Quest
 							{
 								try
 								{
-									int npcId = Integer.parseInt(d.getAttributes().getNamedItem("npc").getNodeValue());
-									int xPos = Integer.parseInt(d.getAttributes().getNamedItem("x").getNodeValue());
-									int yPos = Integer.parseInt(d.getAttributes().getNamedItem("y").getNodeValue());
-									int zPos = Integer.parseInt(d.getAttributes().getNamedItem("z").getNodeValue());
-									int heading = d.getAttributes().getNamedItem("heading").getNodeValue() != null ? Integer.parseInt(d.getAttributes().getNamedItem("heading").getNodeValue()) : 0;
+									final int npcId = Integer.parseInt(d.getAttributes().getNamedItem("npc").getNodeValue());
+									final int xPos = Integer.parseInt(d.getAttributes().getNamedItem("x").getNodeValue());
+									final int yPos = Integer.parseInt(d.getAttributes().getNamedItem("y").getNodeValue());
+									final int zPos = Integer.parseInt(d.getAttributes().getNamedItem("z").getNodeValue());
+									final int heading = d.getAttributes().getNamedItem("heading").getNodeValue() != null ? Integer.parseInt(d.getAttributes().getNamedItem("heading").getNodeValue()) : 0;
 									
 									if (NpcData.getInstance().getTemplate(npcId) == null)
 									{
-										_log.warning(getName() + " event: " + npcId + " is wrong NPC id, NPC was not added in spawnlist");
+										LOG.warn("{} event: {} is wrong NPC id, NPC was not added in spawnlist", getName(), npcId);
 										continue;
 									}
-									
-									_spawnList.add(new NpcSpawn(npcId, new Location(xPos, yPos, zPos, heading)));
+									spawnList.add(new NpcSpawn(npcId, new Location(xPos, yPos, zPos, heading)));
 								}
 								catch (NumberFormatException nfe)
 								{
-									_log.warning("Wrong number format in config.xml spawnlist block for " + getName() + " event");
+									LOG.warn("Wrong number format in config.xml spawnlist block for {} event", getName());
 								}
 							}
 						}
@@ -235,17 +270,17 @@ public class LongTimeEvent extends Quest
 						{
 							if (d.getNodeName().equalsIgnoreCase("add"))
 							{
-								String msgType = d.getAttributes().getNamedItem("type").getNodeValue();
-								String msgText = d.getAttributes().getNamedItem("text").getNodeValue();
+								final String msgType = d.getAttributes().getNamedItem("type").getNodeValue();
+								final String msgText = d.getAttributes().getNamedItem("text").getNodeValue();
 								if ((msgType != null) && (msgText != null))
 								{
 									if (msgType.equalsIgnoreCase("onEnd"))
 									{
-										_endMsg = msgText;
+										endMsg = msgText;
 									}
 									else if (msgType.equalsIgnoreCase("onEnter"))
 									{
-										_onEnterMsg = msgText;
+										onEnterMsg = msgText;
 									}
 								}
 							}
@@ -256,7 +291,7 @@ public class LongTimeEvent extends Quest
 		}
 		catch (Exception e)
 		{
-			_log.log(Level.WARNING, getName() + " event: error reading " + configFile.getAbsolutePath() + " ! " + e.getMessage(), e);
+			LOG.error("{} event: error reading {}! {} {}", getName(), configFile.getAbsolutePath(), e.getMessage(), e);
 		}
 	}
 	
@@ -265,69 +300,49 @@ public class LongTimeEvent extends Quest
 	 */
 	protected void startEvent()
 	{
-		long currentTime = System.currentTimeMillis();
+		final long currentTime = System.currentTimeMillis();
+		
 		// Add drop
-		if (_dropList != null)
+		if (dropList != null)
 		{
-			if (currentTime < _dropPeriod.getEndDate().getTime())
+			if (currentTime < dropEventPeriod.getEndDate().getTime())
 			{
-				for (GeneralDropItem drop : _dropList)
+				for (GeneralDropItem drop : dropList)
 				{
-					EventDroplist.getInstance().addGlobalDrop(drop.getItemId(), drop.getMin(), drop.getMax(), (int) drop.getChance(), _dropPeriod);
+					EventDroplist.getInstance().addGlobalDrop(drop.getItemId(), drop.getMin(), drop.getMax(), (int) drop.getChance(), dropEventPeriod);
 				}
 			}
 		}
 		
 		// Add spawns
-		Long millisToEventEnd = _eventPeriod.getEndDate().getTime() - currentTime;
-		if (_spawnList != null)
+		final long millisToEventEnd = eventPeriod.getEndDate().getTime() - currentTime;
+		if (spawnList != null)
 		{
-			for (NpcSpawn spawn : _spawnList)
+			for (NpcSpawn spawn : spawnList)
 			{
 				addSpawn(spawn.npcId, spawn.loc.getX(), spawn.loc.getY(), spawn.loc.getZ(), spawn.loc.getHeading(), false, millisToEventEnd, false);
 			}
 		}
 		
 		// Send message on begin
-		Broadcast.toAllOnlinePlayers(_onEnterMsg);
+		Broadcast.toAllOnlinePlayers(onEnterMsg);
 		
 		// Add announce for entering players
-		AnnouncementsTable.getInstance().addAnnouncement(new EventAnnouncement(_eventPeriod, _onEnterMsg));
+		AnnouncementsTable.getInstance().addAnnouncement(new EventAnnouncement(eventPeriod, onEnterMsg));
 		
 		// Schedule event end (now only for message sending)
-		ThreadPoolManager.getInstance().scheduleGeneral(new ScheduleEnd(), millisToEventEnd);
+		ThreadPoolManager.getInstance().scheduleEvent(new ScheduleEnd(), millisToEventEnd);
 	}
 	
-	/**
-	 * @return event period
-	 */
-	public DateRange getEventPeriod()
+	private class NpcSpawn
 	{
-		return _eventPeriod;
-	}
-	
-	/**
-	 * @return {@code true} if now is event period
-	 */
-	public boolean isEventPeriod()
-	{
-		return _eventPeriod.isWithinRange(new Date());
-	}
-	
-	/**
-	 * @return {@code true} if now is drop period
-	 */
-	public boolean isDropPeriod()
-	{
-		return _dropPeriod.isWithinRange(new Date());
-	}
-	
-	protected class ScheduleStart implements Runnable
-	{
-		@Override
-		public void run()
+		protected final Location loc;
+		protected final int npcId;
+		
+		protected NpcSpawn(int pNpcId, Location spawnLoc)
 		{
-			startEvent();
+			loc = spawnLoc;
+			npcId = pNpcId;
 		}
 	}
 	
@@ -337,7 +352,16 @@ public class LongTimeEvent extends Quest
 		public void run()
 		{
 			// Send message on end
-			Broadcast.toAllOnlinePlayers(_endMsg);
+			Broadcast.toAllOnlinePlayers(endMsg);
+		}
+	}
+	
+	protected class ScheduleStart implements Runnable
+	{
+		@Override
+		public void run()
+		{
+			startEvent();
 		}
 	}
 }
