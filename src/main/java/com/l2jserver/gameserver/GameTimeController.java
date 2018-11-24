@@ -30,7 +30,7 @@ import com.l2jserver.gameserver.model.actor.L2Character;
 
 /**
  * Game Time controller class.
- * @author Forsaiken
+ * @author Forsaiken, Sacrifice
  */
 public final class GameTimeController extends Thread
 {
@@ -38,12 +38,12 @@ public final class GameTimeController extends Thread
 	
 	public static final int TICKS_PER_SECOND = 10; // not able to change this without checking through code
 	public static final int MILLIS_IN_TICK = 1000 / TICKS_PER_SECOND;
-	public static final int IG_DAYS_PER_DAY = 6;
-	public static final int MILLIS_PER_IG_DAY = (3600000 * 24) / IG_DAYS_PER_DAY;
-	public static final int SECONDS_PER_IG_DAY = MILLIS_PER_IG_DAY / 1000;
-	public static final int MINUTES_PER_IG_DAY = SECONDS_PER_IG_DAY / 60;
-	public static final int TICKS_PER_IG_DAY = SECONDS_PER_IG_DAY * TICKS_PER_SECOND;
-	public static final int TICKS_SUN_STATE_CHANGE = TICKS_PER_IG_DAY / 4;
+	private static final int IG_DAYS_PER_DAY = 6;
+	private static final int MILLIS_PER_IG_DAY = (3600000 * 24) / IG_DAYS_PER_DAY;
+	private static final int SECONDS_PER_IG_DAY = MILLIS_PER_IG_DAY / 1000;
+	protected static final int MINUTES_PER_IG_DAY = SECONDS_PER_IG_DAY / 60;
+	private static final int TICKS_PER_IG_DAY = SECONDS_PER_IG_DAY * TICKS_PER_SECOND;
+	protected static final int TICKS_SUN_STATE_CHANGE = TICKS_PER_IG_DAY / 4;
 	
 	private static GameTimeController _instance;
 	
@@ -56,39 +56,24 @@ public final class GameTimeController extends Thread
 		super.setDaemon(true);
 		super.setPriority(MAX_PRIORITY);
 		
-		final Calendar c = Calendar.getInstance();
-		c.set(Calendar.HOUR_OF_DAY, 0);
-		c.set(Calendar.MINUTE, 0);
-		c.set(Calendar.SECOND, 0);
-		c.set(Calendar.MILLISECOND, 0);
-		_referenceTime = c.getTimeInMillis();
+		final Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		_referenceTime = calendar.getTimeInMillis();
 		
 		super.start();
 	}
 	
-	public static final void init()
-	{
-		_instance = new GameTimeController();
-	}
-	
-	public final int getGameTime()
-	{
-		return (getGameTicks() % TICKS_PER_IG_DAY) / MILLIS_IN_TICK;
-	}
-	
-	public final int getGameHour()
+	private final int getGameHour()
 	{
 		return getGameTime() / 60;
 	}
 	
-	public final int getGameMinute()
+	protected final int getGameMinute()
 	{
 		return getGameTime() % 60;
-	}
-	
-	public final boolean isNight()
-	{
-		return getGameHour() < 6;
 	}
 	
 	/**
@@ -100,18 +85,14 @@ public final class GameTimeController extends Thread
 		return (int) ((System.currentTimeMillis() - _referenceTime) / MILLIS_IN_TICK);
 	}
 	
-	/**
-	 * Add a L2Character to movingObjects of GameTimeController.
-	 * @param cha The L2Character to add to movingObjects of GameTimeController
-	 */
-	public final void registerMovingObject(final L2Character cha)
+	public final int getGameTime()
 	{
-		if (cha == null)
-		{
-			return;
-		}
-		
-		_movingObjects.add(cha);
+		return (getGameTicks() % TICKS_PER_IG_DAY) / MILLIS_IN_TICK;
+	}
+	
+	public final boolean isNight()
+	{
+		return getGameHour() < 6;
 	}
 	
 	/**
@@ -130,7 +111,20 @@ public final class GameTimeController extends Thread
 		_movingObjects.removeIf(L2Character::updatePosition);
 	}
 	
-	public final void stopTimer()
+	/**
+	 * Add a L2Character to movingObjects of GameTimeController.
+	 * @param character The L2Character to add to movingObjects of GameTimeController
+	 */
+	public final void registerMovingObject(final L2Character character)
+	{
+		if (character == null)
+		{
+			return;
+		}
+		_movingObjects.add(character);
+	}
+	
+	protected final void stopTimer()
 	{
 		super.interrupt();
 		LOG.info("Stopping {}", getClass().getSimpleName());
@@ -159,7 +153,7 @@ public final class GameTimeController extends Thread
 			}
 			catch (final Throwable e)
 			{
-				LOG.warn("Unable to move objects!", e);
+				LOG.warn("{}: Unable to move objects!", getClass().getSimpleName(), e);
 			}
 			
 			sleepTime = nextTickTime - System.currentTimeMillis();
@@ -171,14 +165,13 @@ public final class GameTimeController extends Thread
 				}
 				catch (final InterruptedException e)
 				{
-					
+					LOG.info("{}: it has been interrupted! due to {}", getClass().getSimpleName(), e.getMessage());
 				}
 			}
 			
 			if (isNight() != isNight)
 			{
 				isNight = !isNight;
-				
 				ThreadPoolManager.getInstance().executeAi(() -> DayNightSpawnManager.getInstance().notifyChangeMode());
 			}
 		}
@@ -187,5 +180,10 @@ public final class GameTimeController extends Thread
 	public static final GameTimeController getInstance()
 	{
 		return _instance;
+	}
+	
+	protected static final void init()
+	{
+		_instance = new GameTimeController();
 	}
 }

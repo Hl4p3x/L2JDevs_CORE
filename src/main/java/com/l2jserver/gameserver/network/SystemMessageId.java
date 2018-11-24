@@ -6548,13 +6548,13 @@ public final class SystemMessageId
 	 * ID: 1131<br>
 	 * Message: It is now midnight and the effect of $s1 can be felt.
 	 */
-	public static final SystemMessageId NIGHT_EFFECT_APPLIES = new SystemMessageId(1131);
+	public static final SystemMessageId IT_IS_NOW_MIDNIGHT_AND_THE_EFFECT_OF_S1_CAN_BE_FELT = new SystemMessageId(1131);
 	
 	/**
 	 * ID: 1132<br>
 	 * Message: It is dawn and the effect of $s1 will now disappear.
 	 */
-	public static final SystemMessageId DAY_EFFECT_DISAPPEARS = new SystemMessageId(1132);
+	public static final SystemMessageId IT_IS_DOWN_AND_THE_EFFECT_OF_S1_WILL_NOW_DISAPPEAR = new SystemMessageId(1132);
 	
 	/**
 	 * ID: 1133<br>
