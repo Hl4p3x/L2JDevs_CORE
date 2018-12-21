@@ -48,6 +48,7 @@ import com.l2jserver.gameserver.model.entity.DimensionalRift;
 import com.l2jserver.gameserver.model.holders.ItemHolder;
 import com.l2jserver.gameserver.model.itemcontainer.Inventory;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
+import com.l2jserver.gameserver.model.zone.ZoneId;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.ExAskModifyPartyLooting;
 import com.l2jserver.gameserver.network.serverpackets.ExCloseMPCC;
@@ -790,7 +791,13 @@ public class L2Party extends AbstractPlayerGroup
 				addexp = calculateExpSpPartyCutoff(member.getActingPlayer(), topLvl, addexp, addsp, useVitalityRate);
 				if (addexp > 0)
 				{
-					member.updateVitalityPoints(vitalityPoints, true, false);
+					if (!member.isInsideZone(ZoneId.PEACE) && ((member.getLevel() - target.getLevel()) <= 9))
+					{
+						member.getNevitSystem().startAdventTask();
+						member.getNevitSystem().checkIfMustGivePoints(addexp, target);
+						
+						member.updateVitalityPoints(vitalityPoints, true, false);
+					}
 				}
 			}
 			else

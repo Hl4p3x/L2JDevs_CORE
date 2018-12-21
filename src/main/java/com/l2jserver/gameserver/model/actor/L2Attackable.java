@@ -67,6 +67,7 @@ import com.l2jserver.gameserver.model.holders.ItemHolder;
 import com.l2jserver.gameserver.model.items.L2Item;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
 import com.l2jserver.gameserver.model.skills.Skill;
+import com.l2jserver.gameserver.model.zone.ZoneId;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.clientpackets.Say2;
 import com.l2jserver.gameserver.network.serverpackets.CreatureSay;
@@ -494,7 +495,13 @@ public class L2Attackable extends L2Npc
 								attacker.addExpAndSp(exp, sp, useVitalityRate());
 								if (exp > 0)
 								{
-									attacker.updateVitalityPoints(getVitalityPoints(damage), true, false);
+									if (!attacker.isInsideZone(ZoneId.PEACE) && ((attacker.getLevel() - getLevel()) <= 9))
+									{
+										attacker.getNevitSystem().startAdventTask();
+										attacker.getNevitSystem().checkIfMustGivePoints(exp, this);
+										
+										attacker.updateVitalityPoints(getVitalityPoints(damage), true, false);
+									}
 								}
 							}
 						}

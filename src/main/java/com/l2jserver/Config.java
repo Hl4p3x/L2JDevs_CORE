@@ -107,6 +107,7 @@ public final class Config
 	public static final String OLYMPIAD_CONFIG_FILE = "./config/Olympiad.properties";
 	public static final String GRANDBOSS_CONFIG_FILE = "./config/GrandBoss.properties";
 	public static final String GRACIASEEDS_CONFIG_FILE = "./config/GraciaSeeds.properties";
+	public static final String HUNTING_BONUS_CONFIG = "./config/HuntingBonus.properties";
 	public static final String CHAT_FILTER_FILE = "./config/chatfilter.txt";
 	public static final String EMAIL_CONFIG_FILE = "./config/Email.properties";
 	public static final String CH_SIEGE_FILE = "./config/ConquerableHallSiege.properties";
@@ -1076,6 +1077,16 @@ public final class Config
 	// Gracia Seeds Settings
 	public static int SOD_TIAT_KILL_COUNT;
 	public static long SOD_STAGE_2_LENGTH;
+	
+	// Hunting Bonus Settings
+	public static boolean HUNTING_BONUS_ENGINE;
+	public static int HUNTING_BONUS_MAX_POINTS;
+	public static int HUNTING_BONUS_MAX_TIME;
+	public static int HUNTING_BONUS_REFRESH_RATE;
+	public static int HUNTING_BONUS_POINTS_ON_REFRESH;
+	public static int HUNTING_BONUS_EFFECT_TIME;
+	public static boolean HUNTING_BONUS_EXTRA_POINTS;
+	public static boolean HUNTING_BONUS_EXTRA_POINTS_ALL_TIME;
 	
 	// chatfilter
 	public static List<String> FILTER_LIST;
@@ -2662,6 +2673,17 @@ public final class Config
 			// Seed of Destruction
 			SOD_TIAT_KILL_COUNT = GraciaSeedsSettings.getInt("TiatKillCountForNextState", 10);
 			SOD_STAGE_2_LENGTH = GraciaSeedsSettings.getLong("Stage2Length", 720) * 60000;
+			
+			// Hunting bonus
+			final PropertiesParser HuntingBonusSettings = new PropertiesParser(HUNTING_BONUS_CONFIG);
+			HUNTING_BONUS_ENGINE = HuntingBonusSettings.getBoolean("EnableHuntingBonus", true);
+			HUNTING_BONUS_MAX_POINTS = HuntingBonusSettings.getInt("HuntingBonusMaxPoints", 7200);
+			HUNTING_BONUS_MAX_TIME = HuntingBonusSettings.getInt("HuntingBonusMaxTime", 14400);
+			HUNTING_BONUS_REFRESH_RATE = HuntingBonusSettings.getInt("HuntingBonusRefreshRate", 30);
+			HUNTING_BONUS_POINTS_ON_REFRESH = HuntingBonusSettings.getInt("HuntingBonusRefreshPoints", 72);
+			HUNTING_BONUS_EFFECT_TIME = HuntingBonusSettings.getInt("HuntingBonusEffectTime", 180);
+			HUNTING_BONUS_EXTRA_POINTS = HuntingBonusSettings.getBoolean("HuntingBonusExtraPoints", false);
+			HUNTING_BONUS_EXTRA_POINTS_ALL_TIME = HuntingBonusSettings.getBoolean("HuntingBonusExtraPointsAllTime", false);
 			
 			try
 			{

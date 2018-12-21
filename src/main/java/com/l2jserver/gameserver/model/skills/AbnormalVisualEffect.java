@@ -74,7 +74,7 @@ public enum AbnormalVisualEffect
 	CHANGE_VES_D(0x002000, 1),
 	TIME_BOMB(0x004000, 1), // High Five
 	MP_SHIELD(0x008000, 1), // High Five
-	NAVIT_ADVENT(0x080000, 1), // High Five
+	NEVIT_ADVENT(0x080000, 1), // High Five
 	// Event
 	// TODO: Fix, currently not working.
 	BR_NONE(0x000000, 2),

@@ -158,6 +158,7 @@ import com.l2jserver.gameserver.model.actor.tasks.player.InventoryEnableTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.LookingForFishTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.PetFeedTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.PvPFlagTask;
+import com.l2jserver.gameserver.model.actor.tasks.player.RecoBonusTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.RecoBonusTaskEnd;
 import com.l2jserver.gameserver.model.actor.tasks.player.RecoGiveTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.RentPetTask;
@@ -182,6 +183,8 @@ import com.l2jserver.gameserver.model.entity.Duel;
 import com.l2jserver.gameserver.model.entity.Fort;
 import com.l2jserver.gameserver.model.entity.Instance;
 import com.l2jserver.gameserver.model.entity.L2Event;
+import com.l2jserver.gameserver.model.entity.NevitSystem;
+import com.l2jserver.gameserver.model.entity.RecoBonus;
 import com.l2jserver.gameserver.model.entity.Siege;
 import com.l2jserver.gameserver.model.entity.TvTEvent;
 import com.l2jserver.gameserver.model.events.Containers;
@@ -459,16 +462,18 @@ public final class L2PcInstance extends L2Playable
 	/** True if the L2PcInstance is sitting */
 	private boolean _waitTypeSitting;
 	private boolean _observerMode = false;
-	/** The number of recommendation obtained by the player. */
-	private int _recomHave;
-	/** The number of recommendation that the player can give. */
-	private int _recomLeft;
+	/** The number of recommendation obtained by the L2PcInstance */
+	private int _recomHave; // how much I was recommended by others
+	/** The number of recommendation that the L2PcInstance can give */
+	private int _recomLeft; // how many recommendations I can give to others
 	/** Recommendation Bonus task **/
 	private ScheduledFuture<?> _recoBonusTask;
+	private int _recoBonusTime = 0;
+	private boolean _isHourglassEffected, _isRecomTimerActive;
 	/** Recommendation task **/
 	private ScheduledFuture<?> _recoGiveTask;
 	/** Recommendation Two Hours bonus **/
-	private boolean _recoTwoHoursGiven = false;
+	protected boolean _recoTwoHoursGiven = false;
 	private PcWarehouse _warehouse;
 	private PcRefund _refund;
 	private PrivateStoreType _privateStoreType = PrivateStoreType.NONE;
@@ -717,6 +722,8 @@ public final class L2PcInstance extends L2Playable
 		player.setNewbie(1);
 		// Give 20 recommendations
 		player.setRecomLeft(20);
+		// Give one hour bonus for new chars
+		player.setRecomBonusTime(3600);
 		// Add the player in the characters table of the database
 		return DAOFactory.getInstance().getPlayerDAO().insert(player) ? player : null;
 	}
@@ -5256,7 +5263,7 @@ public final class L2PcInstance extends L2Playable
 						}
 					}
 					// If player is Lucky shouldn't get penalized.
-					if (Config.ALT_GAME_DELEVEL && !isLucky() && (insideSiegeZone || !insidePvpZone))
+					if (Config.ALT_GAME_DELEVEL && !isLucky() && !(insideSiegeZone || insidePvpZone) && !getNevitSystem().isAdventBlessingActive())
 					{
 						calculateDeathExpPenalty(killer, isAtWarWith(pk));
 					}
@@ -13431,5 +13438,106 @@ public final class L2PcInstance extends L2Playable
 	public void getDwarvenRecipeBookClear()
 	{
 		_dwarvenRecipeBook.clear();
+	}
+	
+	// High Five: Nevit's Bonus System
+	private final NevitSystem _nevitSystem = new NevitSystem(this);
+	
+	public NevitSystem getNevitSystem()
+	{
+		return _nevitSystem;
+	}
+	
+	public void startRecoGiveTask()
+	{
+		_recoGiveTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new RecoGiveTask(this), 7200000, 3600000);
+	}
+	
+	public void startRecoBonusTask()
+	{
+		if ((_recoBonusTask == null) && (_recoBonusTime > 0) && isRecomTimerActive() && !isHourglassEffected())
+		{
+			_recoBonusTask = ThreadPoolManager.getInstance().scheduleGeneral(new RecoBonusTask(this), _recoBonusTime * 1000);
+		}
+	}
+	
+	public boolean isHourglassEffected()
+	{
+		return _isHourglassEffected;
+	}
+	
+	public void setHourlassEffected(boolean val)
+	{
+		_isHourglassEffected = val;
+	}
+	
+	public void startHourglassEffect()
+	{
+		setHourlassEffected(true);
+		stopRecoBonusTask();
+		sendPacket(new ExVoteSystemInfo(this));
+	}
+	
+	public void stopHourglassEffect()
+	{
+		setHourlassEffected(false);
+		startRecoBonusTask();
+		sendPacket(new ExVoteSystemInfo(this));
+	}
+	
+	public boolean isRecomTimerActive()
+	{
+		return _isRecomTimerActive;
+	}
+	
+	public void setRecomTimerActive(boolean val)
+	{
+		if (_isRecomTimerActive == val)
+		{
+			return;
+		}
+		
+		_isRecomTimerActive = val;
+		
+		if (val)
+		{
+			startRecoBonusTask();
+		}
+		else
+		{
+			stopRecoBonusTask();
+		}
+		
+		sendPacket(new ExVoteSystemInfo(this));
+	}
+	
+	public void stopRecoBonusTask1()
+	{
+		if (_recoBonusTask != null)
+		{
+			_recoBonusTime = (int) Math.max(0, _recoBonusTask.getDelay(TimeUnit.SECONDS));
+			_recoBonusTask.cancel(false);
+			_recoBonusTask = null;
+		}
+	}
+	
+	public boolean isRecoTwoHoursGiven1()
+	{
+		return _recoTwoHoursGiven;
+	}
+	
+	public void setRecomBonusTime(int time)
+	{
+		_recoBonusTime = time;
+	}
+	
+	public int getRecomBonus()
+	{
+		return (getRecomBonusTime() > 0) || isHourglassEffected() ? RecoBonus.getRecoBonus(this) : 0;
+	}
+	
+	public double getRecomBonusMul()
+	{
+		return (getRecomBonusTime() > 0) || isHourglassEffected() ? RecoBonus.getRecoMultiplier(this) : 0;
 	}
 }
