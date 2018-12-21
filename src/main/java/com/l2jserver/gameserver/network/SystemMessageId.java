@@ -15165,6 +15165,36 @@ public final class SystemMessageId
 	public static final SystemMessageId YOU_HAVE_S1_MATCHES_REMAINING_THAT_YOU_CAN_PARTECIPATE_IN_THIS_WEEK_S2_CLASSED_S3_NON_CLASSED_S4_TEAM = new SystemMessageId(3261);
 	
 	/**
+	 * ID: 3266<br>
+	 * Message: The angel Nevit has blessed you from above. You are imbued with full Vitality as well as a Vitality Replenishing effect. And should you die, you will not lose Exp!
+	 */
+	public static final SystemMessageId THE_ANGEL_NEVIT_HAS_BLESSED_YOU_FROM_ABOVE = new SystemMessageId(3266);
+	
+	/**
+	 * ID: 3267<br>
+	 * Message: You are starting to feel the effects of Nevit's Advent Blessing.
+	 */
+	public static final SystemMessageId YOU_ARE_STARTING_TO_FEEL_THE_EFFECTS_OF_NEVITS_ADVENT_BLESSING = new SystemMessageId(3267);
+	
+	/**
+	 * ID: 3268<br>
+	 * Message: You are further infused with the blessings of Nevit! Continue to battle evil wherever it may lurk.
+	 */
+	public static final SystemMessageId YOU_ARE_FURTHER_INFUSED_WITH_THE_BLESSINGS_OF_NEVIT = new SystemMessageId(3268);
+	
+	/**
+	 * ID: 3269<br>
+	 * Message: Nevit's Advent Blessing shines strongly from above. You can almost see his divine aura.
+	 */
+	public static final SystemMessageId NEVITS_ADVENT_BLESSING_SHINES_STRONGLY_FROM_ABOVE = new SystemMessageId(3269);
+	
+	/**
+	 * ID: 3275<br>
+	 * Message: Nevit's Advent Blessing has ended. Continue your journey and you will surely meet his favor again sometime soon.
+	 */
+	public static final SystemMessageId NEVITS_ADVENT_BLESSING_HAS_ENDED = new SystemMessageId(3275);
+	
+	/**
 	 * ID: 6004<br>
 	 * Message: Enchant failed. The enchant level for the corresponding item will be exactly retained.
 	 */

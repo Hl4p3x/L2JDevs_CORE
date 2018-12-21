@@ -362,6 +362,11 @@ public class PcStat extends PlayableStat
 			{
 				int stat = (int) calcStat(Stats.VITALITY_CONSUME_RATE, 1, getActiveChar(), null);
 				
+				if (getActiveChar().getNevitSystem().isAdventBlessingActive())
+				{
+					stat = -10; // increase Vitality During Blessing
+				}
+				
 				if (stat == 0)
 				{
 					return;
@@ -433,6 +438,11 @@ public class PcStat extends PlayableStat
 	 */
 	public byte getVitalityLevel()
 	{
+		if (getActiveChar().getNevitSystem().isAdventBlessingActive())
+		{
+			return 4;
+		}
+		
 		return _vitalityLevel;
 	}
 	
@@ -451,7 +461,6 @@ public class PcStat extends PlayableStat
 		nevits = RecoBonus.getRecoMultiplier(getActiveChar());
 		
 		// Bonus from Nevit's Hunting
-		// TODO: Nevit's hunting bonus
 		
 		// Bonus exp from skills
 		bonusExp = 1 + (calcStat(Stats.BONUS_EXP, 0, null, null) / 100);
@@ -495,7 +504,6 @@ public class PcStat extends PlayableStat
 		nevits = RecoBonus.getRecoMultiplier(getActiveChar());
 		
 		// Bonus from Nevit's Hunting
-		// TODO: Nevit's hunting bonus
 		
 		// Bonus sp from skills
 		bonusSp = 1 + (calcStat(Stats.BONUS_SP, 0, null, null) / 100);

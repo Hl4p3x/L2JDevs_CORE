@@ -16,33 +16,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.l2jserver.gameserver.network.serverpackets;
+package com.l2jserver.gameserver.model.actor.tasks.player;
 
-import com.l2jserver.gameserver.model.entity.NevitSystem;
+import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
+import com.l2jserver.gameserver.network.serverpackets.ExVoteSystemInfo;
 
 /**
- * @author mochitto, IrLex
+ * Task to clear recommendation bonus.
+ * @author IrLex
  */
-public class ExNevitAdventTimeChange extends L2GameServerPacket
+public class RecoBonusTask implements Runnable
 {
-	private final boolean _paused;
-	private final int _time;
+	private final L2PcInstance _player;
 	
-	public ExNevitAdventTimeChange(int time, boolean paused)
+	public RecoBonusTask(L2PcInstance player)
 	{
-		// we must set time here
-		_time = (time >= NevitSystem.ADVENT_TIME) ? 16000 : time;
-		_paused = paused;
+		_player = player;
 	}
 	
 	@Override
-	protected void writeImpl()
+	public void run()
 	{
-		writeC(0xFE);
-		writeH(0xE1);
-		// state 0 - pause 1 - started
-		writeC(_paused ? 0x00 : 0x01);
-		// left time in ms max is 16000 its 4m and state is automatically changed to quit
-		writeD(_time);
+		if (_player != null)
+		{
+			_player.setRecomBonusTime(0);
+			_player.sendPacket(new ExVoteSystemInfo(_player));
+		}
 	}
 }
