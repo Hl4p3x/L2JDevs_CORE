@@ -5,7 +5,7 @@ title Game Server Console
 echo Starting L2J Game Server.
 echo.
 
-java -Xms3072m -Xmx3072m -cp ./../libs/*;l2jserver.jar com.l2jserver.gameserver.GameServer
+java -Xms3g -Xmx3g -cp ./../libs/*;l2jserver.jar com.l2jserver.gameserver.GameServer
 
 REM NOTE: If you have a powerful machine, you could modify/add some extra parameters for performance, like:
 REM -Xms1536m

@@ -7,7 +7,7 @@
 while :; do
 	[ -f log/java0.log.0 ] && mv log/java0.log.0 "log/`date +%Y-%m-%d_%H-%M-%S`_java.log"
 	[ -f log/stdout.log ] && mv log/stdout.log "log/`date +%Y-%m-%d_%H-%M-%S`_stdout.log"
-	java -Xms3072m -Xmx3072m -cp ./../libs/*:l2jserver.jar com.l2jserver.gameserver.GameServer > log/stdout.log 2>&1
+	java -Xms3g -Xmx3g -cp ./../libs/*:l2jserver.jar com.l2jserver.gameserver.GameServer > log/stdout.log 2>&1
 	[ $? -ne 2 ] && break
 #	/etc/init.d/mysql restart
 	sleep 10
