@@ -54,7 +54,7 @@ participate on development by submitting the code.
 II. LEGAL
 ====================
 
-Copyright (C) 2004-2015 L2J Server
+Copyright (C) 2004-2019 L2J Server
 
 This file is part of L2J Server.
 
@@ -291,7 +291,7 @@ http://www.l2jserver.com/forum/memberlist.php?mode=leaders
 Have fun playing L2J ;)
 Dev Team
 
-    L2J Server, Copyright (C) 2004-2012 
+    L2J Server, Copyright (C) 2004-2019 
     L2J Server comes with ABSOLUTELY NO WARRANTY.
     This is free software, and you are welcome to redistribute it
     under certain conditions.

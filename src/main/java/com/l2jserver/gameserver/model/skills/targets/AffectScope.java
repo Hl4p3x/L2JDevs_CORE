@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2018 L2J Server
+ * Copyright (C) 2004-2019 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -24,8 +24,6 @@ package com.l2jserver.gameserver.model.skills.targets;
  */
 public enum AffectScope
 {
-	/** Affects Valakas. */
-	BALAKAS_SCOPE,
 	/** Affects dead clan mates. */
 	DEAD_PLEDGE,
 	/** Affects fan area. */
@@ -52,6 +50,8 @@ public enum AffectScope
 	SQUARE_PB,
 	/** Affects static object targets. */
 	STATIC_OBJECT_SCOPE,
+	/** Affects Valakas. */
+	VALAKAS_SCOPE,
 	/** Affects wyverns. */
 	WYVERN_SCOPE
 }
