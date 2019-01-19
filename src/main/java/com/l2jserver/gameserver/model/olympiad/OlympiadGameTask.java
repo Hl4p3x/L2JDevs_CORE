@@ -173,7 +173,7 @@ public final class OlympiadGameTask implements Runnable
 			int delay = 1; // schedule next call after 1s
 			switch (_state)
 			{
-			// Game created
+				// Game created
 				case BEGIN:
 				{
 					_state = GameState.TELEPORT_TO_ARENA;
@@ -379,6 +379,12 @@ public final class OlympiadGameTask implements Runnable
 			if (_game.needBuffers())
 			{
 				_zone.spawnBuffers();
+			}
+			
+			// 3vs3 team matches shouldn't have olympiad buffers
+			if (!_game.needBuffers())
+			{
+				_zone.deleteBuffers();
 			}
 			
 			if (!_game.portPlayersToArena(_zone.getSpawns()))
