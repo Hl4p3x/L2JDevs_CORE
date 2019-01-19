@@ -1187,9 +1187,9 @@ public final class Config
 				DATAPACK_ROOT = new File(".");
 			}
 			
-			PLAYER_NAME_TEMPLATE = Pattern.compile(serverSettings.getString("PlayerNameTemplate", "[a-zA-Z0-9]*"));
-			PET_NAME_TEMPLATE = Pattern.compile(serverSettings.getString("PetNameTemplate", "[a-zA-Z0-9]*"));
-			CLAN_NAME_TEMPLATE = Pattern.compile(serverSettings.getString("ClanNameTemplate", "[a-zA-Z0-9]*"));
+			PLAYER_NAME_TEMPLATE = Pattern.compile(serverSettings.getString("PlayerNameTemplate", "[a-zA-Z0-9]{2,16}"));
+			PET_NAME_TEMPLATE = Pattern.compile(serverSettings.getString("PetNameTemplate", "[a-zA-Z0-9]{2,16}"));
+			CLAN_NAME_TEMPLATE = Pattern.compile(serverSettings.getString("ClanNameTemplate", "[a-zA-Z0-9]{2,16}"));
 			
 			MAX_CHARACTERS_NUMBER_PER_ACCOUNT = serverSettings.getInt("CharMaxNumber", 7);
 			MAXIMUM_ONLINE_USERS = serverSettings.getInt("MaximumOnlineUsers", 100);
