@@ -55,10 +55,10 @@ public abstract class L2Vehicle extends L2Character
 {
 	private static final Logger LOG = LoggerFactory.getLogger(L2Vehicle.class);
 	
-	private int _dockId = -1;
+	private int _dockId = 0;
 	private final List<L2PcInstance> _passengers = new CopyOnWriteArrayList<>();
 	private Location _oustLoc = null;
-	private Runnable _engine = null;
+	protected Runnable _engine = null;
 	
 	private VehiclePathPoint[] _currentPath = null;
 	private int _runState = 0;
@@ -107,21 +107,20 @@ public abstract class L2Vehicle extends L2Character
 		_runState = 0;
 		_currentPath = path;
 		
-		if ((_currentPath != null) && (_currentPath.length > 0))
+		if ((_currentPath != null) && (_runState < _currentPath.length))
 		{
-			final VehiclePathPoint point = _currentPath[0];
+			final VehiclePathPoint point = _currentPath[_runState];
+			
 			if (point.getMoveSpeed() > 0)
 			{
 				getStat().setMoveSpeed(point.getMoveSpeed());
 			}
+			
 			if (point.getRotationSpeed() > 0)
 			{
 				getStat().setRotationSpeed(point.getRotationSpeed());
 			}
-			if (updatePosition())
-			{
-				getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, new Location(point.getX(), point.getY(), point.getZ(), 0));
-			}
+			getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, new Location(point.getX(), point.getY(), point.getZ(), 0));
 			return;
 		}
 		getAI().setIntention(CtrlIntention.AI_INTENTION_ACTIVE);
@@ -234,11 +233,8 @@ public abstract class L2Vehicle extends L2Character
 	
 	public void oustPlayers()
 	{
-		if (!_passengers.isEmpty())
-		{
-			_passengers.forEach(p -> oustPlayer(p));
-			_passengers.clear();
-		}
+		_passengers.forEach(p -> oustPlayer(p));
+		_passengers.clear();
 	}
 	
 	public void oustPlayer(L2PcInstance player)
