@@ -138,7 +138,7 @@ import com.l2jserver.gameserver.network.L2GameClient;
 import com.l2jserver.gameserver.network.L2GamePacketHandler;
 import com.l2jserver.gameserver.pathfinding.PathFinding;
 import com.l2jserver.gameserver.script.faenor.FaenorScriptEngine;
-import com.l2jserver.gameserver.scripting.L2ScriptEngineManager;
+import com.l2jserver.gameserver.scripting.ScriptEngineManager;
 import com.l2jserver.gameserver.taskmanager.KnownListUpdateTaskManager;
 import com.l2jserver.gameserver.taskmanager.TaskManager;
 import com.l2jserver.mmocore.SelectorConfig;
@@ -179,9 +179,7 @@ public final class GameServer
 		
 		new File("log/game").mkdirs();
 		
-		// load script engines
-		printSection("Engines");
-		L2ScriptEngineManager.getInstance();
+		ScriptEngineManager.getInstance();
 		
 		printSection("World");
 		// start game time control early
@@ -298,18 +296,7 @@ public final class GameServer
 		AirShipManager.getInstance();
 		GraciaSeedsManager.getInstance();
 		
-		try
-		{
-			LOG.info("{}: Loading server scripts:", getClass().getSimpleName());
-			if (!Config.ALT_DEV_NO_HANDLERS || !Config.ALT_DEV_NO_QUESTS)
-			{
-				L2ScriptEngineManager.getInstance().executeScriptList(new File(Config.DATAPACK_ROOT, "data/scripts.cfg"));
-			}
-		}
-		catch (IOException ioe)
-		{
-			LOG.error("{}: Failed loading scripts.cfg, scripts are not going to be loaded!", getClass().getSimpleName());
-		}
+		ScriptEngineManager.getInstance().executeScriptList(new File(Config.DATAPACK_ROOT, "data/scripts.cfg"));
 		
 		SpawnTable.getInstance().load();
 		DayNightSpawnManager.getInstance().trim().notifyChangeMode();
