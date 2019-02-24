@@ -219,7 +219,7 @@ public class L2SepulcherNpcInstance extends L2Npc
 				}
 				_spawnMonsterTask = ThreadPoolManager.getInstance().scheduleEffect(new SpawnMonster(getId()), 3500);
 				break;
-				
+			
 			case 31455:
 			case 31456:
 			case 31457:
@@ -241,7 +241,7 @@ public class L2SepulcherNpcInstance extends L2Npc
 				}
 				player.addItem("Quest", HALLS_KEY, 1, player, true);
 				break;
-				
+			
 			default:
 			{
 				if (hasListener(EventType.ON_NPC_QUEST_START))

@@ -221,7 +221,8 @@ public final class GroupedGeneralDropItem implements IDropItem
 		for (GeneralDropItem item : getItems())
 		{
 			// the item is made almost "static"
-			items.add(new GeneralDropItem(item.getItemId(), item.getMin(victim), item.getMax(victim), (item.getChance(victim) * getChance() * chanceModifier) / sumchance, IAmountMultiplierStrategy.STATIC, IChanceMultiplierStrategy.STATIC, getPreciseStrategy(), IKillerChanceModifierStrategy.NO_RULES, item.getDropCalculationStrategy()));
+			items.add(new GeneralDropItem(item.getItemId(), item.getMin(victim), item.getMax(victim), (item.getChance(victim) * getChance() * chanceModifier)
+				/ sumchance, IAmountMultiplierStrategy.STATIC, IChanceMultiplierStrategy.STATIC, getPreciseStrategy(), IKillerChanceModifierStrategy.NO_RULES, item.getDropCalculationStrategy()));
 		}
 		group.setItems(items);
 		return group;

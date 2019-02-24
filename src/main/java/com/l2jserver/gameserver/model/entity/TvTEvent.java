@@ -78,15 +78,25 @@ public class TvTEvent
 	protected static final Logger _log = Logger.getLogger(TvTEvent.class.getName());
 	/** html path **/
 	private static final String htmlPath = "data/scripts/custom/events/TvT/TvTManager/";
-	/** The teams of the TvTEvent<br> */
+	/**
+	 * The teams of the TvTEvent<br>
+	 */
 	private static TvTEventTeam[] _teams = new TvTEventTeam[2];
-	/** The state of the TvTEvent<br> */
+	/**
+	 * The state of the TvTEvent<br>
+	 */
 	private static EventState _state = EventState.INACTIVE;
-	/** The spawn of the participation npc<br> */
+	/**
+	 * The spawn of the participation npc<br>
+	 */
 	private static L2Spawn _npcSpawn = null;
-	/** the npc instance of the participation npc<br> */
+	/**
+	 * the npc instance of the participation npc<br>
+	 */
 	private static L2Npc _lastNpcSpawn = null;
-	/** Instance id<br> */
+	/**
+	 * Instance id<br>
+	 */
 	private static int _TvTEventInstance = 0;
 	
 	private TvTEvent()

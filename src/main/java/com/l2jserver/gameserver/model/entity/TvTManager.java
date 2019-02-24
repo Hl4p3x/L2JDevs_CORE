@@ -33,7 +33,9 @@ public class TvTManager
 {
 	protected static final Logger _log = Logger.getLogger(TvTManager.class.getName());
 	
-	/** Task for event cycles<br> */
+	/**
+	 * Task for event cycles<br>
+	 */
 	private TvTStartTask _task;
 	
 	/**

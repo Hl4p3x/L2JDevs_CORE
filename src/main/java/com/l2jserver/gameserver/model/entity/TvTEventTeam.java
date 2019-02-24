@@ -28,11 +28,17 @@ import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
  */
 public class TvTEventTeam
 {
-	/** The name of the team<br> */
+	/**
+	 * The name of the team<br>
+	 */
 	private final String _name;
-	/** The team spot coordinated<br> */
+	/**
+	 * The team spot coordinated<br>
+	 */
 	private int[] _coordinates = new int[3];
-	/** The points of the team<br> */
+	/**
+	 * The points of the team<br>
+	 */
 	private short _points;
 	/** Name and instance of all participated players in map. */
 	private final Map<Integer, L2PcInstance> _participatedPlayers = new ConcurrentHashMap<>();

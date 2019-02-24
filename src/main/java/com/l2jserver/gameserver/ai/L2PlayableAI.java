@@ -27,7 +27,9 @@ import com.l2jserver.gameserver.network.SystemMessageId;
 
 /**
  * This class manages AI of L2Playable.<br>
- * L2PlayableAI : <li>L2SummonAI</li> <li>L2PlayerAI</li>
+ * L2PlayableAI :
+ * <li>L2SummonAI</li>
+ * <li>L2PlayerAI</li>
  * @author JIV
  */
 public abstract class L2PlayableAI extends L2CharacterAI
