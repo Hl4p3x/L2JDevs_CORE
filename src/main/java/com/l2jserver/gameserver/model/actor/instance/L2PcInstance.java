@@ -2046,9 +2046,14 @@ public final class L2PcInstance extends L2Playable
 		}
 	}
 	
-	public void useEquippableItem(L2ItemInstance item, boolean abortAttack)
+	public void useEquippableItem(int objectId, boolean abortAttack)
 	{
-		// Equip or unEquip
+		final var item = getInventory().getItemByObjectId(objectId);
+		if (item == null)
+		{
+			return;
+		}
+		
 		L2ItemInstance[] items = null;
 		final boolean isEquiped = item.isEquipped();
 		final int oldInvLimit = getInventoryLimit();
@@ -2116,7 +2121,7 @@ public final class L2PcInstance extends L2Playable
 		
 		broadcastUserInfo();
 		
-		InventoryUpdate iu = new InventoryUpdate();
+		final InventoryUpdate iu = new InventoryUpdate();
 		iu.addItems(Arrays.asList(items));
 		sendPacket(iu);
 		

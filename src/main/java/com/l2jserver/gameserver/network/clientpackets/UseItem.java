@@ -54,29 +54,11 @@ public final class UseItem extends L2GameClientPacket
 {
 	private static final String _C__19_USEITEM = "[C] 19 UseItem";
 	
+	private static final int FORMAL_WEAR_ID = 6408;
+	
 	private int _objectId;
 	private boolean _ctrlPressed;
 	private int _itemId;
-	
-	/** Weapon Equip Task */
-	private static class WeaponEquipTask implements Runnable
-	{
-		private final L2ItemInstance item;
-		private final L2PcInstance activeChar;
-		
-		protected WeaponEquipTask(L2ItemInstance it, L2PcInstance character)
-		{
-			item = it;
-			activeChar = character;
-		}
-		
-		@Override
-		public void run()
-		{
-			// Equip or unEquip
-			activeChar.useEquippableItem(item, false);
-		}
-	}
 	
 	@Override
 	protected void readImpl()
@@ -96,7 +78,7 @@ public final class UseItem extends L2GameClientPacket
 		
 		if (Config.DEBUG)
 		{
-			_log.log(Level.INFO, activeChar + ": use item " + _objectId);
+			_log.log(Level.INFO, activeChar + ": uses item with object Id " + _objectId);
 		}
 		
 		// Flood protect UseItem
@@ -200,7 +182,7 @@ public final class UseItem extends L2GameClientPacket
 		if (item.isEquipable())
 		{
 			// Don't allow to put formal wear while a cursed weapon is equipped.
-			if (activeChar.isCursedWeaponEquipped() && (_itemId == 6408))
+			if (activeChar.isCursedWeaponEquipped() && (_itemId == FORMAL_WEAR_ID))
 			{
 				return;
 			}
@@ -311,18 +293,17 @@ public final class UseItem extends L2GameClientPacket
 			if (activeChar.isCastingNow() || activeChar.isCastingSimultaneouslyNow())
 			{
 				// Creating next action class.
-				final NextAction nextAction = new NextAction(CtrlEvent.EVT_FINISH_CASTING, CtrlIntention.AI_INTENTION_CAST, () -> activeChar.useEquippableItem(item, true));
-				
+				final NextAction nextAction = new NextAction(CtrlEvent.EVT_FINISH_CASTING, CtrlIntention.AI_INTENTION_CAST, () -> activeChar.useEquippableItem(_objectId, true));
 				// Binding next action to AI.
 				activeChar.getAI().setNextAction(nextAction);
 			}
 			else if (activeChar.isAttackingNow())
 			{
-				ThreadPoolManager.getInstance().scheduleGeneral(new WeaponEquipTask(item, activeChar), TimeUnit.MILLISECONDS.convert(activeChar.getAttackEndTime() - System.nanoTime(), TimeUnit.NANOSECONDS));
+				ThreadPoolManager.getInstance().scheduleGeneral(() -> activeChar.useEquippableItem(_objectId, false), TimeUnit.MILLISECONDS.convert(activeChar.getAttackEndTime() - System.nanoTime(), TimeUnit.NANOSECONDS));
 			}
 			else
 			{
-				activeChar.useEquippableItem(item, true);
+				activeChar.useEquippableItem(_objectId, true);
 			}
 		}
 		else
