@@ -158,8 +158,6 @@ public class L2Npc extends L2Character
 	 */
 	public L2Npc(L2NpcTemplate template)
 	{
-		// Call the L2Character constructor to set the _template of the L2Character, copy skills from template to object
-		// and link _calculators to NPC_STD_CALCULATOR
 		super(template);
 		setInstanceType(InstanceType.L2Npc);
 		initCharStatusUpdateValues();
@@ -174,9 +172,8 @@ public class L2Npc extends L2Character
 		_currentCollisionRadius = getTemplate().getfCollisionRadius();
 		
 		setIsFlying(template.isFlying());
-		// Copy the skills of the L2Summon from its template to the L2Character Instance
-		// The skills list can be affected by spell effects so it's necessary to make a copy
-		// to avoid that a spell affecting a L2Summon, affects others L2Summon of the same type too.
+		
+		// Copy the skills from template.
 		for (Skill skill : template.getSkills().values())
 		{
 			addSkill(skill);

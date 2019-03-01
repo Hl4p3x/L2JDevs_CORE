@@ -52,6 +52,7 @@ import com.l2jserver.gameserver.model.items.type.ActionType;
 import com.l2jserver.gameserver.model.olympiad.OlympiadGameManager;
 import com.l2jserver.gameserver.model.skills.Skill;
 import com.l2jserver.gameserver.model.skills.targets.L2TargetType;
+import com.l2jserver.gameserver.model.stats.Formulas;
 import com.l2jserver.gameserver.model.zone.ZoneId;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.AbstractNpcInfo.SummonInfo;
@@ -99,19 +100,20 @@ public abstract class L2Summon extends L2Playable
 	{
 		super(template);
 		setInstanceType(InstanceType.L2Summon);
-		setInstanceId(owner.getInstanceId()); // set instance to same as owner
+		setInstanceId(owner.getInstanceId());
 		setShowSummonAnimation(true);
 		_owner = owner;
 		getAI();
 		
 		setXYZInvisible(owner.getX() + Rnd.get(-100, 100), owner.getY() + Rnd.get(-100, 100), owner.getZ());
-		// Copy the skills of the L2Summon from its template to the L2Character Instance
-		// The skills list can be affected by spell effects so it's necessary to make a copy
-		// to avoid that a spell affecting a L2Summon, affects others L2Summon of the same type too.
+		
+		// Copy the skills from template.
 		for (Skill skill : template.getSkills().values())
 		{
 			addSkill(skill);
 		}
+		
+		Formulas.addFuncsToNewSummon(this);
 	}
 	
 	@Override
