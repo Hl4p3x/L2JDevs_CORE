@@ -37,7 +37,6 @@ public class AccountingFormatter extends Formatter
 	{
 		final Object[] params = record.getParameters();
 		final StringBuilder output = StringUtil.startAppend(30 + record.getMessage().length() + (params == null ? 0 : params.length * 10), "[", dateFmt.format(new Date(record.getMillis())), "] ", record.getMessage());
-		
 		if (params != null)
 		{
 			for (Object p : params)
@@ -48,7 +47,6 @@ public class AccountingFormatter extends Formatter
 				}
 				
 				StringUtil.append(output, ", ");
-				
 				if (p instanceof L2GameClient)
 				{
 					final L2GameClient client = (L2GameClient) p;
@@ -62,11 +60,12 @@ public class AccountingFormatter extends Formatter
 					}
 					catch (Exception e)
 					{
-						
+						// empty
 					}
 					
 					switch (client.getState())
 					{
+						case JOINING:
 						case IN_GAME:
 							if (client.getActiveChar() != null)
 							{

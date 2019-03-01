@@ -135,6 +135,53 @@ public final class L2GamePacketHandler implements IPacketHandler<L2GameClient>, 
 						break;
 				}
 				break;
+			case JOINING:
+			{
+				switch (opcode)
+				{
+					case 0x11:
+					{
+						msg = new EnterWorld();
+						break;
+					}
+					case 0xd0:
+					{
+						int id2 = -1;
+						if (buf.remaining() >= 2)
+						{
+							id2 = buf.getShort() & 0xffff;
+						}
+						else
+						{
+							if (Config.PACKET_HANDLER_DEBUG)
+							{
+								_log.warning("Client: " + client.toString() + " sent a 0xd0 without the second opcode.");
+							}
+							break;
+						}
+						
+						switch (id2)
+						{
+							case 0x01:
+							{
+								msg = new RequestManorList();
+								break;
+							}
+							default:
+							{
+								printDebugDoubleOpcode(opcode, id2, buf, state, client);
+								break;
+							}
+						}
+					}
+					default:
+					{
+						printDebug(opcode, buf, state, client);
+						break;
+					}
+				}
+				break;
+			}
 			case IN_GAME:
 				switch (opcode)
 				{

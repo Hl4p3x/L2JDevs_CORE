@@ -207,6 +207,7 @@ public final class FloodProtectorAction
 		
 		switch (_client.getState())
 		{
+			case JOINING:
 			case IN_GAME:
 				if (_client.getActiveChar() != null)
 				{

@@ -157,7 +157,7 @@ public class CharacterSelect extends L2GameClientPacket
 					
 					sendPacket(new SSQInfo());
 					
-					client.setState(GameClientState.IN_GAME);
+					client.setState(GameClientState.JOINING);
 					CharSelected cs = new CharSelected(cha, client.getSessionId().playOkID1);
 					sendPacket(cs);
 				}
