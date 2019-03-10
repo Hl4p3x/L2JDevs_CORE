@@ -207,6 +207,7 @@ public final class FloodProtectorAction
 		
 		switch (_client.getState())
 		{
+			case JOINING:
 			case IN_GAME:
 				if (_client.getActiveChar() != null)
 				{
@@ -229,7 +230,6 @@ public final class FloodProtectorAction
 			default:
 				throw new IllegalStateException("Missing state on switch");
 		}
-		
 		StringUtil.append(output, lines);
 		_log.warning(output.toString());
 	}

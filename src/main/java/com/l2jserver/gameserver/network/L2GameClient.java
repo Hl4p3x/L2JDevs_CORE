@@ -79,6 +79,8 @@ public final class L2GameClient extends MMOClient<MMOConnection<L2GameClient>> i
 		CONNECTED,
 		/** Client has authed but doesn't has character attached to it yet. */
 		AUTHED,
+		/** Client has selected a character, but it hasn't joined the server yet. */
+		JOINING,
 		/** Client has selected a char and is in game. */
 		IN_GAME
 	}
@@ -212,10 +214,6 @@ public final class L2GameClient extends MMOClient<MMOConnection<L2GameClient>> i
 	public void setActiveChar(L2PcInstance pActiveChar)
 	{
 		_activeChar = pActiveChar;
-		// JIV remove - done on spawn
-		/*
-		 * if (_activeChar != null) { L2World.getInstance().storeObject(getActiveChar()); }
-		 */
 	}
 	
 	public ReentrantLock getActiveCharLock()
@@ -753,6 +751,7 @@ public final class L2GameClient extends MMOClient<MMOConnection<L2GameClient>> i
 					return "[IP: " + (address == null ? "disconnected" : address.getHostAddress()) + "]";
 				case AUTHED:
 					return "[Account: " + getAccountName() + " - IP: " + (address == null ? "disconnected" : address.getHostAddress()) + "]";
+				case JOINING:
 				case IN_GAME:
 					return "[Character: " + (getActiveChar() == null ? "disconnected" : getActiveChar().getName() + "[" + getActiveChar().getObjectId() + "]") + " - Account: " + getAccountName() + " - IP: " + (address == null ? "disconnected" : address.getHostAddress()) + "]";
 				default:
