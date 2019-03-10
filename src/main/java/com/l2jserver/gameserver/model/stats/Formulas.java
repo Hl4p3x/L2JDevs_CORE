@@ -38,6 +38,7 @@ import com.l2jserver.gameserver.model.L2SiegeClan;
 import com.l2jserver.gameserver.model.StatsSet;
 import com.l2jserver.gameserver.model.actor.L2Attackable;
 import com.l2jserver.gameserver.model.actor.L2Character;
+import com.l2jserver.gameserver.model.actor.L2Summon;
 import com.l2jserver.gameserver.model.actor.instance.L2CubicInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PetInstance;
@@ -189,61 +190,60 @@ public final class Formulas
 	}
 	
 	/**
-	 * Add basics Func objects to L2PcInstance and L2Summon.<br>
+	 * Add basics stats functions to a player.<br>
 	 * <B><U>Concept</U>:</B><br>
-	 * A calculator is created to manage and dynamically calculate the effect of a character property (ex : MAX_HP, REGENERATE_HP_RATE...). In fact, each calculator is a table of Func object in which each Func represents a mathematic function : <br>
+	 * A calculator is created to manage and dynamically calculate the effect of a character property (ex : MAX_HP, REGENERATE_HP_RATE...).<br>
+	 * In fact, each calculator is a table of Func object in which each Func represents a mathematics function: <br>
 	 * FuncAtkAccuracy -> Math.sqrt(_player.getDEX())*6+_player.getLevel()<br>
-	 * @param cha L2PcInstance or L2Summon that must obtain basic Func objects
+	 * @param player the player
 	 */
-	public static void addFuncsToNewCharacter(L2Character cha)
+	public static void addFuncsToNewPlayer(L2PcInstance player)
 	{
-		if (cha.isPlayer())
-		{
-			cha.addStatFunc(FuncMaxHpMul.getInstance());
-			cha.addStatFunc(FuncMaxCpMul.getInstance());
-			cha.addStatFunc(FuncMaxMpMul.getInstance());
-			cha.addStatFunc(FuncPAtkMod.getInstance());
-			cha.addStatFunc(FuncMAtkMod.getInstance());
-			cha.addStatFunc(FuncPDefMod.getInstance());
-			cha.addStatFunc(FuncMDefMod.getInstance());
-			cha.addStatFunc(FuncAtkCritical.getInstance());
-			cha.addStatFunc(FuncMAtkCritical.getInstance());
-			cha.addStatFunc(FuncAtkAccuracy.getInstance());
-			cha.addStatFunc(FuncAtkEvasion.getInstance());
-			cha.addStatFunc(FuncPAtkSpeed.getInstance());
-			cha.addStatFunc(FuncMAtkSpeed.getInstance());
-			cha.addStatFunc(FuncMoveSpeed.getInstance());
-			
-			cha.addStatFunc(FuncHenna.getInstance(Stats.STAT_STR));
-			cha.addStatFunc(FuncHenna.getInstance(Stats.STAT_DEX));
-			cha.addStatFunc(FuncHenna.getInstance(Stats.STAT_INT));
-			cha.addStatFunc(FuncHenna.getInstance(Stats.STAT_MEN));
-			cha.addStatFunc(FuncHenna.getInstance(Stats.STAT_CON));
-			cha.addStatFunc(FuncHenna.getInstance(Stats.STAT_WIT));
-			
-			cha.addStatFunc(FuncArmorSet.getInstance(Stats.STAT_STR));
-			cha.addStatFunc(FuncArmorSet.getInstance(Stats.STAT_DEX));
-			cha.addStatFunc(FuncArmorSet.getInstance(Stats.STAT_INT));
-			cha.addStatFunc(FuncArmorSet.getInstance(Stats.STAT_MEN));
-			cha.addStatFunc(FuncArmorSet.getInstance(Stats.STAT_CON));
-			cha.addStatFunc(FuncArmorSet.getInstance(Stats.STAT_WIT));
-		}
-		else if (cha.isSummon())
-		{
-			cha.addStatFunc(FuncMaxHpMul.getInstance());
-			cha.addStatFunc(FuncMaxMpMul.getInstance());
-			cha.addStatFunc(FuncPAtkMod.getInstance());
-			cha.addStatFunc(FuncMAtkMod.getInstance());
-			cha.addStatFunc(FuncPDefMod.getInstance());
-			cha.addStatFunc(FuncMDefMod.getInstance());
-			cha.addStatFunc(FuncAtkCritical.getInstance());
-			cha.addStatFunc(FuncMAtkCritical.getInstance());
-			cha.addStatFunc(FuncAtkAccuracy.getInstance());
-			cha.addStatFunc(FuncAtkEvasion.getInstance());
-			cha.addStatFunc(FuncMoveSpeed.getInstance());
-			cha.addStatFunc(FuncPAtkSpeed.getInstance());
-			cha.addStatFunc(FuncMAtkSpeed.getInstance());
-		}
+		player.addStatFunc(FuncMaxHpMul.getInstance());
+		player.addStatFunc(FuncMaxCpMul.getInstance());
+		player.addStatFunc(FuncMaxMpMul.getInstance());
+		player.addStatFunc(FuncPAtkMod.getInstance());
+		player.addStatFunc(FuncMAtkMod.getInstance());
+		player.addStatFunc(FuncPDefMod.getInstance());
+		player.addStatFunc(FuncMDefMod.getInstance());
+		player.addStatFunc(FuncAtkCritical.getInstance());
+		player.addStatFunc(FuncMAtkCritical.getInstance());
+		player.addStatFunc(FuncAtkAccuracy.getInstance());
+		player.addStatFunc(FuncAtkEvasion.getInstance());
+		player.addStatFunc(FuncPAtkSpeed.getInstance());
+		player.addStatFunc(FuncMAtkSpeed.getInstance());
+		player.addStatFunc(FuncMoveSpeed.getInstance());
+		
+		player.addStatFunc(FuncHenna.getInstance(Stats.STAT_STR));
+		player.addStatFunc(FuncHenna.getInstance(Stats.STAT_DEX));
+		player.addStatFunc(FuncHenna.getInstance(Stats.STAT_INT));
+		player.addStatFunc(FuncHenna.getInstance(Stats.STAT_MEN));
+		player.addStatFunc(FuncHenna.getInstance(Stats.STAT_CON));
+		player.addStatFunc(FuncHenna.getInstance(Stats.STAT_WIT));
+		
+		player.addStatFunc(FuncArmorSet.getInstance(Stats.STAT_STR));
+		player.addStatFunc(FuncArmorSet.getInstance(Stats.STAT_DEX));
+		player.addStatFunc(FuncArmorSet.getInstance(Stats.STAT_INT));
+		player.addStatFunc(FuncArmorSet.getInstance(Stats.STAT_MEN));
+		player.addStatFunc(FuncArmorSet.getInstance(Stats.STAT_CON));
+		player.addStatFunc(FuncArmorSet.getInstance(Stats.STAT_WIT));
+	}
+	
+	public static void addFuncsToNewSummon(L2Summon summon)
+	{
+		summon.addStatFunc(FuncMaxHpMul.getInstance());
+		summon.addStatFunc(FuncMaxMpMul.getInstance());
+		summon.addStatFunc(FuncPAtkMod.getInstance());
+		summon.addStatFunc(FuncMAtkMod.getInstance());
+		summon.addStatFunc(FuncPDefMod.getInstance());
+		summon.addStatFunc(FuncMDefMod.getInstance());
+		summon.addStatFunc(FuncAtkCritical.getInstance());
+		summon.addStatFunc(FuncMAtkCritical.getInstance());
+		summon.addStatFunc(FuncAtkAccuracy.getInstance());
+		summon.addStatFunc(FuncAtkEvasion.getInstance());
+		summon.addStatFunc(FuncMoveSpeed.getInstance());
+		summon.addStatFunc(FuncPAtkSpeed.getInstance());
+		summon.addStatFunc(FuncMAtkSpeed.getInstance());
 	}
 	
 	/**

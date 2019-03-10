@@ -681,6 +681,7 @@ public final class L2PcInstance extends L2Playable
 		_radar = new L2Radar(this);
 		
 		startVitalityTask();
+		Formulas.addFuncsToNewPlayer(this);
 	}
 	
 	/**
