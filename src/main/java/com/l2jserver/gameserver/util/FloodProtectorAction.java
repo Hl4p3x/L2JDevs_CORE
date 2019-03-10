@@ -230,7 +230,6 @@ public final class FloodProtectorAction
 			default:
 				throw new IllegalStateException("Missing state on switch");
 		}
-		
 		StringUtil.append(output, lines);
 		_log.warning(output.toString());
 	}
