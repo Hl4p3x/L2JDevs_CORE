@@ -490,7 +490,7 @@ public final class QuestState
 	{
 		if (_vars == null)
 		{
-			return -1;
+			return 0;
 		}
 		
 		final String variable = _vars.get(var);
@@ -499,7 +499,7 @@ public final class QuestState
 			return -1;
 		}
 		
-		int varint = -1;
+		int varint = 0;
 		try
 		{
 			varint = Integer.parseInt(variable);
