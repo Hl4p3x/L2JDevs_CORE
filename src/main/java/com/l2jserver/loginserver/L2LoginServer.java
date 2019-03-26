@@ -31,6 +31,9 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import org.l2jdevs.mmocore.SelectorConfig;
+import org.l2jdevs.mmocore.SelectorThread;
+
 import com.l2jserver.Config;
 import com.l2jserver.Server;
 import com.l2jserver.UPnPService;
@@ -38,8 +41,6 @@ import com.l2jserver.commons.database.pool.impl.ConnectionFactory;
 import com.l2jserver.loginserver.mail.MailSystem;
 import com.l2jserver.loginserver.network.L2LoginClient;
 import com.l2jserver.loginserver.network.L2LoginPacketHandler;
-import com.l2jserver.mmocore.SelectorConfig;
-import com.l2jserver.mmocore.SelectorThread;
 import com.l2jserver.status.Status;
 
 /**

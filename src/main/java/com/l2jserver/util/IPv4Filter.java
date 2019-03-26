@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import com.l2jserver.mmocore.IAcceptFilter;
+import org.l2jdevs.mmocore.IAcceptFilter;
 
 /**
  * IPv4 filter.

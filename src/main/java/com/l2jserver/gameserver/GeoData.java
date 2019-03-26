@@ -21,6 +21,8 @@ package com.l2jserver.gameserver;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.l2jdevs.geodriver.Cell;
+import org.l2jdevs.geodriver.GeoDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +35,6 @@ import com.l2jserver.gameserver.model.interfaces.ILocational;
 import com.l2jserver.gameserver.util.GeoUtils;
 import com.l2jserver.gameserver.util.LinePointIterator;
 import com.l2jserver.gameserver.util.LinePointIterator3D;
-import com.l2jserver.geodriver.Cell;
-import com.l2jserver.geodriver.GeoDriver;
 
 /**
  * Geodata.

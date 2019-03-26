@@ -26,6 +26,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.l2jdevs.mmocore.MMOClient;
+import org.l2jdevs.mmocore.MMOConnection;
+import org.l2jdevs.mmocore.SendablePacket;
+
 import com.l2jserver.Config;
 import com.l2jserver.loginserver.LoginController;
 import com.l2jserver.loginserver.SessionKey;
@@ -34,9 +38,6 @@ import com.l2jserver.loginserver.network.serverpackets.LoginFail;
 import com.l2jserver.loginserver.network.serverpackets.LoginFail.LoginFailReason;
 import com.l2jserver.loginserver.network.serverpackets.PlayFail;
 import com.l2jserver.loginserver.network.serverpackets.PlayFail.PlayFailReason;
-import com.l2jserver.mmocore.MMOClient;
-import com.l2jserver.mmocore.MMOConnection;
-import com.l2jserver.mmocore.SendablePacket;
 import com.l2jserver.util.Rnd;
 import com.l2jserver.util.crypt.LoginCrypt;
 import com.l2jserver.util.crypt.ScrambledKeyPair;

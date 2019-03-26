@@ -20,10 +20,11 @@ package com.l2jserver.gameserver.util;
 
 import java.awt.Color;
 
+import org.l2jdevs.geodriver.Cell;
+
 import com.l2jserver.gameserver.GeoData;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.network.serverpackets.ExServerPrimitive;
-import com.l2jserver.geodriver.Cell;
 
 /**
  * @author HorridoJoho
