@@ -5,7 +5,7 @@ title Game Server Console
 echo Starting L2J Game Server.
 echo.
 
-java -Xms512m -Xmx2g -jar l2jserver.jar
+java -Xms512m -Xmx2g -jar l2jdevs.jar
 
 if ERRORLEVEL 2 goto restart
 if ERRORLEVEL 1 goto error
