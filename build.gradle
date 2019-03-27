@@ -40,19 +40,19 @@ dependencies {
 def generalManifest = manifest {
 	attributes('Built-By': System.getProperty('user.name'),
 			'Built-Date': new Date().format("yyyy-MM-dd HH:mm:ss"),
-			'Implementation-URL': 'http://www.l2jserver.com/',
+			'Implementation-URL': 'http://www.l2jdevs.org/',
 			'Class-Path': configurations.runtime.collect { '../libs/' + it.name }.join(' '))
 }
 
 jar {
-	archiveName = 'l2jserver.jar'
+	archiveName = 'l2jdevs.jar'
 	exclude('**/dbinstaller/**')
 	exclude('**/loginserver/**')
 	exclude('**/accountmanager/**')
 	exclude('**/gsregistering/**')
 	manifest {
 		from(generalManifest)
-		attributes('Main-Class': 'com.l2jserver.gameserver.GameServer')
+		attributes('Main-Class': 'org.l2jdevs.gameserver.GameServer')
 	}
 }
 
@@ -63,7 +63,7 @@ task loginJar(type: Jar, dependsOn: classes) {
 	exclude('**/gameserver/**')
 	manifest {
 		from(generalManifest)
-		attributes('Main-Class': 'com.l2jserver.loginserver.L2LoginServer')
+		attributes('Main-Class': 'org.l2jdevs.loginserver.L2LoginServer')
 	}
 }
 
@@ -86,7 +86,7 @@ task configuratorJar(type: Jar, dependsOn: classes) {
 	exclude('**/Server/**')
 	manifest {
 		from(generalManifest)
-		attributes('Main-Class': 'com.l2jserver.tools.configurator.ConfigUserInterface')
+		attributes('Main-Class': 'org.l2jdevs.tools.configurator.ConfigUserInterface')
 	}
 }
 
@@ -101,7 +101,7 @@ task dbInstLsJar(type: Jar, dependsOn: classes) {
 	exclude '**/LauncherGS*'
 	manifest {
 		from(generalManifest)
-		attributes('Main-Class': 'com.l2jserver.tools.dbinstaller.LauncherLS')
+		attributes('Main-Class': 'org.l2jdevs.tools.dbinstaller.LauncherLS')
 	}
 }
 
@@ -116,7 +116,7 @@ task dbInstGsJar(type: Jar, dependsOn: classes) {
 	exclude('**/LauncherLS*')
 	manifest {
 		from(generalManifest)
-		attributes 'Main-Class': 'com.l2jserver.tools.dbinstaller.LauncherGS'
+		attributes 'Main-Class': 'org.l2jdevs.tools.dbinstaller.LauncherGS'
 	}
 }
 
