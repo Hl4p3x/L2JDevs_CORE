@@ -21,7 +21,6 @@ package org.l2jdevs.gameserver.model.actor;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ScheduledFuture;
 
 import org.l2jdevs.Config;
 import org.l2jdevs.gameserver.GameTimeController;
@@ -55,7 +54,6 @@ public abstract class L2Vehicle extends L2Character
 {
 	private static final Logger LOG = LoggerFactory.getLogger(L2Vehicle.class);
 	
-	private ScheduledFuture<?> _vehicleTask;
 	private int _dockId = 0;
 	private final List<L2PcInstance> _passengers = new CopyOnWriteArrayList<>();
 	private Location _oustLoc = null;
@@ -425,7 +423,7 @@ public abstract class L2Vehicle extends L2Character
 	{
 		if (_engine != null)
 		{
-			_vehicleTask = ThreadPoolManager.getInstance().scheduleAi(_engine, delay);
+			ThreadPoolManager.getInstance().scheduleAi(_engine, delay);
 		}
 	}
 	
@@ -453,19 +451,6 @@ public abstract class L2Vehicle extends L2Character
 		if (Config.MOVE_BASED_KNOWNLIST && updateKnownObjects)
 		{
 			getKnownList().findObjects();
-		}
-	}
-	
-	public void stopVehicleTask()
-	{
-		if (_vehicleTask != null)
-		{
-			if (_engine != null)
-			{
-				_engine = null;
-			}
-			_vehicleTask.cancel(true);
-			_vehicleTask = null;
 		}
 	}
 	
