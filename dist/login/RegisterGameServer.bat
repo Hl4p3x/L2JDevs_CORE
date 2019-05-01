@@ -1,5 +1,24 @@
 @echo off
-title L2J - Register Game Server
+title Game Server Register
 color 17
+
+:start
+echo ##########################################################################
+echo #####..##......######....####..######....######..##......##..######..#####
+echo #####..##..........##......##..##...##...##.......##....##...##......#####
+echo #####..##........##........##..##....##..####......##..##.....####...#####
+echo #####..##......##......##..##..##...##...##.........####.........##..#####
+echo #####..######..######..######..######....######......##......######..#####
+echo ##########################################################################
+echo.
+echo Loading register, please wait .....
+
 java -Djava.util.logging.config.file=console.cfg -cp ./../libs/*;l2jlogin.jar org.l2jdevs.tools.gsregistering.BaseGameServerRegister -c
+
+:end
+echo.
+echo [INFO] -------------------------------------------------------------------
+echo.
+echo Game Server register terminated.
+echo.
 pause
