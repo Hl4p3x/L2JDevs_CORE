@@ -102,9 +102,13 @@ public final class ThreadPoolManager
 		}
 		
 		_aiScheduledThreadPool = new ScheduledThreadPoolExecutor(Config.SCHEDULED_THREAD_CORE_POOL_SIZE_AI <= 0 ? Runtime.getRuntime().availableProcessors() : Config.SCHEDULED_THREAD_CORE_POOL_SIZE_AI, new PriorityThreadFactory("AI ST Pool", Thread.NORM_PRIORITY));
+		_aiScheduledThreadPool.setRemoveOnCancelPolicy(true); // Since Java7, Explicitly call setRemoveOnCancelPolicy on the instance. This prevents from memory leaks when using ScheduledExecutorService
 		_effectsScheduledThreadPool = new ScheduledThreadPoolExecutor(Config.SCHEDULED_THREAD_CORE_POOL_SIZE_EFFECTS <= 0 ? Runtime.getRuntime().availableProcessors() : Config.SCHEDULED_THREAD_CORE_POOL_SIZE_EFFECTS, new PriorityThreadFactory("Effects ST Pool", Thread.NORM_PRIORITY));
+		_effectsScheduledThreadPool.setRemoveOnCancelPolicy(true); // Since Java7, Explicitly call setRemoveOnCancelPolicy on the instance. This prevents from memory leaks when using ScheduledExecutorService
 		_eventsScheduledThreadPool = new ScheduledThreadPoolExecutor(Config.SCHEDULED_THREAD_CORE_POOL_SIZE_EVENTS <= 0 ? Runtime.getRuntime().availableProcessors() : Config.SCHEDULED_THREAD_CORE_POOL_SIZE_EVENTS, new PriorityThreadFactory("Event ST Pool", Thread.NORM_PRIORITY));
+		_eventsScheduledThreadPool.setRemoveOnCancelPolicy(true); // Since Java7, Explicitly call setRemoveOnCancelPolicy on the instance. This prevents from memory leaks when using ScheduledExecutorService
 		_generalScheduledThreadPool = new ScheduledThreadPoolExecutor(Config.SCHEDULED_THREAD_CORE_POOL_SIZE_GENERAL <= 0 ? Runtime.getRuntime().availableProcessors() : Config.SCHEDULED_THREAD_CORE_POOL_SIZE_GENERAL, new PriorityThreadFactory("General ST Pool", Thread.NORM_PRIORITY));
+		_generalScheduledThreadPool.setRemoveOnCancelPolicy(true); // Since Java7, Explicitly call setRemoveOnCancelPolicy on the instance. This prevents from memory leaks when using ScheduledExecutorService
 		
 		_eventsThreadPool = new ThreadPoolExecutor(Config.THREAD_CORE_POOL_SIZE_EVENT <= 0 ? Runtime.getRuntime().availableProcessors() : Config.THREAD_CORE_POOL_SIZE_EVENT, Integer.MAX_VALUE, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new PriorityThreadFactory("Event Pool", Thread.NORM_PRIORITY));
 		//@formatter:off
@@ -115,6 +119,12 @@ public final class ThreadPoolManager
 		_ioPacketsThreadPool = new ThreadPoolExecutor(Config.THREAD_CORE_POOL_SIZE_IO_PACKETS <= 0 ? Runtime.getRuntime().availableProcessors() : Config.THREAD_CORE_POOL_SIZE_IO_PACKETS, Integer.MAX_VALUE, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new PriorityThreadFactory("I/O Packet Pool", Thread.NORM_PRIORITY + 1));
 		//@formatter:on
 		
+		getScheduledThreadPools().forEach(stp ->
+		{
+			stp.setRejectedExecutionHandler(new RejectedExecutionHandlerImpl());
+			stp.prestartAllCoreThreads();
+		});
+		
 		getThreadPools().forEach(tp ->
 		{
 			tp.setRejectedExecutionHandler(new RejectedExecutionHandlerImpl());
@@ -122,7 +132,7 @@ public final class ThreadPoolManager
 		});
 		
 		//@formatter:off
-		scheduleGeneralAtFixedRate(() -> {purge();}, 1, 1, TimeUnit.MINUTES);
+		scheduleGeneralAtFixedRate(() -> {purge();}, 10, 5, TimeUnit.MINUTES);
 		//@formatter:on
 	}
 	
@@ -386,6 +396,7 @@ public final class ThreadPoolManager
 	
 	public void purge()
 	{
+		getScheduledThreadPools().forEach(ScheduledThreadPoolExecutor::purge);
 		getThreadPools().forEach(ThreadPoolExecutor::purge);
 	}
 	
@@ -635,6 +646,30 @@ public final class ThreadPoolManager
 			return;
 		}
 		
+		getScheduledThreadPools().forEach(stp ->
+		{
+			try
+			{
+				stp.shutdown();
+			}
+			catch (Throwable t)
+			{
+				LOG.warn("", t);
+			}
+		});
+		
+		getScheduledThreadPools().forEach(stp ->
+		{
+			try
+			{
+				stp.awaitTermination(5, TimeUnit.SECONDS);
+			}
+			catch (InterruptedException ie)
+			{
+				LOG.warn("", ie);
+			}
+		});
+		
 		getThreadPools().forEach(tp ->
 		{
 			try
@@ -647,11 +682,11 @@ public final class ThreadPoolManager
 			}
 		});
 		
-		getThreadPools().forEach(t ->
+		getThreadPools().forEach(tp ->
 		{
 			try
 			{
-				t.awaitTermination(15, TimeUnit.SECONDS);
+				tp.awaitTermination(5, TimeUnit.SECONDS);
 			}
 			catch (InterruptedException ie)
 			{
@@ -706,15 +741,72 @@ public final class ThreadPoolManager
 				LOG.warn("", t);
 			}
 		}
+		
+		if (!_eventsThreadPool.isTerminated())
+		{
+			try
+			{
+				_eventsThreadPool.awaitTermination(5, TimeUnit.SECONDS);
+			}
+			catch (Throwable t)
+			{
+				LOG.warn("", t);
+			}
+		}
+		
+		if (!_generalPacketsThreadPool.isTerminated())
+		{
+			try
+			{
+				_generalPacketsThreadPool.awaitTermination(5, TimeUnit.SECONDS);
+			}
+			catch (Throwable t)
+			{
+				LOG.warn("", t);
+			}
+		}
+		
+		if (!_generalThreadPool.isTerminated())
+		{
+			try
+			{
+				_generalThreadPool.awaitTermination(5, TimeUnit.SECONDS);
+			}
+			catch (Throwable t)
+			{
+				LOG.warn("", t);
+			}
+		}
+		
+		if (!_ioPacketsThreadPool.isTerminated())
+		{
+			try
+			{
+				_ioPacketsThreadPool.awaitTermination(5, TimeUnit.SECONDS);
+			}
+			catch (Throwable t)
+			{
+				LOG.warn("", t);
+			}
+		}
+	}
+	
+	/**
+	 * Gets a stream of all the scheduled thread pools
+	 * @return the stream of all the thread pools
+	 */
+	private Stream<ScheduledThreadPoolExecutor> getScheduledThreadPools()
+	{
+		return Stream.of(_aiScheduledThreadPool, _effectsScheduledThreadPool, _eventsScheduledThreadPool, _generalScheduledThreadPool);
 	}
 	
 	/**
 	 * Gets a stream of all the thread pools.
-	 * @return the stream of all the thread pools
+	 * @return the stream of all the scheduled thread pools
 	 */
 	private Stream<ThreadPoolExecutor> getThreadPools()
 	{
-		return Stream.of(_aiScheduledThreadPool, _effectsScheduledThreadPool, _eventsScheduledThreadPool, _generalScheduledThreadPool, _eventsThreadPool, _generalThreadPool, _generalPacketsThreadPool, _ioPacketsThreadPool);
+		return Stream.of(_eventsThreadPool, _generalPacketsThreadPool, _generalThreadPool, _ioPacketsThreadPool);
 	}
 	
 	private final class PriorityThreadFactory implements ThreadFactory
