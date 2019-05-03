@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.l2jdevs.Config;
 import org.l2jdevs.commons.database.pool.impl.ConnectionFactory;
 import org.l2jdevs.gameserver.enums.QuestType;
 import org.l2jdevs.gameserver.enums.audio.IAudio;
@@ -708,12 +709,12 @@ public final class QuestState
 	
 	/**
 	 * Give adena to the player
-	 * @param count
-	 * @param applyRates
+	 * @param count the amount
+	 * @param applyRates If {@code true}, multiply the amount by the configured Rate Quest Reward
 	 */
 	public void giveAdena(long count, boolean applyRates)
 	{
-		giveItems(Inventory.ADENA_ID, count, applyRates ? 0 : 1);
+		giveItems(Inventory.ADENA_ID, applyRates ? count *= Config.RATE_QUEST_REWARD_ADENA : count);
 	}
 	
 	/**
