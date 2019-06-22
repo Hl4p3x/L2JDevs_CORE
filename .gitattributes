@@ -1,2 +1,4 @@
-# SH files must always use LF.
+* text=auto
+*.* text eol=crlf
 *.sh eol=lf
+*.jar binary

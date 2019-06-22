@@ -1,16 +1,22 @@
-/bin/
-/build/
-/.gradle/
-.DS_Store
-*.log
-.project
-.classpath
-/test-output/
-
-# Ignoring debug files
-/dist/game/log/
-/dist/game/config/hexid.txt
-/dist/login/log/
+# Eclipse
+*.classpath
+*.project
+*.settings
+*.metadata
+bin/
 
 # Idea
-.idea/
+*.iml
+*/.idea/
+
+# Gradle
+/.gradle/
+*/build/
+gradle.properties
+
+.DS_Store
+*.log
+
+# Cache folders
+*/.cache/
+build
