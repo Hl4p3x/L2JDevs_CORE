@@ -5,13 +5,14 @@ L2JDevs Project
 L2JDevs Project is an open-source server emulator fully written in Java language for the famous Korean MMORPG (Massively Multiplayer Online Role-Play Game).
 ---
 This page only gives very basic information, for the detailed information about building and developing L2JDevs Project, please visit the developers forums.
+
 - **master** branch is the last Saga 2: The Chaotic Throne. Throne II: High Five release (CT2.6).
 
 Legal
 ---
-L2JDevs is distributed under the terms of GNU/GPL, this means that, we require you to:
+L2JDevs Project is distributed under the terms of GNU/GPL, this means that, we require you to:
 
-**a)** Value the effort of the developers. This will give developers and collaborators of the L2JDevs team the best and most appropriate merit for carrying out their work during their free time (always outside of our work or studies).
+**a)** Value the effort of the developers. This will give developers and collaborators of the L2JDevs Project team the best and most appropriate merit for carrying out their work during their free time (always outside of our work or studies).
 
 **b)** Do not distribute any extended data files join with the server files in same archive.
 
