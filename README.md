@@ -21,7 +21,7 @@ L2JDevs Project is distributed under the terms of GNU/GPL, this means that, we r
 Requeriments
 ---
 - Windows or Linux Operating System **with Java JDK 11+ and MySQL 8.0+**.
-- At least 4gb of RAM and 2 Cores.
+- At least 4 GB of RAM and 2 Cores.
 - Ports 2106 TCP and 7777 TCP opened in all firewalls if you want the server to be accessible to the public.
 - High Five part 5 client fully updated.
 
@@ -29,7 +29,9 @@ Requeriments
 
 Links
 ---
-- [Web Site](http://www.l2jdevs.org/)
-- [Forums](http://www.l2jdevs.org/forum/)
+- [Web Site](http://www.l2jdevs.org)
+- [Forums](http://www.l2jdevs.org/forum)
 - [Live Support](https://gitter.im/l2jdevs/Community)
 - [Telegram](https://t.me/l2jdevs)
+
+- [Third-party licenses](dist/doc)
