@@ -18,7 +18,7 @@ L2JDevs Project is distributed under the terms of GNU/GPL, this means that, we r
 
 **c)** Core and Datapack may not be not be bundled or packaged.
 
-Requeriments
+Requirements
 ---
 - Windows or Linux Operating System **with Java JDK 11+ and MySQL 8.0+**.
 - At least 4 GB of RAM and 2 Cores.
