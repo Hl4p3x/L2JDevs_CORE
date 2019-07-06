@@ -44,6 +44,12 @@ public class RequestProcureCropList extends L2GameClientPacket
 	private List<CropHolder> _items = null;
 	
 	@Override
+	public String getType()
+	{
+		return "[C] D0:02 RequestProcureCropList";
+	}
+	
+	@Override
 	protected final void readImpl()
 	{
 		final int count = readD();
@@ -164,6 +170,7 @@ public class RequestProcureCropList extends L2GameClientPacket
 				sm.addItemName(i.getId());
 				sm.addLong(i.getCount());
 				player.sendPacket(sm);
+				tradeFailureNotification(player, i);
 				continue;
 			}
 			
@@ -178,6 +185,7 @@ public class RequestProcureCropList extends L2GameClientPacket
 				
 				sm = SystemMessage.getSystemMessage(SystemMessageId.YOU_NOT_ENOUGH_ADENA);
 				player.sendPacket(sm);
+				player.sendMessage(String.format("You need %d adena to pay foreign manor trading fee.", fee));
 				continue;
 			}
 			
@@ -200,6 +208,19 @@ public class RequestProcureCropList extends L2GameClientPacket
 		}
 	}
 	
+	/**
+	 * send message to player about reasons of crop trade failure
+	 * @param player message receiver
+	 * @param crop crop (holder) was traded
+	 */
+	private void tradeFailureNotification(L2PcInstance player, CropHolder crop)
+	{
+		final var rewardName = ItemTable.getInstance().getTemplate(crop.getRewardId()).getName();
+		final var cropName = ItemTable.getInstance().getTemplate(crop.getId()).getName();
+		final var msg = String.format("Not enough of %s offered to trade for 1 unit of %s.", cropName, rewardName);
+		player.sendMessage(msg);
+	}
+	
 	private final class CropHolder extends UniqueItemHolder
 	{
 		private final int _manorId;
@@ -212,6 +233,15 @@ public class RequestProcureCropList extends L2GameClientPacket
 			_manorId = manorId;
 		}
 		
+		public final CropProcure getCropProcure()
+		{
+			if (_cp == null)
+			{
+				_cp = CastleManorManager.getInstance().getCropProcure(_manorId, getId(), false);
+			}
+			return _cp;
+		}
+		
 		public final int getManorId()
 		{
 			return _manorId;
@@ -222,15 +252,6 @@ public class RequestProcureCropList extends L2GameClientPacket
 			return getCount() * _cp.getPrice();
 		}
 		
-		public final CropProcure getCropProcure()
-		{
-			if (_cp == null)
-			{
-				_cp = CastleManorManager.getInstance().getCropProcure(_manorId, getId(), false);
-			}
-			return _cp;
-		}
-		
 		public final int getRewardId()
 		{
 			if (_rewardId == 0)
@@ -239,11 +260,5 @@ public class RequestProcureCropList extends L2GameClientPacket
 			}
 			return _rewardId;
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return "[C] D0:02 RequestProcureCropList";
 	}
 }
