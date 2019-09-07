@@ -449,8 +449,8 @@ public class EnterWorld extends L2GameClientPacket
 		{
 			final int actualYear = Calendar.getInstance().get(Calendar.YEAR);
 			final int totalYears = actualYear - 2004;
-			activeChar.sendMessage(getText("VGhpcyBTZXJ2ZXIgdXNlcyBMMkosIGEgUHJvamVjdCBmb3VuZGVkIGJ5IEwyQ2hlZg=="));
-			activeChar.sendMessage(getText("YW5kIGRldmVsb3BlZCBieSBMMkogVGVhbSBhdCB3d3cubDJqc2VydmVyLmNvbQ=="));
+			activeChar.sendMessage(getText("VGhpcyBTZXJ2ZXIgdXNlcyBMMkpEZXZzLCBhIFByb2plY3QgZm91bmRlZCBieSBTd2FybG9n"));
+			activeChar.sendMessage(getText("YW5kIGRldmVsb3BlZCBieSBMMkpEZXZzIFRlYW0gYXQgd3d3LmwyamRldnMuY29t"));
 			activeChar.sendMessage(getText("Q29weXJpZ2h0IDIwMDQt") + actualYear);
 			activeChar.sendMessage(getText("VGhhbmsgeW91IGZvciA=") + totalYears + getText("IHllYXJzIQ=="));
 		}
