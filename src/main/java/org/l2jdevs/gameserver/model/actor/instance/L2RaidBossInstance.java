@@ -55,19 +55,6 @@ public class L2RaidBossInstance extends L2MonsterInstance
 	}
 	
 	@Override
-	public void onSpawn()
-	{
-		setIsNoRndWalk(true);
-		super.onSpawn();
-	}
-	
-	@Override
-	protected int getMaintenanceInterval()
-	{
-		return RAIDBOSS_MAINTENANCE_INTERVAL;
-	}
-	
-	@Override
 	public boolean doDie(L2Character killer)
 	{
 		if (!super.doDie(killer))
@@ -104,18 +91,49 @@ public class L2RaidBossInstance extends L2MonsterInstance
 		return true;
 	}
 	
-	/**
-	 * Spawn all minions at a regular interval Also if boss is too far from home location at the time of this check, teleport it home.
-	 */
-	@Override
-	protected void startMaintenanceTask()
+	public RaidBossSpawnManager.StatusEnum getRaidStatus()
 	{
-		_maintenanceTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(() -> checkAndReturnToSpawn(), 60000, getMaintenanceInterval() + Rnd.get(5000));
+		return _raidStatus;
+	}
+	
+	@Override
+	public float getVitalityPoints(int damage)
+	{
+		return -super.getVitalityPoints(damage) / 100;
+	}
+	
+	@Override
+	public boolean giveRaidCurse()
+	{
+		return _useRaidCurse;
+	}
+	
+	@Override
+	public void onSpawn()
+	{
+		setIsNoRndWalk(true);
+		super.onSpawn();
+	}
+	
+	public void setRaidStatus(RaidBossSpawnManager.StatusEnum status)
+	{
+		_raidStatus = status;
+	}
+	
+	public void setUseRaidCurse(boolean val)
+	{
+		_useRaidCurse = val;
+	}
+	
+	@Override
+	public boolean useVitalityRate()
+	{
+		return false;
 	}
 	
 	protected void checkAndReturnToSpawn()
 	{
-		if (isDead() || isMovementDisabled() || !canReturnToSpawnPoint())
+		if (isDead() || isMovementDisabled() || !canReturnToSpawnPoint() || isWalker())
 		{
 			return;
 		}
@@ -139,36 +157,18 @@ public class L2RaidBossInstance extends L2MonsterInstance
 		}
 	}
 	
-	public void setRaidStatus(RaidBossSpawnManager.StatusEnum status)
-	{
-		_raidStatus = status;
-	}
-	
-	public RaidBossSpawnManager.StatusEnum getRaidStatus()
-	{
-		return _raidStatus;
-	}
-	
 	@Override
-	public float getVitalityPoints(int damage)
+	protected int getMaintenanceInterval()
 	{
-		return -super.getVitalityPoints(damage) / 100;
+		return RAIDBOSS_MAINTENANCE_INTERVAL;
 	}
 	
+	/**
+	 * Spawn all minions at a regular interval Also if boss is too far from home location at the time of this check, teleport it home.
+	 */
 	@Override
-	public boolean useVitalityRate()
+	protected void startMaintenanceTask()
 	{
-		return false;
-	}
-	
-	public void setUseRaidCurse(boolean val)
-	{
-		_useRaidCurse = val;
-	}
-	
-	@Override
-	public boolean giveRaidCurse()
-	{
-		return _useRaidCurse;
+		_maintenanceTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(() -> checkAndReturnToSpawn(), 60000, getMaintenanceInterval() + Rnd.get(5000));
 	}
 }
