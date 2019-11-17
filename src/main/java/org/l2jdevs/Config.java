@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2J Server
+ * Copyright © 2004-2019 L2JDevs
  *
- * This file is part of L2J Server.
+ * This file is part of L2JDevs.
  *
- * L2J Server is free software: you can redistribute it and/or modify
+ * L2JDevs is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * L2J Server is distributed in the hope that it will be useful,
+ * L2JDevs is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -2479,7 +2479,7 @@ public final class Config
 			L2JMOD_DISPLAY_SERVER_TIME = L2JModSettings.getBoolean("DisplayServerTime", false);
 			
 			WELCOME_MESSAGE_ENABLED = L2JModSettings.getBoolean("ScreenWelcomeMessageEnable", false);
-			WELCOME_MESSAGE_TEXT = L2JModSettings.getString("ScreenWelcomeMessageText", "Welcome to L2J server!");
+			WELCOME_MESSAGE_TEXT = L2JModSettings.getString("ScreenWelcomeMessageText", "Welcome to L2JDevs!");
 			WELCOME_MESSAGE_TIME = L2JModSettings.getInt("ScreenWelcomeMessageTime", 10) * 1000;
 			FOUNDERS_AND_TEAM_LICENSE_MESSAGE_ENABLED = L2JModSettings.getBoolean("FoundersAndTeamLicenseMessageEnable", true);
 			
