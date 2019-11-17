@@ -33,19 +33,9 @@ public final class DamageDoneInfo
 		_attacker = attacker;
 	}
 	
-	public L2PcInstance getAttacker()
-	{
-		return _attacker;
-	}
-	
 	public void addDamage(int damage)
 	{
 		_damage += damage;
-	}
-	
-	public int getDamage()
-	{
-		return _damage;
 	}
 	
 	@Override
@@ -62,6 +52,16 @@ public final class DamageDoneInfo
 		}
 		
 		return false;
+	}
+	
+	public L2PcInstance getAttacker()
+	{
+		return _attacker;
+	}
+	
+	public int getDamage()
+	{
+		return _damage;
 	}
 	
 	@Override

@@ -45,38 +45,9 @@ public final class CoupleManager
 		load();
 	}
 	
-	public void reload()
+	public static final CoupleManager getInstance()
 	{
-		_couples.clear();
-		load();
-	}
-	
-	private final void load()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement ps = con.createStatement();
-			ResultSet rs = ps.executeQuery("SELECT id FROM mods_wedding ORDER BY id"))
-		{
-			while (rs.next())
-			{
-				getCouples().add(new Couple(rs.getInt("id")));
-			}
-			_log.info(getClass().getSimpleName() + ": Loaded: " + getCouples().size() + " couples(s)");
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.SEVERE, "Exception: CoupleManager.load(): " + e.getMessage(), e);
-		}
-	}
-	
-	public final Couple getCouple(int coupleId)
-	{
-		int index = getCoupleIndex(coupleId);
-		if (index >= 0)
-		{
-			return getCouples().get(index);
-		}
-		return null;
+		return SingletonHolder._instance;
 	}
 	
 	public void createCouple(L2PcInstance player1, L2PcInstance player2)
@@ -125,6 +96,16 @@ public final class CoupleManager
 		}
 	}
 	
+	public final Couple getCouple(int coupleId)
+	{
+		int index = getCoupleIndex(coupleId);
+		if (index >= 0)
+		{
+			return getCouples().get(index);
+		}
+		return null;
+	}
+	
 	public final int getCoupleIndex(int coupleId)
 	{
 		int i = 0;
@@ -144,9 +125,28 @@ public final class CoupleManager
 		return _couples;
 	}
 	
-	public static final CoupleManager getInstance()
+	public void reload()
 	{
-		return SingletonHolder._instance;
+		_couples.clear();
+		load();
+	}
+	
+	private final void load()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement ps = con.createStatement();
+			ResultSet rs = ps.executeQuery("SELECT id FROM mods_wedding ORDER BY id"))
+		{
+			while (rs.next())
+			{
+				getCouples().add(new Couple(rs.getInt("id")));
+			}
+			_log.info(getClass().getSimpleName() + ": Loaded: " + getCouples().size() + " couples(s)");
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.SEVERE, "Exception: CoupleManager.load(): " + e.getMessage(), e);
+		}
 	}
 	
 	private static class SingletonHolder

@@ -29,13 +29,17 @@ import org.l2jdevs.gameserver.model.items.instance.L2ItemInstance;
  */
 public interface PetDAO
 {
-	void updateFood(L2PcInstance player, int petId);
-	
 	/**
 	 * Deletes a pet by item object ID.
 	 * @param pet the pet
 	 */
 	void delete(L2PetInstance pet);
+	
+	/**
+	 * Stores a pet into the database.
+	 * @param pet the pet
+	 */
+	void insert(L2PetInstance pet);
 	
 	/**
 	 * Restores a pet from the database.
@@ -47,14 +51,10 @@ public interface PetDAO
 	L2PetInstance load(L2ItemInstance control, L2NpcTemplate template, L2PcInstance owner);
 	
 	/**
-	 * Stores a pet into the database.
-	 * @param pet the pet
-	 */
-	void insert(L2PetInstance pet);
-	
-	/**
 	 * Updates a pet in the database.
 	 * @param pet the pet
 	 */
 	void update(L2PetInstance pet);
+	
+	void updateFood(L2PcInstance player, int petId);
 }

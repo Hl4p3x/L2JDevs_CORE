@@ -105,6 +105,50 @@ public class Couple
 		}
 	}
 	
+	public void divorce()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM mods_wedding WHERE id=?"))
+		{
+			ps.setInt(1, _Id);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.SEVERE, "Exception: Couple.divorce(): " + e.getMessage(), e);
+		}
+	}
+	
+	public final Calendar getAffiancedDate()
+	{
+		return _affiancedDate;
+	}
+	
+	public final int getId()
+	{
+		return _Id;
+	}
+	
+	public final boolean getMaried()
+	{
+		return _maried;
+	}
+	
+	public final int getPlayer1Id()
+	{
+		return _player1Id;
+	}
+	
+	public final int getPlayer2Id()
+	{
+		return _player2Id;
+	}
+	
+	public final Calendar getWeddingDate()
+	{
+		return _weddingDate;
+	}
+	
 	public void marry()
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -121,49 +165,5 @@ public class Couple
 		{
 			_log.log(Level.SEVERE, "Could not marry: " + e.getMessage(), e);
 		}
-	}
-	
-	public void divorce()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM mods_wedding WHERE id=?"))
-		{
-			ps.setInt(1, _Id);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.SEVERE, "Exception: Couple.divorce(): " + e.getMessage(), e);
-		}
-	}
-	
-	public final int getId()
-	{
-		return _Id;
-	}
-	
-	public final int getPlayer1Id()
-	{
-		return _player1Id;
-	}
-	
-	public final int getPlayer2Id()
-	{
-		return _player2Id;
-	}
-	
-	public final boolean getMaried()
-	{
-		return _maried;
-	}
-	
-	public final Calendar getAffiancedDate()
-	{
-		return _affiancedDate;
-	}
-	
-	public final Calendar getWeddingDate()
-	{
-		return _weddingDate;
 	}
 }

@@ -47,6 +47,10 @@ import org.l2jdevs.gameserver.network.SystemMessageId;
 public class Auction
 {
 	protected static final Logger _log = Logger.getLogger(Auction.class.getName());
+	private static final String[] ItemTypeName =
+	{
+		"ClanHall"
+	};
 	private int _id = 0;
 	private long _endDate;
 	private int _highestBidderId = 0;
@@ -61,82 +65,10 @@ public class Auction
 	private String _sellerClanName = "";
 	private String _sellerName = "";
 	private long _currentBid = 0;
+	
 	private long _startingBid = 0;
 	
 	private final Map<Integer, Bidder> _bidders = new ConcurrentHashMap<>();
-	
-	private static final String[] ItemTypeName =
-	{
-		"ClanHall"
-	};
-	
-	public static class Bidder
-	{
-		private final String _name; // TODO replace with objid
-		private final String _clanName;
-		private long _bid;
-		private final Calendar _timeBid;
-		
-		public Bidder(String name, String clanName, long bid, long timeBid)
-		{
-			_name = name;
-			_clanName = clanName;
-			_bid = bid;
-			_timeBid = Calendar.getInstance();
-			_timeBid.setTimeInMillis(timeBid);
-		}
-		
-		public String getName()
-		{
-			return _name;
-		}
-		
-		public String getClanName()
-		{
-			return _clanName;
-		}
-		
-		public long getBid()
-		{
-			return _bid;
-		}
-		
-		public Calendar getTimeBid()
-		{
-			return _timeBid;
-		}
-		
-		public void setTimeBid(long timeBid)
-		{
-			_timeBid.setTimeInMillis(timeBid);
-		}
-		
-		public void setBid(long bid)
-		{
-			_bid = bid;
-		}
-	}
-	
-	/** Task Sheduler for endAuction */
-	public class AutoEndTask implements Runnable
-	{
-		public AutoEndTask()
-		{
-		}
-		
-		@Override
-		public void run()
-		{
-			try
-			{
-				endAuction();
-			}
-			catch (Exception e)
-			{
-				_log.log(Level.SEVERE, "", e);
-			}
-		}
-	}
 	
 	/**
 	 * Constructor
@@ -160,6 +92,235 @@ public class Auction
 		_sellerName = Clan.getLeaderName();
 		_sellerClanName = Clan.getName();
 		_startingBid = bid;
+	}
+	
+	public static String getItemTypeName(AuctionItemType value)
+	{
+		return ItemTypeName[value.ordinal()];
+	}
+	
+	/** Cancel auction */
+	public void cancelAuction()
+	{
+		deleteAuctionFromDB();
+		removeBids();
+	}
+	
+	/**
+	 * Cancel bid
+	 * @param bidder
+	 */
+	public synchronized void cancelBid(int bidder)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM auction_bid WHERE auctionId=? AND bidderId=?"))
+		{
+			ps.setInt(1, getId());
+			ps.setInt(2, bidder);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.SEVERE, "Exception: Auction.cancelBid(String bidder): " + e.getMessage(), e);
+		}
+		
+		returnItem(_bidders.get(bidder).getClanName(), _bidders.get(bidder).getBid(), true);
+		ClanTable.getInstance().getClanByName(_bidders.get(bidder).getClanName()).setAuctionBiddedAt(0, true);
+		_bidders.clear();
+		loadBid();
+	}
+	
+	/** Confirm an auction */
+	public void confirmAuction()
+	{
+		AuctionManager.getInstance().getAuctions().add(this);
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("INSERT INTO auction (id, sellerId, sellerName, sellerClanName, itemType, itemId, itemObjectId, itemName, itemQuantity, startingBid, currentBid, endDate) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"))
+		{
+			ps.setInt(1, getId());
+			ps.setInt(2, _sellerId);
+			ps.setString(3, _sellerName);
+			ps.setString(4, _sellerClanName);
+			ps.setString(5, _itemType);
+			ps.setInt(6, _itemId);
+			ps.setInt(7, _itemObjectId);
+			ps.setString(8, _itemName);
+			ps.setLong(9, _itemQuantity);
+			ps.setLong(10, _startingBid);
+			ps.setLong(11, _currentBid);
+			ps.setLong(12, _endDate);
+			ps.execute();
+			ps.close();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.SEVERE, "Exception: Auction.load(): " + e.getMessage(), e);
+		}
+	}
+	
+	/** Remove auctions */
+	public void deleteAuctionFromDB()
+	{
+		AuctionManager.getInstance().getAuctions().remove(this);
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM auction WHERE itemId=?"))
+		{
+			ps.setInt(1, _itemId);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.SEVERE, "Exception: Auction.deleteFromDB(): " + e.getMessage(), e);
+		}
+	}
+	
+	/** End of auction */
+	public void endAuction()
+	{
+		if (ClanHallManager.getInstance().loaded())
+		{
+			if ((_highestBidderId == 0) && (_sellerId == 0))
+			{
+				startAutoTask();
+				return;
+			}
+			if ((_highestBidderId == 0) && (_sellerId > 0))
+			{
+				/**
+				 * If seller haven't sell ClanHall, auction removed, THIS MUST BE CONFIRMED
+				 */
+				int aucId = AuctionManager.getInstance().getAuctionIndex(_id);
+				AuctionManager.getInstance().getAuctions().remove(aucId);
+				return;
+			}
+			if (_sellerId > 0)
+			{
+				returnItem(_sellerClanName, _highestBidderMaxBid, true);
+				returnItem(_sellerClanName, ClanHallManager.getInstance().getAuctionableHallById(_itemId).getLease(), false);
+			}
+			deleteAuctionFromDB();
+			L2Clan Clan = ClanTable.getInstance().getClanByName(_bidders.get(_highestBidderId).getClanName());
+			_bidders.remove(_highestBidderId);
+			Clan.setAuctionBiddedAt(0, true);
+			removeBids();
+			ClanHallManager.getInstance().setOwner(_itemId, Clan);
+		}
+		else
+		{
+			/** Task waiting ClanHallManager is loaded every 3s */
+			ThreadPoolManager.getInstance().scheduleGeneral(new AutoEndTask(), 3000);
+		}
+	}
+	
+	public final Map<Integer, Bidder> getBidders()
+	{
+		return _bidders;
+	}
+	
+	public final long getCurrentBid()
+	{
+		return _currentBid;
+	}
+	
+	public final long getEndDate()
+	{
+		return _endDate;
+	}
+	
+	public final int getHighestBidderId()
+	{
+		return _highestBidderId;
+	}
+	
+	public final long getHighestBidderMaxBid()
+	{
+		return _highestBidderMaxBid;
+	}
+	
+	public final String getHighestBidderName()
+	{
+		return _highestBidderName;
+	}
+	
+	/**
+	 * Get var auction
+	 * @return
+	 */
+	public final int getId()
+	{
+		return _id;
+	}
+	
+	public final int getItemId()
+	{
+		return _itemId;
+	}
+	
+	public final String getItemName()
+	{
+		return _itemName;
+	}
+	
+	public final int getItemObjectId()
+	{
+		return _itemObjectId;
+	}
+	
+	public final long getItemQuantity()
+	{
+		return _itemQuantity;
+	}
+	
+	public final String getItemType()
+	{
+		return _itemType;
+	}
+	
+	public final String getSellerClanName()
+	{
+		return _sellerClanName;
+	}
+	
+	public final int getSellerId()
+	{
+		return _sellerId;
+	}
+	
+	public final String getSellerName()
+	{
+		return _sellerName;
+	}
+	
+	public final long getStartingBid()
+	{
+		return _startingBid;
+	}
+	
+	/**
+	 * Set a bid
+	 * @param bidder
+	 * @param bid
+	 */
+	public synchronized void setBid(L2PcInstance bidder, long bid)
+	{
+		long requiredAdena = bid;
+		if (getHighestBidderName().equals(bidder.getClan().getLeaderName()))
+		{
+			requiredAdena = bid - getHighestBidderMaxBid();
+		}
+		if (((getHighestBidderId() > 0) && (bid > getHighestBidderMaxBid())) || ((getHighestBidderId() == 0) && (bid >= getStartingBid())))
+		{
+			if (takeItem(bidder, requiredAdena))
+			{
+				updateInDB(bidder, bid);
+				bidder.getClan().setAuctionBiddedAt(_id, true);
+				return;
+			}
+		}
+		if ((bid < getStartingBid()) || (bid <= getHighestBidderMaxBid()))
+		{
+			bidder.sendPacket(SystemMessageId.BID_PRICE_MUST_BE_HIGHER);
+		}
 	}
 	
 	/** Load auctions */
@@ -224,69 +385,37 @@ public class Auction
 		}
 	}
 	
-	/** Task Manage */
-	private void startAutoTask()
-	{
-		long currentTime = System.currentTimeMillis();
-		long taskDelay = 0;
-		if (_endDate <= currentTime)
-		{
-			_endDate = currentTime + (7 * 24 * 3600000);
-			saveAuctionDate();
-		}
-		else
-		{
-			taskDelay = _endDate - currentTime;
-		}
-		ThreadPoolManager.getInstance().scheduleGeneral(new AutoEndTask(), taskDelay);
-	}
-	
-	public static String getItemTypeName(AuctionItemType value)
-	{
-		return ItemTypeName[value.ordinal()];
-	}
-	
-	/** Save Auction Data End */
-	private void saveAuctionDate()
+	/** Remove bids */
+	private void removeBids()
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("Update auction set endDate = ? where id = ?"))
+			PreparedStatement ps = con.prepareStatement("DELETE FROM auction_bid WHERE auctionId=?"))
 		{
-			ps.setLong(1, _endDate);
-			ps.setInt(2, _id);
+			ps.setInt(1, getId());
 			ps.execute();
 		}
 		catch (Exception e)
 		{
-			_log.log(Level.SEVERE, "Exception: saveAuctionDate(): " + e.getMessage(), e);
+			_log.log(Level.SEVERE, "Exception: Auction.deleteFromDB(): " + e.getMessage(), e);
 		}
-	}
-	
-	/**
-	 * Set a bid
-	 * @param bidder
-	 * @param bid
-	 */
-	public synchronized void setBid(L2PcInstance bidder, long bid)
-	{
-		long requiredAdena = bid;
-		if (getHighestBidderName().equals(bidder.getClan().getLeaderName()))
+		
+		for (Bidder b : _bidders.values())
 		{
-			requiredAdena = bid - getHighestBidderMaxBid();
-		}
-		if (((getHighestBidderId() > 0) && (bid > getHighestBidderMaxBid())) || ((getHighestBidderId() == 0) && (bid >= getStartingBid())))
-		{
-			if (takeItem(bidder, requiredAdena))
+			if (ClanTable.getInstance().getClanByName(b.getClanName()).getHideoutId() == 0)
 			{
-				updateInDB(bidder, bid);
-				bidder.getClan().setAuctionBiddedAt(_id, true);
-				return;
+				returnItem(b.getClanName(), b.getBid(), true); // 10 % tax
 			}
+			else
+			{
+				final L2PcInstance player = L2World.getInstance().getPlayer(b.getName());
+				if (player != null)
+				{
+					player.sendMessage(LanguageData.getInstance().getMsg(player, "auction_won"));
+				}
+			}
+			ClanTable.getInstance().getClanByName(b.getClanName()).setAuctionBiddedAt(0, true);
 		}
-		if ((bid < getStartingBid()) || (bid <= getHighestBidderMaxBid()))
-		{
-			bidder.sendPacket(SystemMessageId.BID_PRICE_MUST_BE_HIGHER);
-		}
+		_bidders.clear();
 	}
 	
 	/**
@@ -321,6 +450,39 @@ public class Auction
 		quantity = Math.min(quantity, limit);
 		
 		cwh.addItem("Outbidded", ADENA_ID, quantity, null, null);
+	}
+	
+	/** Save Auction Data End */
+	private void saveAuctionDate()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("Update auction set endDate = ? where id = ?"))
+		{
+			ps.setLong(1, _endDate);
+			ps.setInt(2, _id);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.SEVERE, "Exception: saveAuctionDate(): " + e.getMessage(), e);
+		}
+	}
+	
+	/** Task Manage */
+	private void startAutoTask()
+	{
+		long currentTime = System.currentTimeMillis();
+		long taskDelay = 0;
+		if (_endDate <= currentTime)
+		{
+			_endDate = currentTime + (7 * 24 * 3600000);
+			saveAuctionDate();
+		}
+		else
+		{
+			taskDelay = _endDate - currentTime;
+		}
+		ThreadPoolManager.getInstance().scheduleGeneral(new AutoEndTask(), taskDelay);
 	}
 	
 	/**
@@ -401,233 +563,71 @@ public class Auction
 		}
 	}
 	
-	/** Remove bids */
-	private void removeBids()
+	/** Task Sheduler for endAuction */
+	public class AutoEndTask implements Runnable
 	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM auction_bid WHERE auctionId=?"))
+		public AutoEndTask()
 		{
-			ps.setInt(1, getId());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.SEVERE, "Exception: Auction.deleteFromDB(): " + e.getMessage(), e);
 		}
 		
-		for (Bidder b : _bidders.values())
+		@Override
+		public void run()
 		{
-			if (ClanTable.getInstance().getClanByName(b.getClanName()).getHideoutId() == 0)
+			try
 			{
-				returnItem(b.getClanName(), b.getBid(), true); // 10 % tax
+				endAuction();
 			}
-			else
+			catch (Exception e)
 			{
-				final L2PcInstance player = L2World.getInstance().getPlayer(b.getName());
-				if (player != null)
-				{
-					player.sendMessage(LanguageData.getInstance().getMsg(player, "auction_won"));
-				}
+				_log.log(Level.SEVERE, "", e);
 			}
-			ClanTable.getInstance().getClanByName(b.getClanName()).setAuctionBiddedAt(0, true);
-		}
-		_bidders.clear();
-	}
-	
-	/** Remove auctions */
-	public void deleteAuctionFromDB()
-	{
-		AuctionManager.getInstance().getAuctions().remove(this);
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM auction WHERE itemId=?"))
-		{
-			ps.setInt(1, _itemId);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.SEVERE, "Exception: Auction.deleteFromDB(): " + e.getMessage(), e);
 		}
 	}
 	
-	/** End of auction */
-	public void endAuction()
+	public static class Bidder
 	{
-		if (ClanHallManager.getInstance().loaded())
+		private final String _name; // TODO replace with objid
+		private final String _clanName;
+		private long _bid;
+		private final Calendar _timeBid;
+		
+		public Bidder(String name, String clanName, long bid, long timeBid)
 		{
-			if ((_highestBidderId == 0) && (_sellerId == 0))
-			{
-				startAutoTask();
-				return;
-			}
-			if ((_highestBidderId == 0) && (_sellerId > 0))
-			{
-				/**
-				 * If seller haven't sell ClanHall, auction removed, THIS MUST BE CONFIRMED
-				 */
-				int aucId = AuctionManager.getInstance().getAuctionIndex(_id);
-				AuctionManager.getInstance().getAuctions().remove(aucId);
-				return;
-			}
-			if (_sellerId > 0)
-			{
-				returnItem(_sellerClanName, _highestBidderMaxBid, true);
-				returnItem(_sellerClanName, ClanHallManager.getInstance().getAuctionableHallById(_itemId).getLease(), false);
-			}
-			deleteAuctionFromDB();
-			L2Clan Clan = ClanTable.getInstance().getClanByName(_bidders.get(_highestBidderId).getClanName());
-			_bidders.remove(_highestBidderId);
-			Clan.setAuctionBiddedAt(0, true);
-			removeBids();
-			ClanHallManager.getInstance().setOwner(_itemId, Clan);
-		}
-		else
-		{
-			/** Task waiting ClanHallManager is loaded every 3s */
-			ThreadPoolManager.getInstance().scheduleGeneral(new AutoEndTask(), 3000);
-		}
-	}
-	
-	/**
-	 * Cancel bid
-	 * @param bidder
-	 */
-	public synchronized void cancelBid(int bidder)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM auction_bid WHERE auctionId=? AND bidderId=?"))
-		{
-			ps.setInt(1, getId());
-			ps.setInt(2, bidder);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.SEVERE, "Exception: Auction.cancelBid(String bidder): " + e.getMessage(), e);
+			_name = name;
+			_clanName = clanName;
+			_bid = bid;
+			_timeBid = Calendar.getInstance();
+			_timeBid.setTimeInMillis(timeBid);
 		}
 		
-		returnItem(_bidders.get(bidder).getClanName(), _bidders.get(bidder).getBid(), true);
-		ClanTable.getInstance().getClanByName(_bidders.get(bidder).getClanName()).setAuctionBiddedAt(0, true);
-		_bidders.clear();
-		loadBid();
-	}
-	
-	/** Cancel auction */
-	public void cancelAuction()
-	{
-		deleteAuctionFromDB();
-		removeBids();
-	}
-	
-	/** Confirm an auction */
-	public void confirmAuction()
-	{
-		AuctionManager.getInstance().getAuctions().add(this);
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("INSERT INTO auction (id, sellerId, sellerName, sellerClanName, itemType, itemId, itemObjectId, itemName, itemQuantity, startingBid, currentBid, endDate) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"))
+		public long getBid()
 		{
-			ps.setInt(1, getId());
-			ps.setInt(2, _sellerId);
-			ps.setString(3, _sellerName);
-			ps.setString(4, _sellerClanName);
-			ps.setString(5, _itemType);
-			ps.setInt(6, _itemId);
-			ps.setInt(7, _itemObjectId);
-			ps.setString(8, _itemName);
-			ps.setLong(9, _itemQuantity);
-			ps.setLong(10, _startingBid);
-			ps.setLong(11, _currentBid);
-			ps.setLong(12, _endDate);
-			ps.execute();
-			ps.close();
+			return _bid;
 		}
-		catch (Exception e)
+		
+		public String getClanName()
 		{
-			_log.log(Level.SEVERE, "Exception: Auction.load(): " + e.getMessage(), e);
+			return _clanName;
 		}
-	}
-	
-	/**
-	 * Get var auction
-	 * @return
-	 */
-	public final int getId()
-	{
-		return _id;
-	}
-	
-	public final long getCurrentBid()
-	{
-		return _currentBid;
-	}
-	
-	public final long getEndDate()
-	{
-		return _endDate;
-	}
-	
-	public final int getHighestBidderId()
-	{
-		return _highestBidderId;
-	}
-	
-	public final String getHighestBidderName()
-	{
-		return _highestBidderName;
-	}
-	
-	public final long getHighestBidderMaxBid()
-	{
-		return _highestBidderMaxBid;
-	}
-	
-	public final int getItemId()
-	{
-		return _itemId;
-	}
-	
-	public final String getItemName()
-	{
-		return _itemName;
-	}
-	
-	public final int getItemObjectId()
-	{
-		return _itemObjectId;
-	}
-	
-	public final long getItemQuantity()
-	{
-		return _itemQuantity;
-	}
-	
-	public final String getItemType()
-	{
-		return _itemType;
-	}
-	
-	public final int getSellerId()
-	{
-		return _sellerId;
-	}
-	
-	public final String getSellerName()
-	{
-		return _sellerName;
-	}
-	
-	public final String getSellerClanName()
-	{
-		return _sellerClanName;
-	}
-	
-	public final long getStartingBid()
-	{
-		return _startingBid;
-	}
-	
-	public final Map<Integer, Bidder> getBidders()
-	{
-		return _bidders;
+		
+		public String getName()
+		{
+			return _name;
+		}
+		
+		public Calendar getTimeBid()
+		{
+			return _timeBid;
+		}
+		
+		public void setBid(long bid)
+		{
+			_bid = bid;
+		}
+		
+		public void setTimeBid(long timeBid)
+		{
+			_timeBid.setTimeInMillis(timeBid);
+		}
 	}
 }

@@ -41,6 +41,12 @@ public class RequestExRemoveItemAttribute extends L2GameClientPacket
 	}
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_23_REQUESTEXREMOVEITEMATTRIBUTE;
+	}
+	
+	@Override
 	public void readImpl()
 	{
 		_objectId = readD();
@@ -163,11 +169,5 @@ public class RequestExRemoveItemAttribute extends L2GameClientPacket
 		}
 		
 		return _price;
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_23_REQUESTEXREMOVEITEMATTRIBUTE;
 	}
 }

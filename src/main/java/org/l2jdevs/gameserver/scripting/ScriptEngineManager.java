@@ -64,6 +64,122 @@ public final class ScriptEngineManager
 	
 	private static final InMemoryJavaCompiler COMPILER = InMemoryJavaCompiler.newInstance().useOptions("-classpath", CLASS_PATH);
 	
+	public static ScriptEngineManager getInstance()
+	{
+		return SingletonHolder.INSTANCE;
+	}
+	
+	private static Method findMethod(Class<?> clazz, String methodName, Class<?>[] args)
+	{
+		try
+		{
+			final Method mainMethod = clazz.getMethod(methodName, args);
+			final int modifiers = mainMethod.getModifiers();
+			if (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers))
+			{
+				return mainMethod;
+			}
+		}
+		catch (NoSuchMethodException ignored)
+		{
+		}
+		return null;
+	}
+	
+	private static String getClassForFile(File script)
+	{
+		final String path = script.getAbsolutePath();
+		final String scpPath = SCRIPT_FOLDER.getAbsolutePath();
+		if (path.startsWith(scpPath))
+		{
+			final int idx = path.lastIndexOf('.');
+			return path.substring(scpPath.length() + 1, idx).replace('/', '.').replace('\\', '.');
+		}
+		return null;
+	}
+	
+	private static String readerToString(Reader reader) throws ScriptException
+	{
+		try (BufferedReader in = new BufferedReader(reader))
+		{
+			final StringBuilder result = new StringBuilder();
+			String line;
+			while ((line = in.readLine()) != null)
+			{
+				result.append(line).append(System.lineSeparator());
+			}
+			return result.toString();
+		}
+		catch (IOException ex)
+		{
+			throw new ScriptException(ex);
+		}
+	}
+	
+	private static void runMain(Class<?> clazz) throws Exception
+	{
+		final boolean isPublicClazz = Modifier.isPublic(clazz.getModifiers());
+		final Method mainMethod = findMethod(clazz, MAIN, ARG_MAIN);
+		if (mainMethod != null)
+		{
+			if (!isPublicClazz)
+			{
+				mainMethod.setAccessible(true);
+			}
+			
+			mainMethod.invoke(null, new Object[]
+			{
+				EMPTY_STRING_ARRAY
+			});
+		}
+	}
+	
+	public void addSource(File file)
+	{
+		if (VERBOSE_LOADING)
+		{
+			LOG.info("Loading Script: {}", file.getAbsolutePath());
+		}
+		
+		try (FileInputStream fis = new FileInputStream(file);
+			InputStreamReader isr = new InputStreamReader(fis);
+			BufferedReader reader = new BufferedReader(isr))
+		{
+			COMPILER.addSource(getClassForFile(file), readerToString(reader));
+		}
+		catch (Exception ex)
+		{
+			LOG.warn("Error executing script!", ex);
+		}
+	}
+	
+	public Class<?> compileScript(File file)
+	{
+		try (FileInputStream fis = new FileInputStream(file);
+			InputStreamReader isr = new InputStreamReader(fis);
+			BufferedReader reader = new BufferedReader(isr))
+		{
+			return COMPILER.compile(getClassForFile(file), readerToString(reader));
+		}
+		catch (Exception ex)
+		{
+			LOG.warn("Error executing script!", ex);
+		}
+		return null;
+	}
+	
+	public void executeScript(File file) throws Exception
+	{
+		final Class<?> clazz = compileScript(file);
+		
+		runMain(clazz);
+	}
+	
+	public void executeScript(String file) throws Exception
+	{
+		executeScript(new File(SCRIPT_FOLDER, file));
+	}
+	
 	public void executeScriptList(File list) throws Exception
 	{
 		if (Config.NO_QUESTS)
@@ -138,6 +254,11 @@ public final class ScriptEngineManager
 		}
 	}
 	
+	public File getCurrentLoadingScript()
+	{
+		return null;
+	}
+	
 	private void executeAllScriptsInDirectory(File dir, boolean recurseDown)
 	{
 		if (dir.isDirectory())
@@ -168,127 +289,6 @@ public final class ScriptEngineManager
 		{
 			throw new IllegalArgumentException("The argument directory either doesnt exists or is not an directory.");
 		}
-	}
-	
-	public Class<?> compileScript(File file)
-	{
-		try (FileInputStream fis = new FileInputStream(file);
-			InputStreamReader isr = new InputStreamReader(fis);
-			BufferedReader reader = new BufferedReader(isr))
-		{
-			return COMPILER.compile(getClassForFile(file), readerToString(reader));
-		}
-		catch (Exception ex)
-		{
-			LOG.warn("Error executing script!", ex);
-		}
-		return null;
-	}
-	
-	public void executeScript(File file) throws Exception
-	{
-		final Class<?> clazz = compileScript(file);
-		
-		runMain(clazz);
-	}
-	
-	public void executeScript(String file) throws Exception
-	{
-		executeScript(new File(SCRIPT_FOLDER, file));
-	}
-	
-	public void addSource(File file)
-	{
-		if (VERBOSE_LOADING)
-		{
-			LOG.info("Loading Script: {}", file.getAbsolutePath());
-		}
-		
-		try (FileInputStream fis = new FileInputStream(file);
-			InputStreamReader isr = new InputStreamReader(fis);
-			BufferedReader reader = new BufferedReader(isr))
-		{
-			COMPILER.addSource(getClassForFile(file), readerToString(reader));
-		}
-		catch (Exception ex)
-		{
-			LOG.warn("Error executing script!", ex);
-		}
-	}
-	
-	private static String getClassForFile(File script)
-	{
-		final String path = script.getAbsolutePath();
-		final String scpPath = SCRIPT_FOLDER.getAbsolutePath();
-		if (path.startsWith(scpPath))
-		{
-			final int idx = path.lastIndexOf('.');
-			return path.substring(scpPath.length() + 1, idx).replace('/', '.').replace('\\', '.');
-		}
-		return null;
-	}
-	
-	private static void runMain(Class<?> clazz) throws Exception
-	{
-		final boolean isPublicClazz = Modifier.isPublic(clazz.getModifiers());
-		final Method mainMethod = findMethod(clazz, MAIN, ARG_MAIN);
-		if (mainMethod != null)
-		{
-			if (!isPublicClazz)
-			{
-				mainMethod.setAccessible(true);
-			}
-			
-			mainMethod.invoke(null, new Object[]
-			{
-				EMPTY_STRING_ARRAY
-			});
-		}
-	}
-	
-	private static String readerToString(Reader reader) throws ScriptException
-	{
-		try (BufferedReader in = new BufferedReader(reader))
-		{
-			final StringBuilder result = new StringBuilder();
-			String line;
-			while ((line = in.readLine()) != null)
-			{
-				result.append(line).append(System.lineSeparator());
-			}
-			return result.toString();
-		}
-		catch (IOException ex)
-		{
-			throw new ScriptException(ex);
-		}
-	}
-	
-	private static Method findMethod(Class<?> clazz, String methodName, Class<?>[] args)
-	{
-		try
-		{
-			final Method mainMethod = clazz.getMethod(methodName, args);
-			final int modifiers = mainMethod.getModifiers();
-			if (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers))
-			{
-				return mainMethod;
-			}
-		}
-		catch (NoSuchMethodException ignored)
-		{
-		}
-		return null;
-	}
-	
-	public File getCurrentLoadingScript()
-	{
-		return null;
-	}
-	
-	public static ScriptEngineManager getInstance()
-	{
-		return SingletonHolder.INSTANCE;
 	}
 	
 	private static class SingletonHolder

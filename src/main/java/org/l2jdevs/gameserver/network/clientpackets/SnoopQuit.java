@@ -31,6 +31,12 @@ public final class SnoopQuit extends L2GameClientPacket
 	private int _snoopID;
 	
 	@Override
+	public String getType()
+	{
+		return _C__B4_SNOOPQUIT;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_snoopID = readD();
@@ -53,11 +59,5 @@ public final class SnoopQuit extends L2GameClientPacket
 		player.removeSnooper(activeChar);
 		activeChar.removeSnooped(player);
 		
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__B4_SNOOPQUIT;
 	}
 }

@@ -36,6 +36,12 @@ public final class CannotMoveAnymoreInVehicle extends L2GameClientPacket
 	private int _boatId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__76_CANNOTMOVEANYMOREINVEHICLE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_boatId = readD();
@@ -63,11 +69,5 @@ public final class CannotMoveAnymoreInVehicle extends L2GameClientPacket
 				player.broadcastPacket(msg);
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__76_CANNOTMOVEANYMOREINVEHICLE;
 	}
 }

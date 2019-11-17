@@ -42,6 +42,13 @@ public class TaskRaidPointsReset extends Task
 	}
 	
 	@Override
+	public void initializate()
+	{
+		super.initializate();
+		TaskManager.addUniqueTask(NAME, TaskTypes.TYPE_GLOBAL_TASK, "1", "00:10:00", "");
+	}
+	
+	@Override
 	public void onTimeElapsed(ExecutedTask task)
 	{
 		Calendar cal = Calendar.getInstance();
@@ -107,12 +114,5 @@ public class TaskRaidPointsReset extends Task
 			RaidBossPointsManager.getInstance().cleanUp();
 			_log.info("Raid Points Reset Global Task: launched.");
 		}
-	}
-	
-	@Override
-	public void initializate()
-	{
-		super.initializate();
-		TaskManager.addUniqueTask(NAME, TaskTypes.TYPE_GLOBAL_TASK, "1", "00:10:00", "");
 	}
 }

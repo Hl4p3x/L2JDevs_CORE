@@ -42,22 +42,12 @@ public class NpcPersonalAIData
 	}
 	
 	/**
-	 * Stores data for given spawn.
-	 * @param spawnDat spawn to process
-	 * @param data Map of AI values
+	 * Gets the single instance of NpcTable.
+	 * @return single instance of NpcTable
 	 */
-	public void storeData(L2Spawn spawnDat, Map<String, Integer> data)
+	public static NpcPersonalAIData getInstance()
 	{
-		if ((data != null) && !data.isEmpty())
-		{
-			// check for spawn name. Since spawn name is key for AI Data, generate random name, if spawn name isn't specified
-			if (spawnDat.getName() == null)
-			{
-				spawnDat.setName(Long.toString(Rnd.nextLong()));
-			}
-			
-			_AIData.put(spawnDat.getName(), data);
-		}
+		return SingletonHolder._instance;
 	}
 	
 	/**
@@ -118,12 +108,22 @@ public class NpcPersonalAIData
 	}
 	
 	/**
-	 * Gets the single instance of NpcTable.
-	 * @return single instance of NpcTable
+	 * Stores data for given spawn.
+	 * @param spawnDat spawn to process
+	 * @param data Map of AI values
 	 */
-	public static NpcPersonalAIData getInstance()
+	public void storeData(L2Spawn spawnDat, Map<String, Integer> data)
 	{
-		return SingletonHolder._instance;
+		if ((data != null) && !data.isEmpty())
+		{
+			// check for spawn name. Since spawn name is key for AI Data, generate random name, if spawn name isn't specified
+			if (spawnDat.getName() == null)
+			{
+				spawnDat.setName(Long.toString(Rnd.nextLong()));
+			}
+			
+			_AIData.put(spawnDat.getName(), data);
+		}
 	}
 	
 	private static class SingletonHolder

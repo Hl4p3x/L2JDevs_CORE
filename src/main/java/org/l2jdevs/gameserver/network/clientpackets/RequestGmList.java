@@ -29,6 +29,12 @@ public final class RequestGmList extends L2GameClientPacket
 	private static final String _C__8B_REQUESTGMLIST = "[C] 8B RequestGmList";
 	
 	@Override
+	public String getType()
+	{
+		return _C__8B_REQUESTGMLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		
@@ -42,11 +48,5 @@ public final class RequestGmList extends L2GameClientPacket
 			return;
 		}
 		AdminData.getInstance().sendListToPlayer(getClient().getActiveChar());
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__8B_REQUESTGMLIST;
 	}
 }

@@ -42,14 +42,14 @@ public class OnPlayerClanWHItemAdd implements IBaseEvent
 		_container = container;
 	}
 	
-	public String getProcess()
-	{
-		return _process;
-	}
-	
 	public L2PcInstance getActiveChar()
 	{
 		return _activeChar;
+	}
+	
+	public ItemContainer getContainer()
+	{
+		return _container;
 	}
 	
 	public L2ItemInstance getItem()
@@ -57,9 +57,9 @@ public class OnPlayerClanWHItemAdd implements IBaseEvent
 		return _item;
 	}
 	
-	public ItemContainer getContainer()
+	public String getProcess()
 	{
-		return _container;
+		return _process;
 	}
 	
 	@Override

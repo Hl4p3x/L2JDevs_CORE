@@ -47,11 +47,6 @@ public abstract class FaenorParser extends Parser
 		return attribute(node, attributeName, null);
 	}
 	
-	public static String element(Node node, String elementName)
-	{
-		return element(node, elementName, null);
-	}
-	
 	public static String attribute(Node node, String attributeName, String defaultValue)
 	{
 		try
@@ -66,6 +61,11 @@ public abstract class FaenorParser extends Parser
 			}
 			throw new NullPointerException(e.getMessage());
 		}
+	}
+	
+	public static String element(Node node, String elementName)
+	{
+		return element(node, elementName, null);
 	}
 	
 	public static String element(Node parentNode, String elementName, String defaultValue)
@@ -92,24 +92,14 @@ public abstract class FaenorParser extends Parser
 		throw new NullPointerException();
 	}
 	
-	public static boolean isNodeName(Node node, String name)
-	{
-		return node.getNodeName().equalsIgnoreCase(name);
-	}
-	
-	public Date getDate(String date) throws ParseException
-	{
-		return DATE_FORMAT.parse(date);
-	}
-	
 	public static double getPercent(String percent)
 	{
 		return (Double.parseDouble(percent.split("%")[0]) / 100.0);
 	}
 	
-	protected static int getInt(String number)
+	public static boolean isNodeName(Node node, String name)
 	{
-		return Integer.parseInt(number);
+		return node.getNodeName().equalsIgnoreCase(name);
 	}
 	
 	protected static double getDouble(String number)
@@ -122,9 +112,19 @@ public abstract class FaenorParser extends Parser
 		return Float.parseFloat(number);
 	}
 	
+	protected static int getInt(String number)
+	{
+		return Integer.parseInt(number);
+	}
+	
 	protected static String getParserName(String name)
 	{
 		return "faenor.Faenor" + name + "Parser";
+	}
+	
+	public Date getDate(String date) throws ParseException
+	{
+		return DATE_FORMAT.parse(date);
 	}
 	
 	/**

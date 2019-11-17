@@ -33,6 +33,12 @@ public final class RequestRecipeItemMakeSelf extends L2GameClientPacket
 	private int _id;
 	
 	@Override
+	public String getType()
+	{
+		return _C__B8_REQUESTRECIPEITEMMAKESELF;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_id = readD();
@@ -65,11 +71,5 @@ public final class RequestRecipeItemMakeSelf extends L2GameClientPacket
 		}
 		
 		RecipeController.getInstance().requestMakeItem(activeChar, _id);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__B8_REQUESTRECIPEITEMMAKESELF;
 	}
 }

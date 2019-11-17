@@ -34,6 +34,106 @@ import org.l2jdevs.util.Rnd;
  */
 public abstract class AbstractPlayerGroup
 {
+	public void broadcastCreatureSay(final CreatureSay msg, final L2PcInstance broadcaster)
+	{
+		forEachMember(m ->
+		{
+			if ((m != null) && !BlockList.isBlocked(m, broadcaster))
+			{
+				m.sendPacket(msg);
+			}
+			return true;
+		});
+	}
+	
+	/**
+	 * Broadcast a system message to this group.
+	 * @param message the system message to broadcast
+	 */
+	public void broadcastMessage(SystemMessageId message)
+	{
+		broadcastPacket(SystemMessage.getSystemMessage(message));
+	}
+	
+	/**
+	 * Broadcast a packet to every member of this group.
+	 * @param packet the packet to broadcast
+	 */
+	public void broadcastPacket(final L2GameServerPacket packet)
+	{
+		forEachMember(m ->
+		{
+			if (m != null)
+			{
+				m.sendPacket(packet);
+			}
+			return true;
+		});
+	}
+	
+	/**
+	 * Broadcast a text message to this group.
+	 * @param text to broadcast
+	 */
+	public void broadcastString(String text)
+	{
+		broadcastPacket(SystemMessage.sendString(text));
+	}
+	
+	/**
+	 * Check if this group contains a given player.
+	 * @param player the player to check
+	 * @return {@code true} if this group contains the specified player, {@code false} otherwise
+	 */
+	public boolean containsPlayer(L2PcInstance player)
+	{
+		return getMembers().contains(player);
+	}
+	
+	/**
+	 * Iterates over the group and executes procedure on each member
+	 * @param procedure the prodecure to be executed on each member.<br>
+	 *            If executing the procedure on a member returns {@code true}, the loop continues to the next member, otherwise it breaks the loop
+	 * @return {@code true} if the procedure executed correctly, {@code false} if the loop was broken prematurely
+	 */
+	public boolean forEachMember(Function<L2PcInstance, Boolean> procedure)
+	{
+		for (L2PcInstance player : getMembers())
+		{
+			if (!procedure.apply(player))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * @return the leader of this group
+	 */
+	public abstract L2PcInstance getLeader();
+	
+	/**
+	 * @return the leader's object ID
+	 */
+	public int getLeaderObjectId()
+	{
+		return getLeader().getObjectId();
+	}
+	
+	/**
+	 * @return the level of this group
+	 */
+	public abstract int getLevel();
+	
+	/**
+	 * @return the count of all players in this group
+	 */
+	public int getMemberCount()
+	{
+		return getMembers().size();
+	}
+	
 	/**
 	 * @return a list of all members of this group
 	 */
@@ -54,22 +154,11 @@ public abstract class AbstractPlayerGroup
 	}
 	
 	/**
-	 * @return the leader of this group
+	 * @return a random member of this group
 	 */
-	public abstract L2PcInstance getLeader();
-	
-	/**
-	 * Change the leader of this group to the specified player.
-	 * @param leader the player to set as the new leader of this group
-	 */
-	public abstract void setLeader(L2PcInstance leader);
-	
-	/**
-	 * @return the leader's object ID
-	 */
-	public int getLeaderObjectId()
+	public L2PcInstance getRandomPlayer()
 	{
-		return getLeader().getObjectId();
+		return getMembers().get(Rnd.get(getMemberCount()));
 	}
 	
 	/**
@@ -83,97 +172,8 @@ public abstract class AbstractPlayerGroup
 	}
 	
 	/**
-	 * @return the count of all players in this group
+	 * Change the leader of this group to the specified player.
+	 * @param leader the player to set as the new leader of this group
 	 */
-	public int getMemberCount()
-	{
-		return getMembers().size();
-	}
-	
-	/**
-	 * @return the level of this group
-	 */
-	public abstract int getLevel();
-	
-	/**
-	 * Broadcast a packet to every member of this group.
-	 * @param packet the packet to broadcast
-	 */
-	public void broadcastPacket(final L2GameServerPacket packet)
-	{
-		forEachMember(m ->
-		{
-			if (m != null)
-			{
-				m.sendPacket(packet);
-			}
-			return true;
-		});
-	}
-	
-	/**
-	 * Broadcast a system message to this group.
-	 * @param message the system message to broadcast
-	 */
-	public void broadcastMessage(SystemMessageId message)
-	{
-		broadcastPacket(SystemMessage.getSystemMessage(message));
-	}
-	
-	/**
-	 * Broadcast a text message to this group.
-	 * @param text to broadcast
-	 */
-	public void broadcastString(String text)
-	{
-		broadcastPacket(SystemMessage.sendString(text));
-	}
-	
-	public void broadcastCreatureSay(final CreatureSay msg, final L2PcInstance broadcaster)
-	{
-		forEachMember(m ->
-		{
-			if ((m != null) && !BlockList.isBlocked(m, broadcaster))
-			{
-				m.sendPacket(msg);
-			}
-			return true;
-		});
-	}
-	
-	/**
-	 * Check if this group contains a given player.
-	 * @param player the player to check
-	 * @return {@code true} if this group contains the specified player, {@code false} otherwise
-	 */
-	public boolean containsPlayer(L2PcInstance player)
-	{
-		return getMembers().contains(player);
-	}
-	
-	/**
-	 * @return a random member of this group
-	 */
-	public L2PcInstance getRandomPlayer()
-	{
-		return getMembers().get(Rnd.get(getMemberCount()));
-	}
-	
-	/**
-	 * Iterates over the group and executes procedure on each member
-	 * @param procedure the prodecure to be executed on each member.<br>
-	 *            If executing the procedure on a member returns {@code true}, the loop continues to the next member, otherwise it breaks the loop
-	 * @return {@code true} if the procedure executed correctly, {@code false} if the loop was broken prematurely
-	 */
-	public boolean forEachMember(Function<L2PcInstance, Boolean> procedure)
-	{
-		for (L2PcInstance player : getMembers())
-		{
-			if (!procedure.apply(player))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
+	public abstract void setLeader(L2PcInstance leader);
 }

@@ -47,22 +47,6 @@ public class WalkInfo
 	}
 	
 	/**
-	 * @return name of route of this WalkInfo.
-	 */
-	public L2WalkRoute getRoute()
-	{
-		return WalkingManager.getInstance().getRoute(_routeName);
-	}
-	
-	/**
-	 * @return current node of this WalkInfo.
-	 */
-	public L2NpcWalkerNode getCurrentNode()
-	{
-		return getRoute().getNodeList().get(_currentNode);
-	}
-	
-	/**
 	 * Calculate next node for this WalkInfo and send debug message from given npc
 	 * @param npc NPC to debug message to be sent from
 	 */
@@ -134,51 +118,11 @@ public class WalkInfo
 	}
 	
 	/**
-	 * @return {@code true} if walking task is blocked, {@code false} otherwise,
+	 * @return current node of this WalkInfo.
 	 */
-	public boolean isBlocked()
+	public L2NpcWalkerNode getCurrentNode()
 	{
-		return _blocked;
-	}
-	
-	/**
-	 * @param val
-	 */
-	public void setBlocked(boolean val)
-	{
-		_blocked = val;
-	}
-	
-	/**
-	 * @return {@code true} if walking task is suspended, {@code false} otherwise,
-	 */
-	public boolean isSuspended()
-	{
-		return _suspended;
-	}
-	
-	/**
-	 * @param val
-	 */
-	public void setSuspended(boolean val)
-	{
-		_suspended = val;
-	}
-	
-	/**
-	 * @return {@code true} if walking task shall be stopped by attack, {@code false} otherwise,
-	 */
-	public boolean isStoppedByAttack()
-	{
-		return _stoppedByAttack;
-	}
-	
-	/**
-	 * @param val
-	 */
-	public void setStoppedByAttack(boolean val)
-	{
-		_stoppedByAttack = val;
+		return getRoute().getNodeList().get(_currentNode);
 	}
 	
 	/**
@@ -198,11 +142,11 @@ public class WalkInfo
 	}
 	
 	/**
-	 * @param val
+	 * @return name of route of this WalkInfo.
 	 */
-	public void setLastAction(long val)
+	public L2WalkRoute getRoute()
 	{
-		_lastActionTime = val;
+		return WalkingManager.getInstance().getRoute(_routeName);
 	}
 	
 	/**
@@ -211,6 +155,62 @@ public class WalkInfo
 	public ScheduledFuture<?> getWalkCheckTask()
 	{
 		return _walkCheckTask;
+	}
+	
+	/**
+	 * @return {@code true} if walking task is blocked, {@code false} otherwise,
+	 */
+	public boolean isBlocked()
+	{
+		return _blocked;
+	}
+	
+	/**
+	 * @return {@code true} if walking task shall be stopped by attack, {@code false} otherwise,
+	 */
+	public boolean isStoppedByAttack()
+	{
+		return _stoppedByAttack;
+	}
+	
+	/**
+	 * @return {@code true} if walking task is suspended, {@code false} otherwise,
+	 */
+	public boolean isSuspended()
+	{
+		return _suspended;
+	}
+	
+	/**
+	 * @param val
+	 */
+	public void setBlocked(boolean val)
+	{
+		_blocked = val;
+	}
+	
+	/**
+	 * @param val
+	 */
+	public void setLastAction(long val)
+	{
+		_lastActionTime = val;
+	}
+	
+	/**
+	 * @param val
+	 */
+	public void setStoppedByAttack(boolean val)
+	{
+		_stoppedByAttack = val;
+	}
+	
+	/**
+	 * @param val
+	 */
+	public void setSuspended(boolean val)
+	{
+		_suspended = val;
 	}
 	
 	/**

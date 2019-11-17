@@ -52,43 +52,9 @@ public class PartyMatchRoom implements IIdentifiable
 		_members.add(owner);
 	}
 	
-	public List<L2PcInstance> getPartyMembers()
-	{
-		return _members;
-	}
-	
 	public void addMember(L2PcInstance player)
 	{
 		_members.add(player);
-	}
-	
-	public void deleteMember(L2PcInstance player)
-	{
-		if (player != getOwner())
-		{
-			_members.remove(player);
-			notifyMembersAboutExit(player);
-		}
-		else if (_members.size() == 1)
-		{
-			PartyMatchRoomList.getInstance().deleteRoom(_id);
-		}
-		else
-		{
-			changeLeader(_members.get(1));
-			deleteMember(player);
-		}
-	}
-	
-	public void notifyMembersAboutExit(L2PcInstance player)
-	{
-		for (L2PcInstance _member : _members)
-		{
-			SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.C1_LEFT_PARTY_ROOM);
-			sm.addCharName(player);
-			_member.sendPacket(sm);
-			_member.sendPacket(new ExManagePartyRoomMember(player, this, 2));
-		}
 	}
 	
 	public void changeLeader(L2PcInstance newLeader)
@@ -110,25 +76,28 @@ public class PartyMatchRoom implements IIdentifiable
 		}
 	}
 	
+	public void deleteMember(L2PcInstance player)
+	{
+		if (player != getOwner())
+		{
+			_members.remove(player);
+			notifyMembersAboutExit(player);
+		}
+		else if (_members.size() == 1)
+		{
+			PartyMatchRoomList.getInstance().deleteRoom(_id);
+		}
+		else
+		{
+			changeLeader(_members.get(1));
+			deleteMember(player);
+		}
+	}
+	
 	@Override
 	public int getId()
 	{
 		return _id;
-	}
-	
-	public int getLootType()
-	{
-		return _loot;
-	}
-	
-	public int getMinLvl()
-	{
-		return _minlvl;
-	}
-	
-	public int getMaxLvl()
-	{
-		return _maxlvl;
 	}
 	
 	/**
@@ -156,9 +125,14 @@ public class PartyMatchRoom implements IIdentifiable
 		return MapRegionManager.getInstance().getMapRegion(_members.get(0)).getBbs();
 	}
 	
-	public int getMembers()
+	public int getLootType()
 	{
-		return _members.size();
+		return _loot;
+	}
+	
+	public int getMaxLvl()
+	{
+		return _maxlvl;
 	}
 	
 	public int getMaxMembers()
@@ -166,9 +140,14 @@ public class PartyMatchRoom implements IIdentifiable
 		return _maxmem;
 	}
 	
-	public String getTitle()
+	public int getMembers()
 	{
-		return _title;
+		return _members.size();
+	}
+	
+	public int getMinLvl()
+	{
+		return _minlvl;
 	}
 	
 	public L2PcInstance getOwner()
@@ -176,11 +155,32 @@ public class PartyMatchRoom implements IIdentifiable
 		return _members.get(0);
 	}
 	
+	public List<L2PcInstance> getPartyMembers()
+	{
+		return _members;
+	}
+	
+	public String getTitle()
+	{
+		return _title;
+	}
+	
+	public void notifyMembersAboutExit(L2PcInstance player)
+	{
+		for (L2PcInstance _member : _members)
+		{
+			SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.C1_LEFT_PARTY_ROOM);
+			sm.addCharName(player);
+			_member.sendPacket(sm);
+			_member.sendPacket(new ExManagePartyRoomMember(player, this, 2));
+		}
+	}
+	
 	/* SET */
 	
-	public void setMinLvl(int minlvl)
+	public void setLootType(int loot)
 	{
-		_minlvl = minlvl;
+		_loot = loot;
 	}
 	
 	public void setMaxLvl(int maxlvl)
@@ -188,14 +188,14 @@ public class PartyMatchRoom implements IIdentifiable
 		_maxlvl = maxlvl;
 	}
 	
-	public void setLootType(int loot)
-	{
-		_loot = loot;
-	}
-	
 	public void setMaxMembers(int maxmem)
 	{
 		_maxmem = maxmem;
+	}
+	
+	public void setMinLvl(int minlvl)
+	{
+		_minlvl = minlvl;
 	}
 	
 	public void setTitle(String title)

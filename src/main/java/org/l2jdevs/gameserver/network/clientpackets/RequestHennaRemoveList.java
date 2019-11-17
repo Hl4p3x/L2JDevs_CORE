@@ -29,6 +29,12 @@ public final class RequestHennaRemoveList extends L2GameClientPacket
 	private int _unknown;
 	
 	@Override
+	public String getType()
+	{
+		return _C__70_REQUESTHENNAREMOVELIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_unknown = readD(); // TODO: Identify.
@@ -43,11 +49,5 @@ public final class RequestHennaRemoveList extends L2GameClientPacket
 			return;
 		}
 		activeChar.sendPacket(new HennaRemoveList(activeChar));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__70_REQUESTHENNAREMOVELIST;
 	}
 }

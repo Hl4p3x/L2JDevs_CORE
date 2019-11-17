@@ -40,6 +40,24 @@ public class KarmaData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of KarmaData.
+	 * @return single instance of KarmaData
+	 */
+	public static KarmaData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * @param level
+	 * @return {@code double} modifier used to calculate karma lost upon death.
+	 */
+	public double getMultiplier(int level)
+	{
+		return _karmaTable.get(level);
+	}
+	
 	@Override
 	public synchronized void load()
 	{
@@ -65,24 +83,6 @@ public class KarmaData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * @param level
-	 * @return {@code double} modifier used to calculate karma lost upon death.
-	 */
-	public double getMultiplier(int level)
-	{
-		return _karmaTable.get(level);
-	}
-	
-	/**
-	 * Gets the single instance of KarmaData.
-	 * @return single instance of KarmaData
-	 */
-	public static KarmaData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

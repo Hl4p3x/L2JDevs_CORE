@@ -53,20 +53,13 @@ public final class PetitionManager
 		_completedPetitions = new HashMap<>();
 	}
 	
-	public void clearCompletedPetitions()
+	/**
+	 * Gets the single instance of {@code PetitionManager}.
+	 * @return single instance of {@code PetitionManager}
+	 */
+	public static final PetitionManager getInstance()
 	{
-		final int numPetitions = getPendingPetitionCount();
-		
-		getCompletedPetitions().clear();
-		_log.info(getClass().getSimpleName() + ": Completed petition data cleared. " + numPetitions + " petition(s) removed.");
-	}
-	
-	public void clearPendingPetitions()
-	{
-		final int numPetitions = getPendingPetitionCount();
-		
-		getPendingPetitions().clear();
-		_log.info(getClass().getSimpleName() + ": Pending petition queue cleared. " + numPetitions + " petition(s) removed.");
+		return SingletonHolder._instance;
 	}
 	
 	public boolean acceptPetition(L2PcInstance respondingAdmin, int petitionId)
@@ -146,6 +139,22 @@ public final class PetitionManager
 		}
 	}
 	
+	public void clearCompletedPetitions()
+	{
+		final int numPetitions = getPendingPetitionCount();
+		
+		getCompletedPetitions().clear();
+		_log.info(getClass().getSimpleName() + ": Completed petition data cleared. " + numPetitions + " petition(s) removed.");
+	}
+	
+	public void clearPendingPetitions()
+	{
+		final int numPetitions = getPendingPetitionCount();
+		
+		getPendingPetitions().clear();
+		_log.info(getClass().getSimpleName() + ": Pending petition queue cleared. " + numPetitions + " petition(s) removed.");
+	}
+	
 	public boolean endActivePetition(L2PcInstance player)
 	{
 		if (!player.isGM())
@@ -174,14 +183,14 @@ public final class PetitionManager
 		return _completedPetitions;
 	}
 	
-	public Map<Integer, Petition> getPendingPetitions()
-	{
-		return _pendingPetitions;
-	}
-	
 	public int getPendingPetitionCount()
 	{
 		return getPendingPetitions().size();
+	}
+	
+	public Map<Integer, Petition> getPendingPetitions()
+	{
+		return _pendingPetitions;
 	}
 	
 	public int getPlayerTotalPetitionCount(L2PcInstance player)
@@ -220,6 +229,11 @@ public final class PetitionManager
 		}
 		
 		return petitionCount;
+	}
+	
+	public boolean isPetitioningAllowed()
+	{
+		return Config.PETITIONING_ALLOWED;
 	}
 	
 	public boolean isPetitionInProcess()
@@ -277,11 +291,6 @@ public final class PetitionManager
 		return false;
 	}
 	
-	public boolean isPetitioningAllowed()
-	{
-		return Config.PETITIONING_ALLOWED;
-	}
-	
 	public boolean isPlayerPetitionPending(L2PcInstance petitioner)
 	{
 		if (petitioner != null)
@@ -301,11 +310,6 @@ public final class PetitionManager
 		}
 		
 		return false;
-	}
-	
-	private boolean isValidPetition(int petitionId)
-	{
-		return getPendingPetitions().containsKey(petitionId);
 	}
 	
 	public boolean rejectPetition(L2PcInstance respondingAdmin, int petitionId)
@@ -462,13 +466,9 @@ public final class PetitionManager
 		activeChar.sendPacket(html);
 	}
 	
-	/**
-	 * Gets the single instance of {@code PetitionManager}.
-	 * @return single instance of {@code PetitionManager}
-	 */
-	public static final PetitionManager getInstance()
+	private boolean isValidPetition(int petitionId)
 	{
-		return SingletonHolder._instance;
+		return getPendingPetitions().containsKey(petitionId);
 	}
 	
 	private static class SingletonHolder

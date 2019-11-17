@@ -47,11 +47,6 @@ public class OnPlayerCraft implements IBaseEvent
 		return _activeChar;
 	}
 	
-	public L2PcInstance getTarget()
-	{
-		return _target;
-	}
-	
 	public L2RecipeList getRecipe()
 	{
 		return _recipe;
@@ -60,6 +55,11 @@ public class OnPlayerCraft implements IBaseEvent
 	public boolean getSuccess()
 	{
 		return _success;
+	}
+	
+	public L2PcInstance getTarget()
+	{
+		return _target;
 	}
 	
 	@Override

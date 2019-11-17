@@ -51,16 +51,36 @@ public interface Ctrl
 	L2Character getActor();
 	
 	/**
+	 * Gets the attack target.
+	 * @return the attack target
+	 */
+	L2Character getAttackTarget();
+	
+	/**
 	 * Gets the intention.
 	 * @return the intention
 	 */
 	CtrlIntention getIntention();
 	
 	/**
-	 * Gets the attack target.
-	 * @return the attack target
+	 * Event, that notifies about previous step result, or user command, that does not change current general intention.
+	 * @param evt the event
 	 */
-	L2Character getAttackTarget();
+	void notifyEvent(CtrlEvent evt);
+	
+	/**
+	 * Notify an event.
+	 * @param evt the event
+	 * @param arg0 the arg0
+	 */
+	void notifyEvent(CtrlEvent evt, Object arg0);
+	
+	/**
+	 * Notify an event.
+	 * @param evt the event
+	 * @param args the args
+	 */
+	void notifyEvent(CtrlEvent evt, Object... args);
 	
 	/**
 	 * Set general state/intention for AI, with optional data.
@@ -82,24 +102,4 @@ public interface Ctrl
 	 * @param arg1 the arg1
 	 */
 	void setIntention(CtrlIntention intention, Object arg0, Object arg1);
-	
-	/**
-	 * Event, that notifies about previous step result, or user command, that does not change current general intention.
-	 * @param evt the event
-	 */
-	void notifyEvent(CtrlEvent evt);
-	
-	/**
-	 * Notify an event.
-	 * @param evt the event
-	 * @param arg0 the arg0
-	 */
-	void notifyEvent(CtrlEvent evt, Object arg0);
-	
-	/**
-	 * Notify an event.
-	 * @param evt the event
-	 * @param args the args
-	 */
-	void notifyEvent(CtrlEvent evt, Object... args);
 }

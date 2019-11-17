@@ -40,81 +40,6 @@ public final class DuelManager
 		// Hide constructor
 	}
 	
-	public Duel getDuel(int duelId)
-	{
-		return _duels.get(duelId);
-	}
-	
-	public void addDuel(L2PcInstance playerA, L2PcInstance playerB, boolean partyDuel)
-	{
-		if ((playerA == null) || (playerB == null))
-		{
-			return;
-		}
-		
-		final int duelId = _currentDuelId.incrementAndGet();
-		_duels.put(duelId, new Duel(playerA, playerB, partyDuel, duelId));
-	}
-	
-	public void removeDuel(Duel duel)
-	{
-		_duels.remove(duel.getId());
-	}
-	
-	public void doSurrender(L2PcInstance player)
-	{
-		if ((player == null) || !player.isInDuel())
-		{
-			return;
-		}
-		final Duel duel = getDuel(player.getDuelId());
-		duel.doSurrender(player);
-	}
-	
-	/**
-	 * Updates player states.
-	 * @param player - the dying player
-	 */
-	public void onPlayerDefeat(L2PcInstance player)
-	{
-		if ((player == null) || !player.isInDuel())
-		{
-			return;
-		}
-		final Duel duel = getDuel(player.getDuelId());
-		if (duel != null)
-		{
-			duel.onPlayerDefeat(player);
-		}
-	}
-	
-	/**
-	 * Broadcasts a packet to the team opposing the given player.
-	 * @param player
-	 * @param packet
-	 */
-	public void broadcastToOppositTeam(L2PcInstance player, L2GameServerPacket packet)
-	{
-		if ((player == null) || !player.isInDuel())
-		{
-			return;
-		}
-		final Duel duel = getDuel(player.getDuelId());
-		
-		if (duel == null)
-		{
-			return;
-		}
-		if (duel.getTeamA().contains(player))
-		{
-			duel.broadcastToTeam2(packet);
-		}
-		else
-		{
-			duel.broadcastToTeam1(packet);
-		}
-	}
-	
 	/**
 	 * Checks if this player might join / start a duel.<br>
 	 * @param player
@@ -180,6 +105,81 @@ public final class DuelManager
 	public static final DuelManager getInstance()
 	{
 		return SingletonHolder._instance;
+	}
+	
+	public void addDuel(L2PcInstance playerA, L2PcInstance playerB, boolean partyDuel)
+	{
+		if ((playerA == null) || (playerB == null))
+		{
+			return;
+		}
+		
+		final int duelId = _currentDuelId.incrementAndGet();
+		_duels.put(duelId, new Duel(playerA, playerB, partyDuel, duelId));
+	}
+	
+	/**
+	 * Broadcasts a packet to the team opposing the given player.
+	 * @param player
+	 * @param packet
+	 */
+	public void broadcastToOppositTeam(L2PcInstance player, L2GameServerPacket packet)
+	{
+		if ((player == null) || !player.isInDuel())
+		{
+			return;
+		}
+		final Duel duel = getDuel(player.getDuelId());
+		
+		if (duel == null)
+		{
+			return;
+		}
+		if (duel.getTeamA().contains(player))
+		{
+			duel.broadcastToTeam2(packet);
+		}
+		else
+		{
+			duel.broadcastToTeam1(packet);
+		}
+	}
+	
+	public void doSurrender(L2PcInstance player)
+	{
+		if ((player == null) || !player.isInDuel())
+		{
+			return;
+		}
+		final Duel duel = getDuel(player.getDuelId());
+		duel.doSurrender(player);
+	}
+	
+	public Duel getDuel(int duelId)
+	{
+		return _duels.get(duelId);
+	}
+	
+	/**
+	 * Updates player states.
+	 * @param player - the dying player
+	 */
+	public void onPlayerDefeat(L2PcInstance player)
+	{
+		if ((player == null) || !player.isInDuel())
+		{
+			return;
+		}
+		final Duel duel = getDuel(player.getDuelId());
+		if (duel != null)
+		{
+			duel.onPlayerDefeat(player);
+		}
+	}
+	
+	public void removeDuel(Duel duel)
+	{
+		_duels.remove(duel.getId());
 	}
 	
 	private static class SingletonHolder

@@ -41,9 +41,9 @@ public class OnAttackableFactionCall implements IBaseEvent
 		_isSummon = isSummon;
 	}
 	
-	public L2Npc getNpc()
+	public L2PcInstance getAttacker()
 	{
-		return _npc;
+		return _attacker;
 	}
 	
 	public L2Npc getCaller()
@@ -51,19 +51,19 @@ public class OnAttackableFactionCall implements IBaseEvent
 		return _caller;
 	}
 	
-	public L2PcInstance getAttacker()
+	public L2Npc getNpc()
 	{
-		return _attacker;
-	}
-	
-	public boolean isSummon()
-	{
-		return _isSummon;
+		return _npc;
 	}
 	
 	@Override
 	public EventType getType()
 	{
 		return EventType.ON_ATTACKABLE_FACTION_CALL;
+	}
+	
+	public boolean isSummon()
+	{
+		return _isSummon;
 	}
 }

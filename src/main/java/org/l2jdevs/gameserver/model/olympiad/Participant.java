@@ -38,6 +38,18 @@ public final class Participant
 	public String clanName;
 	public int clanId;
 	
+	public Participant(int objId, int olympiadSide)
+	{
+		objectId = objId;
+		player = null;
+		name = "-";
+		side = olympiadSide;
+		baseClass = 0;
+		stats = null;
+		clanName = "";
+		clanId = 0;
+	}
+	
 	public Participant(L2PcInstance plr, int olympiadSide)
 	{
 		objectId = plr.getObjectId();
@@ -50,16 +62,108 @@ public final class Participant
 		clanId = plr.getClanId();
 	}
 	
-	public Participant(int objId, int olympiadSide)
+	/**
+	 * @return the baseClass
+	 */
+	public int getBaseClass()
 	{
-		objectId = objId;
-		player = null;
-		name = "-";
-		side = olympiadSide;
-		baseClass = 0;
-		stats = null;
-		clanName = "";
-		clanId = 0;
+		return baseClass;
+	}
+	
+	/**
+	 * @return the name the player's id.
+	 */
+	public int getClanId()
+	{
+		return clanId;
+	}
+	
+	/**
+	 * @return the name the player's clan name.
+	 */
+	public String getClanName()
+	{
+		return clanName;
+	}
+	
+	/**
+	 * @return the name the player's name.
+	 */
+	public String getName()
+	{
+		return name;
+	}
+	
+	/**
+	 * @return the objectId
+	 */
+	public int getObjectId()
+	{
+		return objectId;
+	}
+	
+	/**
+	 * @return the player
+	 */
+	public L2PcInstance getPlayer()
+	{
+		return player;
+	}
+	
+	/**
+	 * @return the side
+	 */
+	public int getSide()
+	{
+		return side;
+	}
+	
+	/**
+	 * @return the stats
+	 */
+	public StatsSet getStats()
+	{
+		return stats;
+	}
+	
+	/**
+	 * @return the defaulted
+	 */
+	public boolean isDefaulted()
+	{
+		return defaulted;
+	}
+	
+	/**
+	 * @return the disconnected
+	 */
+	public boolean isDisconnected()
+	{
+		return disconnected;
+	}
+	
+	/**
+	 * @param val the value to set.
+	 */
+	public void setDefaulted(boolean val)
+	{
+		defaulted = val;
+	}
+	
+	/**
+	 * @param val the disconnected to set
+	 */
+	public void setDisconnected(boolean val)
+	{
+		disconnected = val;
+	}
+	
+	/**
+	 * @param noble the player to set
+	 */
+	public void setPlayer(L2PcInstance noble)
+	{
+		player = noble;
 	}
 	
 	/**
@@ -82,109 +186,5 @@ public final class Participant
 	public final void updateStat(String statName, int increment)
 	{
 		stats.set(statName, Math.max(stats.getInt(statName) + increment, 0));
-	}
-	
-	/**
-	 * @return the name the player's name.
-	 */
-	public String getName()
-	{
-		return name;
-	}
-	
-	/**
-	 * @return the name the player's clan name.
-	 */
-	public String getClanName()
-	{
-		return clanName;
-	}
-	
-	/**
-	 * @return the name the player's id.
-	 */
-	public int getClanId()
-	{
-		return clanId;
-	}
-	
-	/**
-	 * @return the player
-	 */
-	public L2PcInstance getPlayer()
-	{
-		return player;
-	}
-	
-	/**
-	 * @return the objectId
-	 */
-	public int getObjectId()
-	{
-		return objectId;
-	}
-	
-	/**
-	 * @return the stats
-	 */
-	public StatsSet getStats()
-	{
-		return stats;
-	}
-	
-	/**
-	 * @param noble the player to set
-	 */
-	public void setPlayer(L2PcInstance noble)
-	{
-		player = noble;
-	}
-	
-	/**
-	 * @return the side
-	 */
-	public int getSide()
-	{
-		return side;
-	}
-	
-	/**
-	 * @return the baseClass
-	 */
-	public int getBaseClass()
-	{
-		return baseClass;
-	}
-	
-	/**
-	 * @return the disconnected
-	 */
-	public boolean isDisconnected()
-	{
-		return disconnected;
-	}
-	
-	/**
-	 * @param val the disconnected to set
-	 */
-	public void setDisconnected(boolean val)
-	{
-		disconnected = val;
-	}
-	
-	/**
-	 * @return the defaulted
-	 */
-	public boolean isDefaulted()
-	{
-		return defaulted;
-	}
-	
-	/**
-	 * @param val the value to set.
-	 */
-	public void setDefaulted(boolean val)
-	{
-		defaulted = val;
 	}
 }

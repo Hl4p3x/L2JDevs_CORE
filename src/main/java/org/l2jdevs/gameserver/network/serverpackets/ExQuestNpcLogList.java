@@ -72,6 +72,11 @@ public class ExQuestNpcLogList extends L2GameServerPacket
 			_count = count;
 		}
 		
+		public int getCount()
+		{
+			return _count;
+		}
+		
 		public int getNpcId()
 		{
 			return _npcId;
@@ -80,11 +85,6 @@ public class ExQuestNpcLogList extends L2GameServerPacket
 		public int getUnknown()
 		{
 			return _unknown;
-		}
-		
-		public int getCount()
-		{
-			return _count;
 		}
 	}
 }

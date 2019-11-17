@@ -44,15 +44,15 @@ public class L2BoatInstance extends L2Vehicle
 	}
 	
 	@Override
-	public boolean isBoat()
-	{
-		return true;
-	}
-	
-	@Override
 	public int getId()
 	{
 		return 0;
+	}
+	
+	@Override
+	public boolean isBoat()
+	{
+		return true;
 	}
 	
 	@Override
@@ -84,17 +84,17 @@ public class L2BoatInstance extends L2Vehicle
 	}
 	
 	@Override
+	public void sendInfo(L2PcInstance activeChar)
+	{
+		activeChar.sendPacket(new VehicleInfo(this));
+	}
+	
+	@Override
 	public void stopMove(Location loc, boolean updateKnownObjects)
 	{
 		super.stopMove(loc, updateKnownObjects);
 		
 		broadcastPacket(new VehicleStarted(this, 0));
 		broadcastPacket(new VehicleInfo(this));
-	}
-	
-	@Override
-	public void sendInfo(L2PcInstance activeChar)
-	{
-		activeChar.sendPacket(new VehicleInfo(this));
 	}
 }

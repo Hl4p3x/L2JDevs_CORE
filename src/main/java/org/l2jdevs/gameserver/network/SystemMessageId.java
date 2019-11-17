@@ -15235,50 +15235,20 @@ public final class SystemMessageId
 		buildFastLookupTable();
 	}
 	
-	private static final void buildFastLookupTable()
-	{
-		final Field[] fields = SystemMessageId.class.getDeclaredFields();
-		
-		int mod;
-		SystemMessageId smId;
-		for (final Field field : fields)
-		{
-			mod = field.getModifiers();
-			if (Modifier.isStatic(mod) && Modifier.isPublic(mod) && Modifier.isFinal(mod) && field.getType().equals(SystemMessageId.class))
-			{
-				try
-				{
-					smId = (SystemMessageId) field.get(null);
-					smId.setName(field.getName());
-					smId.setParamCount(parseMessageParameters(field.getName()));
-					VALUES.put(smId.getId(), smId);
-				}
-				catch (final Exception e)
-				{
-					_log.log(Level.WARNING, "SystemMessageId: Failed field access for '" + field.getName() + "'", e);
-				}
-			}
-		}
-	}
+	private final int _id;
 	
-	private static final int parseMessageParameters(final String name)
+	private String _name;
+	
+	private byte _params;
+	
+	private SMLocalisation[] _localisations;
+	
+	private SystemMessage _staticSystemMessage;
+	
+	private SystemMessageId(final int id)
 	{
-		int paramCount = 0;
-		char c1, c2;
-		for (int i = 0; i < (name.length() - 1); i++)
-		{
-			c1 = name.charAt(i);
-			if ((c1 == 'C') || (c1 == 'S'))
-			{
-				c2 = name.charAt(i + 1);
-				if (Character.isDigit(c2))
-				{
-					paramCount = Math.max(paramCount, Character.getNumericValue(c2));
-					i++;
-				}
-			}
-		}
-		return paramCount;
+		_id = id;
+		_localisations = EMPTY_SML_ARRAY;
 	}
 	
 	public static final SystemMessageId getSystemMessageId(final int id)
@@ -15286,12 +15256,6 @@ public final class SystemMessageId
 		final SystemMessageId smi = getSystemMessageIdInternal(id);
 		return smi == null ? new SystemMessageId(id) : smi;
 	}
-	
-	private static final SystemMessageId getSystemMessageIdInternal(final int id)
-	{
-		return VALUES.get(id);
-	}
-	
 	public static final SystemMessageId getSystemMessageId(final String name)
 	{
 		try
@@ -15303,7 +15267,6 @@ public final class SystemMessageId
 			return null;
 		}
 	}
-	
 	public static final void reloadLocalisations()
 	{
 		for (final SystemMessageId smId : VALUES.values())
@@ -15400,17 +15363,62 @@ public final class SystemMessageId
 			}
 		}
 	}
-	
-	private final int _id;
-	private String _name;
-	private byte _params;
-	private SMLocalisation[] _localisations;
-	private SystemMessage _staticSystemMessage;
-	
-	private SystemMessageId(final int id)
+	private static final void buildFastLookupTable()
 	{
-		_id = id;
-		_localisations = EMPTY_SML_ARRAY;
+		final Field[] fields = SystemMessageId.class.getDeclaredFields();
+		
+		int mod;
+		SystemMessageId smId;
+		for (final Field field : fields)
+		{
+			mod = field.getModifiers();
+			if (Modifier.isStatic(mod) && Modifier.isPublic(mod) && Modifier.isFinal(mod) && field.getType().equals(SystemMessageId.class))
+			{
+				try
+				{
+					smId = (SystemMessageId) field.get(null);
+					smId.setName(field.getName());
+					smId.setParamCount(parseMessageParameters(field.getName()));
+					VALUES.put(smId.getId(), smId);
+				}
+				catch (final Exception e)
+				{
+					_log.log(Level.WARNING, "SystemMessageId: Failed field access for '" + field.getName() + "'", e);
+				}
+			}
+		}
+	}
+	private static final SystemMessageId getSystemMessageIdInternal(final int id)
+	{
+		return VALUES.get(id);
+	}
+	
+	private static final int parseMessageParameters(final String name)
+	{
+		int paramCount = 0;
+		char c1, c2;
+		for (int i = 0; i < (name.length() - 1); i++)
+		{
+			c1 = name.charAt(i);
+			if ((c1 == 'C') || (c1 == 'S'))
+			{
+				c2 = name.charAt(i + 1);
+				if (Character.isDigit(c2))
+				{
+					paramCount = Math.max(paramCount, Character.getNumericValue(c2));
+					i++;
+				}
+			}
+		}
+		return paramCount;
+	}
+	
+	public final void attachLocalizedText(final String lang, final String text)
+	{
+		final int length = _localisations.length;
+		final SMLocalisation[] localisations = Arrays.copyOf(_localisations, length + 1);
+		localisations[length] = new SMLocalisation(lang, text);
+		_localisations = localisations;
 	}
 	
 	public final int getId()
@@ -15418,9 +15426,18 @@ public final class SystemMessageId
 		return _id;
 	}
 	
-	private final void setName(final String name)
+	public final SMLocalisation getLocalisation(final String lang)
 	{
-		_name = name;
+		SMLocalisation sml;
+		for (int i = _localisations.length; i-- > 0;)
+		{
+			sml = _localisations[i];
+			if (sml.getLanguage().hashCode() == lang.hashCode())
+			{
+				return sml;
+			}
+		}
+		return null;
 	}
 	
 	public final String getName()
@@ -15431,6 +15448,16 @@ public final class SystemMessageId
 	public final int getParamCount()
 	{
 		return _params;
+	}
+	
+	public final SystemMessage getStaticSystemMessage()
+	{
+		return _staticSystemMessage;
+	}
+	
+	public final void removeAllLocalisations()
+	{
+		_localisations = EMPTY_SML_ARRAY;
 	}
 	
 	/**
@@ -15457,38 +15484,6 @@ public final class SystemMessageId
 		_params = (byte) params;
 	}
 	
-	public final SMLocalisation getLocalisation(final String lang)
-	{
-		SMLocalisation sml;
-		for (int i = _localisations.length; i-- > 0;)
-		{
-			sml = _localisations[i];
-			if (sml.getLanguage().hashCode() == lang.hashCode())
-			{
-				return sml;
-			}
-		}
-		return null;
-	}
-	
-	public final void attachLocalizedText(final String lang, final String text)
-	{
-		final int length = _localisations.length;
-		final SMLocalisation[] localisations = Arrays.copyOf(_localisations, length + 1);
-		localisations[length] = new SMLocalisation(lang, text);
-		_localisations = localisations;
-	}
-	
-	public final void removeAllLocalisations()
-	{
-		_localisations = EMPTY_SML_ARRAY;
-	}
-	
-	public final SystemMessage getStaticSystemMessage()
-	{
-		return _staticSystemMessage;
-	}
-	
 	public final void setStaticSystemMessage(final SystemMessage sm)
 	{
 		_staticSystemMessage = sm;
@@ -15498,6 +15493,11 @@ public final class SystemMessageId
 	public final String toString()
 	{
 		return "SM[" + getId() + ":" + getName() + "]";
+	}
+	
+	private final void setName(final String name)
+	{
+		_name = name;
 	}
 	
 	public static final class SMLocalisation

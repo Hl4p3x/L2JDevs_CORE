@@ -49,42 +49,17 @@ public abstract class L2Decoy extends L2Character
 		setIsInvul(false);
 	}
 	
-	@Override
-	public void onSpawn()
+	public void deleteMe(L2PcInstance owner)
 	{
-		super.onSpawn();
-		sendPacket(new CharInfo(this));
+		decayMe();
+		getKnownList().removeAllKnownObjects();
+		owner.setDecoy(null);
 	}
 	
 	@Override
-	public void updateAbnormalEffect()
+	public L2PcInstance getActingPlayer()
 	{
-		Collection<L2PcInstance> plrs = getKnownList().getKnownPlayers().values();
-		
-		for (L2PcInstance player : plrs)
-		{
-			if (player != null)
-			{
-				player.sendPacket(new CharInfo(this));
-			}
-		}
-	}
-	
-	public void stopDecay()
-	{
-		DecayTaskManager.getInstance().cancel(this);
-	}
-	
-	@Override
-	public void onDecay()
-	{
-		deleteMe(_owner);
-	}
-	
-	@Override
-	public boolean isAutoAttackable(L2Character attacker)
-	{
-		return _owner.isAutoAttackable(attacker);
+		return _owner;
 	}
 	
 	@Override
@@ -95,18 +70,6 @@ public abstract class L2Decoy extends L2Character
 	
 	@Override
 	public L2Weapon getActiveWeaponItem()
-	{
-		return null;
-	}
-	
-	@Override
-	public L2ItemInstance getSecondaryWeaponInstance()
-	{
-		return null;
-	}
-	
-	@Override
-	public L2Weapon getSecondaryWeaponItem()
 	{
 		return null;
 	}
@@ -123,43 +86,46 @@ public abstract class L2Decoy extends L2Character
 		return getTemplate().getLevel();
 	}
 	
-	public void deleteMe(L2PcInstance owner)
-	{
-		decayMe();
-		getKnownList().removeAllKnownObjects();
-		owner.setDecoy(null);
-	}
-	
-	public synchronized void unSummon(L2PcInstance owner)
-	{
-		
-		if (isVisible() && !isDead())
-		{
-			if (getWorldRegion() != null)
-			{
-				getWorldRegion().removeFromZones(this);
-			}
-			owner.setDecoy(null);
-			decayMe();
-			getKnownList().removeAllKnownObjects();
-		}
-	}
-	
 	public final L2PcInstance getOwner()
 	{
 		return _owner;
 	}
 	
 	@Override
-	public L2PcInstance getActingPlayer()
+	public L2ItemInstance getSecondaryWeaponInstance()
 	{
-		return _owner;
+		return null;
+	}
+	
+	@Override
+	public L2Weapon getSecondaryWeaponItem()
+	{
+		return null;
 	}
 	
 	@Override
 	public L2NpcTemplate getTemplate()
 	{
 		return (L2NpcTemplate) super.getTemplate();
+	}
+	
+	@Override
+	public boolean isAutoAttackable(L2Character attacker)
+	{
+		return _owner.isAutoAttackable(attacker);
+	}
+	
+	@Override
+	public void onDecay()
+	{
+		deleteMe(_owner);
+	}
+	
+	@Override
+	public void onSpawn()
+	{
+		super.onSpawn();
+		sendPacket(new CharInfo(this));
 	}
 	
 	@Override
@@ -183,6 +149,40 @@ public abstract class L2Decoy extends L2Character
 		if (getOwner() != null)
 		{
 			getOwner().sendPacket(id);
+		}
+	}
+	
+	public void stopDecay()
+	{
+		DecayTaskManager.getInstance().cancel(this);
+	}
+	
+	public synchronized void unSummon(L2PcInstance owner)
+	{
+		
+		if (isVisible() && !isDead())
+		{
+			if (getWorldRegion() != null)
+			{
+				getWorldRegion().removeFromZones(this);
+			}
+			owner.setDecoy(null);
+			decayMe();
+			getKnownList().removeAllKnownObjects();
+		}
+	}
+	
+	@Override
+	public void updateAbnormalEffect()
+	{
+		Collection<L2PcInstance> plrs = getKnownList().getKnownPlayers().values();
+		
+		for (L2PcInstance player : plrs)
+		{
+			if (player != null)
+			{
+				player.sendPacket(new CharInfo(this));
+			}
 		}
 	}
 }

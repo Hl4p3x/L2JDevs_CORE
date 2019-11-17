@@ -62,6 +62,22 @@ public final class L2TeleporterInstance extends L2Npc
 	}
 	
 	@Override
+	public String getHtmlPath(int npcId, int val)
+	{
+		String pom = "";
+		if (val == 0)
+		{
+			pom = "" + npcId;
+		}
+		else
+		{
+			pom = npcId + "-" + val;
+		}
+		
+		return "data/html/teleporter/" + pom + ".htm";
+	}
+	
+	@Override
 	public void onBypassFeedback(L2PcInstance player, String command)
 	{
 		player.sendPacket(ActionFailed.STATIC_PACKET);
@@ -163,64 +179,6 @@ public final class L2TeleporterInstance extends L2Npc
 	}
 	
 	@Override
-	public String getHtmlPath(int npcId, int val)
-	{
-		String pom = "";
-		if (val == 0)
-		{
-			pom = "" + npcId;
-		}
-		else
-		{
-			pom = npcId + "-" + val;
-		}
-		
-		return "data/html/teleporter/" + pom + ".htm";
-	}
-	
-	private void showNewbieHtml(L2PcInstance player)
-	{
-		if (player == null)
-		{
-			return;
-		}
-		
-		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
-		
-		String filename = "data/html/teleporter/free/" + getTemplate().getId() + ".htm";
-		if (!HtmCache.getInstance().isLoadable(filename))
-		{
-			filename = "data/html/teleporter/" + getTemplate().getId() + "-1.htm";
-		}
-		
-		html.setFile(player.getHtmlPrefix(), filename);
-		html.replace("%objectId%", String.valueOf(getObjectId()));
-		html.replace("%npcname%", getName());
-		player.sendPacket(html);
-	}
-	
-	private void showHalfPriceHtml(L2PcInstance player)
-	{
-		if (player == null)
-		{
-			return;
-		}
-		
-		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
-		
-		String filename = "data/html/teleporter/half/" + getId() + ".htm";
-		if (!HtmCache.getInstance().isLoadable(filename))
-		{
-			filename = "data/html/teleporter/" + getId() + "-1.htm";
-		}
-		
-		html.setFile(player.getHtmlPrefix(), filename);
-		html.replace("%objectId%", String.valueOf(getObjectId()));
-		html.replace("%npcname%", getName());
-		player.sendPacket(html);
-	}
-	
-	@Override
 	public void showChatWindow(L2PcInstance player)
 	{
 		String filename = "data/html/teleporter/castleteleporter-no.htm";
@@ -318,6 +276,48 @@ public final class L2TeleporterInstance extends L2Npc
 		}
 		
 		player.sendPacket(ActionFailed.STATIC_PACKET);
+	}
+	
+	private void showHalfPriceHtml(L2PcInstance player)
+	{
+		if (player == null)
+		{
+			return;
+		}
+		
+		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
+		
+		String filename = "data/html/teleporter/half/" + getId() + ".htm";
+		if (!HtmCache.getInstance().isLoadable(filename))
+		{
+			filename = "data/html/teleporter/" + getId() + "-1.htm";
+		}
+		
+		html.setFile(player.getHtmlPrefix(), filename);
+		html.replace("%objectId%", String.valueOf(getObjectId()));
+		html.replace("%npcname%", getName());
+		player.sendPacket(html);
+	}
+	
+	private void showNewbieHtml(L2PcInstance player)
+	{
+		if (player == null)
+		{
+			return;
+		}
+		
+		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
+		
+		String filename = "data/html/teleporter/free/" + getTemplate().getId() + ".htm";
+		if (!HtmCache.getInstance().isLoadable(filename))
+		{
+			filename = "data/html/teleporter/" + getTemplate().getId() + "-1.htm";
+		}
+		
+		html.setFile(player.getHtmlPrefix(), filename);
+		html.replace("%objectId%", String.valueOf(getObjectId()));
+		html.replace("%npcname%", getName());
+		player.sendPacket(html);
 	}
 	
 	private int validateCondition(L2PcInstance player)

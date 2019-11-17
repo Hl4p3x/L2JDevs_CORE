@@ -33,14 +33,14 @@ public class FuncMDefMod extends AbstractFunction
 {
 	private static final FuncMDefMod _fmm_instance = new FuncMDefMod();
 	
-	public static AbstractFunction getInstance()
-	{
-		return _fmm_instance;
-	}
-	
 	private FuncMDefMod()
 	{
 		super(Stats.MAGIC_DEFENCE, 1, null, 0, null);
+	}
+	
+	public static AbstractFunction getInstance()
+	{
+		return _fmm_instance;
 	}
 	
 	@Override

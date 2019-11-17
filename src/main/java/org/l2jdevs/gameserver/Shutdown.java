@@ -59,8 +59,6 @@ public class Shutdown extends Thread
 	private static final Logger LOG = LoggerFactory.getLogger(Shutdown.class);
 	private static Shutdown _counterInstance = null;
 	
-	private int _secondsShut;
-	private int _shutdownMode;
 	private static final int SIGTERM = 0;
 	private static final int GM_SHUTDOWN = 1;
 	private static final int GM_RESTART = 2;
@@ -72,88 +70,8 @@ public class Shutdown extends Thread
 		"restarting",
 		"aborting"
 	};
-	
-	/**
-	 * This function starts a shutdown count down from Telnet (Copied from Function startShutdown())
-	 * @param seconds seconds until shutdown
-	 */
-	private void SendServerQuit(int seconds)
-	{
-		SystemMessage sysm = SystemMessage.getSystemMessage(SystemMessageId.THE_SERVER_WILL_BE_COMING_DOWN_IN_S1_SECONDS);
-		sysm.addInt(seconds);
-		Broadcast.toAllOnlinePlayers(sysm);
-	}
-	
-	public void startTelnetShutdown(String IP, int seconds, boolean restart)
-	{
-		LOG.warn("IP: {} issued shutdown command. {} in {} seconds!", IP, MODE_TEXT[_shutdownMode], seconds);
-		
-		if (restart)
-		{
-			_shutdownMode = GM_RESTART;
-		}
-		else
-		{
-			_shutdownMode = GM_SHUTDOWN;
-		}
-		
-		if (_shutdownMode > 0)
-		{
-			switch (seconds)
-			{
-				case 540:
-				case 480:
-				case 420:
-				case 360:
-				case 300:
-				case 240:
-				case 180:
-				case 120:
-				case 60:
-				case 30:
-				case 10:
-				case 5:
-				case 4:
-				case 3:
-				case 2:
-				case 1:
-					break;
-				default:
-					SendServerQuit(seconds);
-			}
-		}
-		
-		if (_counterInstance != null)
-		{
-			_counterInstance._abort();
-		}
-		_counterInstance = new Shutdown(seconds, restart);
-		_counterInstance.start();
-	}
-	
-	/**
-	 * This function aborts a running countdown
-	 * @param IP IP Which Issued shutdown command
-	 */
-	public void telnetAbort(String IP)
-	{
-		LOG.warn("IP: {} issued shutdown ABORT. {} has been stopped!", IP, MODE_TEXT[_shutdownMode]);
-		
-		if (_counterInstance != null)
-		{
-			_counterInstance._abort();
-			Broadcast.toAllOnlinePlayers("Server aborts " + MODE_TEXT[_shutdownMode] + " and continues normal operation!", false);
-		}
-	}
-	
-	/**
-	 * Default constructor is only used internal to create the shutdown-hook instance
-	 */
-	protected Shutdown()
-	{
-		_secondsShut = -1;
-		_shutdownMode = SIGTERM;
-	}
+	private int _secondsShut;
+	private int _shutdownMode;
 	
 	/**
 	 * This creates a countdown instance of Shutdown.
@@ -174,6 +92,38 @@ public class Shutdown extends Thread
 		else
 		{
 			_shutdownMode = GM_SHUTDOWN;
+		}
+	}
+	
+	/**
+	 * Default constructor is only used internal to create the shutdown-hook instance
+	 */
+	protected Shutdown()
+	{
+		_secondsShut = -1;
+		_shutdownMode = SIGTERM;
+	}
+	
+	/**
+	 * Get the shutdown-hook instance the shutdown-hook instance is created by the first call of this function, but it has to be registered externally.<br>
+	 * @return instance of Shutdown, to be used as shutdown hook
+	 */
+	public static Shutdown getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * This function aborts a running countdown.
+	 * @param activeChar GM who issued the abort command
+	 */
+	public void abort(L2PcInstance activeChar)
+	{
+		LOG.warn("GM: {}({}) issued shutdown ABORT. {} has been stopped!", activeChar.getName(), activeChar.getObjectId(), MODE_TEXT[_shutdownMode]);
+		if (_counterInstance != null)
+		{
+			_counterInstance._abort();
+			Broadcast.toAllOnlinePlayers("Server aborts " + MODE_TEXT[_shutdownMode] + " and continues normal operation!", false);
 		}
 	}
 	
@@ -364,27 +314,66 @@ public class Shutdown extends Thread
 		_counterInstance.start();
 	}
 	
-	/**
-	 * This function aborts a running countdown.
-	 * @param activeChar GM who issued the abort command
-	 */
-	public void abort(L2PcInstance activeChar)
+	public void startTelnetShutdown(String IP, int seconds, boolean restart)
 	{
-		LOG.warn("GM: {}({}) issued shutdown ABORT. {} has been stopped!", activeChar.getName(), activeChar.getObjectId(), MODE_TEXT[_shutdownMode]);
+		LOG.warn("IP: {} issued shutdown command. {} in {} seconds!", IP, MODE_TEXT[_shutdownMode], seconds);
+		
+		if (restart)
+		{
+			_shutdownMode = GM_RESTART;
+		}
+		else
+		{
+			_shutdownMode = GM_SHUTDOWN;
+		}
+		
+		if (_shutdownMode > 0)
+		{
+			switch (seconds)
+			{
+				case 540:
+				case 480:
+				case 420:
+				case 360:
+				case 300:
+				case 240:
+				case 180:
+				case 120:
+				case 60:
+				case 30:
+				case 10:
+				case 5:
+				case 4:
+				case 3:
+				case 2:
+				case 1:
+					break;
+				default:
+					SendServerQuit(seconds);
+			}
+		}
+		
+		if (_counterInstance != null)
+		{
+			_counterInstance._abort();
+		}
+		_counterInstance = new Shutdown(seconds, restart);
+		_counterInstance.start();
+	}
+	
+	/**
+	 * This function aborts a running countdown
+	 * @param IP IP Which Issued shutdown command
+	 */
+	public void telnetAbort(String IP)
+	{
+		LOG.warn("IP: {} issued shutdown ABORT. {} has been stopped!", IP, MODE_TEXT[_shutdownMode]);
+		
 		if (_counterInstance != null)
 		{
 			_counterInstance._abort();
 			Broadcast.toAllOnlinePlayers("Server aborts " + MODE_TEXT[_shutdownMode] + " and continues normal operation!", false);
 		}
-	}
-	
-	/**
-	 * Set the shutdown mode.
-	 * @param mode what mode shall be set
-	 */
-	private void setMode(int mode)
-	{
-		_shutdownMode = mode;
 	}
 	
 	/**
@@ -472,6 +461,32 @@ public class Shutdown extends Thread
 		catch (InterruptedException e)
 		{
 			// this will never happen
+		}
+	}
+	
+	/**
+	 * This disconnects all clients from the server.
+	 */
+	private void disconnectAllCharacters()
+	{
+		for (L2PcInstance player : L2World.getInstance().getPlayers())
+		{
+			// Logout Character
+			try
+			{
+				L2GameClient client = player.getClient();
+				if ((client != null) && !client.isDetached())
+				{
+					client.close(ServerClose.STATIC_PACKET);
+					client.setActiveChar(null);
+					player.setClient(null);
+				}
+				player.deleteMe();
+			}
+			catch (Exception e)
+			{
+				LOG.warn("Failed logour char {}", player, e);
+			}
 		}
 	}
 	
@@ -570,29 +585,28 @@ public class Shutdown extends Thread
 	}
 	
 	/**
-	 * This disconnects all clients from the server.
+	 * This function starts a shutdown count down from Telnet (Copied from Function startShutdown())
+	 * @param seconds seconds until shutdown
 	 */
-	private void disconnectAllCharacters()
+	private void SendServerQuit(int seconds)
 	{
-		for (L2PcInstance player : L2World.getInstance().getPlayers())
-		{
-			// Logout Character
-			try
-			{
-				L2GameClient client = player.getClient();
-				if ((client != null) && !client.isDetached())
-				{
-					client.close(ServerClose.STATIC_PACKET);
-					client.setActiveChar(null);
-					player.setClient(null);
-				}
-				player.deleteMe();
-			}
-			catch (Exception e)
-			{
-				LOG.warn("Failed logour char {}", player, e);
-			}
-		}
+		SystemMessage sysm = SystemMessage.getSystemMessage(SystemMessageId.THE_SERVER_WILL_BE_COMING_DOWN_IN_S1_SECONDS);
+		sysm.addInt(seconds);
+		Broadcast.toAllOnlinePlayers(sysm);
+	}
+	
+	/**
+	 * Set the shutdown mode.
+	 * @param mode what mode shall be set
+	 */
+	private void setMode(int mode)
+	{
+		_shutdownMode = mode;
+	}
+	
+	private static class SingletonHolder
+	{
+		protected static final Shutdown _instance = new Shutdown();
 	}
 	
 	/**
@@ -608,9 +622,9 @@ public class Shutdown extends Thread
 			restartCounter();
 		}
 		
-		protected void restartCounter()
+		protected long getEstimatedTime()
 		{
-			_startTime = System.currentTimeMillis();
+			return System.currentTimeMillis() - _startTime;
 		}
 		
 		protected long getEstimatedTimeAndRestartCounter()
@@ -620,23 +634,9 @@ public class Shutdown extends Thread
 			return toReturn;
 		}
 		
-		protected long getEstimatedTime()
+		protected void restartCounter()
 		{
-			return System.currentTimeMillis() - _startTime;
+			_startTime = System.currentTimeMillis();
 		}
-	}
-	
-	/**
-	 * Get the shutdown-hook instance the shutdown-hook instance is created by the first call of this function, but it has to be registered externally.<br>
-	 * @return instance of Shutdown, to be used as shutdown hook
-	 */
-	public static Shutdown getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	private static class SingletonHolder
-	{
-		protected static final Shutdown _instance = new Shutdown();
 	}
 }

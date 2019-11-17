@@ -29,17 +29,9 @@ import org.l2jdevs.gameserver.model.skills.Skill;
  */
 public class ConditionGameTime extends Condition
 {
-	/**
-	 * The Enum CheckGameTime.
-	 */
-	public enum CheckGameTime
-	{
-		NIGHT
-	}
-	
 	private final CheckGameTime _check;
-	private final boolean _required;
 	
+	private final boolean _required;
 	/**
 	 * Instantiates a new condition game time.
 	 * @param check the check
@@ -64,5 +56,13 @@ public class ConditionGameTime extends Condition
 				return GameTimeController.getInstance().isNight() == _required;
 		}
 		return !_required;
+	}
+	
+	/**
+	 * The Enum CheckGameTime.
+	 */
+	public enum CheckGameTime
+	{
+		NIGHT
 	}
 }

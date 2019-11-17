@@ -259,6 +259,11 @@ public final class L2TrapInstance extends L2Npc
 		return (TrapKnownList) super.getKnownList();
 	}
 	
+	public int getLifeTime()
+	{
+		return _lifeTime;
+	}
+	
 	/**
 	 * Get the owner of this trap.
 	 * @return the owner
@@ -271,6 +276,11 @@ public final class L2TrapInstance extends L2Npc
 	public byte getPvpFlag()
 	{
 		return _owner != null ? _owner.getPvpFlag() : 0;
+	}
+	
+	public int getRemainingTime()
+	{
+		return _remainingTime;
 	}
 	
 	@Override
@@ -288,6 +298,11 @@ public final class L2TrapInstance extends L2Npc
 	public Skill getSkill()
 	{
 		return _skill.getSkill();
+	}
+	
+	public boolean hasLifeTime()
+	{
+		return _hasLifeTime;
 	}
 	
 	@Override
@@ -388,6 +403,16 @@ public final class L2TrapInstance extends L2Npc
 		}
 	}
 	
+	public void setHasLifeTime(boolean val)
+	{
+		_hasLifeTime = val;
+	}
+	
+	public void setRemainingTime(int time)
+	{
+		_remainingTime = time;
+	}
+	
 	public void stopDecay()
 	{
 		DecayTaskManager.getInstance().cancel(this);
@@ -443,30 +468,5 @@ public final class L2TrapInstance extends L2Npc
 	public void updateAbnormalEffect()
 	{
 		
-	}
-	
-	public boolean hasLifeTime()
-	{
-		return _hasLifeTime;
-	}
-	
-	public void setHasLifeTime(boolean val)
-	{
-		_hasLifeTime = val;
-	}
-	
-	public int getRemainingTime()
-	{
-		return _remainingTime;
-	}
-	
-	public void setRemainingTime(int time)
-	{
-		_remainingTime = time;
-	}
-	
-	public int getLifeTime()
-	{
-		return _lifeTime;
 	}
 }

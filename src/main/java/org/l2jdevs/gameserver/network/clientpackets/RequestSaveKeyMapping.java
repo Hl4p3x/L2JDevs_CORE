@@ -40,6 +40,12 @@ public class RequestSaveKeyMapping extends L2GameClientPacket
 	private final Map<Integer, List<Integer>> _catMap = new HashMap<>();
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_22_REQUESTSAVEKEYMAPPING;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		int category = 0;
@@ -87,11 +93,5 @@ public class RequestSaveKeyMapping extends L2GameClientPacket
 			return;
 		}
 		player.getUISettings().storeAll(_catMap, _keyMap);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_22_REQUESTSAVEKEYMAPPING;
 	}
 }

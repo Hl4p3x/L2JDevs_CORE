@@ -31,27 +31,6 @@ public final class AcquireSkillList extends L2GameServerPacket
 	private final List<Skill> _skills;
 	private final AcquireSkillType _skillType;
 	
-	/**
-	 * Private class containing learning skill information.
-	 */
-	private static class Skill
-	{
-		public int id;
-		public int nextLevel;
-		public int maxLevel;
-		public int spCost;
-		public int requirements;
-		
-		public Skill(int pId, int pNextLevel, int pMaxLevel, int pSpCost, int pRequirements)
-		{
-			id = pId;
-			nextLevel = pNextLevel;
-			maxLevel = pMaxLevel;
-			spCost = pSpCost;
-			requirements = pRequirements;
-		}
-	}
-	
 	public AcquireSkillList(AcquireSkillType type)
 	{
 		_skillType = type;
@@ -86,6 +65,27 @@ public final class AcquireSkillList extends L2GameServerPacket
 			{
 				writeD(0); // TODO: ?
 			}
+		}
+	}
+	
+	/**
+	 * Private class containing learning skill information.
+	 */
+	private static class Skill
+	{
+		public int id;
+		public int nextLevel;
+		public int maxLevel;
+		public int spCost;
+		public int requirements;
+		
+		public Skill(int pId, int pNextLevel, int pMaxLevel, int pSpCost, int pRequirements)
+		{
+			id = pId;
+			nextLevel = pNextLevel;
+			maxLevel = pMaxLevel;
+			spCost = pSpCost;
+			requirements = pRequirements;
 		}
 	}
 }

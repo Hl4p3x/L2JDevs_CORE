@@ -44,6 +44,16 @@ public final class FortSiegeGuardManager
 		_fort = fort;
 	}
 	
+	public final Fort getFort()
+	{
+		return _fort;
+	}
+	
+	public final Map<Integer, List<L2Spawn>> getSiegeGuardSpawn()
+	{
+		return _siegeGuards;
+	}
+	
 	/**
 	 * Spawn guards.
 	 */
@@ -134,15 +144,5 @@ public final class FortSiegeGuardManager
 		{
 			_log.log(Level.WARNING, "Error loading siege guard for fort " + getFort().getName() + ": " + e.getMessage(), e);
 		}
-	}
-	
-	public final Fort getFort()
-	{
-		return _fort;
-	}
-	
-	public final Map<Integer, List<L2Spawn>> getSiegeGuardSpawn()
-	{
-		return _siegeGuards;
 	}
 }

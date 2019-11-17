@@ -48,6 +48,60 @@ public final class HitConditionBonusData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of HitConditionBonus.
+	 * @return single instance of HitConditionBonus
+	 */
+	public static HitConditionBonusData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the condition bonus.
+	 * @param attacker the attacking character.
+	 * @param target the attacked character.
+	 * @return the bonus of the attacker against the target.
+	 */
+	public double getConditionBonus(L2Character attacker, L2Character target)
+	{
+		double mod = 100;
+		// Get high or low bonus
+		if ((attacker.getZ() - target.getZ()) > 50)
+		{
+			mod += highBonus;
+		}
+		else if ((attacker.getZ() - target.getZ()) < -50)
+		{
+			mod += lowBonus;
+		}
+		
+		// Get weather bonus
+		if (GameTimeController.getInstance().isNight())
+		{
+			mod += darkBonus;
+			// else if () No rain support yet.
+			// chance += hitConditionBonus.rainBonus;
+		}
+		
+		// Get side bonus
+		if (attacker.isBehindTarget())
+		{
+			mod += backBonus;
+		}
+		else if (attacker.isInFrontOfTarget())
+		{
+			mod += frontBonus;
+		}
+		else
+		{
+			mod += sideBonus;
+		}
+		
+		// If (mod / 100) is less than 0, return 0, because we can't lower more than 100%.
+		return Math.max(mod / 100, 0);
+	}
+	
 	@Override
 	public void load()
 	{
@@ -107,60 +161,6 @@ public final class HitConditionBonusData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Gets the condition bonus.
-	 * @param attacker the attacking character.
-	 * @param target the attacked character.
-	 * @return the bonus of the attacker against the target.
-	 */
-	public double getConditionBonus(L2Character attacker, L2Character target)
-	{
-		double mod = 100;
-		// Get high or low bonus
-		if ((attacker.getZ() - target.getZ()) > 50)
-		{
-			mod += highBonus;
-		}
-		else if ((attacker.getZ() - target.getZ()) < -50)
-		{
-			mod += lowBonus;
-		}
-		
-		// Get weather bonus
-		if (GameTimeController.getInstance().isNight())
-		{
-			mod += darkBonus;
-			// else if () No rain support yet.
-			// chance += hitConditionBonus.rainBonus;
-		}
-		
-		// Get side bonus
-		if (attacker.isBehindTarget())
-		{
-			mod += backBonus;
-		}
-		else if (attacker.isInFrontOfTarget())
-		{
-			mod += frontBonus;
-		}
-		else
-		{
-			mod += sideBonus;
-		}
-		
-		// If (mod / 100) is less than 0, return 0, because we can't lower more than 100%.
-		return Math.max(mod / 100, 0);
-	}
-	
-	/**
-	 * Gets the single instance of HitConditionBonus.
-	 * @return single instance of HitConditionBonus
-	 */
-	public static HitConditionBonusData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

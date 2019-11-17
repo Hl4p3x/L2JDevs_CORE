@@ -65,6 +65,11 @@ public class RecipeController
 		// Prevent external initialization.
 	}
 	
+	public static RecipeController getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	public void requestBookOpen(L2PcInstance player, boolean isDwarvenCraft)
 	{
 		// Check if player is trying to alter recipe book while engaged in manufacturing.
@@ -76,50 +81,6 @@ public class RecipeController
 			return;
 		}
 		player.sendPacket(SystemMessageId.CANT_ALTER_RECIPEBOOK_WHILE_CRAFTING);
-	}
-	
-	public void requestMakeItemAbort(L2PcInstance player)
-	{
-		_activeMakers.remove(player.getObjectId()); // TODO: anything else here?
-	}
-	
-	public void requestManufactureItem(L2PcInstance manufacturer, int recipeListId, L2PcInstance player)
-	{
-		final L2RecipeList recipeList = RecipeData.getInstance().getValidRecipeList(player, recipeListId);
-		if (recipeList == null)
-		{
-			return;
-		}
-		
-		List<L2RecipeList> dwarfRecipes = Arrays.asList(manufacturer.getDwarvenRecipeBook());
-		List<L2RecipeList> commonRecipes = Arrays.asList(manufacturer.getCommonRecipeBook());
-		
-		if (!dwarfRecipes.contains(recipeList) && !commonRecipes.contains(recipeList))
-		{
-			Util.handleIllegalPlayerAction(player, "Warning!! Character " + player.getName() + " of account " + player.getAccountName() + " sent a false recipe id.", Config.DEFAULT_PUNISH);
-			return;
-		}
-		
-		// Check if manufacturer is under manufacturing store or private store.
-		if (Config.ALT_GAME_CREATION && _activeMakers.containsKey(manufacturer.getObjectId()))
-		{
-			player.sendPacket(SystemMessageId.CLOSE_STORE_WINDOW_AND_TRY_AGAIN);
-			return;
-		}
-		
-		final RecipeItemMaker maker = new RecipeItemMaker(manufacturer, recipeList, player);
-		if (maker._isValid)
-		{
-			if (Config.ALT_GAME_CREATION)
-			{
-				_activeMakers.put(manufacturer.getObjectId(), maker);
-				ThreadPoolManager.getInstance().scheduleGeneral(maker, 100);
-			}
-			else
-			{
-				maker.run();
-			}
-		}
 	}
 	
 	public void requestMakeItem(L2PcInstance player, int recipeListId)
@@ -162,6 +123,50 @@ public class RecipeController
 			if (Config.ALT_GAME_CREATION)
 			{
 				_activeMakers.put(player.getObjectId(), maker);
+				ThreadPoolManager.getInstance().scheduleGeneral(maker, 100);
+			}
+			else
+			{
+				maker.run();
+			}
+		}
+	}
+	
+	public void requestMakeItemAbort(L2PcInstance player)
+	{
+		_activeMakers.remove(player.getObjectId()); // TODO: anything else here?
+	}
+	
+	public void requestManufactureItem(L2PcInstance manufacturer, int recipeListId, L2PcInstance player)
+	{
+		final L2RecipeList recipeList = RecipeData.getInstance().getValidRecipeList(player, recipeListId);
+		if (recipeList == null)
+		{
+			return;
+		}
+		
+		List<L2RecipeList> dwarfRecipes = Arrays.asList(manufacturer.getDwarvenRecipeBook());
+		List<L2RecipeList> commonRecipes = Arrays.asList(manufacturer.getCommonRecipeBook());
+		
+		if (!dwarfRecipes.contains(recipeList) && !commonRecipes.contains(recipeList))
+		{
+			Util.handleIllegalPlayerAction(player, "Warning!! Character " + player.getName() + " of account " + player.getAccountName() + " sent a false recipe id.", Config.DEFAULT_PUNISH);
+			return;
+		}
+		
+		// Check if manufacturer is under manufacturing store or private store.
+		if (Config.ALT_GAME_CREATION && _activeMakers.containsKey(manufacturer.getObjectId()))
+		{
+			player.sendPacket(SystemMessageId.CLOSE_STORE_WINDOW_AND_TRY_AGAIN);
+			return;
+		}
+		
+		final RecipeItemMaker maker = new RecipeItemMaker(manufacturer, recipeList, player);
+		if (maker._isValid)
+		{
+			if (Config.ALT_GAME_CREATION)
+			{
+				_activeMakers.put(manufacturer.getObjectId(), maker);
 				ThreadPoolManager.getInstance().scheduleGeneral(maker, 100);
 			}
 			else
@@ -384,137 +389,11 @@ public class RecipeController
 			}
 		}
 		
-		private void finishCrafting()
+		private void abort()
 		{
-			if (!Config.ALT_GAME_CREATION)
-			{
-				calculateStatUse(false, true);
-			}
-			
-			// first take adena for manufacture
-			if ((_target != _player) && (_price > 0)) // customer must pay for services
-			{
-				// attempt to pay for item
-				L2ItemInstance adenatransfer = _target.transferItem("PayManufacture", _target.getInventory().getAdenaInstance().getObjectId(), _price, _player.getInventory(), _player);
-				
-				if (adenatransfer == null)
-				{
-					_target.sendPacket(SystemMessageId.YOU_NOT_ENOUGH_ADENA);
-					abort();
-					return;
-				}
-			}
-			
-			_items = listItems(true); // this line actually takes materials from inventory
-			if (_items == null)
-			{
-				// handle possible cheaters here
-				// (they click craft then try to get rid of items in order to get free craft)
-			}
-			else if (Rnd.get(100) < _recipeList.getSuccessRate())
-			{
-				rewardPlayer(); // and immediately puts created item in its place
-				updateMakeInfo(true);
-				
-				// Notify to scripts
-				EventDispatcher.getInstance().notifyEventAsync(new OnPlayerCraft(_player, _target, _recipeList, true));
-			}
-			else
-			{
-				if (_target != _player)
-				{
-					SystemMessage msg = SystemMessage.getSystemMessage(SystemMessageId.CREATION_OF_S2_FOR_C1_AT_S3_ADENA_FAILED);
-					msg.addString(_target.getName());
-					msg.addItemName(_recipeList.getItemId());
-					msg.addLong(_price);
-					_player.sendPacket(msg);
-					
-					msg = SystemMessage.getSystemMessage(SystemMessageId.C1_FAILED_TO_CREATE_S2_FOR_S3_ADENA);
-					msg.addString(_player.getName());
-					msg.addItemName(_recipeList.getItemId());
-					msg.addLong(_price);
-					_target.sendPacket(msg);
-					
-					// Notify to scripts
-					EventDispatcher.getInstance().notifyEventAsync(new OnPlayerCraft(_player, _target, _recipeList, false));
-				}
-				else
-				{
-					_target.sendPacket(SystemMessageId.ITEM_MIXING_FAILED);
-				}
-				updateMakeInfo(false);
-			}
-			// update load and mana bar of craft window
-			updateCurMp();
-			updateCurLoad();
-			_activeMakers.remove(_player.getObjectId());
+			updateMakeInfo(false);
 			_player.isInCraftMode(false);
-			_target.sendPacket(new ItemList(_target, false));
-		}
-		
-		private void updateMakeInfo(boolean success)
-		{
-			if (_target == _player)
-			{
-				_target.sendPacket(new RecipeItemMakeInfo(_recipeList.getId(), _target, success));
-			}
-			else
-			{
-				_target.sendPacket(new RecipeShopItemInfo(_player, _recipeList.getId()));
-			}
-		}
-		
-		private void updateCurLoad()
-		{
-			StatusUpdate su = new StatusUpdate(_target);
-			su.addAttribute(StatusUpdate.CUR_LOAD, _target.getCurrentLoad());
-			_target.sendPacket(su);
-		}
-		
-		private void updateCurMp()
-		{
-			StatusUpdate su = new StatusUpdate(_target);
-			su.addAttribute(StatusUpdate.CUR_MP, (int) _target.getCurrentMp());
-			_target.sendPacket(su);
-		}
-		
-		private void grabSomeItems()
-		{
-			int grabItems = _itemGrab;
-			while ((grabItems > 0) && !_items.isEmpty())
-			{
-				TempItem item = _items.get(0);
-				
-				int count = item.getQuantity();
-				if (count >= grabItems)
-				{
-					count = grabItems;
-				}
-				
-				item.setQuantity(item.getQuantity() - count);
-				if (item.getQuantity() <= 0)
-				{
-					_items.remove(0);
-				}
-				else
-				{
-					_items.set(0, item);
-				}
-				
-				grabItems -= count;
-				
-				if (_target == _player)
-				{
-					SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.S1_S2_EQUIPPED); // you equipped ...
-					sm.addLong(count);
-					sm.addItemName(item.getItemId());
-					_player.sendPacket(sm);
-				}
-				else
-				{
-					_target.sendMessage(LanguageData.getInstance().getMsg(_target, "ss_teleported_nearest_seal").replace("%s%", _player.getName() + "").replace("%c%", count + "").replace("%i%", item.getItemName() + ""));
-				}
-			}
+			_activeMakers.remove(_player.getObjectId());
 		}
 		
 		// AltStatChange parameters make their effect here
@@ -608,6 +487,113 @@ public class RecipeController
 			return ret;
 		}
 		
+		private void finishCrafting()
+		{
+			if (!Config.ALT_GAME_CREATION)
+			{
+				calculateStatUse(false, true);
+			}
+			
+			// first take adena for manufacture
+			if ((_target != _player) && (_price > 0)) // customer must pay for services
+			{
+				// attempt to pay for item
+				L2ItemInstance adenatransfer = _target.transferItem("PayManufacture", _target.getInventory().getAdenaInstance().getObjectId(), _price, _player.getInventory(), _player);
+				
+				if (adenatransfer == null)
+				{
+					_target.sendPacket(SystemMessageId.YOU_NOT_ENOUGH_ADENA);
+					abort();
+					return;
+				}
+			}
+			
+			_items = listItems(true); // this line actually takes materials from inventory
+			if (_items == null)
+			{
+				// handle possible cheaters here
+				// (they click craft then try to get rid of items in order to get free craft)
+			}
+			else if (Rnd.get(100) < _recipeList.getSuccessRate())
+			{
+				rewardPlayer(); // and immediately puts created item in its place
+				updateMakeInfo(true);
+				
+				// Notify to scripts
+				EventDispatcher.getInstance().notifyEventAsync(new OnPlayerCraft(_player, _target, _recipeList, true));
+			}
+			else
+			{
+				if (_target != _player)
+				{
+					SystemMessage msg = SystemMessage.getSystemMessage(SystemMessageId.CREATION_OF_S2_FOR_C1_AT_S3_ADENA_FAILED);
+					msg.addString(_target.getName());
+					msg.addItemName(_recipeList.getItemId());
+					msg.addLong(_price);
+					_player.sendPacket(msg);
+					
+					msg = SystemMessage.getSystemMessage(SystemMessageId.C1_FAILED_TO_CREATE_S2_FOR_S3_ADENA);
+					msg.addString(_player.getName());
+					msg.addItemName(_recipeList.getItemId());
+					msg.addLong(_price);
+					_target.sendPacket(msg);
+					
+					// Notify to scripts
+					EventDispatcher.getInstance().notifyEventAsync(new OnPlayerCraft(_player, _target, _recipeList, false));
+				}
+				else
+				{
+					_target.sendPacket(SystemMessageId.ITEM_MIXING_FAILED);
+				}
+				updateMakeInfo(false);
+			}
+			// update load and mana bar of craft window
+			updateCurMp();
+			updateCurLoad();
+			_activeMakers.remove(_player.getObjectId());
+			_player.isInCraftMode(false);
+			_target.sendPacket(new ItemList(_target, false));
+		}
+		
+		private void grabSomeItems()
+		{
+			int grabItems = _itemGrab;
+			while ((grabItems > 0) && !_items.isEmpty())
+			{
+				TempItem item = _items.get(0);
+				
+				int count = item.getQuantity();
+				if (count >= grabItems)
+				{
+					count = grabItems;
+				}
+				
+				item.setQuantity(item.getQuantity() - count);
+				if (item.getQuantity() <= 0)
+				{
+					_items.remove(0);
+				}
+				else
+				{
+					_items.set(0, item);
+				}
+				
+				grabItems -= count;
+				
+				if (_target == _player)
+				{
+					SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.S1_S2_EQUIPPED); // you equipped ...
+					sm.addLong(count);
+					sm.addItemName(item.getItemId());
+					_player.sendPacket(sm);
+				}
+				else
+				{
+					_target.sendMessage(LanguageData.getInstance().getMsg(_target, "ss_teleported_nearest_seal").replace("%s%", _player.getName() + "").replace("%c%", count + "").replace("%i%", item.getItemName() + ""));
+				}
+			}
+		}
+		
 		private List<TempItem> listItems(boolean remove)
 		{
 			L2RecipeInstance[] recipes = _recipeList.getRecipes();
@@ -661,13 +647,6 @@ public class RecipeController
 				}
 			}
 			return materials;
-		}
-		
-		private void abort()
-		{
-			updateMakeInfo(false);
-			_player.isInCraftMode(false);
-			_activeMakers.remove(_player.getObjectId());
 		}
 		
 		private void rewardPlayer()
@@ -779,11 +758,32 @@ public class RecipeController
 			}
 			updateMakeInfo(true); // success
 		}
-	}
-	
-	public static RecipeController getInstance()
-	{
-		return SingletonHolder._instance;
+		
+		private void updateCurLoad()
+		{
+			StatusUpdate su = new StatusUpdate(_target);
+			su.addAttribute(StatusUpdate.CUR_LOAD, _target.getCurrentLoad());
+			_target.sendPacket(su);
+		}
+		
+		private void updateCurMp()
+		{
+			StatusUpdate su = new StatusUpdate(_target);
+			su.addAttribute(StatusUpdate.CUR_MP, (int) _target.getCurrentMp());
+			_target.sendPacket(su);
+		}
+		
+		private void updateMakeInfo(boolean success)
+		{
+			if (_target == _player)
+			{
+				_target.sendPacket(new RecipeItemMakeInfo(_recipeList.getId(), _target, success));
+			}
+			else
+			{
+				_target.sendPacket(new RecipeShopItemInfo(_player, _recipeList.getId()));
+			}
+		}
 	}
 	
 	private static class SingletonHolder

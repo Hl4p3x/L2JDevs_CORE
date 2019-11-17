@@ -44,11 +44,9 @@ public final class DlgAnswer extends L2GameClientPacket
 	private int _requesterId;
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		_messageId = readD();
-		_answer = readD();
-		_requesterId = readD();
+		return _C__C6_DLGANSWER;
 	}
 	
 	@Override
@@ -140,8 +138,10 @@ public final class DlgAnswer extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__C6_DLGANSWER;
+		_messageId = readD();
+		_answer = readD();
+		_requesterId = readD();
 	}
 }

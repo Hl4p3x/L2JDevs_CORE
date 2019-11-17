@@ -35,8 +35,8 @@ import org.l2jdevs.mmocore.IAcceptFilter;
 public class IPv4Filter implements IAcceptFilter, Runnable
 {
 	private static final Logger LOG = Logger.getLogger(IPv4Filter.class.getName());
-	private final HashMap<Integer, Flood> _ipFloodMap;
 	private static final long SLEEP_TIME = 5000;
+	private final HashMap<Integer, Flood> _ipFloodMap;
 	
 	public IPv4Filter()
 	{
@@ -53,18 +53,6 @@ public class IPv4Filter implements IAcceptFilter, Runnable
 	private static final int hash(byte[] ip)
 	{
 		return (ip[0] & 0xFF) | ((ip[1] << 8) & 0xFF00) | ((ip[2] << 16) & 0xFF0000) | ((ip[3] << 24) & 0xFF000000);
-	}
-	
-	protected static final class Flood
-	{
-		long lastAccess;
-		int trys;
-		
-		Flood()
-		{
-			lastAccess = System.currentTimeMillis();
-			trys = 0;
-		}
 	}
 	
 	@Override
@@ -147,6 +135,18 @@ public class IPv4Filter implements IAcceptFilter, Runnable
 			{
 				return;
 			}
+		}
+	}
+	
+	protected static final class Flood
+	{
+		long lastAccess;
+		int trys;
+		
+		Flood()
+		{
+			lastAccess = System.currentTimeMillis();
+			trys = 0;
 		}
 	}
 }

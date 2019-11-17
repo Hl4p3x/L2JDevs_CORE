@@ -39,6 +39,11 @@ public abstract class L2GameClientPacket extends ReceivablePacket<L2GameClient>
 {
 	protected static final Logger _log = Logger.getLogger(L2GameClientPacket.class.getName());
 	
+	/**
+	 * @return A String with this packet name for debugging purposes
+	 */
+	public abstract String getType();
+	
 	@Override
 	public boolean read()
 	{
@@ -58,8 +63,6 @@ public abstract class L2GameClientPacket extends ReceivablePacket<L2GameClient>
 		}
 		return false;
 	}
-	
-	protected abstract void readImpl();
 	
 	@Override
 	public void run()
@@ -95,7 +98,34 @@ public abstract class L2GameClientPacket extends ReceivablePacket<L2GameClient>
 		}
 	}
 	
+	/**
+	 * Sends a system message to the client.
+	 * @param id the system message Id
+	 */
+	public void sendPacket(SystemMessageId id)
+	{
+		sendPacket(SystemMessage.getSystemMessage(id));
+	}
+	
+	/**
+	 * @return the active player if exist, otherwise null.
+	 */
+	protected final L2PcInstance getActiveChar()
+	{
+		return getClient().getActiveChar();
+	}
+	
+	protected abstract void readImpl();
+	
 	protected abstract void runImpl();
+	
+	protected final void sendActionFailed()
+	{
+		if (getClient() != null)
+		{
+			getClient().sendPacket(ActionFailed.STATIC_PACKET);
+		}
+	}
 	
 	/**
 	 * Sends a game server packet to the client.
@@ -107,41 +137,11 @@ public abstract class L2GameClientPacket extends ReceivablePacket<L2GameClient>
 	}
 	
 	/**
-	 * Sends a system message to the client.
-	 * @param id the system message Id
-	 */
-	public void sendPacket(SystemMessageId id)
-	{
-		sendPacket(SystemMessage.getSystemMessage(id));
-	}
-	
-	/**
-	 * @return A String with this packet name for debugging purposes
-	 */
-	public abstract String getType();
-	
-	/**
 	 * Overridden with true value on some packets that should disable spawn protection (RequestItemList and UseItem only)
 	 * @return
 	 */
 	protected boolean triggersOnActionRequest()
 	{
 		return true;
-	}
-	
-	/**
-	 * @return the active player if exist, otherwise null.
-	 */
-	protected final L2PcInstance getActiveChar()
-	{
-		return getClient().getActiveChar();
-	}
-	
-	protected final void sendActionFailed()
-	{
-		if (getClient() != null)
-		{
-			getClient().sendPacket(ActionFailed.STATIC_PACKET);
-		}
 	}
 }

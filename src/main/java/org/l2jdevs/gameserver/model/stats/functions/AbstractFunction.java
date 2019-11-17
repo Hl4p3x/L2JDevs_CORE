@@ -76,6 +76,16 @@ public abstract class AbstractFunction
 	}
 	
 	/**
+	 * Run the mathematics function of the Func.
+	 * @param effector the effector
+	 * @param effected the effected
+	 * @param skill the skill
+	 * @param initVal the initial value
+	 * @return the calculated value
+	 */
+	public abstract double calc(L2Character effector, L2Character effected, Skill skill, double initVal);
+	
+	/**
 	 * Gets the apply condition
 	 * @return the apply condition
 	 */
@@ -119,14 +129,4 @@ public abstract class AbstractFunction
 	{
 		return _value;
 	}
-	
-	/**
-	 * Run the mathematics function of the Func.
-	 * @param effector the effector
-	 * @param effected the effected
-	 * @param skill the skill
-	 * @param initVal the initial value
-	 * @return the calculated value
-	 */
-	public abstract double calc(L2Character effector, L2Character effected, Skill skill, double initVal);
 }

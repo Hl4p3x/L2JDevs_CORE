@@ -31,21 +31,6 @@ import org.l2jdevs.gameserver.model.zone.ZoneId;
 
 public class CharInfo extends L2GameServerPacket
 {
-	private final L2PcInstance _activeChar;
-	private int _objId;
-	private int _x, _y, _z, _heading;
-	private final int _mAtkSpd, _pAtkSpd;
-	
-	private final int _runSpd, _walkSpd;
-	private final int _swimRunSpd;
-	private final int _swimWalkSpd;
-	private final int _flyRunSpd;
-	private final int _flyWalkSpd;
-	private final double _moveMultiplier;
-	private final float _attackSpeedMultiplier;
-	
-	private int _vehicleId = 0;
-	
 	private static final int[] PAPERDOLL_ORDER = new int[]
 	{
 		Inventory.PAPERDOLL_UNDER,
@@ -70,6 +55,31 @@ public class CharInfo extends L2GameServerPacket
 		Inventory.PAPERDOLL_DECO6,
 		Inventory.PAPERDOLL_BELT
 	};
+	private final L2PcInstance _activeChar;
+	private int _objId;
+	private int _x, _y, _z, _heading;
+	
+	private final int _mAtkSpd, _pAtkSpd;
+	private final int _runSpd, _walkSpd;
+	private final int _swimRunSpd;
+	private final int _swimWalkSpd;
+	private final int _flyRunSpd;
+	private final int _flyWalkSpd;
+	private final double _moveMultiplier;
+	
+	private final float _attackSpeedMultiplier;
+	
+	private int _vehicleId = 0;
+	
+	public CharInfo(L2Decoy decoy)
+	{
+		this(decoy.getActingPlayer()); // init
+		_objId = decoy.getObjectId();
+		_x = decoy.getX();
+		_y = decoy.getY();
+		_z = decoy.getZ();
+		_heading = decoy.getHeading();
+	}
 	
 	public CharInfo(L2PcInstance cha)
 	{
@@ -103,14 +113,10 @@ public class CharInfo extends L2GameServerPacket
 		_flyWalkSpd = cha.isFlying() ? _walkSpd : 0;
 	}
 	
-	public CharInfo(L2Decoy decoy)
+	@Override
+	protected int[] getPaperdollOrder()
 	{
-		this(decoy.getActingPlayer()); // init
-		_objId = decoy.getObjectId();
-		_x = decoy.getX();
-		_y = decoy.getY();
-		_z = decoy.getZ();
-		_heading = decoy.getHeading();
+		return PAPERDOLL_ORDER;
 	}
 	
 	@Override
@@ -327,11 +333,5 @@ public class CharInfo extends L2GameServerPacket
 			// T2.3
 			writeD(_activeChar.getAbnormalVisualEffectSpecial());
 		}
-	}
-	
-	@Override
-	protected int[] getPaperdollOrder()
-	{
-		return PAPERDOLL_ORDER;
 	}
 }

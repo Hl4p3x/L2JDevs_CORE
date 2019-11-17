@@ -69,6 +69,72 @@ public final class GameServerTable implements IXmlReader
 		LOG.info("{}: Cached {} RSA keys for Game Server communication.", getClass().getSimpleName(), _keyPairs.length);
 	}
 	
+	/**
+	 * Gets the single instance of GameServerTable.
+	 * @return single instance of GameServerTable
+	 */
+	public static GameServerTable getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the key pair.
+	 * @return a random key pair.
+	 */
+	public KeyPair getKeyPair()
+	{
+		return _keyPairs[Rnd.nextInt(10)];
+	}
+	
+	/**
+	 * Gets the registered game server by id.
+	 * @param id the game server Id
+	 * @return the registered game server by id
+	 */
+	public GameServerInfo getRegisteredGameServerById(int id)
+	{
+		return GAME_SERVER_TABLE.get(id);
+	}
+	
+	/**
+	 * Gets the registered game servers.
+	 * @return the registered game servers
+	 */
+	public Map<Integer, GameServerInfo> getRegisteredGameServers()
+	{
+		return GAME_SERVER_TABLE;
+	}
+	
+	/**
+	 * Gets the server name by id.
+	 * @param id the id
+	 * @return the server name by id
+	 */
+	public String getServerNameById(int id)
+	{
+		return SERVER_NAMES.get(id);
+	}
+	
+	/**
+	 * Gets the server names.
+	 * @return the game server names map.
+	 */
+	public Map<Integer, String> getServerNames()
+	{
+		return SERVER_NAMES;
+	}
+	
+	/**
+	 * Checks for registered game server on id.
+	 * @param id the id
+	 * @return true, if successful
+	 */
+	public boolean hasRegisteredGameServerOnId(int id)
+	{
+		return GAME_SERVER_TABLE.containsKey(id);
+	}
+	
 	@Override
 	public void load()
 	{
@@ -85,6 +151,95 @@ public final class GameServerTable implements IXmlReader
 		{
 			SERVER_NAMES.put(parseInteger(servers.item(s).getAttributes(), "id"), parseString(servers.item(s).getAttributes(), "name"));
 		}
+	}
+	
+	/**
+	 * Register a game server.
+	 * @param id the id
+	 * @param gsi the gsi
+	 * @return true, if successful
+	 */
+	public boolean register(int id, GameServerInfo gsi)
+	{
+		// avoid two servers registering with the same id
+		synchronized (GAME_SERVER_TABLE)
+		{
+			if (!GAME_SERVER_TABLE.containsKey(id))
+			{
+				GAME_SERVER_TABLE.put(id, gsi);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Register server on db.
+	 * @param hexId the hex id
+	 * @param id the id
+	 * @param externalHost the external host
+	 */
+	public void registerServerOnDB(byte[] hexId, int id, String externalHost)
+	{
+		register(id, new GameServerInfo(id, hexId));
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("INSERT INTO gameservers (hexid,server_id,host) values (?,?,?)"))
+		{
+			ps.setString(1, hexToString(hexId));
+			ps.setInt(2, id);
+			ps.setString(3, externalHost);
+			ps.executeUpdate();
+		}
+		catch (Exception e)
+		{
+			LOG.error("{}: Error while saving gameserver!", getClass().getSimpleName(), e);
+		}
+	}
+	
+	/**
+	 * Wrapper method.
+	 * @param gsi the game server info DTO.
+	 */
+	public void registerServerOnDB(GameServerInfo gsi)
+	{
+		registerServerOnDB(gsi.getHexId(), gsi.getId(), gsi.getExternalHost());
+	}
+	
+	/**
+	 * Register with first available id.
+	 * @param gsi the game server information DTO
+	 * @return true, if successful
+	 */
+	public boolean registerWithFirstAvailableId(GameServerInfo gsi)
+	{
+		// avoid two servers registering with the same "free" id
+		synchronized (GAME_SERVER_TABLE)
+		{
+			for (Integer serverId : SERVER_NAMES.keySet())
+			{
+				if (!GAME_SERVER_TABLE.containsKey(serverId))
+				{
+					GAME_SERVER_TABLE.put(serverId, gsi);
+					gsi.setId(serverId);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Hex to string.
+	 * @param hex the hex value to convert.
+	 * @return the string representation.
+	 */
+	private String hexToString(byte[] hex)
+	{
+		if (hex == null)
+		{
+			return "null";
+		}
+		return new BigInteger(hex).toString(16);
 	}
 	
 	/**
@@ -131,138 +286,6 @@ public final class GameServerTable implements IXmlReader
 	}
 	
 	/**
-	 * Gets the registered game servers.
-	 * @return the registered game servers
-	 */
-	public Map<Integer, GameServerInfo> getRegisteredGameServers()
-	{
-		return GAME_SERVER_TABLE;
-	}
-	
-	/**
-	 * Gets the registered game server by id.
-	 * @param id the game server Id
-	 * @return the registered game server by id
-	 */
-	public GameServerInfo getRegisteredGameServerById(int id)
-	{
-		return GAME_SERVER_TABLE.get(id);
-	}
-	
-	/**
-	 * Checks for registered game server on id.
-	 * @param id the id
-	 * @return true, if successful
-	 */
-	public boolean hasRegisteredGameServerOnId(int id)
-	{
-		return GAME_SERVER_TABLE.containsKey(id);
-	}
-	
-	/**
-	 * Register with first available id.
-	 * @param gsi the game server information DTO
-	 * @return true, if successful
-	 */
-	public boolean registerWithFirstAvailableId(GameServerInfo gsi)
-	{
-		// avoid two servers registering with the same "free" id
-		synchronized (GAME_SERVER_TABLE)
-		{
-			for (Integer serverId : SERVER_NAMES.keySet())
-			{
-				if (!GAME_SERVER_TABLE.containsKey(serverId))
-				{
-					GAME_SERVER_TABLE.put(serverId, gsi);
-					gsi.setId(serverId);
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * Register a game server.
-	 * @param id the id
-	 * @param gsi the gsi
-	 * @return true, if successful
-	 */
-	public boolean register(int id, GameServerInfo gsi)
-	{
-		// avoid two servers registering with the same id
-		synchronized (GAME_SERVER_TABLE)
-		{
-			if (!GAME_SERVER_TABLE.containsKey(id))
-			{
-				GAME_SERVER_TABLE.put(id, gsi);
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * Wrapper method.
-	 * @param gsi the game server info DTO.
-	 */
-	public void registerServerOnDB(GameServerInfo gsi)
-	{
-		registerServerOnDB(gsi.getHexId(), gsi.getId(), gsi.getExternalHost());
-	}
-	
-	/**
-	 * Register server on db.
-	 * @param hexId the hex id
-	 * @param id the id
-	 * @param externalHost the external host
-	 */
-	public void registerServerOnDB(byte[] hexId, int id, String externalHost)
-	{
-		register(id, new GameServerInfo(id, hexId));
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("INSERT INTO gameservers (hexid,server_id,host) values (?,?,?)"))
-		{
-			ps.setString(1, hexToString(hexId));
-			ps.setInt(2, id);
-			ps.setString(3, externalHost);
-			ps.executeUpdate();
-		}
-		catch (Exception e)
-		{
-			LOG.error("{}: Error while saving gameserver!", getClass().getSimpleName(), e);
-		}
-	}
-	
-	/**
-	 * Gets the server name by id.
-	 * @param id the id
-	 * @return the server name by id
-	 */
-	public String getServerNameById(int id)
-	{
-		return SERVER_NAMES.get(id);
-	}
-	
-	/**
-	 * Gets the server names.
-	 * @return the game server names map.
-	 */
-	public Map<Integer, String> getServerNames()
-	{
-		return SERVER_NAMES;
-	}
-	
-	/**
-	 * Gets the key pair.
-	 * @return a random key pair.
-	 */
-	public KeyPair getKeyPair()
-	{
-		return _keyPairs[Rnd.nextInt(10)];
-	}
-	
-	/**
 	 * String to hex.
 	 * @param string the string to convert.
 	 * @return return the hex representation.
@@ -270,20 +293,6 @@ public final class GameServerTable implements IXmlReader
 	private byte[] stringToHex(String string)
 	{
 		return new BigInteger(string, 16).toByteArray();
-	}
-	
-	/**
-	 * Hex to string.
-	 * @param hex the hex value to convert.
-	 * @return the string representation.
-	 */
-	private String hexToString(byte[] hex)
-	{
-		if (hex == null)
-		{
-			return "null";
-		}
-		return new BigInteger(hex).toString(16);
 	}
 	
 	/**
@@ -312,6 +321,16 @@ public final class GameServerTable implements IXmlReader
 		 * Instantiates a new game server info.
 		 * @param id the id
 		 * @param hexId the hex id
+		 */
+		public GameServerInfo(int id, byte[] hexId)
+		{
+			this(id, hexId, null);
+		}
+		
+		/**
+		 * Instantiates a new game server info.
+		 * @param id the id
+		 * @param hexId the hex id
 		 * @param gst the gst
 		 */
 		public GameServerInfo(int id, byte[] hexId, GameServerThread gst)
@@ -323,121 +342,31 @@ public final class GameServerTable implements IXmlReader
 		}
 		
 		/**
-		 * Instantiates a new game server info.
-		 * @param id the id
-		 * @param hexId the hex id
+		 * Adds the server address.
+		 * @param subnet the subnet
+		 * @param addr the addr
+		 * @throws UnknownHostException the unknown host exception
 		 */
-		public GameServerInfo(int id, byte[] hexId)
+		public void addServerAddress(String subnet, String addr) throws UnknownHostException
 		{
-			this(id, hexId, null);
+			_addrs.add(new GameServerAddress(subnet, addr));
 		}
 		
 		/**
-		 * Sets the id.
-		 * @param id the new id
+		 * Clear server addresses.
 		 */
-		public void setId(int id)
+		public void clearServerAddresses()
 		{
-			_id = id;
+			_addrs.clear();
 		}
 		
 		/**
-		 * Gets the id.
-		 * @return the id
+		 * Gets the age limit.
+		 * @return the age limit
 		 */
-		public int getId()
+		public int getAgeLimit()
 		{
-			return _id;
-		}
-		
-		/**
-		 * Gets the hex id.
-		 * @return the hex id
-		 */
-		public byte[] getHexId()
-		{
-			return _hexId;
-		}
-		
-		public String getName()
-		{
-			// this value can't be stored in a private variable because the ID can be changed by setId()
-			return GameServerTable.getInstance().getServerNameById(_id);
-		}
-		
-		/**
-		 * Sets the authed.
-		 * @param isAuthed the new authed
-		 */
-		public void setAuthed(boolean isAuthed)
-		{
-			_isAuthed = isAuthed;
-		}
-		
-		/**
-		 * Checks if is authed.
-		 * @return true, if is authed
-		 */
-		public boolean isAuthed()
-		{
-			return _isAuthed;
-		}
-		
-		/**
-		 * Sets the game server thread.
-		 * @param gst the new game server thread
-		 */
-		public void setGameServerThread(GameServerThread gst)
-		{
-			_gst = gst;
-		}
-		
-		/**
-		 * Gets the game server thread.
-		 * @return the game server thread
-		 */
-		public GameServerThread getGameServerThread()
-		{
-			return _gst;
-		}
-		
-		/**
-		 * Sets the status.
-		 * @param status the new status
-		 */
-		public void setStatus(int status)
-		{
-			_status = status;
-		}
-		
-		/**
-		 * Gets the status.
-		 * @return the status
-		 */
-		public int getStatus()
-		{
-			return _status;
-		}
-		
-		public String getStatusName()
-		{
-			switch (_status)
-			{
-				case 0:
-					return "Auto";
-				case 1:
-					return "Good";
-				case 2:
-					return "Normal";
-				case 3:
-					return "Full";
-				case 4:
-					return "Down";
-				case 5:
-					return "GM Only";
-				default:
-					return "Unknown";
-			}
+			return _ageLimit;
 		}
 		
 		/**
@@ -471,30 +400,30 @@ public final class GameServerTable implements IXmlReader
 		}
 		
 		/**
-		 * Gets the port.
-		 * @return the port
+		 * Gets the game server thread.
+		 * @return the game server thread
 		 */
-		public int getPort()
+		public GameServerThread getGameServerThread()
 		{
-			return _port;
+			return _gst;
 		}
 		
 		/**
-		 * Sets the port.
-		 * @param port the new port
+		 * Gets the hex id.
+		 * @return the hex id
 		 */
-		public void setPort(int port)
+		public byte[] getHexId()
 		{
-			_port = port;
+			return _hexId;
 		}
 		
 		/**
-		 * Sets the max players.
-		 * @param maxPlayers the new max players
+		 * Gets the id.
+		 * @return the id
 		 */
-		public void setMaxPlayers(int maxPlayers)
+		public int getId()
 		{
-			_maxPlayers = maxPlayers;
+			return _id;
 		}
 		
 		/**
@@ -506,89 +435,19 @@ public final class GameServerTable implements IXmlReader
 			return _maxPlayers;
 		}
 		
-		/**
-		 * Checks if is pvp.
-		 * @return true, if is pvp
-		 */
-		public boolean isPvp()
+		public String getName()
 		{
-			return _isPvp;
+			// this value can't be stored in a private variable because the ID can be changed by setId()
+			return GameServerTable.getInstance().getServerNameById(_id);
 		}
 		
 		/**
-		 * Sets the age limit.
-		 * @param val the new age limit
+		 * Gets the port.
+		 * @return the port
 		 */
-		public void setAgeLimit(int val)
+		public int getPort()
 		{
-			_ageLimit = val;
-		}
-		
-		/**
-		 * Gets the age limit.
-		 * @return the age limit
-		 */
-		public int getAgeLimit()
-		{
-			return _ageLimit;
-		}
-		
-		/**
-		 * Sets the server type.
-		 * @param val the new server type
-		 */
-		public void setServerType(int val)
-		{
-			_serverType = val;
-		}
-		
-		/**
-		 * Gets the server type.
-		 * @return the server type
-		 */
-		public int getServerType()
-		{
-			return _serverType;
-		}
-		
-		/**
-		 * Sets the showing brackets.
-		 * @param val the new showing brackets
-		 */
-		public void setShowingBrackets(boolean val)
-		{
-			_isShowingBrackets = val;
-		}
-		
-		/**
-		 * Checks if is showing brackets.
-		 * @return true, if is showing brackets
-		 */
-		public boolean isShowingBrackets()
-		{
-			return _isShowingBrackets;
-		}
-		
-		/**
-		 * Sets the down.
-		 */
-		public void setDown()
-		{
-			setAuthed(false);
-			setPort(0);
-			setGameServerThread(null);
-			setStatus(ServerStatus.STATUS_DOWN);
-		}
-		
-		/**
-		 * Adds the server address.
-		 * @param subnet the subnet
-		 * @param addr the addr
-		 * @throws UnknownHostException the unknown host exception
-		 */
-		public void addServerAddress(String subnet, String addr) throws UnknownHostException
-		{
-			_addrs.add(new GameServerAddress(subnet, addr));
+			return _port;
 		}
 		
 		/**
@@ -624,11 +483,161 @@ public final class GameServerTable implements IXmlReader
 		}
 		
 		/**
-		 * Clear server addresses.
+		 * Gets the server type.
+		 * @return the server type
 		 */
-		public void clearServerAddresses()
+		public int getServerType()
 		{
-			_addrs.clear();
+			return _serverType;
+		}
+		
+		/**
+		 * Gets the status.
+		 * @return the status
+		 */
+		public int getStatus()
+		{
+			return _status;
+		}
+		
+		public String getStatusName()
+		{
+			switch (_status)
+			{
+				case 0:
+					return "Auto";
+				case 1:
+					return "Good";
+				case 2:
+					return "Normal";
+				case 3:
+					return "Full";
+				case 4:
+					return "Down";
+				case 5:
+					return "GM Only";
+				default:
+					return "Unknown";
+			}
+		}
+		
+		/**
+		 * Checks if is authed.
+		 * @return true, if is authed
+		 */
+		public boolean isAuthed()
+		{
+			return _isAuthed;
+		}
+		
+		/**
+		 * Checks if is pvp.
+		 * @return true, if is pvp
+		 */
+		public boolean isPvp()
+		{
+			return _isPvp;
+		}
+		
+		/**
+		 * Checks if is showing brackets.
+		 * @return true, if is showing brackets
+		 */
+		public boolean isShowingBrackets()
+		{
+			return _isShowingBrackets;
+		}
+		
+		/**
+		 * Sets the age limit.
+		 * @param val the new age limit
+		 */
+		public void setAgeLimit(int val)
+		{
+			_ageLimit = val;
+		}
+		
+		/**
+		 * Sets the authed.
+		 * @param isAuthed the new authed
+		 */
+		public void setAuthed(boolean isAuthed)
+		{
+			_isAuthed = isAuthed;
+		}
+		
+		/**
+		 * Sets the down.
+		 */
+		public void setDown()
+		{
+			setAuthed(false);
+			setPort(0);
+			setGameServerThread(null);
+			setStatus(ServerStatus.STATUS_DOWN);
+		}
+		
+		/**
+		 * Sets the game server thread.
+		 * @param gst the new game server thread
+		 */
+		public void setGameServerThread(GameServerThread gst)
+		{
+			_gst = gst;
+		}
+		
+		/**
+		 * Sets the id.
+		 * @param id the new id
+		 */
+		public void setId(int id)
+		{
+			_id = id;
+		}
+		
+		/**
+		 * Sets the max players.
+		 * @param maxPlayers the new max players
+		 */
+		public void setMaxPlayers(int maxPlayers)
+		{
+			_maxPlayers = maxPlayers;
+		}
+		
+		/**
+		 * Sets the port.
+		 * @param port the new port
+		 */
+		public void setPort(int port)
+		{
+			_port = port;
+		}
+		
+		/**
+		 * Sets the server type.
+		 * @param val the new server type
+		 */
+		public void setServerType(int val)
+		{
+			_serverType = val;
+		}
+		
+		/**
+		 * Sets the showing brackets.
+		 * @param val the new showing brackets
+		 */
+		public void setShowingBrackets(boolean val)
+		{
+			_isShowingBrackets = val;
+		}
+		
+		/**
+		 * Sets the status.
+		 * @param status the new status
+		 */
+		public void setStatus(int status)
+		{
+			_status = status;
 		}
 		
 		/**
@@ -665,15 +674,6 @@ public final class GameServerTable implements IXmlReader
 				return _serverAddress + super.toString();
 			}
 		}
-	}
-	
-	/**
-	 * Gets the single instance of GameServerTable.
-	 * @return single instance of GameServerTable
-	 */
-	public static GameServerTable getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	/**

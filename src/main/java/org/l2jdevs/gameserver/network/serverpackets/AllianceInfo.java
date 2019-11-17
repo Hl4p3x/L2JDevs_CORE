@@ -60,6 +60,36 @@ public class AllianceInfo extends L2GameServerPacket
 		_online = online;
 	}
 	
+	public ClanInfo[] getAllies()
+	{
+		return _allies;
+	}
+	
+	public String getLeaderC()
+	{
+		return _leaderC;
+	}
+	
+	public String getLeaderP()
+	{
+		return _leaderP;
+	}
+	
+	public String getName()
+	{
+		return _name;
+	}
+	
+	public int getOnline()
+	{
+		return _online;
+	}
+	
+	public int getTotal()
+	{
+		return _total;
+	}
+	
 	@Override
 	protected void writeImpl()
 	{
@@ -81,35 +111,5 @@ public class AllianceInfo extends L2GameServerPacket
 			writeD(aci.getTotal());
 			writeD(aci.getOnline());
 		}
-	}
-	
-	public String getName()
-	{
-		return _name;
-	}
-	
-	public int getTotal()
-	{
-		return _total;
-	}
-	
-	public int getOnline()
-	{
-		return _online;
-	}
-	
-	public String getLeaderC()
-	{
-		return _leaderC;
-	}
-	
-	public String getLeaderP()
-	{
-		return _leaderP;
-	}
-	
-	public ClanInfo[] getAllies()
-	{
-		return _allies;
 	}
 }

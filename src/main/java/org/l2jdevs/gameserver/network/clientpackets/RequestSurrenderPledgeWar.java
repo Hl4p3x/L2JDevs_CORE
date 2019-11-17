@@ -33,6 +33,12 @@ public final class RequestSurrenderPledgeWar extends L2GameClientPacket
 	private String _pledgeName;
 	
 	@Override
+	public String getType()
+	{
+		return _C__07_REQUESTSURRENDERPLEDGEWAR;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_pledgeName = readS();
@@ -93,11 +99,5 @@ public final class RequestSurrenderPledgeWar extends L2GameClientPacket
 		// leader.setTransactionRequester(player);
 		// player.setTransactionRequester(leader);
 		// leader.sendPacket(new SurrenderPledgeWar(_clan.getName(), player.getName()));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__07_REQUESTSURRENDERPLEDGEWAR;
 	}
 }

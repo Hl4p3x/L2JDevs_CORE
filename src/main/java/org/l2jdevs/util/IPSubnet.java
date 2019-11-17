@@ -27,6 +27,17 @@ public class IPSubnet
 	final byte[] _mask;
 	final boolean _isIPv4;
 	
+	public IPSubnet(InetAddress addr, int mask) throws UnknownHostException
+	{
+		_addr = addr.getAddress();
+		_isIPv4 = _addr.length == 4;
+		_mask = getMask(mask, _addr.length);
+		if (!applyMask(_addr))
+		{
+			throw new UnknownHostException(addr.toString() + "/" + mask);
+		}
+	}
+	
 	public IPSubnet(String input) throws UnknownHostException, NumberFormatException, ArrayIndexOutOfBoundsException
 	{
 		int idx = input.indexOf("/");
@@ -49,20 +60,25 @@ public class IPSubnet
 		}
 	}
 	
-	public IPSubnet(InetAddress addr, int mask) throws UnknownHostException
+	private static final byte[] getMask(int n, int maxLength) throws UnknownHostException
 	{
-		_addr = addr.getAddress();
-		_isIPv4 = _addr.length == 4;
-		_mask = getMask(mask, _addr.length);
-		if (!applyMask(_addr))
+		if ((n > (maxLength << 3)) || (n < 0))
 		{
-			throw new UnknownHostException(addr.toString() + "/" + mask);
+			throw new UnknownHostException("Invalid netmask: " + n);
 		}
-	}
-	
-	public byte[] getAddress()
-	{
-		return _addr;
+		
+		final byte[] result = new byte[maxLength];
+		for (int i = 0; i < maxLength; i++)
+		{
+			result[i] = (byte) 0xFF;
+		}
+		
+		for (int i = (maxLength << 3) - 1; i >= n; i--)
+		{
+			result[i >> 3] = (byte) (result[i >> 3] << 1);
+		}
+		
+		return result;
 	}
 	
 	public boolean applyMask(byte[] addr)
@@ -109,25 +125,6 @@ public class IPSubnet
 	}
 	
 	@Override
-	public String toString()
-	{
-		int size = 0;
-		for (byte element : _mask)
-		{
-			size += Integer.bitCount((element & 0xFF));
-		}
-		
-		try
-		{
-			return InetAddress.getByAddress(_addr).toString() + "/" + size;
-		}
-		catch (UnknownHostException e)
-		{
-			return "Invalid";
-		}
-	}
-	
-	@Override
 	public boolean equals(Object o)
 	{
 		if (this == o)
@@ -146,24 +143,27 @@ public class IPSubnet
 		return false;
 	}
 	
-	private static final byte[] getMask(int n, int maxLength) throws UnknownHostException
+	public byte[] getAddress()
 	{
-		if ((n > (maxLength << 3)) || (n < 0))
+		return _addr;
+	}
+	
+	@Override
+	public String toString()
+	{
+		int size = 0;
+		for (byte element : _mask)
 		{
-			throw new UnknownHostException("Invalid netmask: " + n);
+			size += Integer.bitCount((element & 0xFF));
 		}
 		
-		final byte[] result = new byte[maxLength];
-		for (int i = 0; i < maxLength; i++)
+		try
 		{
-			result[i] = (byte) 0xFF;
+			return InetAddress.getByAddress(_addr).toString() + "/" + size;
 		}
-		
-		for (int i = (maxLength << 3) - 1; i >= n; i--)
+		catch (UnknownHostException e)
 		{
-			result[i >> 3] = (byte) (result[i >> 3] << 1);
+			return "Invalid";
 		}
-		
-		return result;
 	}
 }

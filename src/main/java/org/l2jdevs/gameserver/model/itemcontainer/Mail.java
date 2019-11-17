@@ -45,15 +45,16 @@ public class Mail extends ItemContainer
 	}
 	
 	@Override
-	public String getName()
+	public void deleteMe()
 	{
-		return "Mail";
-	}
-	
-	@Override
-	public L2PcInstance getOwner()
-	{
-		return null;
+		_items.forEach(i ->
+		{
+			i.updateDatabase(true);
+			i.deleteMe();
+			L2World.getInstance().removeObject(i);
+			IdFactory.getInstance().releaseId(i.getObjectId());
+		});
+		_items.clear();
 	}
 	
 	@Override
@@ -67,52 +68,22 @@ public class Mail extends ItemContainer
 		return _messageId;
 	}
 	
-	public void setNewMessageId(int messageId)
+	@Override
+	public String getName()
 	{
-		_messageId = messageId;
-		for (L2ItemInstance item : _items)
-		{
-			if (item == null)
-			{
-				continue;
-			}
-			
-			item.setItemLocation(getBaseLocation(), messageId);
-		}
-		
-		updateDatabase();
-	}
-	
-	public void returnToWh(ItemContainer wh)
-	{
-		for (L2ItemInstance item : _items)
-		{
-			if (item == null)
-			{
-				continue;
-			}
-			if (wh == null)
-			{
-				item.setItemLocation(ItemLocation.WAREHOUSE);
-			}
-			else
-			{
-				transferItem("Expire", item.getObjectId(), item.getCount(), wh, null, null);
-			}
-		}
+		return "Mail";
 	}
 	
 	@Override
-	protected void addItem(L2ItemInstance item)
+	public L2PcInstance getOwner()
 	{
-		super.addItem(item);
-		item.setItemLocation(getBaseLocation(), _messageId);
+		return null;
 	}
 	
 	@Override
-	public void updateDatabase()
+	public int getOwnerId()
 	{
-		_items.forEach(i -> i.updateDatabase(true));
+		return _ownerId;
 	}
 	
 	@Override
@@ -155,22 +126,51 @@ public class Mail extends ItemContainer
 		}
 	}
 	
-	@Override
-	public int getOwnerId()
+	public void returnToWh(ItemContainer wh)
 	{
-		return _ownerId;
+		for (L2ItemInstance item : _items)
+		{
+			if (item == null)
+			{
+				continue;
+			}
+			if (wh == null)
+			{
+				item.setItemLocation(ItemLocation.WAREHOUSE);
+			}
+			else
+			{
+				transferItem("Expire", item.getObjectId(), item.getCount(), wh, null, null);
+			}
+		}
+	}
+	
+	public void setNewMessageId(int messageId)
+	{
+		_messageId = messageId;
+		for (L2ItemInstance item : _items)
+		{
+			if (item == null)
+			{
+				continue;
+			}
+			
+			item.setItemLocation(getBaseLocation(), messageId);
+		}
+		
+		updateDatabase();
 	}
 	
 	@Override
-	public void deleteMe()
+	public void updateDatabase()
 	{
-		_items.forEach(i ->
-		{
-			i.updateDatabase(true);
-			i.deleteMe();
-			L2World.getInstance().removeObject(i);
-			IdFactory.getInstance().releaseId(i.getObjectId());
-		});
-		_items.clear();
+		_items.forEach(i -> i.updateDatabase(true));
+	}
+	
+	@Override
+	protected void addItem(L2ItemInstance item)
+	{
+		super.addItem(item);
+		item.setItemLocation(getBaseLocation(), _messageId);
 	}
 }

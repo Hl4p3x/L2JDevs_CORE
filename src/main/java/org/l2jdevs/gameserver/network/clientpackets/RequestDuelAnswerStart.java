@@ -36,6 +36,12 @@ public final class RequestDuelAnswerStart extends L2GameClientPacket
 	private int _response;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_1C_REQUESTDUELANSWERSTART;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_partyDuel = readD();
@@ -119,11 +125,5 @@ public final class RequestDuelAnswerStart extends L2GameClientPacket
 		
 		player.setActiveRequester(null);
 		requestor.onTransactionResponse();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_1C_REQUESTDUELANSWERSTART;
 	}
 }

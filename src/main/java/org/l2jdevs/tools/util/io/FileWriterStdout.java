@@ -32,6 +32,11 @@ public class FileWriterStdout extends BufferedWriter
 		super(fileWriter);
 	}
 	
+	public void print(String text) throws IOException
+	{
+		append(text);
+	}
+	
 	public void println() throws IOException
 	{
 		append(System.getProperty("line.separator"));
@@ -40,10 +45,5 @@ public class FileWriterStdout extends BufferedWriter
 	public void println(String line) throws IOException
 	{
 		append(line + System.getProperty("line.separator"));
-	}
-	
-	public void print(String text) throws IOException
-	{
-		append(text);
 	}
 }

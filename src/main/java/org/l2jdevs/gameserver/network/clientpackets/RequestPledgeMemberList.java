@@ -31,6 +31,12 @@ public final class RequestPledgeMemberList extends L2GameClientPacket
 	private static final String _C__4D_REQUESTPLEDGEMEMBERLIST = "[C] 4D RequestPledgeMemberList";
 	
 	@Override
+	public String getType()
+	{
+		return _C__4D_REQUESTPLEDGEMEMBERLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -51,11 +57,5 @@ public final class RequestPledgeMemberList extends L2GameClientPacket
 			PledgeShowMemberListAll pm = new PledgeShowMemberListAll(clan, activeChar);
 			activeChar.sendPacket(pm);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__4D_REQUESTPLEDGEMEMBERLIST;
 	}
 }

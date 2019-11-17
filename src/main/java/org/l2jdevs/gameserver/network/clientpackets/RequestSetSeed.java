@@ -39,6 +39,12 @@ public class RequestSetSeed extends L2GameClientPacket
 	private List<SeedProduction> _items;
 	
 	@Override
+	public String getType()
+	{
+		return "[C] D0:03 RequestSetSeed";
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_manorId = readD();
@@ -103,11 +109,5 @@ public class RequestSetSeed extends L2GameClientPacket
 		
 		// Save new list
 		manor.setNextSeedProduction(list, _manorId);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return "[C] D0:03 RequestSetSeed";
 	}
 }

@@ -22,14 +22,14 @@ import org.l2jdevs.gameserver.model.actor.L2Character;
 
 public class ChangeWaitType extends L2GameServerPacket
 {
-	private final int _charObjId;
-	private final int _moveType;
-	private final int _x, _y, _z;
-	
 	public static final int WT_SITTING = 0;
 	public static final int WT_STANDING = 1;
 	public static final int WT_START_FAKEDEATH = 2;
+	
 	public static final int WT_STOP_FAKEDEATH = 3;
+	private final int _charObjId;
+	private final int _moveType;
+	private final int _x, _y, _z;
 	
 	public ChangeWaitType(L2Character character, int newMoveType)
 	{

@@ -42,6 +42,12 @@ public final class Action extends L2GameClientPacket
 	private int _actionId;
 	
 	@Override
+	public String getType()
+	{
+		return __C__1F_ACTION;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD(); // Target object Identifier
@@ -176,11 +182,5 @@ public final class Action extends L2GameClientPacket
 	protected boolean triggersOnActionRequest()
 	{
 		return false;
-	}
-	
-	@Override
-	public String getType()
-	{
-		return __C__1F_ACTION;
 	}
 }

@@ -33,6 +33,12 @@ public final class RequestVoteNew extends L2GameClientPacket
 	private int _targetId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_7E_REQUESTVOTENEW;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_targetId = readD();
@@ -104,11 +110,5 @@ public final class RequestVoteNew extends L2GameClientPacket
 		
 		activeChar.sendPacket(new ExVoteSystemInfo(activeChar));
 		target.sendPacket(new ExVoteSystemInfo(target));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_7E_REQUESTVOTENEW;
 	}
 }

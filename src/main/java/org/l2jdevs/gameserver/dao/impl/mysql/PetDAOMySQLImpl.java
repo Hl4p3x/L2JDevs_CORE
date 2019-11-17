@@ -50,23 +50,26 @@ public class PetDAOMySQLImpl implements PetDAO
 	
 	private static final String UPDATE = "UPDATE pets SET name=?,level=?,curHp=?,curMp=?,exp=?,sp=?,fed=?,ownerId=?,restore=? WHERE item_obj_id=?";
 	
-	@Override
-	public void updateFood(L2PcInstance player, int petId)
+	private static void insertOrUpdate(L2PetInstance pet, String query)
 	{
-		if ((player.getControlItemId() != 0) && (petId != 0))
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(query))
 		{
-			try (Connection con = ConnectionFactory.getInstance().getConnection();
-				PreparedStatement ps = con.prepareStatement(UPDATE_FOOD))
-			{
-				ps.setInt(1, player.getCurrentFeed());
-				ps.setInt(2, player.getControlItemId());
-				ps.executeUpdate();
-				player.setControlItemId(0);
-			}
-			catch (Exception e)
-			{
-				LOG.error("Failed to store Pet [NpcId: {}] data {}", petId, e);
-			}
+			ps.setString(1, pet.getName());
+			ps.setInt(2, pet.getLevel());
+			ps.setDouble(3, pet.getStatus().getCurrentHp());
+			ps.setDouble(4, pet.getStatus().getCurrentMp());
+			ps.setLong(5, pet.getExp());
+			ps.setInt(6, pet.getSp());
+			ps.setInt(7, pet.getCurrentFed());
+			ps.setInt(8, pet.getOwner().getObjectId());
+			ps.setString(9, String.valueOf(pet.isRestoreSummon())); // True restores pet on login
+			ps.setInt(10, pet.getControlObjectId());
+			ps.executeUpdate();
+		}
+		catch (Exception e)
+		{
+			LOG.error("Failed to store pet {} data!", pet, e);
 		}
 	}
 	
@@ -83,6 +86,12 @@ public class PetDAOMySQLImpl implements PetDAO
 		{
 			LOG.error("Failed to delete pet {}!", pet, e);
 		}
+	}
+	
+	@Override
+	public void insert(L2PetInstance pet)
+	{
+		insertOrUpdate(pet, INSERT);
 	}
 	
 	@Override
@@ -137,37 +146,28 @@ public class PetDAOMySQLImpl implements PetDAO
 	}
 	
 	@Override
-	public void insert(L2PetInstance pet)
-	{
-		insertOrUpdate(pet, INSERT);
-	}
-	
-	@Override
 	public void update(L2PetInstance pet)
 	{
 		insertOrUpdate(pet, UPDATE);
 	}
 	
-	private static void insertOrUpdate(L2PetInstance pet, String query)
+	@Override
+	public void updateFood(L2PcInstance player, int petId)
 	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(query))
+		if ((player.getControlItemId() != 0) && (petId != 0))
 		{
-			ps.setString(1, pet.getName());
-			ps.setInt(2, pet.getLevel());
-			ps.setDouble(3, pet.getStatus().getCurrentHp());
-			ps.setDouble(4, pet.getStatus().getCurrentMp());
-			ps.setLong(5, pet.getExp());
-			ps.setInt(6, pet.getSp());
-			ps.setInt(7, pet.getCurrentFed());
-			ps.setInt(8, pet.getOwner().getObjectId());
-			ps.setString(9, String.valueOf(pet.isRestoreSummon())); // True restores pet on login
-			ps.setInt(10, pet.getControlObjectId());
-			ps.executeUpdate();
-		}
-		catch (Exception e)
-		{
-			LOG.error("Failed to store pet {} data!", pet, e);
+			try (Connection con = ConnectionFactory.getInstance().getConnection();
+				PreparedStatement ps = con.prepareStatement(UPDATE_FOOD))
+			{
+				ps.setInt(1, player.getCurrentFeed());
+				ps.setInt(2, player.getControlItemId());
+				ps.executeUpdate();
+				player.setControlItemId(0);
+			}
+			catch (Exception e)
+			{
+				LOG.error("Failed to store Pet [NpcId: {}] data {}", petId, e);
+			}
 		}
 	}
 }

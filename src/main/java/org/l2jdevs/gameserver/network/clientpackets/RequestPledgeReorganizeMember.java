@@ -37,6 +37,12 @@ public final class RequestPledgeReorganizeMember extends L2GameClientPacket
 	private String _selectedMember;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_2C_REQUESTPLEDGEREORGANIZEMEMBER;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_isMemberSelected = readD();
@@ -91,11 +97,5 @@ public final class RequestPledgeReorganizeMember extends L2GameClientPacket
 		member1.setPledgeType(_newPledgeType);
 		member2.setPledgeType(oldPledgeType);
 		clan.broadcastClanStatus();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_2C_REQUESTPLEDGEREORGANIZEMEMBER;
 	}
 }

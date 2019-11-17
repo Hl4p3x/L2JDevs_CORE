@@ -37,14 +37,14 @@ public class OnNpcCanBeSeen implements IBaseEvent
 		_activeChar = activeChar;
 	}
 	
-	public L2Npc getNpc()
-	{
-		return _npc;
-	}
-	
 	public L2PcInstance getActiveChar()
 	{
 		return _activeChar;
+	}
+	
+	public L2Npc getNpc()
+	{
+		return _npc;
 	}
 	
 	@Override

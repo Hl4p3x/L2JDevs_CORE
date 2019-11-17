@@ -33,11 +33,9 @@ public final class RequestExCubeGameChangeTeam extends L2GameClientPacket
 	private int _team;
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		// client sends -1,0,1,2 for arena parameter
-		_arena = readD() + 1;
-		_team = readD();
+		return _C__D0_5A_REQUESTEXCUBEGAMECHANGETEAM;
 	}
 	
 	@Override
@@ -76,8 +74,10 @@ public final class RequestExCubeGameChangeTeam extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__D0_5A_REQUESTEXCUBEGAMECHANGETEAM;
+		// client sends -1,0,1,2 for arena parameter
+		_arena = readD() + 1;
+		_team = readD();
 	}
 }

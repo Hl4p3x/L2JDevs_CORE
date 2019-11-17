@@ -46,6 +46,14 @@ public class ScriptPackage
 	}
 	
 	/**
+	 * @return Returns the name.
+	 */
+	public String getName()
+	{
+		return _name;
+	}
+	
+	/**
 	 * @return Returns the otherFiles.
 	 */
 	public List<String> getOtherFiles()
@@ -59,40 +67,6 @@ public class ScriptPackage
 	public List<ScriptDocument> getScriptFiles()
 	{
 		return _scriptFiles;
-	}
-	
-	/**
-	 * @param pack
-	 */
-	private void addFiles(ZipFile pack)
-	{
-		for (Enumeration<? extends ZipEntry> e = pack.entries(); e.hasMoreElements();)
-		{
-			ZipEntry entry = e.nextElement();
-			if (entry.getName().endsWith(".xml"))
-			{
-				try
-				{
-					_scriptFiles.add(new ScriptDocument(entry.getName(), pack.getInputStream(entry)));
-				}
-				catch (IOException io)
-				{
-					_log.warning(getClass().getSimpleName() + ": " + io.getMessage());
-				}
-			}
-			else if (!entry.isDirectory())
-			{
-				_otherFiles.add(entry.getName());
-			}
-		}
-	}
-	
-	/**
-	 * @return Returns the name.
-	 */
-	public String getName()
-	{
-		return _name;
 	}
 	
 	@Override
@@ -128,5 +102,31 @@ public class ScriptPackage
 			}
 		}
 		return out.toString();
+	}
+	
+	/**
+	 * @param pack
+	 */
+	private void addFiles(ZipFile pack)
+	{
+		for (Enumeration<? extends ZipEntry> e = pack.entries(); e.hasMoreElements();)
+		{
+			ZipEntry entry = e.nextElement();
+			if (entry.getName().endsWith(".xml"))
+			{
+				try
+				{
+					_scriptFiles.add(new ScriptDocument(entry.getName(), pack.getInputStream(entry)));
+				}
+				catch (IOException io)
+				{
+					_log.warning(getClass().getSimpleName() + ": " + io.getMessage());
+				}
+			}
+			else if (!entry.isDirectory())
+			{
+				_otherFiles.add(entry.getName());
+			}
+		}
 	}
 }

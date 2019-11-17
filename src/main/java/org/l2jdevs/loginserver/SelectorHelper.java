@@ -50,20 +50,6 @@ public class SelectorHelper implements IMMOExecutor<L2LoginClient>, IClientFacto
 	}
 	
 	@Override
-	public void execute(ReceivablePacket<L2LoginClient> packet)
-	{
-		_generalPacketsThreadPool.execute(packet);
-	}
-	
-	@Override
-	public L2LoginClient create(MMOConnection<L2LoginClient> con)
-	{
-		L2LoginClient client = new L2LoginClient(con);
-		client.sendPacket(new Init(client));
-		return client;
-	}
-	
-	@Override
 	public boolean accept(SocketChannel sc)
 	{
 		try
@@ -75,5 +61,19 @@ public class SelectorHelper implements IMMOExecutor<L2LoginClient>, IClientFacto
 			LOG.severe(SelectorHelper.class.getSimpleName() + ": Invalid address: " + sc.socket().getInetAddress() + "; " + e.getMessage());
 		}
 		return false;
+	}
+	
+	@Override
+	public L2LoginClient create(MMOConnection<L2LoginClient> con)
+	{
+		L2LoginClient client = new L2LoginClient(con);
+		client.sendPacket(new Init(client));
+		return client;
+	}
+	
+	@Override
+	public void execute(ReceivablePacket<L2LoginClient> packet)
+	{
+		_generalPacketsThreadPool.execute(packet);
 	}
 }

@@ -40,11 +40,18 @@ public class ExSendUIEvent extends L2GameServerPacket
 	 * @param countUp
 	 * @param startTime
 	 * @param endTime
-	 * @param text
+	 * @param npcstringId
+	 * @param params
 	 */
-	public ExSendUIEvent(L2PcInstance player, boolean hide, boolean countUp, int startTime, int endTime, String text)
+	public ExSendUIEvent(L2PcInstance player, boolean hide, boolean countUp, int startTime, int endTime, int npcstringId, String... params)
 	{
-		this(player, hide, countUp, startTime, endTime, -1, text);
+		_objectId = player.getObjectId();
+		_type = hide;
+		_countUp = countUp;
+		_startTime = startTime;
+		_endTime = endTime;
+		_npcstringId = npcstringId;
+		_params = Arrays.asList(params);
 	}
 	
 	/**
@@ -67,18 +74,11 @@ public class ExSendUIEvent extends L2GameServerPacket
 	 * @param countUp
 	 * @param startTime
 	 * @param endTime
-	 * @param npcstringId
-	 * @param params
+	 * @param text
 	 */
-	public ExSendUIEvent(L2PcInstance player, boolean hide, boolean countUp, int startTime, int endTime, int npcstringId, String... params)
+	public ExSendUIEvent(L2PcInstance player, boolean hide, boolean countUp, int startTime, int endTime, String text)
 	{
-		_objectId = player.getObjectId();
-		_type = hide;
-		_countUp = countUp;
-		_startTime = startTime;
-		_endTime = endTime;
-		_npcstringId = npcstringId;
-		_params = Arrays.asList(params);
+		this(player, hide, countUp, startTime, endTime, -1, text);
 	}
 	
 	@Override

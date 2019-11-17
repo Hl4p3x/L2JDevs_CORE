@@ -31,14 +31,14 @@ public class FuncMaxCpMul extends AbstractFunction
 {
 	private static final FuncMaxCpMul _fmcm_instance = new FuncMaxCpMul();
 	
-	public static AbstractFunction getInstance()
-	{
-		return _fmcm_instance;
-	}
-	
 	private FuncMaxCpMul()
 	{
 		super(Stats.MAX_CP, 1, null, 0, null);
+	}
+	
+	public static AbstractFunction getInstance()
+	{
+		return _fmcm_instance;
 	}
 	
 	@Override

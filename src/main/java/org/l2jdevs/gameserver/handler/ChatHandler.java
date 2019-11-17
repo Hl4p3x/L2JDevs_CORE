@@ -37,6 +37,22 @@ public class ChatHandler implements IHandler<IChatHandler, Integer>
 		_datatable = new HashMap<>();
 	}
 	
+	public static ChatHandler getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Get the chat handler for the given chat type
+	 * @param chatType
+	 * @return
+	 */
+	@Override
+	public IChatHandler getHandler(Integer chatType)
+	{
+		return _datatable.get(chatType);
+	}
+	
 	/**
 	 * Register a new chat handler
 	 * @param handler
@@ -62,17 +78,6 @@ public class ChatHandler implements IHandler<IChatHandler, Integer>
 	}
 	
 	/**
-	 * Get the chat handler for the given chat type
-	 * @param chatType
-	 * @return
-	 */
-	@Override
-	public IChatHandler getHandler(Integer chatType)
-	{
-		return _datatable.get(chatType);
-	}
-	
-	/**
 	 * Returns the size
 	 * @return
 	 */
@@ -80,11 +85,6 @@ public class ChatHandler implements IHandler<IChatHandler, Integer>
 	public int size()
 	{
 		return _datatable.size();
-	}
-	
-	public static ChatHandler getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

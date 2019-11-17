@@ -43,14 +43,6 @@ public interface IGroupedItemDropCalculationStrategy
 	{
 		private final Map<GroupedGeneralDropItem, GeneralDropItem> singleItemCache = new ConcurrentHashMap<>();
 		
-		private GeneralDropItem getSingleItem(GroupedGeneralDropItem dropItem)
-		{
-			final GeneralDropItem item1 = dropItem.getItems().iterator().next();
-			singleItemCache.putIfAbsent(dropItem, new GeneralDropItem(item1.getItemId(), item1.getMin(), item1.getMax(), (item1.getChance() * dropItem.getChance())
-				/ 100, item1.getAmountStrategy(), item1.getChanceStrategy(), dropItem.getPreciseStrategy(), dropItem.getKillerChanceModifierStrategy(), item1.getDropCalculationStrategy()));
-			return singleItemCache.get(dropItem);
-		}
-		
 		@Override
 		public List<ItemHolder> calculateDrops(GroupedGeneralDropItem dropItem, L2Character victim, L2Character killer)
 		{
@@ -85,6 +77,14 @@ public interface IGroupedItemDropCalculationStrategy
 				}
 			}
 			return null;
+		}
+		
+		private GeneralDropItem getSingleItem(GroupedGeneralDropItem dropItem)
+		{
+			final GeneralDropItem item1 = dropItem.getItems().iterator().next();
+			singleItemCache.putIfAbsent(dropItem, new GeneralDropItem(item1.getItemId(), item1.getMin(), item1.getMax(), (item1.getChance() * dropItem.getChance())
+				/ 100, item1.getAmountStrategy(), item1.getChanceStrategy(), dropItem.getPreciseStrategy(), dropItem.getKillerChanceModifierStrategy(), item1.getDropCalculationStrategy()));
+			return singleItemCache.get(dropItem);
 		}
 	};
 	

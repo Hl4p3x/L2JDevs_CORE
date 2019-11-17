@@ -73,22 +73,9 @@ public class MultiSellChoose extends L2GameClientPacket
 	private int _unk11;
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		_listId = readD();
-		_entryId = readD();
-		_amount = readQ();
-		_unk1 = readH();
-		_unk2 = readD();
-		_unk3 = readD();
-		_unk4 = readH(); // elemental attributes
-		_unk5 = readH(); // elemental attributes
-		_unk6 = readH(); // elemental attributes
-		_unk7 = readH(); // elemental attributes
-		_unk8 = readH(); // elemental attributes
-		_unk9 = readH(); // elemental attributes
-		_unk10 = readH(); // elemental attributes
-		_unk11 = readH(); // elemental attributes
+		return _C__B0_MULTISELLCHOOSE;
 	}
 	
 	@Override
@@ -470,8 +457,21 @@ public class MultiSellChoose extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__B0_MULTISELLCHOOSE;
+		_listId = readD();
+		_entryId = readD();
+		_amount = readQ();
+		_unk1 = readH();
+		_unk2 = readD();
+		_unk3 = readD();
+		_unk4 = readH(); // elemental attributes
+		_unk5 = readH(); // elemental attributes
+		_unk6 = readH(); // elemental attributes
+		_unk7 = readH(); // elemental attributes
+		_unk8 = readH(); // elemental attributes
+		_unk9 = readH(); // elemental attributes
+		_unk10 = readH(); // elemental attributes
+		_unk11 = readH(); // elemental attributes
 	}
 }

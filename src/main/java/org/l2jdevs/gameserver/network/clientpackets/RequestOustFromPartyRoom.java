@@ -38,6 +38,12 @@ public final class RequestOustFromPartyRoom extends L2GameClientPacket
 	private int _charid;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_09_REQUESTOUSTFROMPARTYROOM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_charid = readD();
@@ -88,11 +94,5 @@ public final class RequestOustFromPartyRoom extends L2GameClientPacket
 			member.broadcastUserInfo();
 			member.sendPacket(SystemMessageId.OUSTED_FROM_PARTY_ROOM);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_09_REQUESTOUSTFROMPARTYROOM;
 	}
 }

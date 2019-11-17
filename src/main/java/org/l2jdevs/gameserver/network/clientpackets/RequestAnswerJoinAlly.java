@@ -29,6 +29,12 @@ public final class RequestAnswerJoinAlly extends L2GameClientPacket
 	private int _response;
 	
 	@Override
+	public String getType()
+	{
+		return _C__8D_REQUESTANSWERJOINALLY;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_response = readD();
@@ -78,11 +84,5 @@ public final class RequestAnswerJoinAlly extends L2GameClientPacket
 		}
 		
 		activeChar.getRequest().onRequestResponse();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__8D_REQUESTANSWERJOINALLY;
 	}
 }

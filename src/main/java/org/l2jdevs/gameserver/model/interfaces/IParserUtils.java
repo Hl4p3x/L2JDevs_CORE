@@ -29,17 +29,17 @@ public interface IParserUtils
 	
 	public byte getByte(String key, byte defaultValue);
 	
-	public short getShort(String key, short defaultValue);
+	public double getDouble(String key, double defaultValue);
+	
+	public <T extends Enum<T>> T getEnum(String key, Class<T> clazz, T defaultValue);
+	
+	public float getFloat(String key, float defaultValue);
 	
 	public int getInt(String key, int defaultValue);
 	
 	public long getLong(String key, long defaultValue);
 	
-	public float getFloat(String key, float defaultValue);
-	
-	public double getDouble(String key, double defaultValue);
+	public short getShort(String key, short defaultValue);
 	
 	public String getString(String key, String defaultValue);
-	
-	public <T extends Enum<T>> T getEnum(String key, Class<T> clazz, T defaultValue);
 }

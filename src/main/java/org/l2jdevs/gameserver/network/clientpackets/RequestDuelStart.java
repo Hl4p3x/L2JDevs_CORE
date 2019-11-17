@@ -38,6 +38,12 @@ public final class RequestDuelStart extends L2GameClientPacket
 	private int _partyDuel;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_1B_REQUESTDUELSTART;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_player = readS();
@@ -164,11 +170,5 @@ public final class RequestDuelStart extends L2GameClientPacket
 				activeChar.sendPacket(msg);
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_1B_REQUESTDUELSTART;
 	}
 }

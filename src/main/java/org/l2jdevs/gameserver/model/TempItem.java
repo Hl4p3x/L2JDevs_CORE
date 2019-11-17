@@ -47,27 +47,6 @@ public final class TempItem
 	}
 	
 	/**
-	 * @return the quantity.
-	 */
-	public int getQuantity()
-	{
-		return _quantity;
-	}
-	
-	/**
-	 * @param quantity The quantity to set.
-	 */
-	public void setQuantity(int quantity)
-	{
-		_quantity = quantity;
-	}
-	
-	public int getReferencePrice()
-	{
-		return _referencePrice;
-	}
-	
-	/**
 	 * @return the itemId.
 	 */
 	public int getItemId()
@@ -81,5 +60,26 @@ public final class TempItem
 	public String getItemName()
 	{
 		return _itemName;
+	}
+	
+	/**
+	 * @return the quantity.
+	 */
+	public int getQuantity()
+	{
+		return _quantity;
+	}
+	
+	public int getReferencePrice()
+	{
+		return _referencePrice;
+	}
+	
+	/**
+	 * @param quantity The quantity to set.
+	 */
+	public void setQuantity(int quantity)
+	{
+		_quantity = quantity;
 	}
 }

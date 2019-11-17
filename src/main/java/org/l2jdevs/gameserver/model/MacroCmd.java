@@ -42,21 +42,12 @@ public class MacroCmd
 	}
 	
 	/**
-	 * Gets the entry index.
-	 * @return the entry index
+	 * Gets the command.
+	 * @return the command
 	 */
-	public int getEntry()
+	public String getCmd()
 	{
-		return _entry;
-	}
-	
-	/**
-	 * Gets the macro type.
-	 * @return the macro type
-	 */
-	public MacroType getType()
-	{
-		return _type;
+		return _cmd;
 	}
 	
 	/**
@@ -78,11 +69,20 @@ public class MacroCmd
 	}
 	
 	/**
-	 * Gets the command.
-	 * @return the command
+	 * Gets the entry index.
+	 * @return the entry index
 	 */
-	public String getCmd()
+	public int getEntry()
 	{
-		return _cmd;
+		return _entry;
+	}
+	
+	/**
+	 * Gets the macro type.
+	 * @return the macro type
+	 */
+	public MacroType getType()
+	{
+		return _type;
 	}
 }

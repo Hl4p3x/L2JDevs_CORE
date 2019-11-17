@@ -113,18 +113,6 @@ public abstract class AbstractEffect
 	}
 	
 	/**
-	 * Tests the attach condition.
-	 * @param caster the caster
-	 * @param target the target
-	 * @param skill the skill
-	 * @return {@code true} if there isn't a condition to test or it's passed, {@code false} otherwise
-	 */
-	public boolean testConditions(L2Character caster, L2Character target, Skill skill)
-	{
-		return (_attachCond == null) || _attachCond.test(caster, target, skill);
-	}
-	
-	/**
 	 * Attaches a function template.
 	 * @param f the function
 	 */
@@ -135,43 +123,6 @@ public abstract class AbstractEffect
 			_funcTemplates = new ArrayList<>(1);
 		}
 		_funcTemplates.add(f);
-	}
-	
-	/**
-	 * Gets the effect name.
-	 * @return the name
-	 */
-	public String getName()
-	{
-		return _name;
-	}
-	
-	/**
-	 * Gets the effect ticks
-	 * @return the ticks
-	 */
-	public int getTicks()
-	{
-		return _ticks;
-	}
-	
-	/**
-	 * Sets the effect ticks
-	 * @param ticks the ticks
-	 */
-	protected void setTicks(int ticks)
-	{
-		_ticks = ticks;
-	}
-	
-	public double getTicksMultiplier()
-	{
-		return (getTicks() * Config.EFFECT_TICK_RATIO) / 1000f;
-	}
-	
-	public List<FuncTemplate> getFuncTemplates()
-	{
-		return _funcTemplates;
 	}
 	
 	/**
@@ -188,16 +139,6 @@ public abstract class AbstractEffect
 	}
 	
 	/**
-	 * Get this effect's type.<br>
-	 * TODO: Remove.
-	 * @return the effect type
-	 */
-	public L2EffectType getEffectType()
-	{
-		return L2EffectType.NONE;
-	}
-	
-	/**
 	 * Verify if the buff can start.<br>
 	 * Used for continuous effects.
 	 * @param info the buff info
@@ -208,33 +149,47 @@ public abstract class AbstractEffect
 		return true;
 	}
 	
-	/**
-	 * Called on effect start.
-	 * @param info the buff info
-	 */
-	public void onStart(BuffInfo info)
+	public boolean checkCondition(Object obj)
+	{
+		return true;
+	}
+	
+	public void decreaseForce()
 	{
 		
 	}
 	
 	/**
-	 * Called on each tick.<br>
-	 * If the abnormal time is lesser than zero it will last forever.
-	 * @param info the buff info
-	 * @return if {@code true} this effect will continue forever, if {@code false} it will stop after abnormal time has passed
+	 * Get the effect flags.
+	 * @return bit flag for current effect
 	 */
-	public boolean onActionTime(BuffInfo info)
+	public int getEffectFlags()
 	{
-		return false;
+		return EffectFlag.NONE.getMask();
 	}
 	
 	/**
-	 * Called when the effect is exited.
-	 * @param info the buff info
+	 * Get this effect's type.<br>
+	 * TODO: Remove.
+	 * @return the effect type
 	 */
-	public void onExit(BuffInfo info)
+	public L2EffectType getEffectType()
 	{
-		
+		return L2EffectType.NONE;
+	}
+	
+	public List<FuncTemplate> getFuncTemplates()
+	{
+		return _funcTemplates;
+	}
+	
+	/**
+	 * Gets the effect name.
+	 * @return the name
+	 */
+	public String getName()
+	{
+		return _name;
 	}
 	
 	/**
@@ -264,33 +219,22 @@ public abstract class AbstractEffect
 	}
 	
 	/**
-	 * Get the effect flags.
-	 * @return bit flag for current effect
+	 * Gets the effect ticks
+	 * @return the ticks
 	 */
-	public int getEffectFlags()
+	public int getTicks()
 	{
-		return EffectFlag.NONE.getMask();
+		return _ticks;
 	}
 	
-	@Override
-	public String toString()
+	public double getTicksMultiplier()
 	{
-		return "Effect " + _name;
-	}
-	
-	public void decreaseForce()
-	{
-		
+		return (getTicks() * Config.EFFECT_TICK_RATIO) / 1000f;
 	}
 	
 	public void increaseEffect()
 	{
 		
-	}
-	
-	public boolean checkCondition(Object obj)
-	{
-		return true;
 	}
 	
 	/**
@@ -300,5 +244,61 @@ public abstract class AbstractEffect
 	public boolean isInstant()
 	{
 		return false;
+	}
+	
+	/**
+	 * Called on each tick.<br>
+	 * If the abnormal time is lesser than zero it will last forever.
+	 * @param info the buff info
+	 * @return if {@code true} this effect will continue forever, if {@code false} it will stop after abnormal time has passed
+	 */
+	public boolean onActionTime(BuffInfo info)
+	{
+		return false;
+	}
+	
+	/**
+	 * Called when the effect is exited.
+	 * @param info the buff info
+	 */
+	public void onExit(BuffInfo info)
+	{
+		
+	}
+	
+	/**
+	 * Called on effect start.
+	 * @param info the buff info
+	 */
+	public void onStart(BuffInfo info)
+	{
+		
+	}
+	
+	/**
+	 * Tests the attach condition.
+	 * @param caster the caster
+	 * @param target the target
+	 * @param skill the skill
+	 * @return {@code true} if there isn't a condition to test or it's passed, {@code false} otherwise
+	 */
+	public boolean testConditions(L2Character caster, L2Character target, Skill skill)
+	{
+		return (_attachCond == null) || _attachCond.test(caster, target, skill);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Effect " + _name;
+	}
+	
+	/**
+	 * Sets the effect ticks
+	 * @param ticks the ticks
+	 */
+	protected void setTicks(int ticks)
+	{
+		_ticks = ticks;
 	}
 }

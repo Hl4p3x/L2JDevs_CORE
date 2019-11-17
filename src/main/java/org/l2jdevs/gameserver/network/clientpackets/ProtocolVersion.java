@@ -38,6 +38,12 @@ public final class ProtocolVersion extends L2GameClientPacket
 	private int _version;
 	
 	@Override
+	public String getType()
+	{
+		return _C__0E_PROTOCOLVERSION;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_version = readD();
@@ -80,11 +86,5 @@ public final class ProtocolVersion extends L2GameClientPacket
 			getClient().sendPacket(pk);
 			getClient().setProtocolOk(true);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__0E_PROTOCOLVERSION;
 	}
 }

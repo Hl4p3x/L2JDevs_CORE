@@ -60,87 +60,15 @@ public class L2ServitorInstance extends L2Summon implements Runnable
 	}
 	
 	@Override
-	public void onSpawn()
+	public boolean destroyItem(String process, int objectId, long count, L2Object reference, boolean sendMessage)
 	{
-		super.onSpawn();
-		if (_summonLifeTask == null)
-		{
-			_summonLifeTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(this, 0, 5000);
-		}
+		return getOwner().destroyItem(process, objectId, count, reference, sendMessage);
 	}
 	
 	@Override
-	public final int getLevel()
+	public boolean destroyItemByItemId(String process, int itemId, long count, L2Object reference, boolean sendMessage)
 	{
-		return (getTemplate() != null ? getTemplate().getLevel() : 0);
-	}
-	
-	@Override
-	public int getSummonType()
-	{
-		return 1;
-	}
-	
-	public void setExpMultiplier(float expMultiplier)
-	{
-		_expMultiplier = expMultiplier;
-	}
-	
-	public float getExpMultiplier()
-	{
-		return _expMultiplier;
-	}
-	
-	public void setItemConsume(ItemHolder item)
-	{
-		_itemConsume = item;
-	}
-	
-	public ItemHolder getItemConsume()
-	{
-		return _itemConsume;
-	}
-	
-	public void setItemConsumeInterval(int interval)
-	{
-		_consumeItemInterval = interval;
-		_consumeItemIntervalRemaining = interval;
-	}
-	
-	public int getItemConsumeInterval()
-	{
-		return _consumeItemInterval;
-	}
-	
-	public void setLifeTime(int lifeTime)
-	{
-		_lifeTime = lifeTime;
-		_lifeTimeRemaining = lifeTime;
-	}
-	
-	public int getLifeTime()
-	{
-		return _lifeTime;
-	}
-	
-	public void setLifeTimeRemaining(int time)
-	{
-		_lifeTimeRemaining = time;
-	}
-	
-	public int getLifeTimeRemaining()
-	{
-		return _lifeTimeRemaining;
-	}
-	
-	public void setReferenceSkill(int skillId)
-	{
-		_referenceSkill = skillId;
-	}
-	
-	public int getReferenceSkill()
-	{
-		return _referenceSkill;
+		return getOwner().destroyItemByItemId(process, itemId, count, reference, sendMessage);
 	}
 	
 	@Override
@@ -168,93 +96,6 @@ public class L2ServitorInstance extends L2Summon implements Runnable
 	}
 	
 	@Override
-	public void setRestoreSummon(boolean val)
-	{
-		_restoreSummon = val;
-	}
-	
-	@Override
-	public final void stopSkillEffects(boolean removed, int skillId)
-	{
-		super.stopSkillEffects(removed, skillId);
-		SummonEffectsTable.getInstance().removeServitorEffects(getOwner(), getReferenceSkill(), skillId);
-	}
-	
-	@Override
-	public void storeMe()
-	{
-		if ((_referenceSkill == 0) || isDead())
-		{
-			return;
-		}
-		
-		if (Config.RESTORE_SERVITOR_ON_RECONNECT)
-		{
-			CharSummonTable.getInstance().saveSummon(this);
-		}
-	}
-	
-	@Override
-	public void storeEffect(boolean storeEffects)
-	{
-		if (!Config.SUMMON_STORE_SKILL_COOLTIME)
-		{
-			return;
-		}
-		
-		if ((getOwner() == null) || getOwner().isInOlympiadMode())
-		{
-			return;
-		}
-		
-		// Clear list for overwrite
-		SummonEffectsTable.getInstance().clearServitorEffects(getOwner(), getReferenceSkill());
-		
-		DAOFactory.getInstance().getServitorSkillSaveDAO().insert(this, storeEffects);
-	}
-	
-	@Override
-	public void restoreEffects()
-	{
-		if (getOwner().isInOlympiadMode())
-		{
-			return;
-		}
-		
-		DAOFactory.getInstance().getServitorSkillSaveDAO().load(this);
-		
-		SummonEffectsTable.getInstance().applyServitorEffects(this, getOwner(), getReferenceSkill());
-	}
-	
-	@Override
-	public void unSummon(L2PcInstance owner)
-	{
-		if (_summonLifeTask != null)
-		{
-			_summonLifeTask.cancel(false);
-		}
-		
-		super.unSummon(owner);
-		
-		if (!_restoreSummon)
-		{
-			CharSummonTable.getInstance().removeServitor(owner);
-		}
-	}
-	
-	@Override
-	public boolean destroyItem(String process, int objectId, long count, L2Object reference, boolean sendMessage)
-	{
-		return getOwner().destroyItem(process, objectId, count, reference, sendMessage);
-	}
-	
-	@Override
-	public boolean destroyItemByItemId(String process, int itemId, long count, L2Object reference, boolean sendMessage)
-	{
-		return getOwner().destroyItemByItemId(process, itemId, count, reference, sendMessage);
-	}
-	
-	@Override
 	public byte getAttackElement()
 	{
 		if (getOwner() != null)
@@ -275,6 +116,12 @@ public class L2ServitorInstance extends L2Summon implements Runnable
 	}
 	
 	@Override
+	public int getCriticalHit(L2Character target, Skill skill)
+	{
+		return (int) (super.getCriticalHit(target, skill) + ((getActingPlayer().getCriticalHit(target, skill)) * (getActingPlayer().getServitorShareBonus(Stats.CRITICAL_RATE) - 1.0)));
+	}
+	
+	@Override
 	public int getDefenseElementValue(byte defenseAttribute)
 	{
 		if (getOwner() != null)
@@ -284,10 +131,135 @@ public class L2ServitorInstance extends L2Summon implements Runnable
 		return super.getDefenseElementValue(defenseAttribute);
 	}
 	
+	public float getExpMultiplier()
+	{
+		return _expMultiplier;
+	}
+	
+	public ItemHolder getItemConsume()
+	{
+		return _itemConsume;
+	}
+	
+	public int getItemConsumeInterval()
+	{
+		return _consumeItemInterval;
+	}
+	
+	@Override
+	public final int getLevel()
+	{
+		return (getTemplate() != null ? getTemplate().getLevel() : 0);
+	}
+	
+	public int getLifeTime()
+	{
+		return _lifeTime;
+	}
+	
+	public int getLifeTimeRemaining()
+	{
+		return _lifeTimeRemaining;
+	}
+	
+	@Override
+	public double getMAtk(L2Character target, Skill skill)
+	{
+		return super.getMAtk(target, skill) + (getActingPlayer().getMAtk(target, skill) * (getActingPlayer().getServitorShareBonus(Stats.MAGIC_ATTACK) - 1.0));
+	}
+	
+	@Override
+	public int getMAtkSpd()
+	{
+		return (int) (super.getMAtkSpd() + (getActingPlayer().getMAtkSpd() * (getActingPlayer().getServitorShareBonus(Stats.MAGIC_ATTACK_SPEED) - 1.0)));
+	}
+	
+	@Override
+	public int getMaxHp()
+	{
+		return (int) (super.getMaxHp() + (getActingPlayer().getMaxHp() * (getActingPlayer().getServitorShareBonus(Stats.MAX_HP) - 1.0)));
+	}
+	
+	@Override
+	public int getMaxMp()
+	{
+		return (int) (super.getMaxMp() + (getActingPlayer().getMaxMp() * (getActingPlayer().getServitorShareBonus(Stats.MAX_MP) - 1.0)));
+	}
+	
+	@Override
+	public int getMaxRecoverableHp()
+	{
+		return (int) calcStat(Stats.MAX_RECOVERABLE_HP, getMaxHp());
+	}
+	
+	@Override
+	public int getMaxRecoverableMp()
+	{
+		return (int) calcStat(Stats.MAX_RECOVERABLE_MP, getMaxMp());
+	}
+	
+	@Override
+	public double getMDef(L2Character target, Skill skill)
+	{
+		return super.getMDef(target, skill) + (getActingPlayer().getMDef(target, skill) * (getActingPlayer().getServitorShareBonus(Stats.MAGIC_DEFENCE) - 1.0));
+	}
+	
+	@Override
+	public double getPAtk(L2Character target)
+	{
+		return super.getPAtk(target) + (getActingPlayer().getPAtk(target) * (getActingPlayer().getServitorShareBonus(Stats.POWER_ATTACK) - 1.0));
+	}
+	
+	@Override
+	public double getPAtkSpd()
+	{
+		return super.getPAtkSpd() + (getActingPlayer().getPAtkSpd() * (getActingPlayer().getServitorShareBonus(Stats.POWER_ATTACK_SPEED) - 1.0));
+	}
+	
+	@Override
+	public double getPDef(L2Character target)
+	{
+		return super.getPDef(target) + (getActingPlayer().getPDef(target) * (getActingPlayer().getServitorShareBonus(Stats.POWER_DEFENCE) - 1.0));
+	}
+	
+	public int getReferenceSkill()
+	{
+		return _referenceSkill;
+	}
+	
+	@Override
+	public int getSummonType()
+	{
+		return 1;
+	}
+	
 	@Override
 	public boolean isServitor()
 	{
 		return true;
+	}
+	
+	@Override
+	public void onSpawn()
+	{
+		super.onSpawn();
+		if (_summonLifeTask == null)
+		{
+			_summonLifeTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(this, 0, 5000);
+		}
+	}
+	
+	@Override
+	public void restoreEffects()
+	{
+		if (getOwner().isInOlympiadMode())
+		{
+			return;
+		}
+		
+		DAOFactory.getInstance().getServitorSkillSaveDAO().load(this);
+		
+		SummonEffectsTable.getInstance().applyServitorEffects(this, getOwner(), getReferenceSkill());
 	}
 	
 	@Override
@@ -341,69 +313,97 @@ public class L2ServitorInstance extends L2Summon implements Runnable
 		updateEffectIcons();
 	}
 	
-	@Override
-	public double getMAtk(L2Character target, Skill skill)
+	public void setExpMultiplier(float expMultiplier)
 	{
-		return super.getMAtk(target, skill) + (getActingPlayer().getMAtk(target, skill) * (getActingPlayer().getServitorShareBonus(Stats.MAGIC_ATTACK) - 1.0));
+		_expMultiplier = expMultiplier;
+	}
+	
+	public void setItemConsume(ItemHolder item)
+	{
+		_itemConsume = item;
+	}
+	
+	public void setItemConsumeInterval(int interval)
+	{
+		_consumeItemInterval = interval;
+		_consumeItemIntervalRemaining = interval;
+	}
+	
+	public void setLifeTime(int lifeTime)
+	{
+		_lifeTime = lifeTime;
+		_lifeTimeRemaining = lifeTime;
+	}
+	
+	public void setLifeTimeRemaining(int time)
+	{
+		_lifeTimeRemaining = time;
+	}
+	
+	public void setReferenceSkill(int skillId)
+	{
+		_referenceSkill = skillId;
 	}
 	
 	@Override
-	public double getMDef(L2Character target, Skill skill)
+	public void setRestoreSummon(boolean val)
 	{
-		return super.getMDef(target, skill) + (getActingPlayer().getMDef(target, skill) * (getActingPlayer().getServitorShareBonus(Stats.MAGIC_DEFENCE) - 1.0));
+		_restoreSummon = val;
 	}
 	
 	@Override
-	public double getPAtk(L2Character target)
+	public final void stopSkillEffects(boolean removed, int skillId)
 	{
-		return super.getPAtk(target) + (getActingPlayer().getPAtk(target) * (getActingPlayer().getServitorShareBonus(Stats.POWER_ATTACK) - 1.0));
+		super.stopSkillEffects(removed, skillId);
+		SummonEffectsTable.getInstance().removeServitorEffects(getOwner(), getReferenceSkill(), skillId);
 	}
 	
 	@Override
-	public double getPDef(L2Character target)
+	public void storeEffect(boolean storeEffects)
 	{
-		return super.getPDef(target) + (getActingPlayer().getPDef(target) * (getActingPlayer().getServitorShareBonus(Stats.POWER_DEFENCE) - 1.0));
+		if (!Config.SUMMON_STORE_SKILL_COOLTIME)
+		{
+			return;
+		}
+		
+		if ((getOwner() == null) || getOwner().isInOlympiadMode())
+		{
+			return;
+		}
+		
+		// Clear list for overwrite
+		SummonEffectsTable.getInstance().clearServitorEffects(getOwner(), getReferenceSkill());
+		
+		DAOFactory.getInstance().getServitorSkillSaveDAO().insert(this, storeEffects);
 	}
 	
 	@Override
-	public int getMAtkSpd()
+	public void storeMe()
 	{
-		return (int) (super.getMAtkSpd() + (getActingPlayer().getMAtkSpd() * (getActingPlayer().getServitorShareBonus(Stats.MAGIC_ATTACK_SPEED) - 1.0)));
+		if ((_referenceSkill == 0) || isDead())
+		{
+			return;
+		}
+		
+		if (Config.RESTORE_SERVITOR_ON_RECONNECT)
+		{
+			CharSummonTable.getInstance().saveSummon(this);
+		}
 	}
 	
 	@Override
-	public int getMaxHp()
+	public void unSummon(L2PcInstance owner)
 	{
-		return (int) (super.getMaxHp() + (getActingPlayer().getMaxHp() * (getActingPlayer().getServitorShareBonus(Stats.MAX_HP) - 1.0)));
-	}
-	
-	@Override
-	public int getMaxMp()
-	{
-		return (int) (super.getMaxMp() + (getActingPlayer().getMaxMp() * (getActingPlayer().getServitorShareBonus(Stats.MAX_MP) - 1.0)));
-	}
-	
-	@Override
-	public int getCriticalHit(L2Character target, Skill skill)
-	{
-		return (int) (super.getCriticalHit(target, skill) + ((getActingPlayer().getCriticalHit(target, skill)) * (getActingPlayer().getServitorShareBonus(Stats.CRITICAL_RATE) - 1.0)));
-	}
-	
-	@Override
-	public double getPAtkSpd()
-	{
-		return super.getPAtkSpd() + (getActingPlayer().getPAtkSpd() * (getActingPlayer().getServitorShareBonus(Stats.POWER_ATTACK_SPEED) - 1.0));
-	}
-	
-	@Override
-	public int getMaxRecoverableHp()
-	{
-		return (int) calcStat(Stats.MAX_RECOVERABLE_HP, getMaxHp());
-	}
-	
-	@Override
-	public int getMaxRecoverableMp()
-	{
-		return (int) calcStat(Stats.MAX_RECOVERABLE_MP, getMaxMp());
+		if (_summonLifeTask != null)
+		{
+			_summonLifeTask.cancel(false);
+		}
+		
+		super.unSummon(owner);
+		
+		if (!_restoreSummon)
+		{
+			CharSummonTable.getInstance().removeServitor(owner);
+		}
 	}
 }

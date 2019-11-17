@@ -114,15 +114,13 @@ public class L2DoormenInstance extends L2NpcInstance
 		player.sendPacket(html);
 	}
 	
-	protected void openDoors(L2PcInstance player, String command)
+	protected void cannotManageDoors(L2PcInstance player)
 	{
-		StringTokenizer st = new StringTokenizer(command.substring(10), ", ");
-		st.nextToken();
+		player.sendPacket(ActionFailed.STATIC_PACKET);
 		
-		while (st.hasMoreTokens())
-		{
-			DoorData.getInstance().getDoor(Integer.parseInt(st.nextToken())).openMe();
-		}
+		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
+		html.setFile(player.getHtmlPrefix(), "data/html/doormen/" + getTemplate().getId() + "-busy.htm");
+		player.sendPacket(html);
 	}
 	
 	protected void closeDoors(L2PcInstance player, String command)
@@ -134,15 +132,6 @@ public class L2DoormenInstance extends L2NpcInstance
 		{
 			DoorData.getInstance().getDoor(Integer.parseInt(st.nextToken())).closeMe();
 		}
-	}
-	
-	protected void cannotManageDoors(L2PcInstance player)
-	{
-		player.sendPacket(ActionFailed.STATIC_PACKET);
-		
-		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
-		html.setFile(player.getHtmlPrefix(), "data/html/doormen/" + getTemplate().getId() + "-busy.htm");
-		player.sendPacket(html);
 	}
 	
 	protected void doTeleport(L2PcInstance player, String command)
@@ -172,5 +161,16 @@ public class L2DoormenInstance extends L2NpcInstance
 	protected boolean isUnderSiege()
 	{
 		return false;
+	}
+	
+	protected void openDoors(L2PcInstance player, String command)
+	{
+		StringTokenizer st = new StringTokenizer(command.substring(10), ", ");
+		st.nextToken();
+		
+		while (st.hasMoreTokens())
+		{
+			DoorData.getInstance().getDoor(Integer.parseInt(st.nextToken())).openMe();
+		}
 	}
 }

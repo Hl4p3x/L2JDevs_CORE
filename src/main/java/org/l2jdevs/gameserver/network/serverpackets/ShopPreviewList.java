@@ -32,19 +32,19 @@ public class ShopPreviewList extends L2GameServerPacket
 	private final long _money;
 	private int _expertise;
 	
+	public ShopPreviewList(Collection<Product> lst, int listId, long currentMoney)
+	{
+		_listId = listId;
+		_list = lst;
+		_money = currentMoney;
+	}
+	
 	public ShopPreviewList(L2BuyList list, long currentMoney, int expertiseIndex)
 	{
 		_listId = list.getListId();
 		_list = list.getProducts();
 		_money = currentMoney;
 		_expertise = expertiseIndex;
-	}
-	
-	public ShopPreviewList(Collection<Product> lst, int listId, long currentMoney)
-	{
-		_listId = listId;
-		_list = lst;
-		_money = currentMoney;
 	}
 	
 	@Override

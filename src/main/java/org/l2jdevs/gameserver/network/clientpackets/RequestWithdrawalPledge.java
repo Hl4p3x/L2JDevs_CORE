@@ -36,6 +36,12 @@ public final class RequestWithdrawalPledge extends L2GameClientPacket
 	private static final String _C__28_REQUESTWITHDRAWALPLEDGE = "[C] 28 RequestWithdrawalPledge";
 	
 	@Override
+	public String getType()
+	{
+		return _C__28_REQUESTWITHDRAWALPLEDGE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -78,11 +84,5 @@ public final class RequestWithdrawalPledge extends L2GameClientPacket
 		
 		activeChar.sendPacket(SystemMessageId.YOU_HAVE_WITHDRAWN_FROM_CLAN);
 		activeChar.sendPacket(SystemMessageId.YOU_MUST_WAIT_BEFORE_JOINING_ANOTHER_CLAN);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__28_REQUESTWITHDRAWALPLEDGE;
 	}
 }

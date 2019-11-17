@@ -45,6 +45,46 @@ public final class FishingMonstersData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of FishingMonsterData.
+	 * @return single instance of FishingMonsterData
+	 */
+	public static FishingMonstersData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the fishing monster.
+	 * @param lvl the fisherman level
+	 * @return a fishing monster given the fisherman level
+	 */
+	public L2FishingMonster getFishingMonster(int lvl)
+	{
+		for (L2FishingMonster fishingMonster : _fishingMonstersData.values())
+		{
+			if ((lvl >= fishingMonster.getUserMinLevel()) && (lvl <= fishingMonster.getUserMaxLevel()))
+			{
+				return fishingMonster;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the fishing monster by Id.
+	 * @param id the fishing monster Id
+	 * @return the fishing monster by Id
+	 */
+	public L2FishingMonster getFishingMonsterById(int id)
+	{
+		if (_fishingMonstersData.containsKey(id))
+		{
+			return _fishingMonstersData.get(id);
+		}
+		return null;
+	}
+	
 	@Override
 	public void load()
 	{
@@ -79,46 +119,6 @@ public final class FishingMonstersData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Gets the fishing monster.
-	 * @param lvl the fisherman level
-	 * @return a fishing monster given the fisherman level
-	 */
-	public L2FishingMonster getFishingMonster(int lvl)
-	{
-		for (L2FishingMonster fishingMonster : _fishingMonstersData.values())
-		{
-			if ((lvl >= fishingMonster.getUserMinLevel()) && (lvl <= fishingMonster.getUserMaxLevel()))
-			{
-				return fishingMonster;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * Gets the fishing monster by Id.
-	 * @param id the fishing monster Id
-	 * @return the fishing monster by Id
-	 */
-	public L2FishingMonster getFishingMonsterById(int id)
-	{
-		if (_fishingMonstersData.containsKey(id))
-		{
-			return _fishingMonstersData.get(id);
-		}
-		return null;
-	}
-	
-	/**
-	 * Gets the single instance of FishingMonsterData.
-	 * @return single instance of FishingMonsterData
-	 */
-	public static FishingMonstersData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

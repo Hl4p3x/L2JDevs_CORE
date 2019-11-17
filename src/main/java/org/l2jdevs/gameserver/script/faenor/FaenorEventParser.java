@@ -39,6 +39,11 @@ import org.l2jdevs.gameserver.script.ScriptEngine;
 public class FaenorEventParser extends FaenorParser
 {
 	static Logger _log = Logger.getLogger(FaenorEventParser.class.getName());
+	static
+	{
+		ScriptEngine.parserFactories.put(getParserName("Event"), new FaenorEventParserFactory());
+	}
+	
 	private DateRange _eventDates = null;
 	
 	@Override
@@ -79,6 +84,33 @@ public class FaenorEventParser extends FaenorParser
 		}
 	}
 	
+	private void parseEventDrop(Node drop)
+	{
+		try
+		{
+			int[] items = IntList.parse(attribute(drop, "Items"));
+			int[] count = IntList.parse(attribute(drop, "Count"));
+			double chance = getPercent(attribute(drop, "Chance"));
+			
+			_bridge.addEventDrop(items, count, chance, _eventDates);
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "ERROR(parseEventDrop):" + e.getMessage(), e);
+		}
+	}
+	
+	private void parseEventDropList(Node dropList)
+	{
+		for (Node node = dropList.getFirstChild(); node != null; node = node.getNextSibling())
+		{
+			if (isNodeName(node, "AllDrop"))
+			{
+				parseEventDrop(node);
+			}
+		}
+	}
+	
 	private void parseEventMessage(Node sysMsg)
 	{
 		try
@@ -97,33 +129,6 @@ public class FaenorEventParser extends FaenorParser
 		}
 	}
 	
-	private void parseEventDropList(Node dropList)
-	{
-		for (Node node = dropList.getFirstChild(); node != null; node = node.getNextSibling())
-		{
-			if (isNodeName(node, "AllDrop"))
-			{
-				parseEventDrop(node);
-			}
-		}
-	}
-	
-	private void parseEventDrop(Node drop)
-	{
-		try
-		{
-			int[] items = IntList.parse(attribute(drop, "Items"));
-			int[] count = IntList.parse(attribute(drop, "Count"));
-			double chance = getPercent(attribute(drop, "Chance"));
-			
-			_bridge.addEventDrop(items, count, chance, _eventDates);
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "ERROR(parseEventDrop):" + e.getMessage(), e);
-		}
-	}
-	
 	static class FaenorEventParserFactory extends ParserFactory
 	{
 		@Override
@@ -131,10 +136,5 @@ public class FaenorEventParser extends FaenorParser
 		{
 			return (new FaenorEventParser());
 		}
-	}
-	
-	static
-	{
-		ScriptEngine.parserFactories.put(getParserName("Event"), new FaenorEventParserFactory());
 	}
 }

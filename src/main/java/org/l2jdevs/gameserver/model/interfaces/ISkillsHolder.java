@@ -27,11 +27,11 @@ import org.l2jdevs.gameserver.model.skills.Skill;
  */
 public interface ISkillsHolder
 {
-	public Map<Integer, Skill> getSkills();
-	
 	public Skill addSkill(Skill skill);
 	
 	public Skill getKnownSkill(int skillId);
 	
 	public int getSkillLevel(int skillId);
+	
+	public Map<Integer, Skill> getSkills();
 }

@@ -31,6 +31,12 @@ public class RequestFortressSiegeInfo extends L2GameClientPacket
 	private static final String _C__D0_3F_REQUESTFORTRESSSIEGEINFO = "[C] D0:3F RequestFortressSiegeInfo";
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_3F_REQUESTFORTRESSSIEGEINFO;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -56,11 +62,5 @@ public class RequestFortressSiegeInfo extends L2GameClientPacket
 	protected boolean triggersOnActionRequest()
 	{
 		return false;
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_3F_REQUESTFORTRESSSIEGEINFO;
 	}
 }

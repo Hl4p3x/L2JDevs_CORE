@@ -41,6 +41,13 @@ public class TaskRecom extends Task
 	}
 	
 	@Override
+	public void initializate()
+	{
+		super.initializate();
+		TaskManager.addUniqueTask(NAME, TaskTypes.TYPE_GLOBAL_TASK, "1", "06:30:00", "");
+	}
+	
+	@Override
 	public void onTimeElapsed(ExecutedTask task)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection())
@@ -64,12 +71,5 @@ public class TaskRecom extends Task
 			_log.severe(getClass().getSimpleName() + ": Could not reset Recommendations System: " + e);
 		}
 		_log.info("Recommendations System reseted");
-	}
-	
-	@Override
-	public void initializate()
-	{
-		super.initializate();
-		TaskManager.addUniqueTask(NAME, TaskTypes.TYPE_GLOBAL_TASK, "1", "06:30:00", "");
 	}
 }

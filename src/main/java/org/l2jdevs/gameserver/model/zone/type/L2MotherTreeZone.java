@@ -40,6 +40,22 @@ public class L2MotherTreeZone extends L2ZoneType
 		super(id);
 	}
 	
+	/**
+	 * @return the _hpRegen
+	 */
+	public int getHpRegenBonus()
+	{
+		return _hpRegen;
+	}
+	
+	/**
+	 * @return the _mpRegen
+	 */
+	public int getMpRegenBonus()
+	{
+		return _mpRegen;
+	}
+	
 	@Override
 	public void setParameter(String name, String value)
 	{
@@ -91,21 +107,5 @@ public class L2MotherTreeZone extends L2ZoneType
 				player.sendPacket(SystemMessage.getSystemMessage(_leaveMsg));
 			}
 		}
-	}
-	
-	/**
-	 * @return the _mpRegen
-	 */
-	public int getMpRegenBonus()
-	{
-		return _mpRegen;
-	}
-	
-	/**
-	 * @return the _hpRegen
-	 */
-	public int getHpRegenBonus()
-	{
-		return _hpRegen;
 	}
 }

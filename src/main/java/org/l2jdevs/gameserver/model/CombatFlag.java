@@ -47,25 +47,6 @@ public class CombatFlag
 		_itemId = item_id;
 	}
 	
-	public synchronized void spawnMe()
-	{
-		// Init the dropped L2ItemInstance and add it in the world as a visible object at the position where mob was last
-		_itemInstance = ItemTable.getInstance().createItem("Combat", _itemId, 1, null, null);
-		_itemInstance.dropMe(null, _location.getX(), _location.getY(), _location.getZ());
-	}
-	
-	public synchronized void unSpawnMe()
-	{
-		if (_player != null)
-		{
-			dropIt();
-		}
-		if (_itemInstance != null)
-		{
-			_itemInstance.decayMe();
-		}
-	}
-	
 	public boolean activate(L2PcInstance player, L2ItemInstance item)
 	{
 		if (player.isMounted())
@@ -116,13 +97,32 @@ public class CombatFlag
 		_playerId = 0;
 	}
 	
+	public L2ItemInstance getCombatFlagInstance()
+	{
+		return _itemInstance;
+	}
+	
 	public int getPlayerObjectId()
 	{
 		return _playerId;
 	}
 	
-	public L2ItemInstance getCombatFlagInstance()
+	public synchronized void spawnMe()
 	{
-		return _itemInstance;
+		// Init the dropped L2ItemInstance and add it in the world as a visible object at the position where mob was last
+		_itemInstance = ItemTable.getInstance().createItem("Combat", _itemId, 1, null, null);
+		_itemInstance.dropMe(null, _location.getX(), _location.getY(), _location.getZ());
+	}
+	
+	public synchronized void unSpawnMe()
+	{
+		if (_player != null)
+		{
+			dropIt();
+		}
+		if (_itemInstance != null)
+		{
+			_itemInstance.decayMe();
+		}
 	}
 }

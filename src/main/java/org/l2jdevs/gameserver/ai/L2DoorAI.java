@@ -37,17 +37,78 @@ public class L2DoorAI extends L2CharacterAI
 	}
 	
 	@Override
-	protected void onIntentionIdle()
+	protected void onEvtAggression(L2Character target, long aggro)
+	{
+	}
+	
+	@Override
+	protected void onEvtArrived()
+	{
+	}
+	
+	@Override
+	protected void onEvtArrivedBlocked(Location blocked_at_loc)
+	{
+	}
+	
+	@Override
+	protected void onEvtArrivedRevalidate()
+	{
+	}
+	
+	@Override
+	protected void onEvtAttacked(L2Character attacker)
+	{
+		ThreadPoolManager.getInstance().executeGeneral(new onEventAttackedDoorTask((L2DoorInstance) _actor, attacker));
+	}
+	
+	@Override
+	protected void onEvtCancel()
+	{
+	}
+	
+	@Override
+	protected void onEvtDead()
+	{
+	}
+	
+	@Override
+	protected void onEvtForgetObject(L2Object object)
+	{
+	}
+	
+	@Override
+	protected void onEvtReadyToAct()
+	{
+	}
+	
+	@Override
+	protected void onEvtRooted(L2Character attacker)
+	{
+	}
+	
+	@Override
+	protected void onEvtSleeping(L2Character attacker)
+	{
+	}
+	
+	@Override
+	protected void onEvtStunned(L2Character attacker)
+	{
+	}
+	
+	@Override
+	protected void onEvtThink()
+	{
+	}
+	
+	@Override
+	protected void onEvtUserCmd(Object arg0, Object arg1)
 	{
 	}
 	
 	@Override
 	protected void onIntentionActive()
-	{
-	}
-	
-	@Override
-	protected void onIntentionRest()
 	{
 	}
 	
@@ -62,17 +123,12 @@ public class L2DoorAI extends L2CharacterAI
 	}
 	
 	@Override
-	protected void onIntentionMoveTo(Location destination)
-	{
-	}
-	
-	@Override
 	protected void onIntentionFollow(L2Character target)
 	{
 	}
 	
 	@Override
-	protected void onIntentionPickUp(L2Object item)
+	protected void onIntentionIdle()
 	{
 	}
 	
@@ -82,73 +138,17 @@ public class L2DoorAI extends L2CharacterAI
 	}
 	
 	@Override
-	protected void onEvtThink()
+	protected void onIntentionMoveTo(Location destination)
 	{
 	}
 	
 	@Override
-	protected void onEvtAttacked(L2Character attacker)
-	{
-		ThreadPoolManager.getInstance().executeGeneral(new onEventAttackedDoorTask((L2DoorInstance) _actor, attacker));
-	}
-	
-	@Override
-	protected void onEvtAggression(L2Character target, long aggro)
+	protected void onIntentionPickUp(L2Object item)
 	{
 	}
 	
 	@Override
-	protected void onEvtStunned(L2Character attacker)
-	{
-	}
-	
-	@Override
-	protected void onEvtSleeping(L2Character attacker)
-	{
-	}
-	
-	@Override
-	protected void onEvtRooted(L2Character attacker)
-	{
-	}
-	
-	@Override
-	protected void onEvtReadyToAct()
-	{
-	}
-	
-	@Override
-	protected void onEvtUserCmd(Object arg0, Object arg1)
-	{
-	}
-	
-	@Override
-	protected void onEvtArrived()
-	{
-	}
-	
-	@Override
-	protected void onEvtArrivedRevalidate()
-	{
-	}
-	
-	@Override
-	protected void onEvtArrivedBlocked(Location blocked_at_loc)
-	{
-	}
-	
-	@Override
-	protected void onEvtForgetObject(L2Object object)
-	{
-	}
-	
-	@Override
-	protected void onEvtCancel()
-	{
-	}
-	
-	@Override
-	protected void onEvtDead()
+	protected void onIntentionRest()
 	{
 	}
 	

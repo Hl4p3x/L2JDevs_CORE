@@ -31,6 +31,12 @@ public class RequestGiveNickName extends L2GameClientPacket
 	private String _title;
 	
 	@Override
+	public String getType()
+	{
+		return _C__0B_REQUESTGIVENICKNAME;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_target = readS();
@@ -89,11 +95,5 @@ public class RequestGiveNickName extends L2GameClientPacket
 				activeChar.sendPacket(SystemMessageId.TARGET_MUST_BE_IN_CLAN);
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__0B_REQUESTGIVENICKNAME;
 	}
 }

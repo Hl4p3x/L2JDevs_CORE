@@ -60,6 +60,35 @@ public class Announcement implements IAnnouncement
 	}
 	
 	@Override
+	public boolean deleteMe()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(DELETE_QUERY))
+		{
+			ps.setInt(1, _id);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, getClass().getSimpleName() + ": Couldn't remove announcement: ", e);
+			return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public String getAuthor()
+	{
+		return _author;
+	}
+	
+	@Override
+	public String getContent()
+	{
+		return _content;
+	}
+	
+	@Override
 	public int getId()
 	{
 		return _id;
@@ -72,27 +101,9 @@ public class Announcement implements IAnnouncement
 	}
 	
 	@Override
-	public void setType(AnnouncementType type)
+	public boolean isValid()
 	{
-		_type = type;
-	}
-	
-	@Override
-	public String getContent()
-	{
-		return _content;
-	}
-	
-	@Override
-	public void setContent(String content)
-	{
-		_content = content;
-	}
-	
-	@Override
-	public String getAuthor()
-	{
-		return _author;
+		return true;
 	}
 	
 	@Override
@@ -102,9 +113,15 @@ public class Announcement implements IAnnouncement
 	}
 	
 	@Override
-	public boolean isValid()
+	public void setContent(String content)
 	{
-		return true;
+		_content = content;
+	}
+	
+	@Override
+	public void setType(AnnouncementType type)
+	{
+		_type = type;
 	}
 	
 	@Override
@@ -148,23 +165,6 @@ public class Announcement implements IAnnouncement
 		catch (Exception e)
 		{
 			_log.log(Level.WARNING, getClass().getSimpleName() + ": Couldn't store announcement: ", e);
-			return false;
-		}
-		return true;
-	}
-	
-	@Override
-	public boolean deleteMe()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(DELETE_QUERY))
-		{
-			ps.setInt(1, _id);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, getClass().getSimpleName() + ": Couldn't remove announcement: ", e);
 			return false;
 		}
 		return true;

@@ -26,6 +26,8 @@ import org.l2jdevs.gameserver.model.actor.instance.L2PcInstance;
  */
 public interface RecipeBookDAO
 {
+	void delete(L2PcInstance player, int recipeId, boolean isDwarf);
+	
 	void insert(L2PcInstance player, int recipeId, boolean isDwarf);
 	
 	/**
@@ -34,6 +36,4 @@ public interface RecipeBookDAO
 	 * @param loadCommon if {@code true} the common recipes boom is loaded
 	 */
 	void load(L2PcInstance player, boolean loadCommon);
-	
-	void delete(L2PcInstance player, int recipeId, boolean isDwarf);
 }

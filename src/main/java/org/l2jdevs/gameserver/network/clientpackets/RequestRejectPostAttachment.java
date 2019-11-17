@@ -39,9 +39,9 @@ public final class RequestRejectPostAttachment extends L2GameClientPacket
 	private int _msgId;
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		_msgId = readD();
+		return _C__D0_6B_REQUESTREJECTPOSTATTACHMENT;
 	}
 	
 	@Override
@@ -101,8 +101,8 @@ public final class RequestRejectPostAttachment extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__D0_6B_REQUESTREJECTPOSTATTACHMENT;
+		_msgId = readD();
 	}
 }

@@ -35,6 +35,12 @@ public final class RequestConfirmCancelItem extends L2GameClientPacket
 	private int _objectId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_42_REQUESTCONFIRMCANCELITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -127,11 +133,5 @@ public final class RequestConfirmCancelItem extends L2GameClientPacket
 		}
 		
 		activeChar.sendPacket(new ExPutItemResultForVariationCancel(item, price));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_42_REQUESTCONFIRMCANCELITEM;
 	}
 }

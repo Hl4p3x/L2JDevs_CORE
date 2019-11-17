@@ -37,6 +37,12 @@ public final class CannotMoveAnymore extends L2GameClientPacket
 	private int _heading;
 	
 	@Override
+	public String getType()
+	{
+		return _C__47_STOPMOVE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_x = readD();
@@ -79,11 +85,5 @@ public final class CannotMoveAnymore extends L2GameClientPacket
 		// _heading);
 		// getClient().getActiveChar().sendPacket(sr);
 		// getClient().getActiveChar().broadcastPacket(sr);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__47_STOPMOVE;
 	}
 }

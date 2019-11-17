@@ -23,6 +23,20 @@ package org.l2jdevs.loginserver.network.serverpackets;
  */
 public final class LoginFail extends L2LoginServerPacket
 {
+	private final LoginFailReason _reason;
+	
+	public LoginFail(LoginFailReason reason)
+	{
+		_reason = reason;
+	}
+	
+	@Override
+	protected void write()
+	{
+		writeC(0x01);
+		writeC(_reason.getCode());
+	}
+	
 	public static enum LoginFailReason
 	{
 		REASON_NO_MESSAGE(0x00),
@@ -76,19 +90,5 @@ public final class LoginFail extends L2LoginServerPacket
 		{
 			return _code;
 		}
-	}
-	
-	private final LoginFailReason _reason;
-	
-	public LoginFail(LoginFailReason reason)
-	{
-		_reason = reason;
-	}
-	
-	@Override
-	protected void write()
-	{
-		writeC(0x01);
-		writeC(_reason.getCode());
 	}
 }

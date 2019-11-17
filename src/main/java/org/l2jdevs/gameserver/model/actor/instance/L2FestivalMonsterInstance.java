@@ -44,43 +44,6 @@ public class L2FestivalMonsterInstance extends L2MonsterInstance
 		setInstanceType(InstanceType.L2FestivalMonsterInstance);
 	}
 	
-	public void setOfferingBonus(int bonusMultiplier)
-	{
-		_bonusMultiplier = bonusMultiplier;
-	}
-	
-	/**
-	 * Return True if the attacker is not another L2FestivalMonsterInstance.
-	 */
-	@Override
-	public boolean isAutoAttackable(L2Character attacker)
-	{
-		if (attacker instanceof L2FestivalMonsterInstance)
-		{
-			return false;
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * All mobs in the festival are aggressive, and have high aggro range.
-	 */
-	@Override
-	public boolean isAggressive()
-	{
-		return true;
-	}
-	
-	/**
-	 * All mobs in the festival really don't need random animation.
-	 */
-	@Override
-	public boolean hasRandomAnimation()
-	{
-		return false;
-	}
-	
 	/**
 	 * Actions:
 	 * <ul>
@@ -124,5 +87,42 @@ public class L2FestivalMonsterInstance extends L2MonsterInstance
 		partyLeader.sendPacket(iu);
 		
 		super.doItemDrop(lastAttacker); // Normal drop
+	}
+	
+	/**
+	 * All mobs in the festival really don't need random animation.
+	 */
+	@Override
+	public boolean hasRandomAnimation()
+	{
+		return false;
+	}
+	
+	/**
+	 * All mobs in the festival are aggressive, and have high aggro range.
+	 */
+	@Override
+	public boolean isAggressive()
+	{
+		return true;
+	}
+	
+	/**
+	 * Return True if the attacker is not another L2FestivalMonsterInstance.
+	 */
+	@Override
+	public boolean isAutoAttackable(L2Character attacker)
+	{
+		if (attacker instanceof L2FestivalMonsterInstance)
+		{
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public void setOfferingBonus(int bonusMultiplier)
+	{
+		_bonusMultiplier = bonusMultiplier;
 	}
 }

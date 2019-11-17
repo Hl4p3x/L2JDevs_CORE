@@ -38,26 +38,6 @@ public final class L2BuyList
 		_listId = listId;
 	}
 	
-	public int getListId()
-	{
-		return _listId;
-	}
-	
-	public Collection<Product> getProducts()
-	{
-		return _products.values();
-	}
-	
-	public Product getProductByItemId(int itemId)
-	{
-		return _products.get(itemId);
-	}
-	
-	public void addProduct(Product product)
-	{
-		_products.put(product.getItemId(), product);
-	}
-	
 	public void addAllowedNpc(int npcId)
 	{
 		if (_allowedNpcs == null)
@@ -65,6 +45,26 @@ public final class L2BuyList
 			_allowedNpcs = new HashSet<>();
 		}
 		_allowedNpcs.add(npcId);
+	}
+	
+	public void addProduct(Product product)
+	{
+		_products.put(product.getItemId(), product);
+	}
+	
+	public int getListId()
+	{
+		return _listId;
+	}
+	
+	public Product getProductByItemId(int itemId)
+	{
+		return _products.get(itemId);
+	}
+	
+	public Collection<Product> getProducts()
+	{
+		return _products.values();
 	}
 	
 	public boolean isNpcAllowed(int npcId)

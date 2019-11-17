@@ -45,14 +45,14 @@ public class OnPlayerDlgAnswer implements IBaseEvent
 		return _activeChar;
 	}
 	
-	public int getMessageId()
-	{
-		return _messageId;
-	}
-	
 	public int getAnswer()
 	{
 		return _answer;
+	}
+	
+	public int getMessageId()
+	{
+		return _messageId;
 	}
 	
 	public int getRequesterId()

@@ -39,6 +39,12 @@ public final class RequestPartyMatchConfig extends L2GameClientPacket
 	private int _auto, _loc, _lvl;
 	
 	@Override
+	public String getType()
+	{
+		return _C__7F_REQUESTPARTYMATCHCONFIG;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_auto = readD(); //
@@ -95,11 +101,5 @@ public final class RequestPartyMatchConfig extends L2GameClientPacket
 			
 			_activeChar.sendPacket(matchList);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__7F_REQUESTPARTYMATCHCONFIG;
 	}
 }

@@ -41,6 +41,12 @@ public final class RequestSendFriendMsg extends L2GameClientPacket
 	private String _reciever;
 	
 	@Override
+	public String getType()
+	{
+		return _C__6B_REQUESTSENDMSG;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_message = readS();
@@ -82,11 +88,5 @@ public final class RequestSendFriendMsg extends L2GameClientPacket
 		}
 		
 		targetPlayer.sendPacket(new L2FriendSay(activeChar.getName(), _reciever, _message));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__6B_REQUESTSENDMSG;
 	}
 }

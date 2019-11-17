@@ -45,6 +45,57 @@ public class HennaDAOMySQLImpl implements HennaDAO
 	private static final String DELETE_ALL = "DELETE FROM character_hennas WHERE charId=? AND class_index=?";
 	
 	@Override
+	public void delete(L2PcInstance player, int slot)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(DELETE_ONE))
+		{
+			ps.setInt(1, player.getObjectId());
+			ps.setInt(2, slot);
+			ps.setInt(3, player.getClassIndex());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.error("Failed removing character henna. {}", e);
+		}
+	}
+	
+	@Override
+	public void deleteAll(L2PcInstance player, int classIndex)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(DELETE_ALL))
+		{
+			ps.setInt(1, player.getObjectId());
+			ps.setInt(2, classIndex);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.error("Failed removing character henna. {}", e);
+		}
+	}
+	
+	@Override
+	public void insert(L2PcInstance player, L2Henna henna, int slot)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(INSERT))
+		{
+			ps.setInt(1, player.getObjectId());
+			ps.setInt(2, henna.getDyeId());
+			ps.setInt(3, slot);
+			ps.setInt(4, player.getClassIndex());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.error("Failed saving character henna. {}", e);
+		}
+	}
+	
+	@Override
 	public void load(L2PcInstance player)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -76,57 +127,6 @@ public class HennaDAOMySQLImpl implements HennaDAO
 		catch (Exception e)
 		{
 			LOG.error("Failed restoing character {} hennas. {}", player, e);
-		}
-	}
-	
-	@Override
-	public void insert(L2PcInstance player, L2Henna henna, int slot)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(INSERT))
-		{
-			ps.setInt(1, player.getObjectId());
-			ps.setInt(2, henna.getDyeId());
-			ps.setInt(3, slot);
-			ps.setInt(4, player.getClassIndex());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.error("Failed saving character henna. {}", e);
-		}
-	}
-	
-	@Override
-	public void delete(L2PcInstance player, int slot)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(DELETE_ONE))
-		{
-			ps.setInt(1, player.getObjectId());
-			ps.setInt(2, slot);
-			ps.setInt(3, player.getClassIndex());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.error("Failed removing character henna. {}", e);
-		}
-	}
-	
-	@Override
-	public void deleteAll(L2PcInstance player, int classIndex)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(DELETE_ALL))
-		{
-			ps.setInt(1, player.getObjectId());
-			ps.setInt(2, classIndex);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.error("Failed removing character henna. {}", e);
 		}
 	}
 }

@@ -41,21 +41,6 @@ public class TimeStamp
 	private final int _group;
 	
 	/**
-	 * Skill time stamp constructor.
-	 * @param skill the skill upon the stamp will be created.
-	 * @param reuse the reuse time for this skill.
-	 * @param systime overrides the system time with a customized one.
-	 */
-	public TimeStamp(Skill skill, long reuse, long systime)
-	{
-		_id1 = skill.getId();
-		_id2 = skill.getLevel();
-		_reuse = reuse;
-		_stamp = systime > 0 ? systime : System.currentTimeMillis() + reuse;
-		_group = -1;
-	}
-	
-	/**
 	 * Item time stamp constructor.
 	 * @param item the item upon the stamp will be created.
 	 * @param reuse the reuse time for this item.
@@ -71,12 +56,18 @@ public class TimeStamp
 	}
 	
 	/**
-	 * Gets the time stamp.
-	 * @return the time stamp, either the system time where this time stamp was created or the custom time assigned
+	 * Skill time stamp constructor.
+	 * @param skill the skill upon the stamp will be created.
+	 * @param reuse the reuse time for this skill.
+	 * @param systime overrides the system time with a customized one.
 	 */
-	public long getStamp()
+	public TimeStamp(Skill skill, long reuse, long systime)
 	{
-		return _stamp;
+		_id1 = skill.getId();
+		_id2 = skill.getLevel();
+		_reuse = reuse;
+		_stamp = systime > 0 ? systime : System.currentTimeMillis() + reuse;
+		_group = -1;
 	}
 	
 	/**
@@ -98,21 +89,12 @@ public class TimeStamp
 	}
 	
 	/**
-	 * Gets the skill ID.
-	 * @return the skill ID
+	 * Gets the remaining time.
+	 * @return the remaining time for this time stamp to expire
 	 */
-	public int getSkillId()
+	public long getRemaining()
 	{
-		return _id1;
-	}
-	
-	/**
-	 * Gets the skill level.
-	 * @return the skill level
-	 */
-	public int getSkillLvl()
-	{
-		return _id2;
+		return Math.max(_stamp - System.currentTimeMillis(), 0);
 	}
 	
 	/**
@@ -135,12 +117,30 @@ public class TimeStamp
 	}
 	
 	/**
-	 * Gets the remaining time.
-	 * @return the remaining time for this time stamp to expire
+	 * Gets the skill ID.
+	 * @return the skill ID
 	 */
-	public long getRemaining()
+	public int getSkillId()
 	{
-		return Math.max(_stamp - System.currentTimeMillis(), 0);
+		return _id1;
+	}
+	
+	/**
+	 * Gets the skill level.
+	 * @return the skill level
+	 */
+	public int getSkillLvl()
+	{
+		return _id2;
+	}
+	
+	/**
+	 * Gets the time stamp.
+	 * @return the time stamp, either the system time where this time stamp was created or the custom time assigned
+	 */
+	public long getStamp()
+	{
+		return _stamp;
 	}
 	
 	/**

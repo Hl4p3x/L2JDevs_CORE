@@ -45,12 +45,28 @@ import org.l2jdevs.util.file.filter.NumericNameFilter;
  */
 public final class BuyListData implements IXmlReader
 {
-	private final Map<Integer, L2BuyList> _buyLists = new HashMap<>();
 	private static final FileFilter NUMERIC_FILTER = new NumericNameFilter();
+	private final Map<Integer, L2BuyList> _buyLists = new HashMap<>();
 	
 	protected BuyListData()
 	{
 		load();
+	}
+	
+	public static BuyListData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public L2BuyList getBuyList(int listId)
+	{
+		return _buyLists.get(listId);
+	}
+	
+	@Override
+	public FileFilter getCurrentFileFilter()
+	{
+		return NUMERIC_FILTER;
 	}
 	
 	@Override
@@ -168,22 +184,6 @@ public final class BuyListData implements IXmlReader
 		{
 			LOG.warn("Failed to load buyList data from xml File: {}", f.getName(), e);
 		}
-	}
-	
-	@Override
-	public FileFilter getCurrentFileFilter()
-	{
-		return NUMERIC_FILTER;
-	}
-	
-	public L2BuyList getBuyList(int listId)
-	{
-		return _buyLists.get(listId);
-	}
-	
-	public static BuyListData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

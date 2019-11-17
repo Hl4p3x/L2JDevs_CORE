@@ -47,24 +47,24 @@ public class OnPlayerAugment implements IBaseEvent
 		return _activeChar;
 	}
 	
-	public L2ItemInstance getItem()
-	{
-		return _item;
-	}
-	
 	public L2Augmentation getAugmentation()
 	{
 		return _augmentation;
 	}
 	
-	public boolean isAugment()
+	public L2ItemInstance getItem()
 	{
-		return _isAugment;
+		return _item;
 	}
 	
 	@Override
 	public EventType getType()
 	{
 		return EventType.ON_PLAYER_AUGMENT;
+	}
+	
+	public boolean isAugment()
+	{
+		return _isAugment;
 	}
 }

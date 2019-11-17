@@ -48,6 +48,28 @@ public final class EnchantItemGroupsData implements IXmlReader
 		load();
 	}
 	
+	public static EnchantItemGroupsData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public EnchantItemGroup getItemGroup(L2Item item, int scrollGroup)
+	{
+		final EnchantScrollGroup group = _scrollGroups.get(scrollGroup);
+		final EnchantRateItem rateGroup = group.getRateGroup(item);
+		return rateGroup != null ? _itemGroups.get(rateGroup.getName()) : null;
+	}
+	
+	public EnchantItemGroup getItemGroup(String name)
+	{
+		return _itemGroups.get(name);
+	}
+	
+	public EnchantScrollGroup getScrollGroup(int id)
+	{
+		return _scrollGroups.get(id);
+	}
+	
 	@Override
 	public synchronized void load()
 	{
@@ -137,28 +159,6 @@ public final class EnchantItemGroupsData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	public EnchantItemGroup getItemGroup(L2Item item, int scrollGroup)
-	{
-		final EnchantScrollGroup group = _scrollGroups.get(scrollGroup);
-		final EnchantRateItem rateGroup = group.getRateGroup(item);
-		return rateGroup != null ? _itemGroups.get(rateGroup.getName()) : null;
-	}
-	
-	public EnchantItemGroup getItemGroup(String name)
-	{
-		return _itemGroups.get(name);
-	}
-	
-	public EnchantScrollGroup getScrollGroup(int id)
-	{
-		return _scrollGroups.get(id);
-	}
-	
-	public static EnchantItemGroupsData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

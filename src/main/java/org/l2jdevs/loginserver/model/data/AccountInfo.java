@@ -55,11 +55,6 @@ public final class AccountInfo
 		return _passHash.equals(passHash);
 	}
 	
-	public String getLogin()
-	{
-		return _login;
-	}
-	
 	public int getAccessLevel()
 	{
 		return _accessLevel;
@@ -68,5 +63,10 @@ public final class AccountInfo
 	public int getLastServer()
 	{
 		return _lastServer;
+	}
+	
+	public String getLogin()
+	{
+		return _login;
 	}
 }

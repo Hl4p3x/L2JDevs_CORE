@@ -59,26 +59,12 @@ public final class AuctionableHall extends ClanHall
 		}
 	}
 	
-	/**
-	 * @return if clanHall is paid or not
-	 */
-	public final boolean getPaid()
-	{
-		return _paid;
-	}
-	
-	/** Return lease */
 	@Override
-	public final int getLease()
+	public final void free()
 	{
-		return _lease;
-	}
-	
-	/** Return PaidUntil */
-	@Override
-	public final long getPaidUntil()
-	{
-		return _paidUntil;
+		super.free();
+		_paidUntil = 0;
+		_paid = false;
 	}
 	
 	/** Return Grade */
@@ -88,12 +74,26 @@ public final class AuctionableHall extends ClanHall
 		return _grade;
 	}
 	
+	/** Return lease */
 	@Override
-	public final void free()
+	public final int getLease()
 	{
-		super.free();
-		_paidUntil = 0;
-		_paid = false;
+		return _lease;
+	}
+	
+	/**
+	 * @return if clanHall is paid or not
+	 */
+	public final boolean getPaid()
+	{
+		return _paid;
+	}
+	
+	/** Return PaidUntil */
+	@Override
+	public final long getPaidUntil()
+	{
+		return _paidUntil;
 	}
 	
 	@Override
@@ -102,6 +102,24 @@ public final class AuctionableHall extends ClanHall
 		super.setOwner(clan);
 		_paidUntil = System.currentTimeMillis();
 		initialyzeTask(true);
+	}
+	
+	@Override
+	public final void updateDb()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("UPDATE clanhall SET ownerId=?, paidUntil=?, paid=? WHERE id=?"))
+		{
+			ps.setInt(1, getOwnerId());
+			ps.setLong(2, getPaidUntil());
+			ps.setInt(3, (getPaid()) ? 1 : 0);
+			ps.setInt(4, getId());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Exception: updateOwnerInDB(L2Clan clan): " + e.getMessage(), e);
+		}
 	}
 	
 	/**
@@ -212,24 +230,6 @@ public final class AuctionableHall extends ClanHall
 			{
 				_log.log(Level.SEVERE, "", e);
 			}
-		}
-	}
-	
-	@Override
-	public final void updateDb()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("UPDATE clanhall SET ownerId=?, paidUntil=?, paid=? WHERE id=?"))
-		{
-			ps.setInt(1, getOwnerId());
-			ps.setLong(2, getPaidUntil());
-			ps.setInt(3, (getPaid()) ? 1 : 0);
-			ps.setInt(4, getId());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Exception: updateOwnerInDB(L2Clan clan): " + e.getMessage(), e);
 		}
 	}
 }

@@ -46,6 +46,46 @@ public final class PunishmentManager
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of {@code PunishmentManager}.
+	 * @return single instance of {@code PunishmentManager}
+	 */
+	public static final PunishmentManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public long getPunishmentExpiration(Object key, PunishmentAffect affect, PunishmentType type)
+	{
+		final PunishmentTask p = getPunishment(key, affect, type);
+		return p != null ? p.getExpirationTime() : 0;
+	}
+	
+	public boolean hasPunishment(Object key, PunishmentAffect affect, PunishmentType type)
+	{
+		final PunishmentHolder holder = _tasks.get(affect);
+		return holder.hasPunishment(String.valueOf(key), type);
+	}
+	
+	public void startPunishment(PunishmentTask task)
+	{
+		_tasks.get(task.getAffect()).addPunishment(task);
+	}
+	
+	public void stopPunishment(Object key, PunishmentAffect affect, PunishmentType type)
+	{
+		final PunishmentTask task = getPunishment(key, affect, type);
+		if (task != null)
+		{
+			_tasks.get(affect).stopPunishment(task);
+		}
+	}
+	
+	private PunishmentTask getPunishment(Object key, PunishmentAffect affect, PunishmentType type)
+	{
+		return _tasks.get(affect).getPunishment(String.valueOf(key), type);
+	}
+	
 	private void load()
 	{
 		// Initiate task holders.
@@ -91,46 +131,6 @@ public final class PunishmentManager
 		}
 		
 		_log.log(Level.INFO, getClass().getSimpleName() + ": Loaded " + initiated + " active and " + expired + " expired punishments.");
-	}
-	
-	public void startPunishment(PunishmentTask task)
-	{
-		_tasks.get(task.getAffect()).addPunishment(task);
-	}
-	
-	public void stopPunishment(Object key, PunishmentAffect affect, PunishmentType type)
-	{
-		final PunishmentTask task = getPunishment(key, affect, type);
-		if (task != null)
-		{
-			_tasks.get(affect).stopPunishment(task);
-		}
-	}
-	
-	public boolean hasPunishment(Object key, PunishmentAffect affect, PunishmentType type)
-	{
-		final PunishmentHolder holder = _tasks.get(affect);
-		return holder.hasPunishment(String.valueOf(key), type);
-	}
-	
-	public long getPunishmentExpiration(Object key, PunishmentAffect affect, PunishmentType type)
-	{
-		final PunishmentTask p = getPunishment(key, affect, type);
-		return p != null ? p.getExpirationTime() : 0;
-	}
-	
-	private PunishmentTask getPunishment(Object key, PunishmentAffect affect, PunishmentType type)
-	{
-		return _tasks.get(affect).getPunishment(String.valueOf(key), type);
-	}
-	
-	/**
-	 * Gets the single instance of {@code PunishmentManager}.
-	 * @return single instance of {@code PunishmentManager}
-	 */
-	public static final PunishmentManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

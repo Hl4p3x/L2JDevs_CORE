@@ -25,16 +25,6 @@ public class InitLS extends BaseRecievePacket
 	private final int _rev;
 	private final byte[] _key;
 	
-	public int getRevision()
-	{
-		return _rev;
-	}
-	
-	public byte[] getRSAKey()
-	{
-		return _key;
-	}
-	
 	/**
 	 * @param decrypt
 	 */
@@ -44,6 +34,16 @@ public class InitLS extends BaseRecievePacket
 		_rev = readD();
 		int size = readD();
 		_key = readB(size);
+	}
+	
+	public int getRevision()
+	{
+		return _rev;
+	}
+	
+	public byte[] getRSAKey()
+	{
+		return _key;
 	}
 	
 }

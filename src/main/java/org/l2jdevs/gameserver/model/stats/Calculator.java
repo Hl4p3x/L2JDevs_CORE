@@ -107,15 +107,6 @@ public final class Calculator
 	}
 	
 	/**
-	 * Return the number of Funcs in the Calculator.
-	 * @return
-	 */
-	public int size()
-	{
-		return _functions.length;
-	}
-	
-	/**
 	 * Adds a function to the Calculator.
 	 * @param function the function
 	 */
@@ -140,6 +131,33 @@ public final class Calculator
 		}
 		
 		_functions = tmp;
+	}
+	
+	/**
+	 * Run each function of the Calculator.
+	 * @param caster the caster
+	 * @param target the target
+	 * @param skill the skill
+	 * @param initVal the initial value
+	 * @return the calculated value
+	 */
+	public double calc(L2Character caster, L2Character target, Skill skill, double initVal)
+	{
+		double value = initVal;
+		for (AbstractFunction func : _functions)
+		{
+			value = func.calc(caster, target, skill, value);
+		}
+		return value;
+	}
+	
+	/**
+	 * Get array of all function, dont use for add/remove
+	 * @return
+	 */
+	public AbstractFunction[] getFunctions()
+	{
+		return _functions;
 	}
 	
 	/**
@@ -198,29 +216,11 @@ public final class Calculator
 	}
 	
 	/**
-	 * Run each function of the Calculator.
-	 * @param caster the caster
-	 * @param target the target
-	 * @param skill the skill
-	 * @param initVal the initial value
-	 * @return the calculated value
-	 */
-	public double calc(L2Character caster, L2Character target, Skill skill, double initVal)
-	{
-		double value = initVal;
-		for (AbstractFunction func : _functions)
-		{
-			value = func.calc(caster, target, skill, value);
-		}
-		return value;
-	}
-	
-	/**
-	 * Get array of all function, dont use for add/remove
+	 * Return the number of Funcs in the Calculator.
 	 * @return
 	 */
-	public AbstractFunction[] getFunctions()
+	public int size()
 	{
-		return _functions;
+		return _functions.length;
 	}
 }

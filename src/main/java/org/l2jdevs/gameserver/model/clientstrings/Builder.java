@@ -25,12 +25,6 @@ import java.util.ArrayList;
  */
 public abstract class Builder
 {
-	public abstract String toString(final Object param);
-	
-	public abstract String toString(final Object... params);
-	
-	public abstract int getIndex();
-	
 	public static final Builder newBuilder(final String text)
 	{
 		final ArrayList<Builder> builders = new ArrayList<>();
@@ -84,4 +78,10 @@ public abstract class Builder
 		}
 		return new BuilderContainer(builders.toArray(new Builder[builders.size()]));
 	}
+	
+	public abstract int getIndex();
+	
+	public abstract String toString(final Object param);
+	
+	public abstract String toString(final Object... params);
 }

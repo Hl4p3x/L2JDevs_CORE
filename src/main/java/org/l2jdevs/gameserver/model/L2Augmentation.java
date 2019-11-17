@@ -42,6 +42,38 @@ public final class L2Augmentation
 		_boni = new AugmentationStatBoni(_effectsId);
 	}
 	
+	/**
+	 * Applies the bonuses to the player.
+	 * @param player
+	 */
+	public void applyBonus(L2PcInstance player)
+	{
+		_boni.applyBonus(player);
+	}
+	
+	public int getAttributes()
+	{
+		return _effectsId;
+	}
+	
+	/**
+	 * Get the augmentation "id" used in serverpackets.
+	 * @return augmentationId
+	 */
+	public int getAugmentationId()
+	{
+		return _effectsId;
+	}
+	
+	/**
+	 * Removes the augmentation bonuses from the player.
+	 * @param player
+	 */
+	public void removeBonus(L2PcInstance player)
+	{
+		_boni.removeBonus(player);
+	}
+	
 	public static class AugmentationStatBoni
 	{
 		private static final Logger _log = Logger.getLogger(AugmentationStatBoni.class.getName());
@@ -100,37 +132,5 @@ public final class L2Augmentation
 			
 			_active = false;
 		}
-	}
-	
-	public int getAttributes()
-	{
-		return _effectsId;
-	}
-	
-	/**
-	 * Get the augmentation "id" used in serverpackets.
-	 * @return augmentationId
-	 */
-	public int getAugmentationId()
-	{
-		return _effectsId;
-	}
-	
-	/**
-	 * Applies the bonuses to the player.
-	 * @param player
-	 */
-	public void applyBonus(L2PcInstance player)
-	{
-		_boni.applyBonus(player);
-	}
-	
-	/**
-	 * Removes the augmentation bonuses from the player.
-	 * @param player
-	 */
-	public void removeBonus(L2PcInstance player)
-	{
-		_boni.removeBonus(player);
 	}
 }

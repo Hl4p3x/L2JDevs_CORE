@@ -28,14 +28,21 @@ import org.l2jdevs.gameserver.model.items.instance.L2ItemInstance;
  */
 public abstract class AbstractItemPacket extends L2GameServerPacket
 {
-	protected void writeItem(TradeItem item)
+	protected void writeInventoryBlock(PcInventory inventory)
 	{
-		writeItem(new ItemInfo(item));
-	}
-	
-	protected void writeItem(L2ItemInstance item)
-	{
-		writeItem(new ItemInfo(item));
+		if (inventory.hasInventoryBlock())
+		{
+			writeH(inventory.getBlockItems().length);
+			writeC(inventory.getBlockMode());
+			for (int i : inventory.getBlockItems())
+			{
+				writeD(i);
+			}
+		}
+		else
+		{
+			writeH(0x00);
+		}
 	}
 	
 	protected void writeItem(ItemInfo item)
@@ -56,6 +63,16 @@ public abstract class AbstractItemPacket extends L2GameServerPacket
 		writeItemElementalAndEnchant(item);
 	}
 	
+	protected void writeItem(L2ItemInstance item)
+	{
+		writeItem(new ItemInfo(item));
+	}
+	
+	protected void writeItem(TradeItem item)
+	{
+		writeItem(new ItemInfo(item));
+	}
+	
 	protected void writeItemElementalAndEnchant(ItemInfo item)
 	{
 		writeH(item.getAttackElementType());
@@ -68,23 +85,6 @@ public abstract class AbstractItemPacket extends L2GameServerPacket
 		for (int op : item.getEnchantOptions())
 		{
 			writeH(op);
-		}
-	}
-	
-	protected void writeInventoryBlock(PcInventory inventory)
-	{
-		if (inventory.hasInventoryBlock())
-		{
-			writeH(inventory.getBlockItems().length);
-			writeC(inventory.getBlockMode());
-			for (int i : inventory.getBlockItems())
-			{
-				writeD(i);
-			}
-		}
-		else
-		{
-			writeH(0x00);
 		}
 	}
 }

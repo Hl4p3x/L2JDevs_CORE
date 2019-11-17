@@ -25217,51 +25217,20 @@ public final class NpcStringId
 		buildFastLookupTable();
 	}
 	
-	private static final void buildFastLookupTable()
-	{
-		final Field[] fields = NpcStringId.class.getDeclaredFields();
-		
-		int mod;
-		NpcStringId nsId;
-		for (final Field field : fields)
-		{
-			mod = field.getModifiers();
-			if (Modifier.isStatic(mod) && Modifier.isPublic(mod) && Modifier.isFinal(mod) && field.getType().equals(NpcStringId.class))
-			{
-				try
-				{
-					nsId = (NpcStringId) field.get(null);
-					nsId.setName(field.getName());
-					nsId.setParamCount(parseMessageParameters(field.getName()));
-					
-					VALUES.put(nsId.getId(), nsId);
-				}
-				catch (final Exception e)
-				{
-					_log.log(Level.WARNING, "NpcStringId: Failed field access for '" + field.getName() + "'", e);
-				}
-			}
-		}
-	}
+	private final int _id;
 	
-	private static final int parseMessageParameters(final String name)
+	private String _name;
+	
+	private byte _params;
+	
+	private NSLocalisation[] _localisations;
+	
+	private ExShowScreenMessage _staticScreenMessage;
+	
+	private NpcStringId(final int id)
 	{
-		int paramCount = 0;
-		char c1, c2;
-		for (int i = 0; i < (name.length() - 1); i++)
-		{
-			c1 = name.charAt(i);
-			if ((c1 == 'C') || (c1 == 'S'))
-			{
-				c2 = name.charAt(i + 1);
-				if (Character.isDigit(c2))
-				{
-					paramCount = Math.max(paramCount, Character.getNumericValue(c2));
-					i++;
-				}
-			}
-		}
-		return paramCount;
+		_id = id;
+		_localisations = EMPTY_NSL_ARRAY;
 	}
 	
 	public static final NpcStringId getNpcStringId(final int id)
@@ -25269,12 +25238,6 @@ public final class NpcStringId
 		final NpcStringId nsi = getNpcStringIdInternal(id);
 		return nsi == null ? new NpcStringId(id) : nsi;
 	}
-	
-	private static final NpcStringId getNpcStringIdInternal(final int id)
-	{
-		return VALUES.get(id);
-	}
-	
 	public static final NpcStringId getNpcStringId(final String name)
 	{
 		try
@@ -25286,7 +25249,6 @@ public final class NpcStringId
 			return null;
 		}
 	}
-	
 	public static final void reloadLocalisations()
 	{
 		for (final NpcStringId nsId : VALUES.values())
@@ -25383,17 +25345,63 @@ public final class NpcStringId
 			}
 		}
 	}
-	
-	private final int _id;
-	private String _name;
-	private byte _params;
-	private NSLocalisation[] _localisations;
-	private ExShowScreenMessage _staticScreenMessage;
-	
-	private NpcStringId(final int id)
+	private static final void buildFastLookupTable()
 	{
-		_id = id;
-		_localisations = EMPTY_NSL_ARRAY;
+		final Field[] fields = NpcStringId.class.getDeclaredFields();
+		
+		int mod;
+		NpcStringId nsId;
+		for (final Field field : fields)
+		{
+			mod = field.getModifiers();
+			if (Modifier.isStatic(mod) && Modifier.isPublic(mod) && Modifier.isFinal(mod) && field.getType().equals(NpcStringId.class))
+			{
+				try
+				{
+					nsId = (NpcStringId) field.get(null);
+					nsId.setName(field.getName());
+					nsId.setParamCount(parseMessageParameters(field.getName()));
+					
+					VALUES.put(nsId.getId(), nsId);
+				}
+				catch (final Exception e)
+				{
+					_log.log(Level.WARNING, "NpcStringId: Failed field access for '" + field.getName() + "'", e);
+				}
+			}
+		}
+	}
+	private static final NpcStringId getNpcStringIdInternal(final int id)
+	{
+		return VALUES.get(id);
+	}
+	
+	private static final int parseMessageParameters(final String name)
+	{
+		int paramCount = 0;
+		char c1, c2;
+		for (int i = 0; i < (name.length() - 1); i++)
+		{
+			c1 = name.charAt(i);
+			if ((c1 == 'C') || (c1 == 'S'))
+			{
+				c2 = name.charAt(i + 1);
+				if (Character.isDigit(c2))
+				{
+					paramCount = Math.max(paramCount, Character.getNumericValue(c2));
+					i++;
+				}
+			}
+		}
+		return paramCount;
+	}
+	
+	public final void attachLocalizedText(final String lang, final String text)
+	{
+		final int length = _localisations.length;
+		final NSLocalisation[] localisations = Arrays.copyOf(_localisations, length + 1);
+		localisations[length] = new NSLocalisation(lang, text);
+		_localisations = localisations;
 	}
 	
 	public final int getId()
@@ -25401,9 +25409,18 @@ public final class NpcStringId
 		return _id;
 	}
 	
-	private final void setName(final String name)
+	public final NSLocalisation getLocalisation(final String lang)
 	{
-		_name = name;
+		NSLocalisation nsl;
+		for (int i = _localisations.length; i-- > 0;)
+		{
+			nsl = _localisations[i];
+			if (nsl.getLanguage().hashCode() == lang.hashCode())
+			{
+				return nsl;
+			}
+		}
+		return null;
 	}
 	
 	public final String getName()
@@ -25414,6 +25431,16 @@ public final class NpcStringId
 	public final int getParamCount()
 	{
 		return _params;
+	}
+	
+	public final ExShowScreenMessage getStaticScreenMessage()
+	{
+		return _staticScreenMessage;
+	}
+	
+	public final void removeAllLocalisations()
+	{
+		_localisations = EMPTY_NSL_ARRAY;
 	}
 	
 	/**
@@ -25440,38 +25467,6 @@ public final class NpcStringId
 		_params = (byte) params;
 	}
 	
-	public final NSLocalisation getLocalisation(final String lang)
-	{
-		NSLocalisation nsl;
-		for (int i = _localisations.length; i-- > 0;)
-		{
-			nsl = _localisations[i];
-			if (nsl.getLanguage().hashCode() == lang.hashCode())
-			{
-				return nsl;
-			}
-		}
-		return null;
-	}
-	
-	public final void attachLocalizedText(final String lang, final String text)
-	{
-		final int length = _localisations.length;
-		final NSLocalisation[] localisations = Arrays.copyOf(_localisations, length + 1);
-		localisations[length] = new NSLocalisation(lang, text);
-		_localisations = localisations;
-	}
-	
-	public final void removeAllLocalisations()
-	{
-		_localisations = EMPTY_NSL_ARRAY;
-	}
-	
-	public final ExShowScreenMessage getStaticScreenMessage()
-	{
-		return _staticScreenMessage;
-	}
-	
 	public final void setStaticSystemMessage(final ExShowScreenMessage ns)
 	{
 		_staticScreenMessage = ns;
@@ -25481,6 +25476,11 @@ public final class NpcStringId
 	public final String toString()
 	{
 		return "NS[" + getId() + ":" + getName() + "]";
+	}
+	
+	private final void setName(final String name)
+	{
+		_name = name;
 	}
 	
 	public static final class NSLocalisation

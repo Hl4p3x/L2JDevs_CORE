@@ -30,6 +30,12 @@ public class RequestKeyMapping extends L2GameClientPacket
 	private static final String _C__D0_21_REQUESTKEYMAPPING = "[C] D0:21 RequestKeyMapping";
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_21_REQUESTKEYMAPPING;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger (no data)
@@ -54,11 +60,5 @@ public class RequestKeyMapping extends L2GameClientPacket
 	protected boolean triggersOnActionRequest()
 	{
 		return false;
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_21_REQUESTKEYMAPPING;
 	}
 }

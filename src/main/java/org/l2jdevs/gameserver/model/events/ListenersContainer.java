@@ -50,6 +50,20 @@ public class ListenersContainer
 	}
 	
 	/**
+	 * @param type
+	 * @return {@code List} of {@link AbstractEventListener} by the specified type
+	 */
+	public Queue<AbstractEventListener> getListeners(EventType type)
+	{
+		return (_listeners != null) && _listeners.containsKey(type) ? _listeners.get(type) : EmptyQueue.emptyQueue();
+	}
+	
+	public boolean hasListener(EventType type)
+	{
+		return !getListeners(type).isEmpty();
+	}
+	
+	/**
 	 * Unregisters listener for a callback when specified event is executed.
 	 * @param listener
 	 * @return
@@ -73,15 +87,6 @@ public class ListenersContainer
 		return listener;
 	}
 	
-	/**
-	 * @param type
-	 * @return {@code List} of {@link AbstractEventListener} by the specified type
-	 */
-	public Queue<AbstractEventListener> getListeners(EventType type)
-	{
-		return (_listeners != null) && _listeners.containsKey(type) ? _listeners.get(type) : EmptyQueue.emptyQueue();
-	}
-	
 	public void removeListenerIf(EventType type, Predicate<? super AbstractEventListener> filter)
 	{
 		getListeners(type).stream().filter(filter).forEach(AbstractEventListener::unregisterMe);
@@ -93,11 +98,6 @@ public class ListenersContainer
 		{
 			getListeners().values().forEach(queue -> queue.stream().filter(filter).forEach(AbstractEventListener::unregisterMe));
 		}
-	}
-	
-	public boolean hasListener(EventType type)
-	{
-		return !getListeners(type).isEmpty();
 	}
 	
 	/**

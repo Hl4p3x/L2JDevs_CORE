@@ -34,6 +34,11 @@ public class FuncHenna extends AbstractFunction
 {
 	private static final Map<Stats, FuncHenna> _fh_instance = new HashMap<>();
 	
+	private FuncHenna(Stats stat)
+	{
+		super(stat, 1, null, 0, null);
+	}
+	
 	public static AbstractFunction getInstance(Stats st)
 	{
 		if (!_fh_instance.containsKey(st))
@@ -41,11 +46,6 @@ public class FuncHenna extends AbstractFunction
 			_fh_instance.put(st, new FuncHenna(st));
 		}
 		return _fh_instance.get(st);
-	}
-	
-	private FuncHenna(Stats stat)
-	{
-		super(stat, 1, null, 0, null);
 	}
 	
 	@Override

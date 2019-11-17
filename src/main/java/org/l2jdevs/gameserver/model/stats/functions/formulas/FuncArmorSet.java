@@ -37,6 +37,11 @@ public class FuncArmorSet extends AbstractFunction
 {
 	private static final Map<Stats, FuncArmorSet> _fh_instance = new HashMap<>();
 	
+	private FuncArmorSet(Stats stat)
+	{
+		super(stat, 1, null, 0, null);
+	}
+	
 	public static AbstractFunction getInstance(Stats st)
 	{
 		if (!_fh_instance.containsKey(st))
@@ -44,11 +49,6 @@ public class FuncArmorSet extends AbstractFunction
 			_fh_instance.put(st, new FuncArmorSet(st));
 		}
 		return _fh_instance.get(st);
-	}
-	
-	private FuncArmorSet(Stats stat)
-	{
-		super(stat, 1, null, 0, null);
 	}
 	
 	@Override

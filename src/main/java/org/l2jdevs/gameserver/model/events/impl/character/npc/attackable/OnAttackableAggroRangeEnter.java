@@ -39,24 +39,24 @@ public class OnAttackableAggroRangeEnter implements IBaseEvent
 		_isSummon = isSummon;
 	}
 	
-	public L2Npc getNpc()
-	{
-		return _npc;
-	}
-	
 	public L2PcInstance getActiveChar()
 	{
 		return _activeChar;
 	}
 	
-	public boolean isSummon()
+	public L2Npc getNpc()
 	{
-		return _isSummon;
+		return _npc;
 	}
 	
 	@Override
 	public EventType getType()
 	{
 		return EventType.ON_ATTACKABLE_AGGRO_RANGE_ENTER;
+	}
+	
+	public boolean isSummon()
+	{
+		return _isSummon;
 	}
 }

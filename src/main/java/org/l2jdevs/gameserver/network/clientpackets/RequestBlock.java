@@ -37,6 +37,12 @@ public final class RequestBlock extends L2GameClientPacket
 	private Integer _type;
 	
 	@Override
+	public String getType()
+	{
+		return _C__A9_REQUESTBLOCK;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_type = readD(); // 0x00 - block, 0x01 - unblock, 0x03 - allblock, 0x04 - allunblock
@@ -106,11 +112,5 @@ public final class RequestBlock extends L2GameClientPacket
 			default:
 				_log.info("Unknown 0xA9 block type: " + _type);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__A9_REQUESTBLOCK;
 	}
 }

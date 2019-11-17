@@ -43,23 +43,6 @@ public class L2Request
 		_player = player;
 	}
 	
-	protected void clear()
-	{
-		_partner = null;
-		_requestPacket = null;
-		_isRequestor = false;
-		_isAnswerer = false;
-	}
-	
-	/**
-	 * Set the L2PcInstance member of a transaction (ex : FriendInvite, JoinAlly, JoinParty...).
-	 * @param partner
-	 */
-	private synchronized void setPartner(L2PcInstance partner)
-	{
-		_partner = partner;
-	}
-	
 	/**
 	 * @return the L2PcInstance member of a transaction (ex : FriendInvite, JoinAlly, JoinParty...).
 	 */
@@ -69,21 +52,32 @@ public class L2Request
 	}
 	
 	/**
-	 * Set the packet incomed from requester.
-	 * @param packet
-	 */
-	private synchronized void setRequestPacket(L2GameClientPacket packet)
-	{
-		_requestPacket = packet;
-	}
-	
-	/**
 	 * Return the packet originally incomed from requester.
 	 * @return
 	 */
 	public L2GameClientPacket getRequestPacket()
 	{
 		return _requestPacket;
+	}
+	
+	/**
+	 * @return {@code true} if a transaction is in progress.
+	 */
+	public boolean isProcessingRequest()
+	{
+		return _partner != null;
+	}
+	
+	/**
+	 * Clears PC request state. Should be called after answer packet receive.
+	 */
+	public void onRequestResponse()
+	{
+		if (_partner != null)
+		{
+			_partner.getRequest().clear();
+		}
+		clear();
 	}
 	
 	/**
@@ -121,6 +115,14 @@ public class L2Request
 		return true;
 	}
 	
+	protected void clear()
+	{
+		_partner = null;
+		_requestPacket = null;
+		_isRequestor = false;
+		_isAnswerer = false;
+	}
+	
 	private void setOnRequestTimer(boolean isRequestor)
 	{
 		_isRequestor = isRequestor ? true : false;
@@ -129,22 +131,20 @@ public class L2Request
 	}
 	
 	/**
-	 * Clears PC request state. Should be called after answer packet receive.
+	 * Set the L2PcInstance member of a transaction (ex : FriendInvite, JoinAlly, JoinParty...).
+	 * @param partner
 	 */
-	public void onRequestResponse()
+	private synchronized void setPartner(L2PcInstance partner)
 	{
-		if (_partner != null)
-		{
-			_partner.getRequest().clear();
-		}
-		clear();
+		_partner = partner;
 	}
 	
 	/**
-	 * @return {@code true} if a transaction is in progress.
+	 * Set the packet incomed from requester.
+	 * @param packet
 	 */
-	public boolean isProcessingRequest()
+	private synchronized void setRequestPacket(L2GameClientPacket packet)
 	{
-		return _partner != null;
+		_requestPacket = packet;
 	}
 }

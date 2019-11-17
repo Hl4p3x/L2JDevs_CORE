@@ -38,55 +38,6 @@ public class NpcBufferTable
 	
 	private final Map<Integer, NpcBufferSkills> _buffers = new HashMap<>();
 	
-	public static class NpcBufferData
-	{
-		private final SkillHolder _skill;
-		private final ItemHolder _fee;
-		
-		protected NpcBufferData(int skillId, int skillLevel, int feeId, int feeAmount)
-		{
-			_skill = new SkillHolder(skillId, skillLevel);
-			_fee = new ItemHolder(feeId, feeAmount);
-		}
-		
-		public SkillHolder getSkill()
-		{
-			return _skill;
-		}
-		
-		public ItemHolder getFee()
-		{
-			return _fee;
-		}
-	}
-	
-	private static class NpcBufferSkills
-	{
-		private final int _npcId;
-		private final Map<Integer, NpcBufferData> _skills = new HashMap<>();
-		
-		protected NpcBufferSkills(int npcId)
-		{
-			_npcId = npcId;
-		}
-		
-		public void addSkill(int skillId, int skillLevel, int skillFeeId, int skillFeeAmount, int buffGroup)
-		{
-			_skills.put(buffGroup, new NpcBufferData(skillId, skillLevel, skillFeeId, skillFeeAmount));
-		}
-		
-		public NpcBufferData getSkillGroupInfo(int buffGroup)
-		{
-			return _skills.get(buffGroup);
-		}
-		
-		@SuppressWarnings("unused")
-		public int getNpcId()
-		{
-			return _npcId;
-		}
-	}
-	
 	protected NpcBufferTable()
 	{
 		int skillCount = 0;
@@ -183,6 +134,11 @@ public class NpcBufferTable
 		LOGGER.info(getClass().getSimpleName() + ": Loaded " + _buffers.size() + " buffers and " + skillCount + " skills.");
 	}
 	
+	public static NpcBufferTable getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	public NpcBufferData getSkillInfo(int npcId, int buffGroup)
 	{
 		final NpcBufferSkills skills = _buffers.get(npcId);
@@ -193,9 +149,53 @@ public class NpcBufferTable
 		return null;
 	}
 	
-	public static NpcBufferTable getInstance()
+	public static class NpcBufferData
 	{
-		return SingletonHolder._instance;
+		private final SkillHolder _skill;
+		private final ItemHolder _fee;
+		
+		protected NpcBufferData(int skillId, int skillLevel, int feeId, int feeAmount)
+		{
+			_skill = new SkillHolder(skillId, skillLevel);
+			_fee = new ItemHolder(feeId, feeAmount);
+		}
+		
+		public ItemHolder getFee()
+		{
+			return _fee;
+		}
+		
+		public SkillHolder getSkill()
+		{
+			return _skill;
+		}
+	}
+	
+	private static class NpcBufferSkills
+	{
+		private final int _npcId;
+		private final Map<Integer, NpcBufferData> _skills = new HashMap<>();
+		
+		protected NpcBufferSkills(int npcId)
+		{
+			_npcId = npcId;
+		}
+		
+		public void addSkill(int skillId, int skillLevel, int skillFeeId, int skillFeeAmount, int buffGroup)
+		{
+			_skills.put(buffGroup, new NpcBufferData(skillId, skillLevel, skillFeeId, skillFeeAmount));
+		}
+		
+		@SuppressWarnings("unused")
+		public int getNpcId()
+		{
+			return _npcId;
+		}
+		
+		public NpcBufferData getSkillGroupInfo(int buffGroup)
+		{
+			return _skills.get(buffGroup);
+		}
 	}
 	
 	private static class SingletonHolder

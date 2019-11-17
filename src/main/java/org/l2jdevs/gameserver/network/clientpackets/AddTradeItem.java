@@ -40,6 +40,12 @@ public final class AddTradeItem extends L2GameClientPacket
 	private long _count;
 	
 	@Override
+	public String getType()
+	{
+		return _C__1B_ADDTRADEITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_tradeId = readD();
@@ -101,11 +107,5 @@ public final class AddTradeItem extends L2GameClientPacket
 			player.sendPacket(new TradeOwnAdd(item));
 			trade.getPartner().sendPacket(new TradeOtherAdd(item));
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__1B_ADDTRADEITEM;
 	}
 }

@@ -40,6 +40,30 @@ public class L2NoRestartZone extends L2ZoneType
 		super(id);
 	}
 	
+	public int getRestartAllowedTime()
+	{
+		return _restartAllowedTime;
+	}
+	
+	public int getRestartTime()
+	{
+		return _restartTime;
+	}
+	
+	@Override
+	public void onPlayerLoginInside(L2PcInstance player)
+	{
+		if (!_enabled)
+		{
+			return;
+		}
+		
+		if (((System.currentTimeMillis() - player.getLastAccess()) > getRestartTime()) && ((System.currentTimeMillis() - GameServer.dateTimeServerStarted.getTimeInMillis()) > getRestartAllowedTime()))
+		{
+			player.teleToLocation(TeleportWhereType.TOWN);
+		}
+	}
+	
 	@Override
 	public void setParameter(String name, String value)
 	{
@@ -63,6 +87,16 @@ public class L2NoRestartZone extends L2ZoneType
 		{
 			super.setParameter(name, value);
 		}
+	}
+	
+	public void setRestartAllowedTime(int time)
+	{
+		_restartAllowedTime = time;
+	}
+	
+	public void setRestartTime(int time)
+	{
+		_restartTime = time;
 	}
 	
 	@Override
@@ -91,39 +125,5 @@ public class L2NoRestartZone extends L2ZoneType
 		{
 			character.setInsideZone(ZoneId.NO_RESTART, false);
 		}
-	}
-	
-	@Override
-	public void onPlayerLoginInside(L2PcInstance player)
-	{
-		if (!_enabled)
-		{
-			return;
-		}
-		
-		if (((System.currentTimeMillis() - player.getLastAccess()) > getRestartTime()) && ((System.currentTimeMillis() - GameServer.dateTimeServerStarted.getTimeInMillis()) > getRestartAllowedTime()))
-		{
-			player.teleToLocation(TeleportWhereType.TOWN);
-		}
-	}
-	
-	public int getRestartAllowedTime()
-	{
-		return _restartAllowedTime;
-	}
-	
-	public void setRestartAllowedTime(int time)
-	{
-		_restartAllowedTime = time;
-	}
-	
-	public int getRestartTime()
-	{
-		return _restartTime;
-	}
-	
-	public void setRestartTime(int time)
-	{
-		_restartTime = time;
 	}
 }

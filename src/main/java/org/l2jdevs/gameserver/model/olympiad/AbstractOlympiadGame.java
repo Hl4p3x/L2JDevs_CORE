@@ -71,38 +71,43 @@ public abstract class AbstractOlympiadGame
 		_stadiumID = id;
 	}
 	
-	public final boolean isAborted()
+	public static final void rewardParticipant(L2PcInstance player, int[][] reward)
 	{
-		return _aborted;
-	}
-	
-	public final int getStadiumId()
-	{
-		return _stadiumID;
-	}
-	
-	protected boolean makeCompetitionStart()
-	{
-		_startTime = System.currentTimeMillis();
-		return !_aborted;
-	}
-	
-	protected final void addPointsToParticipant(Participant par, int points)
-	{
-		par.updateStat(POINTS, points);
-		final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.C1_HAS_GAINED_S2_OLYMPIAD_POINTS);
-		sm.addString(par.getName());
-		sm.addInt(points);
-		broadcastPacket(sm);
-	}
-	
-	protected final void removePointsFromParticipant(Participant par, int points)
-	{
-		par.updateStat(POINTS, -points);
-		final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.C1_HAS_LOST_S2_OLYMPIAD_POINTS);
-		sm.addString(par.getName());
-		sm.addInt(points);
-		broadcastPacket(sm);
+		if ((player == null) || !player.isOnline() || (reward == null))
+		{
+			return;
+		}
+		
+		try
+		{
+			SystemMessage sm;
+			L2ItemInstance item;
+			final InventoryUpdate iu = new InventoryUpdate();
+			for (int[] it : reward)
+			{
+				if ((it == null) || (it.length != 2))
+				{
+					continue;
+				}
+				
+				item = player.getInventory().addItem("Olympiad", it[0], it[1], player, null);
+				if (item == null)
+				{
+					continue;
+				}
+				
+				iu.addModifiedItem(item);
+				sm = SystemMessage.getSystemMessage(SystemMessageId.EARNED_S2_S1_S);
+				sm.addItemName(it[0]);
+				sm.addInt(it[1]);
+				player.sendPacket(sm);
+			}
+			player.sendPacket(iu);
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, e.getMessage(), e);
+		}
 	}
 	
 	/**
@@ -160,6 +165,118 @@ public abstract class AbstractOlympiadGame
 		}
 		
 		return null;
+	}
+	
+	protected static final void cleanEffects(L2PcInstance player)
+	{
+		try
+		{
+			// prevent players kill each other
+			player.setIsOlympiadStart(false);
+			player.setTarget(null);
+			player.abortAttack();
+			player.abortCast();
+			player.getAI().setIntention(CtrlIntention.AI_INTENTION_IDLE);
+			
+			if (player.isDead())
+			{
+				player.setIsDead(false);
+			}
+			
+			player.stopAllEffectsExceptThoseThatLastThroughDeath();
+			player.clearSouls();
+			player.clearCharges();
+			if (player.getAgathionId() > 0)
+			{
+				player.setAgathionId(0);
+			}
+			final L2Summon summon = player.getSummon();
+			if ((summon != null) && !summon.isDead())
+			{
+				summon.setTarget(null);
+				summon.abortAttack();
+				summon.abortCast();
+				summon.getAI().setIntention(CtrlIntention.AI_INTENTION_IDLE);
+				summon.stopAllEffectsExceptThoseThatLastThroughDeath();
+			}
+			
+			player.setCurrentCp(player.getMaxCp());
+			player.setCurrentHp(player.getMaxHp());
+			player.setCurrentMp(player.getMaxMp());
+			player.getStatus().startHpMpRegeneration();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, e.getMessage(), e);
+		}
+	}
+	
+	protected static final void playerStatusBack(L2PcInstance player)
+	{
+		try
+		{
+			if (player.isTransformed())
+			{
+				player.untransform();
+			}
+			
+			if (player.isInOlympiadMode())
+			{
+				player.sendPacket(new ExOlympiadMode(0));
+			}
+			
+			player.setIsInOlympiadMode(false);
+			player.setIsOlympiadStart(false);
+			player.setOlympiadSide(-1);
+			player.setOlympiadGameId(-1);
+			
+			// Add Clan Skills
+			if (player.getClan() != null)
+			{
+				player.getClan().addSkillEffects(player);
+				if (player.getClan().getCastleId() > 0)
+				{
+					CastleManager.getInstance().getCastleByOwner(player.getClan()).giveResidentialSkills(player);
+				}
+				if (player.getClan().getFortId() > 0)
+				{
+					FortManager.getInstance().getFortByOwner(player.getClan()).giveResidentialSkills(player);
+				}
+				player.sendSkillList();
+			}
+			
+			// heal again after adding clan skills
+			player.setCurrentCp(player.getMaxCp());
+			player.setCurrentHp(player.getMaxHp());
+			player.setCurrentMp(player.getMaxMp());
+			player.getStatus().startHpMpRegeneration();
+			
+			if (Config.L2JMOD_DUALBOX_CHECK_MAX_OLYMPIAD_PARTICIPANTS_PER_IP > 0)
+			{
+				AntiFeedManager.getInstance().removePlayer(AntiFeedManager.OLYMPIAD_ID, player);
+			}
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "portPlayersToArena()", e);
+		}
+	}
+	
+	protected static final void portPlayerBack(L2PcInstance player)
+	{
+		if (player == null)
+		{
+			return;
+		}
+		final Location loc = player.getLastLocation();
+		if ((loc.getX() == 0) && (loc.getY() == 0))
+		{
+			return;
+		}
+		player.setIsPendingRevive(false);
+		player.setInstanceId(0);
+		player.teleToLocation(loc);
+		player.unsetLastLocation();
 	}
 	
 	protected static final boolean portPlayerToArena(Participant par, Location loc, int id)
@@ -296,200 +413,83 @@ public abstract class AbstractOlympiadGame
 		}
 	}
 	
-	protected static final void cleanEffects(L2PcInstance player)
-	{
-		try
-		{
-			// prevent players kill each other
-			player.setIsOlympiadStart(false);
-			player.setTarget(null);
-			player.abortAttack();
-			player.abortCast();
-			player.getAI().setIntention(CtrlIntention.AI_INTENTION_IDLE);
-			
-			if (player.isDead())
-			{
-				player.setIsDead(false);
-			}
-			
-			player.stopAllEffectsExceptThoseThatLastThroughDeath();
-			player.clearSouls();
-			player.clearCharges();
-			if (player.getAgathionId() > 0)
-			{
-				player.setAgathionId(0);
-			}
-			final L2Summon summon = player.getSummon();
-			if ((summon != null) && !summon.isDead())
-			{
-				summon.setTarget(null);
-				summon.abortAttack();
-				summon.abortCast();
-				summon.getAI().setIntention(CtrlIntention.AI_INTENTION_IDLE);
-				summon.stopAllEffectsExceptThoseThatLastThroughDeath();
-			}
-			
-			player.setCurrentCp(player.getMaxCp());
-			player.setCurrentHp(player.getMaxHp());
-			player.setCurrentMp(player.getMaxMp());
-			player.getStatus().startHpMpRegeneration();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, e.getMessage(), e);
-		}
-	}
+	public abstract void broadcastOlympiadInfo(L2OlympiadStadiumZone stadium);
 	
-	protected static final void playerStatusBack(L2PcInstance player)
-	{
-		try
-		{
-			if (player.isTransformed())
-			{
-				player.untransform();
-			}
-			
-			if (player.isInOlympiadMode())
-			{
-				player.sendPacket(new ExOlympiadMode(0));
-			}
-			
-			player.setIsInOlympiadMode(false);
-			player.setIsOlympiadStart(false);
-			player.setOlympiadSide(-1);
-			player.setOlympiadGameId(-1);
-			
-			// Add Clan Skills
-			if (player.getClan() != null)
-			{
-				player.getClan().addSkillEffects(player);
-				if (player.getClan().getCastleId() > 0)
-				{
-					CastleManager.getInstance().getCastleByOwner(player.getClan()).giveResidentialSkills(player);
-				}
-				if (player.getClan().getFortId() > 0)
-				{
-					FortManager.getInstance().getFortByOwner(player.getClan()).giveResidentialSkills(player);
-				}
-				player.sendSkillList();
-			}
-			
-			// heal again after adding clan skills
-			player.setCurrentCp(player.getMaxCp());
-			player.setCurrentHp(player.getMaxHp());
-			player.setCurrentMp(player.getMaxMp());
-			player.getStatus().startHpMpRegeneration();
-			
-			if (Config.L2JMOD_DUALBOX_CHECK_MAX_OLYMPIAD_PARTICIPANTS_PER_IP > 0)
-			{
-				AntiFeedManager.getInstance().removePlayer(AntiFeedManager.OLYMPIAD_ID, player);
-			}
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "portPlayersToArena()", e);
-		}
-	}
+	public abstract boolean containsParticipant(int playerId);
 	
-	protected static final void portPlayerBack(L2PcInstance player)
-	{
-		if (player == null)
-		{
-			return;
-		}
-		final Location loc = player.getLastLocation();
-		if ((loc.getX() == 0) && (loc.getY() == 0))
-		{
-			return;
-		}
-		player.setIsPendingRevive(false);
-		player.setInstanceId(0);
-		player.teleToLocation(loc);
-		player.unsetLastLocation();
-	}
+	public abstract String[] getPlayerNames();
 	
-	public static final void rewardParticipant(L2PcInstance player, int[][] reward)
+	public final int getStadiumId()
 	{
-		if ((player == null) || !player.isOnline() || (reward == null))
-		{
-			return;
-		}
-		
-		try
-		{
-			SystemMessage sm;
-			L2ItemInstance item;
-			final InventoryUpdate iu = new InventoryUpdate();
-			for (int[] it : reward)
-			{
-				if ((it == null) || (it.length != 2))
-				{
-					continue;
-				}
-				
-				item = player.getInventory().addItem("Olympiad", it[0], it[1], player, null);
-				if (item == null)
-				{
-					continue;
-				}
-				
-				iu.addModifiedItem(item);
-				sm = SystemMessage.getSystemMessage(SystemMessageId.EARNED_S2_S1_S);
-				sm.addItemName(it[0]);
-				sm.addInt(it[1]);
-				player.sendPacket(sm);
-			}
-			player.sendPacket(iu);
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, e.getMessage(), e);
-		}
+		return _stadiumID;
 	}
 	
 	public abstract CompetitionType getType();
 	
-	public abstract String[] getPlayerNames();
-	
-	public abstract boolean containsParticipant(int playerId);
+	public final boolean isAborted()
+	{
+		return _aborted;
+	}
 	
 	public abstract void sendOlympiadInfo(L2Character player);
 	
-	public abstract void broadcastOlympiadInfo(L2OlympiadStadiumZone stadium);
+	protected abstract void addDamage(L2PcInstance player, int damage);
+	
+	protected final void addPointsToParticipant(Participant par, int points)
+	{
+		par.updateStat(POINTS, points);
+		final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.C1_HAS_GAINED_S2_OLYMPIAD_POINTS);
+		sm.addString(par.getName());
+		sm.addInt(points);
+		broadcastPacket(sm);
+	}
 	
 	protected abstract void broadcastPacket(L2GameServerPacket packet);
 	
-	protected abstract boolean needBuffers();
+	protected abstract boolean checkBattleStatus();
 	
 	protected abstract boolean checkDefaulted();
 	
-	protected abstract void removals();
-	
-	protected abstract boolean portPlayersToArena(List<Location> spawns);
-	
 	protected abstract void cleanEffects();
 	
-	protected abstract void portPlayersBack();
-	
-	protected abstract void playersStatusBack();
-	
 	protected abstract void clearPlayers();
-	
-	protected abstract void handleDisconnect(L2PcInstance player);
-	
-	protected abstract void resetDamage();
-	
-	protected abstract void addDamage(L2PcInstance player, int damage);
-	
-	protected abstract boolean checkBattleStatus();
-	
-	protected abstract boolean haveWinner();
-	
-	protected abstract void validateWinner(L2OlympiadStadiumZone stadium);
 	
 	protected abstract int getDivider();
 	
 	protected abstract int[][] getReward();
 	
 	protected abstract String getWeeklyMatchType();
+	
+	protected abstract void handleDisconnect(L2PcInstance player);
+	
+	protected abstract boolean haveWinner();
+	
+	protected boolean makeCompetitionStart()
+	{
+		_startTime = System.currentTimeMillis();
+		return !_aborted;
+	}
+	
+	protected abstract boolean needBuffers();
+	
+	protected abstract void playersStatusBack();
+	
+	protected abstract void portPlayersBack();
+	
+	protected abstract boolean portPlayersToArena(List<Location> spawns);
+	
+	protected abstract void removals();
+	
+	protected final void removePointsFromParticipant(Participant par, int points)
+	{
+		par.updateStat(POINTS, -points);
+		final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.C1_HAS_LOST_S2_OLYMPIAD_POINTS);
+		sm.addString(par.getName());
+		sm.addInt(points);
+		broadcastPacket(sm);
+	}
+	
+	protected abstract void resetDamage();
+	
+	protected abstract void validateWinner(L2OlympiadStadiumZone stadium);
 }

@@ -42,6 +42,24 @@ public final class SkillLearnData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of SkillLearnData.
+	 * @return single instance of SkillLearnData
+	 */
+	public static SkillLearnData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * @param npcId
+	 * @return {@link List} of {@link ClassId}'s that this npcId can teach.
+	 */
+	public List<ClassId> getSkillLearnData(int npcId)
+	{
+		return _skillLearn.get(npcId);
+	}
+	
 	@Override
 	public synchronized void load()
 	{
@@ -74,24 +92,6 @@ public final class SkillLearnData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * @param npcId
-	 * @return {@link List} of {@link ClassId}'s that this npcId can teach.
-	 */
-	public List<ClassId> getSkillLearnData(int npcId)
-	{
-		return _skillLearn.get(npcId);
-	}
-	
-	/**
-	 * Gets the single instance of SkillLearnData.
-	 * @return single instance of SkillLearnData
-	 */
-	public static SkillLearnData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

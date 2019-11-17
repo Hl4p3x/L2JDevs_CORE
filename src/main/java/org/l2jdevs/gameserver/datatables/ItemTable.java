@@ -61,11 +61,6 @@ public class ItemTable
 	
 	public static final Map<String, Integer> SLOTS = new HashMap<>();
 	
-	private L2Item[] _allTemplates;
-	private final Map<Integer, L2EtcItem> _etcItems = new HashMap<>();
-	private final Map<Integer, L2Armor> _armors = new HashMap<>();
-	private final Map<Integer, L2Weapon> _weapons = new HashMap<>();
-	
 	static
 	{
 		SLOTS.put("shirt", L2Item.SLOT_UNDERWEAR);
@@ -105,6 +100,16 @@ public class ItemTable
 		SLOTS.put("deco1", L2Item.SLOT_DECO);
 		SLOTS.put("waist", L2Item.SLOT_BELT);
 	}
+	private L2Item[] _allTemplates;
+	private final Map<Integer, L2EtcItem> _etcItems = new HashMap<>();
+	private final Map<Integer, L2Armor> _armors = new HashMap<>();
+	
+	private final Map<Integer, L2Weapon> _weapons = new HashMap<>();
+	
+	protected ItemTable()
+	{
+		load();
+	}
 	
 	/**
 	 * @return a reference to this ItemTable object
@@ -114,85 +119,9 @@ public class ItemTable
 		return SingletonHolder._instance;
 	}
 	
-	protected ItemTable()
+	public L2ItemInstance createItem(String process, int itemId, int count, L2PcInstance actor)
 	{
-		load();
-	}
-	
-	private void load()
-	{
-		int highest = 0;
-		_armors.clear();
-		_etcItems.clear();
-		_weapons.clear();
-		for (L2Item item : DocumentEngine.getInstance().loadItems())
-		{
-			if (highest < item.getId())
-			{
-				highest = item.getId();
-			}
-			if (item instanceof L2EtcItem)
-			{
-				_etcItems.put(item.getId(), (L2EtcItem) item);
-			}
-			else if (item instanceof L2Armor)
-			{
-				_armors.put(item.getId(), (L2Armor) item);
-			}
-			else
-			{
-				_weapons.put(item.getId(), (L2Weapon) item);
-			}
-		}
-		buildFastLookupTable(highest);
-		LOGGER.log(Level.INFO, getClass().getSimpleName() + ": Loaded: " + _etcItems.size() + " Etc Items");
-		LOGGER.log(Level.INFO, getClass().getSimpleName() + ": Loaded: " + _armors.size() + " Armor Items");
-		LOGGER.log(Level.INFO, getClass().getSimpleName() + ": Loaded: " + _weapons.size() + " Weapon Items");
-		LOGGER.log(Level.INFO, getClass().getSimpleName() + ": Loaded: " + (_etcItems.size() + _armors.size() + _weapons.size()) + " Items in total.");
-	}
-	
-	/**
-	 * Builds a variable in which all items are putting in in function of their ID.
-	 * @param size
-	 */
-	private void buildFastLookupTable(int size)
-	{
-		// Create a FastLookUp Table called _allTemplates of size : value of the highest item ID
-		LOGGER.info(getClass().getSimpleName() + ": Highest item id used:" + size);
-		_allTemplates = new L2Item[size + 1];
-		
-		// Insert armor item in Fast Look Up Table
-		for (L2Armor item : _armors.values())
-		{
-			_allTemplates[item.getId()] = item;
-		}
-		
-		// Insert weapon item in Fast Look Up Table
-		for (L2Weapon item : _weapons.values())
-		{
-			_allTemplates[item.getId()] = item;
-		}
-		
-		// Insert etcItem item in Fast Look Up Table
-		for (L2EtcItem item : _etcItems.values())
-		{
-			_allTemplates[item.getId()] = item;
-		}
-	}
-	
-	/**
-	 * Returns the item corresponding to the item ID
-	 * @param id : int designating the item
-	 * @return L2Item
-	 */
-	public L2Item getTemplate(int id)
-	{
-		if ((id >= _allTemplates.length) || (id < 0))
-		{
-			return null;
-		}
-		
-		return _allTemplates[id];
+		return createItem(process, itemId, count, actor, null);
 	}
 	
 	/**
@@ -290,11 +219,6 @@ public class ItemTable
 		return item;
 	}
 	
-	public L2ItemInstance createItem(String process, int itemId, int count, L2PcInstance actor)
-	{
-		return createItem(process, itemId, count, actor, null);
-	}
-	
 	/**
 	 * Destroys the L2ItemInstance.<br>
 	 * <B><U> Actions</U> :</B>
@@ -377,10 +301,101 @@ public class ItemTable
 		}
 	}
 	
+	public Set<Integer> getAllArmorsId()
+	{
+		return _armors.keySet();
+	}
+	
+	public Set<Integer> getAllWeaponsId()
+	{
+		return _weapons.keySet();
+	}
+	
+	public int getArraySize()
+	{
+		return _allTemplates.length;
+	}
+	
+	/**
+	 * Returns the item corresponding to the item ID
+	 * @param id : int designating the item
+	 * @return L2Item
+	 */
+	public L2Item getTemplate(int id)
+	{
+		if ((id >= _allTemplates.length) || (id < 0))
+		{
+			return null;
+		}
+		
+		return _allTemplates[id];
+	}
+	
 	public void reload()
 	{
 		load();
 		EnchantItemHPBonusData.getInstance().load();
+	}
+	
+	/**
+	 * Builds a variable in which all items are putting in in function of their ID.
+	 * @param size
+	 */
+	private void buildFastLookupTable(int size)
+	{
+		// Create a FastLookUp Table called _allTemplates of size : value of the highest item ID
+		LOGGER.info(getClass().getSimpleName() + ": Highest item id used:" + size);
+		_allTemplates = new L2Item[size + 1];
+		
+		// Insert armor item in Fast Look Up Table
+		for (L2Armor item : _armors.values())
+		{
+			_allTemplates[item.getId()] = item;
+		}
+		
+		// Insert weapon item in Fast Look Up Table
+		for (L2Weapon item : _weapons.values())
+		{
+			_allTemplates[item.getId()] = item;
+		}
+		
+		// Insert etcItem item in Fast Look Up Table
+		for (L2EtcItem item : _etcItems.values())
+		{
+			_allTemplates[item.getId()] = item;
+		}
+	}
+	
+	private void load()
+	{
+		int highest = 0;
+		_armors.clear();
+		_etcItems.clear();
+		_weapons.clear();
+		for (L2Item item : DocumentEngine.getInstance().loadItems())
+		{
+			if (highest < item.getId())
+			{
+				highest = item.getId();
+			}
+			if (item instanceof L2EtcItem)
+			{
+				_etcItems.put(item.getId(), (L2EtcItem) item);
+			}
+			else if (item instanceof L2Armor)
+			{
+				_armors.put(item.getId(), (L2Armor) item);
+			}
+			else
+			{
+				_weapons.put(item.getId(), (L2Weapon) item);
+			}
+		}
+		buildFastLookupTable(highest);
+		LOGGER.log(Level.INFO, getClass().getSimpleName() + ": Loaded: " + _etcItems.size() + " Etc Items");
+		LOGGER.log(Level.INFO, getClass().getSimpleName() + ": Loaded: " + _armors.size() + " Armor Items");
+		LOGGER.log(Level.INFO, getClass().getSimpleName() + ": Loaded: " + _weapons.size() + " Weapon Items");
+		LOGGER.log(Level.INFO, getClass().getSimpleName() + ": Loaded: " + (_etcItems.size() + _armors.size() + _weapons.size()) + " Items in total.");
 	}
 	
 	protected static class ResetOwner implements Runnable
@@ -398,21 +413,6 @@ public class ItemTable
 			_item.setOwnerId(0);
 			_item.setItemLootShedule(null);
 		}
-	}
-	
-	public Set<Integer> getAllArmorsId()
-	{
-		return _armors.keySet();
-	}
-	
-	public Set<Integer> getAllWeaponsId()
-	{
-		return _weapons.keySet();
-	}
-	
-	public int getArraySize()
-	{
-		return _allTemplates.length;
 	}
 	
 	private static class SingletonHolder

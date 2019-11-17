@@ -40,6 +40,16 @@ public class L2WalkRoute
 		_repeatWalk = ((_repeatType >= 0) && (_repeatType <= 2)) ? repeat : false;
 	}
 	
+	public boolean doOnce()
+	{
+		return _stopAfterCycle;
+	}
+	
+	public L2NpcWalkerNode getLastNode()
+	{
+		return _nodeList.get(_nodeList.size() - 1);
+	}
+	
 	public String getName()
 	{
 		return _name;
@@ -50,19 +60,9 @@ public class L2WalkRoute
 		return _nodeList;
 	}
 	
-	public L2NpcWalkerNode getLastNode()
+	public int getNodesCount()
 	{
-		return _nodeList.get(_nodeList.size() - 1);
-	}
-	
-	public boolean repeatWalk()
-	{
-		return _repeatWalk;
-	}
-	
-	public boolean doOnce()
-	{
-		return _stopAfterCycle;
+		return _nodeList.size();
 	}
 	
 	public byte getRepeatType()
@@ -70,8 +70,8 @@ public class L2WalkRoute
 		return _repeatType;
 	}
 	
-	public int getNodesCount()
+	public boolean repeatWalk()
 	{
-		return _nodeList.size();
+		return _repeatWalk;
 	}
 }

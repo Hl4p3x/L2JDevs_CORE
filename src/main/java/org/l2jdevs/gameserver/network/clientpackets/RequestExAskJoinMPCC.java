@@ -37,6 +37,12 @@ public final class RequestExAskJoinMPCC extends L2GameClientPacket
 	private String _name;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_06_REQUESTEXASKJOINMPCC;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -180,11 +186,5 @@ public final class RequestExAskJoinMPCC extends L2GameClientPacket
 			sm.addString(targetLeader.getName());
 			requestor.sendPacket(sm);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_06_REQUESTEXASKJOINMPCC;
 	}
 }

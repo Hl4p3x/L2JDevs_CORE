@@ -34,27 +34,6 @@ public final class AbsorberInfo implements IUniqueId
 		_absorbedHp = pAbsorbedHp;
 	}
 	
-	public double getAbsorbedHp()
-	{
-		return _absorbedHp;
-	}
-	
-	public void setAbsorbedHp(double absorbedHp)
-	{
-		_absorbedHp = absorbedHp;
-	}
-	
-	@Override
-	public int getObjectId()
-	{
-		return _objectId;
-	}
-	
-	public void setObjectId(int objectId)
-	{
-		_objectId = objectId;
-	}
-	
 	@Override
 	public final boolean equals(Object obj)
 	{
@@ -71,9 +50,30 @@ public final class AbsorberInfo implements IUniqueId
 		return false;
 	}
 	
+	public double getAbsorbedHp()
+	{
+		return _absorbedHp;
+	}
+	
+	@Override
+	public int getObjectId()
+	{
+		return _objectId;
+	}
+	
 	@Override
 	public final int hashCode()
 	{
 		return _objectId;
+	}
+	
+	public void setAbsorbedHp(double absorbedHp)
+	{
+		_absorbedHp = absorbedHp;
+	}
+	
+	public void setObjectId(int objectId)
+	{
+		_objectId = objectId;
 	}
 }

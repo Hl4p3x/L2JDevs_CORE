@@ -56,70 +56,6 @@ public class TerritoryWard
 		_npc = npc;
 	}
 	
-	public int getTerritoryId()
-	{
-		return _territoryId;
-	}
-	
-	public int getOwnerCastleId()
-	{
-		return _ownerCastleId;
-	}
-	
-	public void setOwnerCastleId(int newOwner)
-	{
-		_ownerCastleId = newOwner;
-	}
-	
-	public L2Npc getNpc()
-	{
-		return _npc;
-	}
-	
-	public void setNpc(L2Npc npc)
-	{
-		_npc = npc;
-	}
-	
-	public L2PcInstance getPlayer()
-	{
-		return _player;
-	}
-	
-	public synchronized void spawnBack()
-	{
-		if (_player != null)
-		{
-			dropIt();
-		}
-		
-		// Init the dropped L2WardInstance and add it in the world as a visible object at the position where last Pc got it
-		_npc = TerritoryWarManager.getInstance().spawnNPC(36491 + _territoryId, _oldLocation);
-	}
-	
-	public synchronized void spawnMe()
-	{
-		if (_player != null)
-		{
-			dropIt();
-		}
-		
-		// Init the dropped L2WardInstance and add it in the world as a visible object at the position where Pc was last
-		_npc = TerritoryWarManager.getInstance().spawnNPC(36491 + _territoryId, _location);
-	}
-	
-	public synchronized void unSpawnMe()
-	{
-		if (_player != null)
-		{
-			dropIt();
-		}
-		if ((_npc != null) && !_npc.isDecayed())
-		{
-			_npc.deleteMe();
-		}
-	}
-	
 	public boolean activate(L2PcInstance player, L2ItemInstance item)
 	{
 		if (player.isMounted())
@@ -189,5 +125,69 @@ public class TerritoryWard
 		_location = new Location(_player.getX(), _player.getY(), _player.getZ(), _player.getHeading());
 		_player = null;
 		playerId = 0;
+	}
+	
+	public L2Npc getNpc()
+	{
+		return _npc;
+	}
+	
+	public int getOwnerCastleId()
+	{
+		return _ownerCastleId;
+	}
+	
+	public L2PcInstance getPlayer()
+	{
+		return _player;
+	}
+	
+	public int getTerritoryId()
+	{
+		return _territoryId;
+	}
+	
+	public void setNpc(L2Npc npc)
+	{
+		_npc = npc;
+	}
+	
+	public void setOwnerCastleId(int newOwner)
+	{
+		_ownerCastleId = newOwner;
+	}
+	
+	public synchronized void spawnBack()
+	{
+		if (_player != null)
+		{
+			dropIt();
+		}
+		
+		// Init the dropped L2WardInstance and add it in the world as a visible object at the position where last Pc got it
+		_npc = TerritoryWarManager.getInstance().spawnNPC(36491 + _territoryId, _oldLocation);
+	}
+	
+	public synchronized void spawnMe()
+	{
+		if (_player != null)
+		{
+			dropIt();
+		}
+		
+		// Init the dropped L2WardInstance and add it in the world as a visible object at the position where Pc was last
+		_npc = TerritoryWarManager.getInstance().spawnNPC(36491 + _territoryId, _location);
+	}
+	
+	public synchronized void unSpawnMe()
+	{
+		if (_player != null)
+		{
+			dropIt();
+		}
+		if ((_npc != null) && !_npc.isDecayed())
+		{
+			_npc.deleteMe();
+		}
 	}
 }

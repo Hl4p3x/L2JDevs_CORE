@@ -30,6 +30,12 @@ public final class RequestTeleportBookMark extends L2GameClientPacket
 	private int id;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_51_04_REQUESTTELEPORTBOOKMARK;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		id = readD();
@@ -44,11 +50,5 @@ public final class RequestTeleportBookMark extends L2GameClientPacket
 			return;
 		}
 		activeChar.teleportBookmarkGo(id);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_51_04_REQUESTTELEPORTBOOKMARK;
 	}
 }

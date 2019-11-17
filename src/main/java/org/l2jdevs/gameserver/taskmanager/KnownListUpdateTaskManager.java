@@ -50,58 +50,9 @@ public class KnownListUpdateTaskManager
 		ThreadPoolManager.getInstance().scheduleAiAtFixedRate(new KnownListUpdate(), 1000, Config.KNOWNLIST_UPDATE_INTERVAL);
 	}
 	
-	private class KnownListUpdate implements Runnable
+	public static KnownListUpdateTaskManager getInstance()
 	{
-		public KnownListUpdate()
-		{
-		}
-		
-		@Override
-		public void run()
-		{
-			try
-			{
-				boolean failed;
-				for (L2WorldRegion regions[] : L2World.getInstance().getWorldRegions())
-				{
-					for (L2WorldRegion r : regions) // go through all world regions
-					{
-						// avoid stopping update if something went wrong in updateRegion()
-						try
-						{
-							failed = FAILED_REGIONS.contains(r); // failed on last pass
-							if (r.isActive()) // and check only if the region is active
-							{
-								updateRegion(r, ((_fullUpdateTimer == FULL_UPDATE_TIMER) || failed), updatePass);
-							}
-							if (failed)
-							{
-								FAILED_REGIONS.remove(r); // if all ok, remove
-							}
-						}
-						catch (Exception e)
-						{
-							_log.log(Level.WARNING, "KnownListUpdateTaskManager: updateRegion(" + _fullUpdateTimer + "," + updatePass + ") failed for region " + r.getName() + ". Full update scheduled. " + e.getMessage(), e);
-							FAILED_REGIONS.add(r);
-						}
-					}
-				}
-				updatePass = !updatePass;
-				
-				if (_fullUpdateTimer > 0)
-				{
-					_fullUpdateTimer--;
-				}
-				else
-				{
-					_fullUpdateTimer = FULL_UPDATE_TIMER;
-				}
-			}
-			catch (Exception e)
-			{
-				_log.log(Level.WARNING, "", e);
-			}
-		}
+		return SingletonHolder._instance;
 	}
 	
 	public void updateRegion(L2WorldRegion region, boolean fullUpdate, boolean forgetObjects)
@@ -154,9 +105,58 @@ public class KnownListUpdateTaskManager
 		}
 	}
 	
-	public static KnownListUpdateTaskManager getInstance()
+	private class KnownListUpdate implements Runnable
 	{
-		return SingletonHolder._instance;
+		public KnownListUpdate()
+		{
+		}
+		
+		@Override
+		public void run()
+		{
+			try
+			{
+				boolean failed;
+				for (L2WorldRegion regions[] : L2World.getInstance().getWorldRegions())
+				{
+					for (L2WorldRegion r : regions) // go through all world regions
+					{
+						// avoid stopping update if something went wrong in updateRegion()
+						try
+						{
+							failed = FAILED_REGIONS.contains(r); // failed on last pass
+							if (r.isActive()) // and check only if the region is active
+							{
+								updateRegion(r, ((_fullUpdateTimer == FULL_UPDATE_TIMER) || failed), updatePass);
+							}
+							if (failed)
+							{
+								FAILED_REGIONS.remove(r); // if all ok, remove
+							}
+						}
+						catch (Exception e)
+						{
+							_log.log(Level.WARNING, "KnownListUpdateTaskManager: updateRegion(" + _fullUpdateTimer + "," + updatePass + ") failed for region " + r.getName() + ". Full update scheduled. " + e.getMessage(), e);
+							FAILED_REGIONS.add(r);
+						}
+					}
+				}
+				updatePass = !updatePass;
+				
+				if (_fullUpdateTimer > 0)
+				{
+					_fullUpdateTimer--;
+				}
+				else
+				{
+					_fullUpdateTimer = FULL_UPDATE_TIMER;
+				}
+			}
+			catch (Exception e)
+			{
+				_log.log(Level.WARNING, "", e);
+			}
+		}
 	}
 	
 	private static class SingletonHolder

@@ -28,14 +28,6 @@ public class EventDrop
 	private final long _maxCount;
 	private final int _dropChance;
 	
-	public EventDrop(int[] itemIdList, long min, long max, int dropChance)
-	{
-		_itemIdList = itemIdList;
-		_minCount = min;
-		_maxCount = max;
-		_dropChance = dropChance;
-	}
-	
 	public EventDrop(int itemId, long minCount, long maxCount, int dropChance)
 	{
 		_itemIdList = new int[]
@@ -47,20 +39,28 @@ public class EventDrop
 		_dropChance = dropChance;
 	}
 	
+	public EventDrop(int[] itemIdList, long min, long max, int dropChance)
+	{
+		_itemIdList = itemIdList;
+		_minCount = min;
+		_maxCount = max;
+		_dropChance = dropChance;
+	}
+	
+	/**
+	 * @return the _dropChance
+	 */
+	public int getDropChance()
+	{
+		return _dropChance;
+	}
+	
 	/**
 	 * @return the _itemId
 	 */
 	public int[] getItemIdList()
 	{
 		return _itemIdList;
-	}
-	
-	/**
-	 * @return the _minCount
-	 */
-	public long getMinCount()
-	{
-		return _minCount;
 	}
 	
 	/**
@@ -72,10 +72,10 @@ public class EventDrop
 	}
 	
 	/**
-	 * @return the _dropChance
+	 * @return the _minCount
 	 */
-	public int getDropChance()
+	public long getMinCount()
 	{
-		return _dropChance;
+		return _minCount;
 	}
 }

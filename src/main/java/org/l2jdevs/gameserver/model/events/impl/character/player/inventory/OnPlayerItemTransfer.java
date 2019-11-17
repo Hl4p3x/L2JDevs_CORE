@@ -45,14 +45,14 @@ public class OnPlayerItemTransfer implements IBaseEvent
 		return _activeChar;
 	}
 	
-	public L2ItemInstance getItem()
-	{
-		return _item;
-	}
-	
 	public ItemContainer getContainer()
 	{
 		return _container;
+	}
+	
+	public L2ItemInstance getItem()
+	{
+		return _item;
 	}
 	
 	@Override

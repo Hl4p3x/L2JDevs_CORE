@@ -42,6 +42,12 @@ public final class RequestMoveToLocationInVehicle extends L2GameClientPacket
 	private int _originZ;
 	
 	@Override
+	public String getType()
+	{
+		return _C__75_MOVETOLOCATIONINVEHICLE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_boatId = readD(); // objectId of boat
@@ -126,11 +132,5 @@ public final class RequestMoveToLocationInVehicle extends L2GameClientPacket
 		final Location originPos = new Location(_originX, _originY, _originZ);
 		activeChar.setInVehiclePosition(pos);
 		activeChar.broadcastPacket(new MoveToLocationInVehicle(activeChar, pos, originPos));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__75_MOVETOLOCATIONINVEHICLE;
 	}
 }

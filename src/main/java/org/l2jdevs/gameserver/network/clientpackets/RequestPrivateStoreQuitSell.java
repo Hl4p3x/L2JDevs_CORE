@@ -30,6 +30,12 @@ public final class RequestPrivateStoreQuitSell extends L2GameClientPacket
 	private static final String _C__96_REQUESTPRIVATESTOREQUITSELL = "[C] 96 RequestPrivateStoreQuitSell";
 	
 	@Override
+	public String getType()
+	{
+		return _C__96_REQUESTPRIVATESTOREQUITSELL;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -47,12 +53,6 @@ public final class RequestPrivateStoreQuitSell extends L2GameClientPacket
 		player.setPrivateStoreType(PrivateStoreType.NONE);
 		player.standUp();
 		player.broadcastUserInfo();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__96_REQUESTPRIVATESTOREQUITSELL;
 	}
 	
 	@Override

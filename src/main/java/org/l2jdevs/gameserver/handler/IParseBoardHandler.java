@@ -31,16 +31,16 @@ public interface IParseBoardHandler
 	public static final Logger LOG = Logger.getLogger(IParseBoardHandler.class.getName());
 	
 	/**
+	 * Gets the community board commands.
+	 * @return the community board commands
+	 */
+	public String[] getCommunityBoardCommands();
+	
+	/**
 	 * Parses a community board command.
 	 * @param command the command
 	 * @param player the player
 	 * @return
 	 */
 	public boolean parseCommunityBoardCommand(String command, L2PcInstance player);
-	
-	/**
-	 * Gets the community board commands.
-	 * @return the community board commands
-	 */
-	public String[] getCommunityBoardCommands();
 }

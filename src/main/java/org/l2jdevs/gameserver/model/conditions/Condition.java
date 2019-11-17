@@ -35,12 +35,11 @@ public abstract class Condition implements ConditionListener
 	private boolean _result;
 	
 	/**
-	 * Sets the message.
-	 * @param msg the new message
+	 * Adds the name.
 	 */
-	public final void setMessage(String msg)
+	public final void addName()
 	{
-		_msg = msg;
+		_addName = true;
 	}
 	
 	/**
@@ -53,29 +52,12 @@ public abstract class Condition implements ConditionListener
 	}
 	
 	/**
-	 * Sets the message id.
-	 * @param msgId the new message id
-	 */
-	public final void setMessageId(int msgId)
-	{
-		_msgId = msgId;
-	}
-	
-	/**
 	 * Gets the message id.
 	 * @return the message id
 	 */
 	public final int getMessageId()
 	{
 		return _msgId;
-	}
-	
-	/**
-	 * Adds the name.
-	 */
-	public final void addName()
-	{
-		_addName = true;
 	}
 	
 	/**
@@ -87,33 +69,41 @@ public abstract class Condition implements ConditionListener
 		return _addName;
 	}
 	
-	/**
-	 * Sets the listener.
-	 * @param listener the new listener
-	 */
-	void setListener(ConditionListener listener)
+	@Override
+	public void notifyChanged()
 	{
-		_listener = listener;
-		notifyChanged();
+		if (_listener != null)
+		{
+			_listener.notifyChanged();
+		}
 	}
 	
 	/**
-	 * Gets the listener.
-	 * @return the listener
+	 * Sets the message.
+	 * @param msg the new message
 	 */
-	final ConditionListener getListener()
+	public final void setMessage(String msg)
 	{
-		return _listener;
+		_msg = msg;
 	}
 	
-	public final boolean test(L2Character caster, L2Character target, Skill skill)
+	/**
+	 * Sets the message id.
+	 * @param msgId the new message id
+	 */
+	public final void setMessageId(int msgId)
 	{
-		return test(caster, target, skill, null);
+		_msgId = msgId;
 	}
 	
 	public final boolean test(L2Character caster, L2Character target, L2Item item)
 	{
 		return test(caster, target, null, null);
+	}
+	
+	public final boolean test(L2Character caster, L2Character target, Skill skill)
+	{
+		return test(caster, target, skill, null);
 	}
 	
 	public final boolean test(L2Character caster, L2Character target, Skill skill, L2Item item)
@@ -137,12 +127,22 @@ public abstract class Condition implements ConditionListener
 	 */
 	public abstract boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item);
 	
-	@Override
-	public void notifyChanged()
+	/**
+	 * Gets the listener.
+	 * @return the listener
+	 */
+	final ConditionListener getListener()
 	{
-		if (_listener != null)
-		{
-			_listener.notifyChanged();
-		}
+		return _listener;
+	}
+	
+	/**
+	 * Sets the listener.
+	 * @param listener the new listener
+	 */
+	void setListener(ConditionListener listener)
+	{
+		_listener = listener;
+		notifyChanged();
 	}
 }

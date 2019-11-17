@@ -49,6 +49,12 @@ public final class RequestDestroyItem extends L2GameClientPacket
 	private long _count;
 	
 	@Override
+	public String getType()
+	{
+		return _C__60_REQUESTDESTROYITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -224,11 +230,5 @@ public final class RequestDestroyItem extends L2GameClientPacket
 		StatusUpdate su = new StatusUpdate(activeChar);
 		su.addAttribute(StatusUpdate.CUR_LOAD, activeChar.getCurrentLoad());
 		activeChar.sendPacket(su);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__60_REQUESTDESTROYITEM;
 	}
 }

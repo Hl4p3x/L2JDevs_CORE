@@ -41,6 +41,12 @@ public final class CharacterDelete extends L2GameClientPacket
 	private int _charSlot;
 	
 	@Override
+	public String getType()
+	{
+		return _C__0C_CHARACTERDELETE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_charSlot = readD();
@@ -90,11 +96,5 @@ public final class CharacterDelete extends L2GameClientPacket
 		CharSelectionInfo cl = new CharSelectionInfo(getClient().getAccountName(), getClient().getSessionId().playOkID1, 0);
 		sendPacket(cl);
 		getClient().setCharSelection(cl.getCharInfo());
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__0C_CHARACTERDELETE;
 	}
 }

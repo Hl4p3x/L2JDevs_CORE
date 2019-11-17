@@ -34,25 +34,6 @@ public class L2CastleDoormenInstance extends L2DoormenInstance
 	}
 	
 	@Override
-	protected final void openDoors(L2PcInstance player, String command)
-	{
-		StringTokenizer st = new StringTokenizer(command.substring(10), ", ");
-		st.nextToken();
-		
-		while (st.hasMoreTokens())
-		{
-			if (getConquerableHall() != null)
-			{
-				getConquerableHall().openCloseDoor(Integer.parseInt(st.nextToken()), true);
-			}
-			else
-			{
-				getCastle().openDoor(player, Integer.parseInt(st.nextToken()));
-			}
-		}
-	}
-	
-	@Override
 	protected final void closeDoors(L2PcInstance player, String command)
 	{
 		StringTokenizer st = new StringTokenizer(command.substring(11), ", ");
@@ -105,5 +86,24 @@ public class L2CastleDoormenInstance extends L2DoormenInstance
 			return hall.isInSiege();
 		}
 		return getCastle().getZone().isActive();
+	}
+	
+	@Override
+	protected final void openDoors(L2PcInstance player, String command)
+	{
+		StringTokenizer st = new StringTokenizer(command.substring(10), ", ");
+		st.nextToken();
+		
+		while (st.hasMoreTokens())
+		{
+			if (getConquerableHall() != null)
+			{
+				getConquerableHall().openCloseDoor(Integer.parseInt(st.nextToken()), true);
+			}
+			else
+			{
+				getCastle().openDoor(player, Integer.parseInt(st.nextToken()));
+			}
+		}
 	}
 }

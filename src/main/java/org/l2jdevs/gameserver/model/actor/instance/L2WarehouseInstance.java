@@ -34,12 +34,6 @@ public class L2WarehouseInstance extends L2NpcInstance
 	}
 	
 	@Override
-	public boolean isWarehouse()
-	{
-		return true;
-	}
-	
-	@Override
 	public String getHtmlPath(int npcId, int val)
 	{
 		String pom = "";
@@ -54,5 +48,11 @@ public class L2WarehouseInstance extends L2NpcInstance
 		}
 		
 		return "data/html/warehouse/" + pom + ".htm";
+	}
+	
+	@Override
+	public boolean isWarehouse()
+	{
+		return true;
 	}
 }

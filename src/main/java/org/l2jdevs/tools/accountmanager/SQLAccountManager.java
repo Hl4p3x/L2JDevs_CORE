@@ -150,43 +150,6 @@ public class SQLAccountManager
 		}
 	}
 	
-	private static void printAccInfo(String m)
-	{
-		int count = 0;
-		String q = "SELECT login, accessLevel FROM accounts ";
-		if (m.equals("1"))
-		{
-			q = q.concat("WHERE accessLevel < 0");
-		}
-		else if (m.equals("2"))
-		{
-			q = q.concat("WHERE accessLevel > 0");
-		}
-		else if (m.equals("3"))
-		{
-			q = q.concat("WHERE accessLevel = 0");
-		}
-		q = q.concat(" ORDER BY login ASC");
-		
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(q);
-			ResultSet rset = ps.executeQuery())
-		{
-			while (rset.next())
-			{
-				System.out.println(rset.getString("login") + " -> " + rset.getInt("accessLevel"));
-				count++;
-			}
-			
-			System.out.println("Displayed accounts: " + count);
-		}
-		catch (SQLException e)
-		{
-			System.out.println("There was error while displaying accounts:");
-			System.out.println(e.getMessage());
-		}
-	}
-	
 	private static void addOrUpdateAccount(String account, String password, String level)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -260,6 +223,43 @@ public class SQLAccountManager
 		catch (SQLException e)
 		{
 			System.out.println("There was error while deleting account:");
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	private static void printAccInfo(String m)
+	{
+		int count = 0;
+		String q = "SELECT login, accessLevel FROM accounts ";
+		if (m.equals("1"))
+		{
+			q = q.concat("WHERE accessLevel < 0");
+		}
+		else if (m.equals("2"))
+		{
+			q = q.concat("WHERE accessLevel > 0");
+		}
+		else if (m.equals("3"))
+		{
+			q = q.concat("WHERE accessLevel = 0");
+		}
+		q = q.concat(" ORDER BY login ASC");
+		
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(q);
+			ResultSet rset = ps.executeQuery())
+		{
+			while (rset.next())
+			{
+				System.out.println(rset.getString("login") + " -> " + rset.getInt("accessLevel"));
+				count++;
+			}
+			
+			System.out.println("Displayed accounts: " + count);
+		}
+		catch (SQLException e)
+		{
+			System.out.println("There was error while displaying accounts:");
 			System.out.println(e.getMessage());
 		}
 	}

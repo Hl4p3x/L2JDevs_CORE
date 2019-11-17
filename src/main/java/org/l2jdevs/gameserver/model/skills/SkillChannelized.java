@@ -31,26 +31,6 @@ public final class SkillChannelized
 {
 	private final Map<Integer, Map<Integer, L2Character>> _channelizers = new ConcurrentHashMap<>();
 	
-	public void addChannelizer(int skillId, L2Character channelizer)
-	{
-		_channelizers.computeIfAbsent(skillId, k -> new ConcurrentHashMap<>()).put(channelizer.getObjectId(), channelizer);
-	}
-	
-	public void removeChannelizer(int skillId, L2Character channelizer)
-	{
-		getChannelizers(skillId).remove(channelizer.getObjectId());
-	}
-	
-	public int getChannerlizersSize(int skillId)
-	{
-		return getChannelizers(skillId).size();
-	}
-	
-	public Map<Integer, L2Character> getChannelizers(int skillId)
-	{
-		return _channelizers.getOrDefault(skillId, Collections.emptyMap());
-	}
-	
 	public void abortChannelization()
 	{
 		for (Map<Integer, L2Character> map : _channelizers.values())
@@ -63,6 +43,21 @@ public final class SkillChannelized
 		_channelizers.clear();
 	}
 	
+	public void addChannelizer(int skillId, L2Character channelizer)
+	{
+		_channelizers.computeIfAbsent(skillId, k -> new ConcurrentHashMap<>()).put(channelizer.getObjectId(), channelizer);
+	}
+	
+	public Map<Integer, L2Character> getChannelizers(int skillId)
+	{
+		return _channelizers.getOrDefault(skillId, Collections.emptyMap());
+	}
+	
+	public int getChannerlizersSize(int skillId)
+	{
+		return getChannelizers(skillId).size();
+	}
+	
 	public boolean isChannelized()
 	{
 		for (Map<Integer, L2Character> map : _channelizers.values())
@@ -73,5 +68,10 @@ public final class SkillChannelized
 			}
 		}
 		return false;
+	}
+	
+	public void removeChannelizer(int skillId, L2Character channelizer)
+	{
+		getChannelizers(skillId).remove(channelizer.getObjectId());
 	}
 }

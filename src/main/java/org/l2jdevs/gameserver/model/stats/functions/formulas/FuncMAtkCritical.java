@@ -31,14 +31,14 @@ public class FuncMAtkCritical extends AbstractFunction
 {
 	private static final FuncMAtkCritical _fac_instance = new FuncMAtkCritical();
 	
-	public static AbstractFunction getInstance()
-	{
-		return _fac_instance;
-	}
-	
 	private FuncMAtkCritical()
 	{
 		super(Stats.MCRITICAL_RATE, 1, null, 0, null);
+	}
+	
+	public static AbstractFunction getInstance()
+	{
+		return _fac_instance;
 	}
 	
 	@Override

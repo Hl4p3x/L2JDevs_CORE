@@ -40,20 +40,27 @@ public abstract class AbstractEventListener implements Comparable<AbstractEventL
 		_owner = owner;
 	}
 	
+	@Override
+	public int compareTo(AbstractEventListener o)
+	{
+		return Integer.compare(o.getPriority(), getPriority());
+	}
+	
+	/**
+	 * Method invoked by EventDispatcher that will use the callback.
+	 * @param <R>
+	 * @param event
+	 * @param returnBackClass
+	 * @return
+	 */
+	public abstract <R extends AbstractEventReturn> R executeEvent(IBaseEvent event, Class<R> returnBackClass);
+	
 	/**
 	 * @return the container on which this listener is being registered (Used to unregister when unloading scripts)
 	 */
 	public ListenersContainer getContainer()
 	{
 		return _container;
-	}
-	
-	/**
-	 * @return the type of event which listener is listening for.
-	 */
-	public EventType getType()
-	{
-		return _type;
 	}
 	
 	/**
@@ -73,6 +80,14 @@ public abstract class AbstractEventListener implements Comparable<AbstractEventL
 	}
 	
 	/**
+	 * @return the type of event which listener is listening for.
+	 */
+	public EventType getType()
+	{
+		return _type;
+	}
+	
+	/**
 	 * Sets priority of execution.
 	 * @param priority
 	 */
@@ -82,25 +97,10 @@ public abstract class AbstractEventListener implements Comparable<AbstractEventL
 	}
 	
 	/**
-	 * Method invoked by EventDispatcher that will use the callback.
-	 * @param <R>
-	 * @param event
-	 * @param returnBackClass
-	 * @return
-	 */
-	public abstract <R extends AbstractEventReturn> R executeEvent(IBaseEvent event, Class<R> returnBackClass);
-	
-	/**
 	 * Unregisters detaches and unregisters current listener.
 	 */
 	public void unregisterMe()
 	{
 		getContainer().removeListener(this);
-	}
-	
-	@Override
-	public int compareTo(AbstractEventListener o)
-	{
-		return Integer.compare(o.getPriority(), getPriority());
 	}
 }

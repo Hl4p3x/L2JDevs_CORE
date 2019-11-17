@@ -41,20 +41,20 @@ public class L2ExtractableSkill
 	}
 	
 	/**
-	 * Gets the skill hash.
-	 * @return the skill hash
-	 */
-	public int getSkillHash()
-	{
-		return _hash;
-	}
-	
-	/**
 	 * Gets the product items.
 	 * @return the product items
 	 */
 	public List<L2ExtractableProductItem> getProductItems()
 	{
 		return _product;
+	}
+	
+	/**
+	 * Gets the skill hash.
+	 * @return the skill hash
+	 */
+	public int getSkillHash()
+	{
+		return _hash;
 	}
 }

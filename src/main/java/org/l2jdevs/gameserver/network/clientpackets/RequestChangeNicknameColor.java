@@ -47,6 +47,12 @@ public class RequestChangeNicknameColor extends L2GameClientPacket
 	private String _title;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_4F_REQUESTCHANGENICKNAMECOLOR;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_colorNum = readD();
@@ -80,11 +86,5 @@ public class RequestChangeNicknameColor extends L2GameClientPacket
 			activeChar.getAppearance().setTitleColor(COLORS[_colorNum]);
 			activeChar.broadcastUserInfo();
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_4F_REQUESTCHANGENICKNAMECOLOR;
 	}
 }

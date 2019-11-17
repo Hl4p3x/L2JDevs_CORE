@@ -29,6 +29,12 @@ public class RequestTutorialLinkHtml extends L2GameClientPacket
 	private String _bypass;
 	
 	@Override
+	public String getType()
+	{
+		return _C__85_REQUESTTUTORIALLINKHTML;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_bypass = readS();
@@ -44,11 +50,5 @@ public class RequestTutorialLinkHtml extends L2GameClientPacket
 		}
 		
 		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerTutorialEvent(player, _bypass), player);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__85_REQUESTTUTORIALLINKHTML;
 	}
 }

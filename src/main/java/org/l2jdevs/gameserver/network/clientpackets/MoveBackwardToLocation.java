@@ -49,6 +49,12 @@ public class MoveBackwardToLocation extends L2GameClientPacket
 	private int _moveMovement;
 	
 	@Override
+	public String getType()
+	{
+		return _C__0F_MOVEBACKWARDTOLOC;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_targetX = readD();
@@ -121,11 +127,5 @@ public class MoveBackwardToLocation extends L2GameClientPacket
 			return;
 		}
 		activeChar.getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, new Location(_targetX, _targetY, _targetZ));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__0F_MOVEBACKWARDTOLOC;
 	}
 }

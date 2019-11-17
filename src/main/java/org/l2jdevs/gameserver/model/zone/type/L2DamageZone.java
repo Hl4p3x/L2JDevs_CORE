@@ -105,6 +105,26 @@ public class L2DamageZone extends L2ZoneType
 		}
 	}
 	
+	protected Castle getCastle()
+	{
+		if ((_castleId > 0) && (_castle == null))
+		{
+			_castle = CastleManager.getInstance().getCastleById(_castleId);
+		}
+		
+		return _castle;
+	}
+	
+	protected int getHPDamagePerSecond()
+	{
+		return _damageHPPerSec;
+	}
+	
+	protected int getMPDamagePerSecond()
+	{
+		return _damageMPPerSec;
+	}
+	
 	@Override
 	protected void onEnter(L2Character character)
 	{
@@ -136,26 +156,6 @@ public class L2DamageZone extends L2ZoneType
 		{
 			getSettings().clear();
 		}
-	}
-	
-	protected int getHPDamagePerSecond()
-	{
-		return _damageHPPerSec;
-	}
-	
-	protected int getMPDamagePerSecond()
-	{
-		return _damageMPPerSec;
-	}
-	
-	protected Castle getCastle()
-	{
-		if ((_castleId > 0) && (_castle == null))
-		{
-			_castle = CastleManager.getInstance().getCastleById(_castleId);
-		}
-		
-		return _castle;
 	}
 	
 	private final class ApplyDamage implements Runnable

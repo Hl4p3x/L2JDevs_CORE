@@ -30,7 +30,7 @@ public interface TeleportBookmarkDAO
 	
 	void insert(L2PcInstance player, int id, int x, int y, int z, int icon, String tag, String name);
 	
-	void update(L2PcInstance player, int id, int icon, String tag, String name);
-	
 	void load(L2PcInstance player);
+	
+	void update(L2PcInstance player, int id, int icon, String tag, String name);
 }

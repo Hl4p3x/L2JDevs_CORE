@@ -54,6 +54,23 @@ public class L2AccessLevel
 	/** Flag to gain exp in party */
 	private boolean _gainExp = false;
 	
+	public L2AccessLevel()
+	{
+		_accessLevel = 0;
+		_name = "User";
+		_nameColor = Integer.decode("0xFFFFFF");
+		_titleColor = Integer.decode("0xFFFFFF");
+		_child = 0;
+		_isGm = false;
+		_allowPeaceAttack = false;
+		_allowFixedRes = false;
+		_allowTransaction = true;
+		_allowAltG = false;
+		_giveDamage = true;
+		_takeAggro = true;
+		_gainExp = true;
+	}
+	
 	public L2AccessLevel(StatsSet set)
 	{
 		_accessLevel = set.getInt("level");
@@ -71,21 +88,67 @@ public class L2AccessLevel
 		_gainExp = set.getBoolean("gainExp", true);
 	}
 	
-	public L2AccessLevel()
+	/**
+	 * Verifies if the access level is allowed to use AltG commands or not.
+	 * @return {@ode true} if access level is allowed to use AltG commands, otherwise {@code false}
+	 */
+	public boolean allowAltG()
 	{
-		_accessLevel = 0;
-		_name = "User";
-		_nameColor = Integer.decode("0xFFFFFF");
-		_titleColor = Integer.decode("0xFFFFFF");
-		_child = 0;
-		_isGm = false;
-		_allowPeaceAttack = false;
-		_allowFixedRes = false;
-		_allowTransaction = true;
-		_allowAltG = false;
-		_giveDamage = true;
-		_takeAggro = true;
-		_gainExp = true;
+		return _allowAltG;
+	}
+	
+	/**
+	 * Verifies if the access level is allowed to use fixed resurrection or not.
+	 * @return {@ode true} if the access level is allowed to use fixed resurrection, otherwise {@code false}
+	 */
+	public boolean allowFixedRes()
+	{
+		return _allowFixedRes;
+	}
+	
+	/**
+	 * Verifies if the access level is allowed to attack in peace zone or not.
+	 * @return {@code true} if the access level is allowed to attack in peace zone, otherwise {@code false}
+	 */
+	public boolean allowPeaceAttack()
+	{
+		return _allowPeaceAttack;
+	}
+	
+	/**
+	 * Verifies if the access level is allowed to perform transactions or not.
+	 * @return {@ode true} if access level is allowed to perform transactions, otherwise {@code false}
+	 */
+	public boolean allowTransaction()
+	{
+		return _allowTransaction;
+	}
+	
+	/**
+	 * Verifies if the access level can gain exp or not.
+	 * @return {@ode true} if the access level can gain exp, otherwise {@code false}
+	 */
+	public boolean canGainExp()
+	{
+		return _gainExp;
+	}
+	
+	/**
+	 * Verifies if the access level can give damage or not.
+	 * @return {@ode true} if the access level can give damage, otherwise {@code false}
+	 */
+	public boolean canGiveDamage()
+	{
+		return _giveDamage;
+	}
+	
+	/**
+	 * Verifies if the access level can take aggro or not.
+	 * @return {@ode true} if the access level can take aggro, otherwise {@code false}
+	 */
+	public boolean canTakeAggro()
+	{
+		return _takeAggro;
 	}
 	
 	/**
@@ -125,78 +188,6 @@ public class L2AccessLevel
 	}
 	
 	/**
-	 * Verifies if the access level has GM access or not.
-	 * @return {@code true} if access level have GM access, otherwise {@code false}
-	 */
-	public boolean isGm()
-	{
-		return _isGm;
-	}
-	
-	/**
-	 * Verifies if the access level is allowed to attack in peace zone or not.
-	 * @return {@code true} if the access level is allowed to attack in peace zone, otherwise {@code false}
-	 */
-	public boolean allowPeaceAttack()
-	{
-		return _allowPeaceAttack;
-	}
-	
-	/**
-	 * Verifies if the access level is allowed to use fixed resurrection or not.
-	 * @return {@ode true} if the access level is allowed to use fixed resurrection, otherwise {@code false}
-	 */
-	public boolean allowFixedRes()
-	{
-		return _allowFixedRes;
-	}
-	
-	/**
-	 * Verifies if the access level is allowed to perform transactions or not.
-	 * @return {@ode true} if access level is allowed to perform transactions, otherwise {@code false}
-	 */
-	public boolean allowTransaction()
-	{
-		return _allowTransaction;
-	}
-	
-	/**
-	 * Verifies if the access level is allowed to use AltG commands or not.
-	 * @return {@ode true} if access level is allowed to use AltG commands, otherwise {@code false}
-	 */
-	public boolean allowAltG()
-	{
-		return _allowAltG;
-	}
-	
-	/**
-	 * Verifies if the access level can give damage or not.
-	 * @return {@ode true} if the access level can give damage, otherwise {@code false}
-	 */
-	public boolean canGiveDamage()
-	{
-		return _giveDamage;
-	}
-	
-	/**
-	 * Verifies if the access level can take aggro or not.
-	 * @return {@ode true} if the access level can take aggro, otherwise {@code false}
-	 */
-	public boolean canTakeAggro()
-	{
-		return _takeAggro;
-	}
-	
-	/**
-	 * Verifies if the access level can gain exp or not.
-	 * @return {@ode true} if the access level can gain exp, otherwise {@code false}
-	 */
-	public boolean canGainExp()
-	{
-		return _gainExp;
-	}
-	
-	/**
 	 * Returns if the access level contains allowedAccess as child.
 	 * @param accessLevel the parent access level
 	 * @return {@ode true} if a child access level is equals to allowedAccess, otherwise {@code false}
@@ -213,5 +204,14 @@ public class L2AccessLevel
 			_childsAccessLevel = AdminData.getInstance().getAccessLevel(_child);
 		}
 		return ((_childsAccessLevel.getLevel() == accessLevel.getLevel()) || _childsAccessLevel.hasChildAccess(accessLevel));
+	}
+	
+	/**
+	 * Verifies if the access level has GM access or not.
+	 * @return {@code true} if access level have GM access, otherwise {@code false}
+	 */
+	public boolean isGm()
+	{
+		return _isGm;
 	}
 }

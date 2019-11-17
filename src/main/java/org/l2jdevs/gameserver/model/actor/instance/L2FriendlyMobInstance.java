@@ -53,6 +53,12 @@ public class L2FriendlyMobInstance extends L2Attackable
 	}
 	
 	@Override
+	public boolean isAggressive()
+	{
+		return true;
+	}
+	
+	@Override
 	public boolean isAutoAttackable(L2Character attacker)
 	{
 		if (attacker instanceof L2PcInstance)
@@ -60,11 +66,5 @@ public class L2FriendlyMobInstance extends L2Attackable
 			return ((L2PcInstance) attacker).getKarma() > 0;
 		}
 		return false;
-	}
-	
-	@Override
-	public boolean isAggressive()
-	{
-		return true;
 	}
 }

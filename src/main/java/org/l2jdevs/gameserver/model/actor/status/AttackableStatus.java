@@ -29,6 +29,12 @@ public class AttackableStatus extends NpcStatus
 	}
 	
 	@Override
+	public L2Attackable getActiveChar()
+	{
+		return (L2Attackable) super.getActiveChar();
+	}
+	
+	@Override
 	public final void reduceHp(double value, L2Character attacker)
 	{
 		reduceHp(value, attacker, true, false, false);
@@ -65,11 +71,5 @@ public class AttackableStatus extends NpcStatus
 			// And the attacker's hit didn't kill the mob, clear the over-hit flag
 			getActiveChar().overhitEnabled(false);
 		}
-	}
-	
-	@Override
-	public L2Attackable getActiveChar()
-	{
-		return (L2Attackable) super.getActiveChar();
 	}
 }

@@ -46,13 +46,13 @@ public final class RelationChanged extends L2GameServerPacket
 	public static final int RELATION_ALLY_MEMBER = 0x10000; // clan is in alliance
 	public static final int RELATION_TERRITORY_WAR = 0x80000; // show Territory War icon
 	
-	protected static class Relation
-	{
-		int _objId, _relation, _autoAttackable, _karma, _pvpFlag;
-	}
-	
 	private Relation _singled;
+	
 	private List<Relation> _multi;
+	public RelationChanged()
+	{
+		_multi = new ArrayList<>();
+	}
 	
 	public RelationChanged(L2Playable activeChar, int relation, boolean autoattackable)
 	{
@@ -63,11 +63,6 @@ public final class RelationChanged extends L2GameServerPacket
 		_singled._karma = activeChar.getKarma();
 		_singled._pvpFlag = activeChar.getPvpFlag();
 		setInvisible(activeChar.isInvisible());
-	}
-	
-	public RelationChanged()
-	{
-		_multi = new ArrayList<>();
 	}
 	
 	public void addRelation(L2Playable activeChar, int relation, boolean autoattackable)
@@ -111,5 +106,10 @@ public final class RelationChanged extends L2GameServerPacket
 		writeD(relation._autoAttackable);
 		writeD(relation._karma);
 		writeD(relation._pvpFlag);
+	}
+	
+	protected static class Relation
+	{
+		int _objId, _relation, _autoAttackable, _karma, _pvpFlag;
 	}
 }

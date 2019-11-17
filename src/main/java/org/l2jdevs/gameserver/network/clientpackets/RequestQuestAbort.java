@@ -36,6 +36,12 @@ public final class RequestQuestAbort extends L2GameClientPacket
 	private int _questId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__63_REQUESTQUESTABORT;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_questId = readD();
@@ -74,11 +80,5 @@ public final class RequestQuestAbort extends L2GameClientPacket
 				_log.warning("Quest (id='" + _questId + "') not found.");
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__63_REQUESTQUESTABORT;
 	}
 }

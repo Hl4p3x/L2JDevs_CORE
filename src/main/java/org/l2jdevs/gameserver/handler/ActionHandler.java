@@ -30,26 +30,14 @@ public class ActionHandler implements IHandler<IActionHandler, InstanceType>
 {
 	private final Map<InstanceType, IActionHandler> _actions;
 	
-	public static ActionHandler getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
 	protected ActionHandler()
 	{
 		_actions = new HashMap<>();
 	}
 	
-	@Override
-	public void registerHandler(IActionHandler handler)
+	public static ActionHandler getInstance()
 	{
-		_actions.put(handler.getInstanceType(), handler);
-	}
-	
-	@Override
-	public synchronized void removeHandler(IActionHandler handler)
-	{
-		_actions.remove(handler.getInstanceType());
+		return SingletonHolder._instance;
 	}
 	
 	@Override
@@ -65,6 +53,18 @@ public class ActionHandler implements IHandler<IActionHandler, InstanceType>
 			}
 		}
 		return result;
+	}
+	
+	@Override
+	public void registerHandler(IActionHandler handler)
+	{
+		_actions.put(handler.getInstanceType(), handler);
+	}
+	
+	@Override
+	public synchronized void removeHandler(IActionHandler handler)
+	{
+		_actions.remove(handler.getInstanceType());
 	}
 	
 	@Override

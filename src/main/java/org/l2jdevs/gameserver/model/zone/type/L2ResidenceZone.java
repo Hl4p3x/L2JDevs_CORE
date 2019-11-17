@@ -45,13 +45,13 @@ public abstract class L2ResidenceZone extends L2ZoneRespawn
 		}
 	}
 	
-	protected void setResidenceId(int residenceId)
-	{
-		_residenceId = residenceId;
-	}
-	
 	public int getResidenceId()
 	{
 		return _residenceId;
+	}
+	
+	protected void setResidenceId(int residenceId)
+	{
+		_residenceId = residenceId;
 	}
 }

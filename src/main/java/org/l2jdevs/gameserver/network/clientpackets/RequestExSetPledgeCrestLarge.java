@@ -38,6 +38,12 @@ public final class RequestExSetPledgeCrestLarge extends L2GameClientPacket
 	private byte[] _data = null;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_11_REQUESTEXSETPLEDGECRESTLARGE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_length = readD();
@@ -107,11 +113,5 @@ public final class RequestExSetPledgeCrestLarge extends L2GameClientPacket
 			}
 		}
 		
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_11_REQUESTEXSETPLEDGECRESTLARGE;
 	}
 }

@@ -34,6 +34,12 @@ public final class RequestInfoItemAuction extends L2GameClientPacket
 	private int _instanceId;
 	
 	@Override
+	public final String getType()
+	{
+		return _C__D0_3A_REQUESTINFOITEMAUCTION;
+	}
+	
+	@Override
 	protected final void readImpl()
 	{
 		_instanceId = super.readD();
@@ -67,11 +73,5 @@ public final class RequestInfoItemAuction extends L2GameClientPacket
 		
 		activeChar.updateLastItemAuctionRequest();
 		activeChar.sendPacket(new ExItemAuctionInfoPacket(true, auction, instance.getNextAuction()));
-	}
-	
-	@Override
-	public final String getType()
-	{
-		return _C__D0_3A_REQUESTINFOITEMAUCTION;
 	}
 }

@@ -57,12 +57,45 @@ public class PcAppearance
 		_sex = sex;
 	}
 	
-	/**
-	 * @param visibleName The visibleName to set.
-	 */
-	public final void setVisibleName(String visibleName)
+	public final byte getFace()
 	{
-		_visibleName = visibleName;
+		return _face;
+	}
+	
+	public final byte getHairColor()
+	{
+		return _hairColor;
+	}
+	
+	public final byte getHairStyle()
+	{
+		return _hairStyle;
+	}
+	
+	public int getNameColor()
+	{
+		return _nameColor;
+	}
+	
+	/**
+	 * @return Returns the owner.
+	 */
+	public L2PcInstance getOwner()
+	{
+		return _owner;
+	}
+	
+	/**
+	 * @return true if char is female
+	 */
+	public final boolean getSex()
+	{
+		return _sex;
+	}
+	
+	public int getTitleColor()
+	{
+		return _titleColor;
 	}
 	
 	/**
@@ -78,14 +111,6 @@ public class PcAppearance
 	}
 	
 	/**
-	 * @param visibleTitle The visibleTitle to set.
-	 */
-	public final void setVisibleTitle(String visibleTitle)
-	{
-		_visibleTitle = visibleTitle;
-	}
-	
-	/**
 	 * @return Returns the visibleTitle.
 	 */
 	public final String getVisibleTitle()
@@ -97,9 +122,9 @@ public class PcAppearance
 		return _visibleTitle;
 	}
 	
-	public final byte getFace()
+	public boolean isGhost()
 	{
-		return _face;
+		return _ghostmode;
 	}
 	
 	/**
@@ -110,9 +135,9 @@ public class PcAppearance
 		_face = (byte) value;
 	}
 	
-	public final byte getHairColor()
+	public void setGhostMode(boolean b)
 	{
-		return _hairColor;
+		_ghostmode = b;
 	}
 	
 	/**
@@ -123,48 +148,12 @@ public class PcAppearance
 		_hairColor = (byte) value;
 	}
 	
-	public final byte getHairStyle()
-	{
-		return _hairStyle;
-	}
-	
 	/**
 	 * @param value
 	 */
 	public final void setHairStyle(int value)
 	{
 		_hairStyle = (byte) value;
-	}
-	
-	/**
-	 * @return true if char is female
-	 */
-	public final boolean getSex()
-	{
-		return _sex;
-	}
-	
-	/**
-	 * @param isfemale
-	 */
-	public final void setSex(boolean isfemale)
-	{
-		_sex = isfemale;
-	}
-	
-	public void setGhostMode(boolean b)
-	{
-		_ghostmode = b;
-	}
-	
-	public boolean isGhost()
-	{
-		return _ghostmode;
-	}
-	
-	public int getNameColor()
-	{
-		return _nameColor;
 	}
 	
 	public void setNameColor(int nameColor)
@@ -182,9 +171,20 @@ public class PcAppearance
 		_nameColor = (red & 0xFF) + ((green & 0xFF) << 8) + ((blue & 0xFF) << 16);
 	}
 	
-	public int getTitleColor()
+	/**
+	 * @param owner The owner to set.
+	 */
+	public void setOwner(L2PcInstance owner)
 	{
-		return _titleColor;
+		_owner = owner;
+	}
+	
+	/**
+	 * @param isfemale
+	 */
+	public final void setSex(boolean isfemale)
+	{
+		_sex = isfemale;
 	}
 	
 	public void setTitleColor(int titleColor)
@@ -203,18 +203,18 @@ public class PcAppearance
 	}
 	
 	/**
-	 * @param owner The owner to set.
+	 * @param visibleName The visibleName to set.
 	 */
-	public void setOwner(L2PcInstance owner)
+	public final void setVisibleName(String visibleName)
 	{
-		_owner = owner;
+		_visibleName = visibleName;
 	}
 	
 	/**
-	 * @return Returns the owner.
+	 * @param visibleTitle The visibleTitle to set.
 	 */
-	public L2PcInstance getOwner()
+	public final void setVisibleTitle(String visibleTitle)
 	{
-		return _owner;
+		_visibleTitle = visibleTitle;
 	}
 }

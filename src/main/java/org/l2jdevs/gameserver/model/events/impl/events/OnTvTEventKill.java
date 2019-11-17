@@ -44,11 +44,6 @@ public class OnTvTEventKill implements IBaseEvent
 		return _killer;
 	}
 	
-	public L2PcInstance getVictim()
-	{
-		return _victim;
-	}
-	
 	public TvTEventTeam getKillerTeam()
 	{
 		return _killerTeam;
@@ -58,5 +53,10 @@ public class OnTvTEventKill implements IBaseEvent
 	public EventType getType()
 	{
 		return EventType.ON_TVT_EVENT_KILL;
+	}
+	
+	public L2PcInstance getVictim()
+	{
+		return _victim;
 	}
 }

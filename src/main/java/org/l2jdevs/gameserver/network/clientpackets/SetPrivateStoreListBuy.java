@@ -45,6 +45,12 @@ public final class SetPrivateStoreListBuy extends L2GameClientPacket
 	private Item[] _items = null;
 	
 	@Override
+	public String getType()
+	{
+		return _C__9A_SETPRIVATESTORELISTBUY;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		int count = readD();
@@ -185,11 +191,5 @@ public final class SetPrivateStoreListBuy extends L2GameClientPacket
 		{
 			return _count * _price;
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__9A_SETPRIVATESTORELISTBUY;
 	}
 }

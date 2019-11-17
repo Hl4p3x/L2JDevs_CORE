@@ -24,24 +24,9 @@ package org.l2jdevs.util;
  */
 public final class EnumIntBitmask<E extends Enum<E>> implements Cloneable
 {
-	public static <E extends Enum<E>> int getAllBitmask(Class<E> enumClass)
-	{
-		int allBitmask = 0;
-		E[] values = enumClass.getEnumConstants();
-		if (values.length > 32)
-		{
-			throw new IllegalArgumentException("Enum too big for an integer bitmask.");
-		}
-		for (E value : values)
-		{
-			allBitmask |= 1 << value.ordinal();
-		}
-		return allBitmask;
-	}
-	
 	private final Class<E> _enumClass;
-	private int _bitmask;
 	
+	private int _bitmask;
 	public EnumIntBitmask(Class<E> enumClass, boolean all)
 	{
 		_enumClass = enumClass;
@@ -68,36 +53,19 @@ public final class EnumIntBitmask<E extends Enum<E>> implements Cloneable
 		_bitmask = bitmask;
 	}
 	
-	public void setAll()
+	public static <E extends Enum<E>> int getAllBitmask(Class<E> enumClass)
 	{
-		set(_enumClass.getEnumConstants());
-	}
-	
-	public void clear()
-	{
-		_bitmask = 0;
-	}
-	
-	@SafeVarargs
-	public final void set(E... many)
-	{
-		clear();
-		for (E one : many)
+		int allBitmask = 0;
+		E[] values = enumClass.getEnumConstants();
+		if (values.length > 32)
 		{
-			_bitmask |= 1 << one.ordinal();
+			throw new IllegalArgumentException("Enum too big for an integer bitmask.");
 		}
-	}
-	
-	@SafeVarargs
-	public final void set(E first, E... more)
-	{
-		clear();
-		add(first, more);
-	}
-	
-	public void setBitmask(int bitmask)
-	{
-		_bitmask = bitmask;
+		for (E value : values)
+		{
+			allBitmask |= 1 << value.ordinal();
+		}
+		return allBitmask;
 	}
 	
 	@SafeVarargs
@@ -113,17 +81,20 @@ public final class EnumIntBitmask<E extends Enum<E>> implements Cloneable
 		}
 	}
 	
-	@SafeVarargs
-	public final void remove(E first, E... more)
+	public void clear()
 	{
-		_bitmask &= ~(1 << first.ordinal());
-		if (more != null)
-		{
-			for (E one : more)
-			{
-				_bitmask &= ~(1 << one.ordinal());
-			}
-		}
+		_bitmask = 0;
+	}
+	
+	@Override
+	public EnumIntBitmask<E> clone()
+	{
+		return new EnumIntBitmask<>(_enumClass, _bitmask);
+	}
+	
+	public int getBitmask()
+	{
+		return _bitmask;
 	}
 	
 	@SafeVarargs
@@ -144,14 +115,43 @@ public final class EnumIntBitmask<E extends Enum<E>> implements Cloneable
 		return true;
 	}
 	
-	@Override
-	public EnumIntBitmask<E> clone()
+	@SafeVarargs
+	public final void remove(E first, E... more)
 	{
-		return new EnumIntBitmask<>(_enumClass, _bitmask);
+		_bitmask &= ~(1 << first.ordinal());
+		if (more != null)
+		{
+			for (E one : more)
+			{
+				_bitmask &= ~(1 << one.ordinal());
+			}
+		}
 	}
 	
-	public int getBitmask()
+	@SafeVarargs
+	public final void set(E... many)
 	{
-		return _bitmask;
+		clear();
+		for (E one : many)
+		{
+			_bitmask |= 1 << one.ordinal();
+		}
+	}
+	
+	@SafeVarargs
+	public final void set(E first, E... more)
+	{
+		clear();
+		add(first, more);
+	}
+	
+	public void setAll()
+	{
+		set(_enumClass.getEnumConstants());
+	}
+	
+	public void setBitmask(int bitmask)
+	{
+		_bitmask = bitmask;
 	}
 }

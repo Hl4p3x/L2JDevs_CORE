@@ -35,11 +35,11 @@ public class RangeChanceHolder
 	}
 	
 	/**
-	 * @return minimum value.
+	 * @return the chance.
 	 */
-	public int getMin()
+	public double getChance()
 	{
-		return _min;
+		return _chance;
 	}
 	
 	/**
@@ -51,10 +51,10 @@ public class RangeChanceHolder
 	}
 	
 	/**
-	 * @return the chance.
+	 * @return minimum value.
 	 */
-	public double getChance()
+	public int getMin()
 	{
-		return _chance;
+		return _min;
 	}
 }

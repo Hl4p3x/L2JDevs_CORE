@@ -47,6 +47,12 @@ public final class SendWareHouseWithDrawList extends L2GameClientPacket
 	private ItemHolder _items[] = null;
 	
 	@Override
+	public String getType()
+	{
+		return _C__32_SENDWAREHOUSEWITHDRAWLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		final int count = readD();
@@ -211,11 +217,5 @@ public final class SendWareHouseWithDrawList extends L2GameClientPacket
 		StatusUpdate su = new StatusUpdate(player);
 		su.addAttribute(StatusUpdate.CUR_LOAD, player.getCurrentLoad());
 		player.sendPacket(su);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__32_SENDWAREHOUSEWITHDRAWLIST;
 	}
 }

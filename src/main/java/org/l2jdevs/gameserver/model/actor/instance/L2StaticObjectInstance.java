@@ -59,7 +59,23 @@ public final class L2StaticObjectInstance extends L2Character
 	}
 	
 	@Override
-	protected L2CharacterAI initAI()
+	public void doAttack(L2Character target)
+	{
+	}
+	
+	@Override
+	public void doCast(Skill skill)
+	{
+	}
+	
+	@Override
+	public L2ItemInstance getActiveWeaponInstance()
+	{
+		return null;
+	}
+	
+	@Override
+	public L2Weapon getActiveWeaponItem()
 	{
 		return null;
 	}
@@ -81,48 +97,9 @@ public final class L2StaticObjectInstance extends L2Character
 	}
 	
 	@Override
-	public void initKnownList()
+	public final int getLevel()
 	{
-		setKnownList(new StaticObjectKnownList(this));
-	}
-	
-	@Override
-	public final StaticObjStat getStat()
-	{
-		return (StaticObjStat) super.getStat();
-	}
-	
-	@Override
-	public void initCharStat()
-	{
-		setStat(new StaticObjStat(this));
-	}
-	
-	@Override
-	public final StaticObjStatus getStatus()
-	{
-		return (StaticObjStatus) super.getStatus();
-	}
-	
-	@Override
-	public void initCharStatus()
-	{
-		setStatus(new StaticObjStatus(this));
-	}
-	
-	public int getType()
-	{
-		return _type;
-	}
-	
-	public void setType(int type)
-	{
-		_type = type;
-	}
-	
-	public void setMap(String texture, int x, int y)
-	{
-		_map = new ShowTownMap("town_map." + texture, x, y);
+		return 1;
 	}
 	
 	public ShowTownMap getMap()
@@ -130,22 +107,17 @@ public final class L2StaticObjectInstance extends L2Character
 		return _map;
 	}
 	
-	@Override
-	public final int getLevel()
+	/**
+	 * <B><U> Values </U> :</B>
+	 * <ul>
+	 * <li>default textures : 0</li>
+	 * <li>alternate textures : 1</li>
+	 * </ul>
+	 * @return the meshIndex of the object
+	 */
+	public int getMeshIndex()
 	{
-		return 1;
-	}
-	
-	@Override
-	public L2ItemInstance getActiveWeaponInstance()
-	{
-		return null;
-	}
-	
-	@Override
-	public L2Weapon getActiveWeaponItem()
-	{
-		return null;
+		return _meshIndex;
 	}
 	
 	@Override
@@ -161,9 +133,60 @@ public final class L2StaticObjectInstance extends L2Character
 	}
 	
 	@Override
+	public final StaticObjStat getStat()
+	{
+		return (StaticObjStat) super.getStat();
+	}
+	
+	@Override
+	public final StaticObjStatus getStatus()
+	{
+		return (StaticObjStatus) super.getStatus();
+	}
+	
+	public int getType()
+	{
+		return _type;
+	}
+	
+	@Override
+	public void initCharStat()
+	{
+		setStat(new StaticObjStat(this));
+	}
+	
+	@Override
+	public void initCharStatus()
+	{
+		setStatus(new StaticObjStatus(this));
+	}
+	
+	@Override
+	public void initKnownList()
+	{
+		setKnownList(new StaticObjectKnownList(this));
+	}
+	
+	@Override
 	public boolean isAutoAttackable(L2Character attacker)
 	{
 		return false;
+	}
+	
+	@Override
+	public void moveToLocation(int x, int y, int z, int offset)
+	{
+	}
+	
+	@Override
+	public void sendInfo(L2PcInstance activeChar)
+	{
+		activeChar.sendPacket(new StaticObject(this));
+	}
+	
+	public void setMap(String texture, int x, int y)
+	{
+		_map = new ShowTownMap("town_map." + texture, x, y);
 	}
 	
 	/**
@@ -181,33 +204,9 @@ public final class L2StaticObjectInstance extends L2Character
 		this.broadcastPacket(new StaticObject(this));
 	}
 	
-	/**
-	 * <B><U> Values </U> :</B>
-	 * <ul>
-	 * <li>default textures : 0</li>
-	 * <li>alternate textures : 1</li>
-	 * </ul>
-	 * @return the meshIndex of the object
-	 */
-	public int getMeshIndex()
+	public void setType(int type)
 	{
-		return _meshIndex;
-	}
-	
-	@Override
-	public void updateAbnormalEffect()
-	{
-	}
-	
-	@Override
-	public void sendInfo(L2PcInstance activeChar)
-	{
-		activeChar.sendPacket(new StaticObject(this));
-	}
-	
-	@Override
-	public void moveToLocation(int x, int y, int z, int offset)
-	{
+		_type = type;
 	}
 	
 	@Override
@@ -216,12 +215,13 @@ public final class L2StaticObjectInstance extends L2Character
 	}
 	
 	@Override
-	public void doAttack(L2Character target)
+	public void updateAbnormalEffect()
 	{
 	}
 	
 	@Override
-	public void doCast(Skill skill)
+	protected L2CharacterAI initAI()
 	{
+		return null;
 	}
 }

@@ -56,23 +56,6 @@ public class L2NpcInstance extends L2Npc
 		setIsInvul(false);
 	}
 	
-	@Override
-	public FolkStatus getStatus()
-	{
-		return (FolkStatus) super.getStatus();
-	}
-	
-	@Override
-	public void initCharStatus()
-	{
-		setStatus(new FolkStatus(this));
-	}
-	
-	public List<ClassId> getClassesToTeach()
-	{
-		return getTemplate().getTeachInfo();
-	}
-	
 	/**
 	 * Displays Skill Tree for a given player, npc and class Id.
 	 * @param player the active character.
@@ -182,5 +165,22 @@ public class L2NpcInstance extends L2Npc
 		{
 			player.sendPacket(asl);
 		}
+	}
+	
+	public List<ClassId> getClassesToTeach()
+	{
+		return getTemplate().getTeachInfo();
+	}
+	
+	@Override
+	public FolkStatus getStatus()
+	{
+		return (FolkStatus) super.getStatus();
+	}
+	
+	@Override
+	public void initCharStatus()
+	{
+		setStatus(new FolkStatus(this));
 	}
 }

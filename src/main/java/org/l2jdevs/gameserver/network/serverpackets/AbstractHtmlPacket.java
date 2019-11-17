@@ -51,12 +51,6 @@ public abstract class AbstractHtmlPacket extends L2GameServerPacket
 		_npcObjId = npcObjId;
 	}
 	
-	protected AbstractHtmlPacket(String html)
-	{
-		_npcObjId = 0;
-		setHtml(html);
-	}
-	
 	protected AbstractHtmlPacket(int npcObjId, String html)
 	{
 		if (npcObjId < 0)
@@ -68,47 +62,35 @@ public abstract class AbstractHtmlPacket extends L2GameServerPacket
 		setHtml(html);
 	}
 	
+	protected AbstractHtmlPacket(String html)
+	{
+		_npcObjId = 0;
+		setHtml(html);
+	}
+	
 	public final void disableValidation()
 	{
 		_disabledValidation = true;
 	}
 	
-	public final void setHtml(String html)
+	public final String getHtml()
 	{
-		if (html.length() > 17200)
-		{
-			_log.log(Level.WARNING, "Html is too long! this will crash the client!", new Throwable());
-			_html = html.substring(0, 17200);
-		}
-		
-		if (!html.contains("<html"))
-		{
-			html = "<html><body>" + html + "</body></html>";
-		}
-		
-		_html = html;
+		return _html;
 	}
 	
-	public final boolean setFile(String prefix, String path)
+	public final int getNpcObjId()
 	{
-		String content = HtmCache.getInstance().getHtm(prefix, path);
-		if (content == null)
-		{
-			setHtml("<html><body>My Text is missing:<br>" + path + "</body></html>");
-			_log.warning("missing html page " + path);
-			return false;
-		}
-		
-		setHtml(content);
-		return true;
+		return _npcObjId;
 	}
 	
-	public final void replace(String pattern, String value)
-	{
-		_html = _html.replaceAll(pattern, value.replaceAll("\\$", "\\\\\\$"));
-	}
+	public abstract HtmlActionScope getScope();
 	
 	public final void replace(String pattern, boolean val)
+	{
+		replace(pattern, String.valueOf(val));
+	}
+	
+	public final void replace(String pattern, double val)
 	{
 		replace(pattern, String.valueOf(val));
 	}
@@ -123,9 +105,9 @@ public abstract class AbstractHtmlPacket extends L2GameServerPacket
 		replace(pattern, String.valueOf(val));
 	}
 	
-	public final void replace(String pattern, double val)
+	public final void replace(String pattern, String value)
 	{
-		replace(pattern, String.valueOf(val));
+		_html = _html.replaceAll(pattern, value.replaceAll("\\$", "\\\\\\$"));
 	}
 	
 	@Override
@@ -147,15 +129,33 @@ public abstract class AbstractHtmlPacket extends L2GameServerPacket
 		Util.buildHtmlActionCache(player, getScope(), _npcObjId, _html);
 	}
 	
-	public final int getNpcObjId()
+	public final boolean setFile(String prefix, String path)
 	{
-		return _npcObjId;
+		String content = HtmCache.getInstance().getHtm(prefix, path);
+		if (content == null)
+		{
+			setHtml("<html><body>My Text is missing:<br>" + path + "</body></html>");
+			_log.warning("missing html page " + path);
+			return false;
+		}
+		
+		setHtml(content);
+		return true;
 	}
 	
-	public final String getHtml()
+	public final void setHtml(String html)
 	{
-		return _html;
+		if (html.length() > 17200)
+		{
+			_log.log(Level.WARNING, "Html is too long! this will crash the client!", new Throwable());
+			_html = html.substring(0, 17200);
+		}
+		
+		if (!html.contains("<html"))
+		{
+			html = "<html><body>" + html + "</body></html>";
+		}
+		
+		_html = html;
 	}
-	
-	public abstract HtmlActionScope getScope();
 }

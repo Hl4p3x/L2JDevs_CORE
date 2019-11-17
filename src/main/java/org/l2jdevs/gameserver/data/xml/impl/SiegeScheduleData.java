@@ -44,6 +44,16 @@ public class SiegeScheduleData implements IXmlReader
 		load();
 	}
 	
+	public static final SiegeScheduleData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public List<SiegeScheduleDate> getScheduleDates()
+	{
+		return _scheduleData;
+	}
+	
 	@Override
 	public synchronized void load()
 	{
@@ -106,16 +116,6 @@ public class SiegeScheduleData implements IXmlReader
 			LOG.warn("{}: Unable to get value!", getClass().getSimpleName(), e);
 			return -1;
 		}
-	}
-	
-	public List<SiegeScheduleDate> getScheduleDates()
-	{
-		return _scheduleData;
-	}
-	
-	public static final SiegeScheduleData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

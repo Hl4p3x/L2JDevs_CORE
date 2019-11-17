@@ -61,11 +61,6 @@ public final class Petition
 		return _messageLog.add(cs);
 	}
 	
-	public List<CreatureSay> getLogMessages()
-	{
-		return _messageLog;
-	}
-	
 	public boolean endPetitionConsultation(PetitionState endState)
 	{
 		setState(endState);
@@ -114,6 +109,11 @@ public final class Petition
 		return _id;
 	}
 	
+	public List<CreatureSay> getLogMessages()
+	{
+		return _messageLog;
+	}
+	
 	public L2PcInstance getPetitioner()
 	{
 		return _petitioner;
@@ -124,14 +124,14 @@ public final class Petition
 		return _responder;
 	}
 	
-	public long getSubmitTime()
-	{
-		return _submitTime;
-	}
-	
 	public PetitionState getState()
 	{
 		return _state;
+	}
+	
+	public long getSubmitTime()
+	{
+		return _submitTime;
 	}
 	
 	public String getTypeAsString()
@@ -164,11 +164,6 @@ public final class Petition
 		getResponder().sendPacket(responsePacket);
 	}
 	
-	public void setState(PetitionState state)
-	{
-		_state = state;
-	}
-	
 	public void setResponder(L2PcInstance respondingAdmin)
 	{
 		if (getResponder() != null)
@@ -177,5 +172,10 @@ public final class Petition
 		}
 		
 		_responder = respondingAdmin;
+	}
+	
+	public void setState(PetitionState state)
+	{
+		_state = state;
 	}
 }

@@ -40,6 +40,11 @@ public class OnTrapAction implements IBaseEvent
 		_action = action;
 	}
 	
+	public TrapAction getAction()
+	{
+		return _action;
+	}
+	
 	public L2TrapInstance getTrap()
 	{
 		return _trap;
@@ -48,11 +53,6 @@ public class OnTrapAction implements IBaseEvent
 	public L2Character getTrigger()
 	{
 		return _trigger;
-	}
-	
-	public TrapAction getAction()
-	{
-		return _action;
 	}
 	
 	@Override

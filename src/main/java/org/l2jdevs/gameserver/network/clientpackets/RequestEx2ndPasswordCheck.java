@@ -30,6 +30,12 @@ public class RequestEx2ndPasswordCheck extends L2GameClientPacket
 	private static final String _C__D0_AD_REQUESTEX2NDPASSWORDCHECK = "[C] D0:AD RequestEx2ndPasswordCheck";
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_AD_REQUESTEX2NDPASSWORDCHECK;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		
@@ -45,11 +51,5 @@ public class RequestEx2ndPasswordCheck extends L2GameClientPacket
 		}
 		
 		getClient().getSecondaryAuth().openDialog();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_AD_REQUESTEX2NDPASSWORDCHECK;
 	}
 }

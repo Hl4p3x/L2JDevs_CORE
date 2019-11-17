@@ -45,14 +45,14 @@ public class LoginServerFail extends BaseRecievePacket
 		_reason = readC();
 	}
 	
-	public String getReasonString()
-	{
-		return REASONS[_reason];
-	}
-	
 	public int getReason()
 	{
 		return _reason;
+	}
+	
+	public String getReasonString()
+	{
+		return REASONS[_reason];
 	}
 	
 }

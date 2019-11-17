@@ -40,6 +40,12 @@ public final class RequestOustPledgeMember extends L2GameClientPacket
 	private String _target;
 	
 	@Override
+	public String getType()
+	{
+		return _C__29_REQUESTOUSTPLEDGEMEMBER;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_target = readS();
@@ -102,11 +108,5 @@ public final class RequestOustPledgeMember extends L2GameClientPacket
 			L2PcInstance player = member.getPlayerInstance();
 			player.sendPacket(SystemMessageId.CLAN_MEMBERSHIP_TERMINATED);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__29_REQUESTOUSTPLEDGEMEMBER;
 	}
 }

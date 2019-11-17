@@ -34,6 +34,12 @@ public final class FinishRotating extends L2GameClientPacket
 	private int _unknown;
 	
 	@Override
+	public String getType()
+	{
+		return _C__5C_FINISHROTATING;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_degree = readD();
@@ -61,11 +67,5 @@ public final class FinishRotating extends L2GameClientPacket
 			sr = new StopRotation(activeChar.getObjectId(), _degree, 0);
 			activeChar.broadcastPacket(sr);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__5C_FINISHROTATING;
 	}
 }

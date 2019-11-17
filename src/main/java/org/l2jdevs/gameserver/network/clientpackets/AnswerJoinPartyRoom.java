@@ -39,6 +39,12 @@ public final class AnswerJoinPartyRoom extends L2GameClientPacket
 	private int _answer; // 1 or 0
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_30_ANSWERJOINPARTYROOM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_answer = readD();
@@ -116,11 +122,5 @@ public final class AnswerJoinPartyRoom extends L2GameClientPacket
 		// reset transaction timers
 		player.setActiveRequester(null);
 		partner.onTransactionResponse();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_30_ANSWERJOINPARTYROOM;
 	}
 }

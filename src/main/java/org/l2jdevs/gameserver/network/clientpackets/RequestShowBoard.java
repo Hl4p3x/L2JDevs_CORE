@@ -33,6 +33,12 @@ public final class RequestShowBoard extends L2GameClientPacket
 	private int _unknown;
 	
 	@Override
+	public final String getType()
+	{
+		return _C__5E_REQUESTSHOWBOARD;
+	}
+	
+	@Override
 	protected final void readImpl()
 	{
 		_unknown = readD();
@@ -42,12 +48,6 @@ public final class RequestShowBoard extends L2GameClientPacket
 	protected void runImpl()
 	{
 		CommunityBoardHandler.getInstance().handleParseCommand(Config.BBS_DEFAULT, getActiveChar());
-	}
-	
-	@Override
-	public final String getType()
-	{
-		return _C__5E_REQUESTSHOWBOARD;
 	}
 	
 	@Override

@@ -35,19 +35,14 @@ public final class ItemAuctionBid
 		_lastBid = lastBid;
 	}
 	
-	public final int getPlayerObjId()
-	{
-		return _playerObjId;
-	}
-	
 	public final long getLastBid()
 	{
 		return _lastBid;
 	}
 	
-	final void setLastBid(final long lastBid)
+	public final int getPlayerObjId()
 	{
-		_lastBid = lastBid;
+		return _playerObjId;
 	}
 	
 	final void cancelBid()
@@ -55,13 +50,18 @@ public final class ItemAuctionBid
 		_lastBid = -1;
 	}
 	
+	final L2PcInstance getPlayer()
+	{
+		return L2World.getInstance().getPlayer(_playerObjId);
+	}
+	
 	final boolean isCanceled()
 	{
 		return _lastBid <= 0;
 	}
 	
-	final L2PcInstance getPlayer()
+	final void setLastBid(final long lastBid)
 	{
-		return L2World.getInstance().getPlayer(_playerObjId);
+		_lastBid = lastBid;
 	}
 }

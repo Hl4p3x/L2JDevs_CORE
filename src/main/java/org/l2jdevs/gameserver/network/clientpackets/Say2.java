@@ -142,6 +142,12 @@ public final class Say2 extends L2GameClientPacket
 	private String _target;
 	
 	@Override
+	public String getType()
+	{
+		return _C__49_SAY2;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_text = readS();
@@ -289,6 +295,12 @@ public final class Say2 extends L2GameClientPacket
 		}
 	}
 	
+	@Override
+	protected boolean triggersOnActionRequest()
+	{
+		return false;
+	}
+	
 	private boolean checkBot(String text)
 	{
 		for (String botCommand : WALKER_COMMAND_LIST)
@@ -351,17 +363,5 @@ public final class Say2 extends L2GameClientPacket
 			}
 		}
 		return true;
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__49_SAY2;
-	}
-	
-	@Override
-	protected boolean triggersOnActionRequest()
-	{
-		return false;
 	}
 }

@@ -30,6 +30,12 @@ public final class EndScenePlayer extends L2GameClientPacket
 	private int _movieId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_5B_ENDSCENEPLAYER;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_movieId = readD();
@@ -57,11 +63,5 @@ public final class EndScenePlayer extends L2GameClientPacket
 		activeChar.decayMe();
 		activeChar.spawnMe(activeChar.getX(), activeChar.getY(), activeChar.getZ());
 		activeChar.setIsTeleporting(false, false);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_5B_ENDSCENEPLAYER;
 	}
 }

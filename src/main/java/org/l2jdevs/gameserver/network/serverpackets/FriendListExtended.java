@@ -39,24 +39,6 @@ public class FriendListExtended extends L2GameServerPacket
 {
 	private List<FriendInfo> _info;
 	
-	private static class FriendInfo
-	{
-		int _objId;
-		String _name;
-		boolean _online;
-		int _classid;
-		int _level;
-		
-		FriendInfo(int objId, String name, boolean online, int classid, int level)
-		{
-			_objId = objId;
-			_name = name;
-			_online = online;
-			_classid = classid;
-			_level = level;
-		}
-	}
-	
 	public FriendListExtended(L2PcInstance player)
 	{
 		if (!player.hasFriends())
@@ -107,6 +89,24 @@ public class FriendListExtended extends L2GameServerPacket
 			writeD(info._online ? info._objId : 0x00); // object id if online
 			writeD(info._classid);
 			writeD(info._level);
+		}
+	}
+	
+	private static class FriendInfo
+	{
+		int _objId;
+		String _name;
+		boolean _online;
+		int _classid;
+		int _level;
+		
+		FriendInfo(int objId, String name, boolean online, int classid, int level)
+		{
+			_objId = objId;
+			_name = name;
+			_online = online;
+			_classid = classid;
+			_level = level;
 		}
 	}
 }

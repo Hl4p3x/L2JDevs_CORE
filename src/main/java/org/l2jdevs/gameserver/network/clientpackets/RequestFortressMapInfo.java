@@ -32,6 +32,12 @@ public class RequestFortressMapInfo extends L2GameClientPacket
 	private int _fortressId;
 	
 	@Override
+	public String getType()
+	{
+		return _C_D0_48_REQUESTFORTRESSMAPINFO;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_fortressId = readD();
@@ -55,11 +61,5 @@ public class RequestFortressMapInfo extends L2GameClientPacket
 			return;
 		}
 		sendPacket(new ExShowFortressMapInfo(fort));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C_D0_48_REQUESTFORTRESSMAPINFO;
 	}
 }

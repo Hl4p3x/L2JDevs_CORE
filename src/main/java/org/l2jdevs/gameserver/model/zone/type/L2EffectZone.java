@@ -67,10 +67,58 @@ public class L2EffectZone extends L2ZoneType
 		setSettings(settings);
 	}
 	
+	public void addSkill(int skillId, int skillLvL)
+	{
+		if (skillLvL < 1) // remove skill
+		{
+			removeSkill(skillId);
+			return;
+		}
+		
+		if (_skills == null)
+		{
+			synchronized (this)
+			{
+				if (_skills == null)
+				{
+					_skills = new ConcurrentHashMap<>(3);
+				}
+			}
+		}
+		_skills.put(skillId, skillLvL);
+	}
+	
+	public void clearSkills()
+	{
+		if (_skills != null)
+		{
+			_skills.clear();
+		}
+	}
+	
+	public int getChance()
+	{
+		return _chance;
+	}
+	
 	@Override
 	public TaskZoneSettings getSettings()
 	{
 		return (TaskZoneSettings) super.getSettings();
+	}
+	
+	public int getSkillLevel(int skillId)
+	{
+		final Map<Integer, Integer> skills = _skills;
+		return skills != null ? skills.getOrDefault(skillId, 0) : 0;
+	}
+	
+	public void removeSkill(int skillId)
+	{
+		if (_skills != null)
+		{
+			_skills.remove(skillId);
+		}
 	}
 	
 	@Override
@@ -133,6 +181,11 @@ public class L2EffectZone extends L2ZoneType
 		}
 	}
 	
+	protected Skill getSkill(int skillId, int skillLvl)
+	{
+		return SkillData.getInstance().getSkill(skillId, skillLvl);
+	}
+	
 	@Override
 	protected void onEnter(L2Character character)
 	{
@@ -179,59 +232,6 @@ public class L2EffectZone extends L2ZoneType
 		{
 			getSettings().clear();
 		}
-	}
-	
-	protected Skill getSkill(int skillId, int skillLvl)
-	{
-		return SkillData.getInstance().getSkill(skillId, skillLvl);
-	}
-	
-	public int getChance()
-	{
-		return _chance;
-	}
-	
-	public void addSkill(int skillId, int skillLvL)
-	{
-		if (skillLvL < 1) // remove skill
-		{
-			removeSkill(skillId);
-			return;
-		}
-		
-		if (_skills == null)
-		{
-			synchronized (this)
-			{
-				if (_skills == null)
-				{
-					_skills = new ConcurrentHashMap<>(3);
-				}
-			}
-		}
-		_skills.put(skillId, skillLvL);
-	}
-	
-	public void removeSkill(int skillId)
-	{
-		if (_skills != null)
-		{
-			_skills.remove(skillId);
-		}
-	}
-	
-	public void clearSkills()
-	{
-		if (_skills != null)
-		{
-			_skills.clear();
-		}
-	}
-	
-	public int getSkillLevel(int skillId)
-	{
-		final Map<Integer, Integer> skills = _skills;
-		return skills != null ? skills.getOrDefault(skillId, 0) : 0;
 	}
 	
 	private final class ApplySkill implements Runnable

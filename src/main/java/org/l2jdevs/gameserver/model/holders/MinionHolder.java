@@ -47,20 +47,20 @@ public class MinionHolder implements IIdentifiable
 	}
 	
 	/**
+	 * @return the count of the Minions to spawn.
+	 */
+	public int getCount()
+	{
+		return _count;
+	}
+	
+	/**
 	 * @return the Identifier of the Minion to spawn.
 	 */
 	@Override
 	public int getId()
 	{
 		return _id;
-	}
-	
-	/**
-	 * @return the count of the Minions to spawn.
-	 */
-	public int getCount()
-	{
-		return _count;
 	}
 	
 	/**

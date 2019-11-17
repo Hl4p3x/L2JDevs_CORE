@@ -40,6 +40,12 @@ public final class SendBypassBuildCmd extends L2GameClientPacket
 	private String _command;
 	
 	@Override
+	public String getType()
+	{
+		return _C__74_SENDBYPASSBUILDCMD;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_command = readS();
@@ -86,11 +92,5 @@ public final class SendBypassBuildCmd extends L2GameClientPacket
 		}
 		
 		ach.useAdminCommand("admin_" + _command, activeChar);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__74_SENDBYPASSBUILDCMD;
 	}
 }

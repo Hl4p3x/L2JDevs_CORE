@@ -43,6 +43,12 @@ public final class AuthLogin extends L2GameClientPacket
 	private int _loginKey2;
 	
 	@Override
+	public String getType()
+	{
+		return _C__2B_AUTHLOGIN;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_loginName = readS().toLowerCase();
@@ -82,11 +88,5 @@ public final class AuthLogin extends L2GameClientPacket
 				client.close((L2GameServerPacket) null);
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__2B_AUTHLOGIN;
 	}
 }

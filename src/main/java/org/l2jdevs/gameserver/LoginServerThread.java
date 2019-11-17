@@ -140,6 +140,120 @@ public class LoginServerThread extends Thread
 		_maxPlayer = Config.MAXIMUM_ONLINE_USERS;
 	}
 	
+	/**
+	 * Gets the single instance of LoginServerThread.
+	 * @return single instance of LoginServerThread
+	 */
+	public static LoginServerThread getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Adds the game server login.
+	 * @param account the account
+	 * @param client the client
+	 * @return {@code true} if account was not already logged in, {@code false} otherwise
+	 */
+	public boolean addGameServerLogin(String account, L2GameClient client)
+	{
+		return _accountsInGameServer.putIfAbsent(account, client) == null;
+	}
+	
+	/**
+	 * Adds the waiting client and send request.
+	 * @param acc the account
+	 * @param client the game client
+	 * @param key the session key
+	 */
+	public void addWaitingClientAndSendRequest(String acc, L2GameClient client, SessionKey key)
+	{
+		WaitingClient wc = new WaitingClient(acc, client, key);
+		synchronized (_waitingClients)
+		{
+			_waitingClients.add(wc);
+		}
+		PlayerAuthRequest par = new PlayerAuthRequest(acc, key);
+		try
+		{
+			sendPacket(par);
+		}
+		catch (IOException e)
+		{
+			LOG.warn("Error while sending player auth request!");
+		}
+	}
+	
+	/**
+	 * Kick player for the given account.
+	 * @param account the account
+	 */
+	public void doKickPlayer(String account)
+	{
+		L2GameClient client = _accountsInGameServer.get(account);
+		if (client != null)
+		{
+			LOG_ACCOUNTING.warn("Kicked by login: {}", client);
+			client.setAditionalClosePacket(SystemMessage.getSystemMessage(SystemMessageId.ANOTHER_LOGIN_WITH_ACCOUNT));
+			client.closeNow();
+		}
+	}
+	
+	public L2GameClient getClient(String name)
+	{
+		return name != null ? _accountsInGameServer.get(name) : null;
+	}
+	
+	/**
+	 * Gets the max player.
+	 * @return Returns the maxPlayer.
+	 */
+	public int getMaxPlayer()
+	{
+		return _maxPlayer;
+	}
+	
+	/**
+	 * Gets the server name.
+	 * @return the server name.
+	 */
+	public String getServerName()
+	{
+		return _serverName;
+	}
+	
+	/**
+	 * Gets the status string.
+	 * @return the status string
+	 */
+	public String getStatusString()
+	{
+		return ServerStatus.STATUS_STRING[_status];
+	}
+	
+	/**
+	 * Removes the waiting client.
+	 * @param client the client
+	 */
+	public void removeWaitingClient(L2GameClient client)
+	{
+		WaitingClient toRemove = null;
+		synchronized (_waitingClients)
+		{
+			for (WaitingClient c : _waitingClients)
+			{
+				if (c.gameClient == client)
+				{
+					toRemove = c;
+				}
+			}
+			if (toRemove != null)
+			{
+				_waitingClients.remove(toRemove);
+			}
+		}
+	}
+	
 	@Override
 	public void run()
 	{
@@ -378,49 +492,55 @@ public class LoginServerThread extends Thread
 	}
 	
 	/**
-	 * Adds the waiting client and send request.
-	 * @param acc the account
-	 * @param client the game client
-	 * @param key the session key
+	 * Send access level.
+	 * @param account the account
+	 * @param level the access level
 	 */
-	public void addWaitingClientAndSendRequest(String acc, L2GameClient client, SessionKey key)
+	public void sendAccessLevel(String account, int level)
 	{
-		WaitingClient wc = new WaitingClient(acc, client, key);
-		synchronized (_waitingClients)
-		{
-			_waitingClients.add(wc);
-		}
-		PlayerAuthRequest par = new PlayerAuthRequest(acc, key);
+		ChangeAccessLevel cal = new ChangeAccessLevel(account, level);
 		try
 		{
-			sendPacket(par);
+			sendPacket(cal);
 		}
 		catch (IOException e)
 		{
-			LOG.warn("Error while sending player auth request!");
 		}
 	}
 	
 	/**
-	 * Removes the waiting client.
-	 * @param client the client
+	 * Send change password.
+	 * @param accountName the account name
+	 * @param charName the char name
+	 * @param oldpass the old pass
+	 * @param newpass the new pass
 	 */
-	public void removeWaitingClient(L2GameClient client)
+	public void sendChangePassword(String accountName, String charName, String oldpass, String newpass)
 	{
-		WaitingClient toRemove = null;
-		synchronized (_waitingClients)
+		ChangePassword cp = new ChangePassword(accountName, charName, oldpass, newpass);
+		try
 		{
-			for (WaitingClient c : _waitingClients)
-			{
-				if (c.gameClient == client)
-				{
-					toRemove = c;
-				}
-			}
-			if (toRemove != null)
-			{
-				_waitingClients.remove(toRemove);
-			}
+			sendPacket(cp);
+		}
+		catch (IOException e)
+		{
+		}
+	}
+	
+	/**
+	 * Send client tracert.
+	 * @param account the account
+	 * @param address the address
+	 */
+	public void sendClientTracert(String account, String[] address)
+	{
+		PlayerTracert ptc = new PlayerTracert(account, address[0], address[1], address[2], address[3], address[4]);
+		try
+		{
+			sendPacket(ptc);
+		}
+		catch (IOException e)
+		{
 		}
 	}
 	
@@ -450,51 +570,6 @@ public class LoginServerThread extends Thread
 	}
 	
 	/**
-	 * Adds the game server login.
-	 * @param account the account
-	 * @param client the client
-	 * @return {@code true} if account was not already logged in, {@code false} otherwise
-	 */
-	public boolean addGameServerLogin(String account, L2GameClient client)
-	{
-		return _accountsInGameServer.putIfAbsent(account, client) == null;
-	}
-	
-	/**
-	 * Send access level.
-	 * @param account the account
-	 * @param level the access level
-	 */
-	public void sendAccessLevel(String account, int level)
-	{
-		ChangeAccessLevel cal = new ChangeAccessLevel(account, level);
-		try
-		{
-			sendPacket(cal);
-		}
-		catch (IOException e)
-		{
-		}
-	}
-	
-	/**
-	 * Send client tracert.
-	 * @param account the account
-	 * @param address the address
-	 */
-	public void sendClientTracert(String account, String[] address)
-	{
-		PlayerTracert ptc = new PlayerTracert(account, address[0], address[1], address[2], address[3], address[4]);
-		try
-		{
-			sendPacket(ptc);
-		}
-		catch (IOException e)
-		{
-		}
-	}
-	
-	/**
 	 * Send mail.
 	 * @param account the account
 	 * @param mailId the mail id
@@ -506,6 +581,40 @@ public class LoginServerThread extends Thread
 		try
 		{
 			sendPacket(sem);
+		}
+		catch (IOException e)
+		{
+		}
+	}
+	
+	/**
+	 * Send server status.
+	 * @param id the id
+	 * @param value the value
+	 */
+	public void sendServerStatus(int id, int value)
+	{
+		ServerStatus ss = new ServerStatus();
+		ss.addAttribute(id, value);
+		try
+		{
+			sendPacket(ss);
+		}
+		catch (IOException e)
+		{
+		}
+	}
+	
+	/**
+	 * Send Server Type Config to LS.
+	 */
+	public void sendServerType()
+	{
+		ServerStatus ss = new ServerStatus();
+		ss.addAttribute(ServerStatus.SERVER_TYPE, Config.SERVER_LIST_TYPE);
+		try
+		{
+			sendPacket(ss);
 		}
 		catch (IOException e)
 		{
@@ -531,27 +640,49 @@ public class LoginServerThread extends Thread
 	}
 	
 	/**
-	 * Hex to string.
-	 * @param hex the hex value
-	 * @return the hex value as string
+	 * Sets the max player.
+	 * @param maxPlayer The maxPlayer to set.
 	 */
-	private String hexToString(byte[] hex)
+	public void setMaxPlayer(int maxPlayer)
 	{
-		return new BigInteger(hex).toString(16);
+		sendServerStatus(ServerStatus.MAX_PLAYERS, maxPlayer);
+		_maxPlayer = maxPlayer;
 	}
 	
 	/**
-	 * Kick player for the given account.
-	 * @param account the account
+	 * Sets the server status.
+	 * @param status the new server status
 	 */
-	public void doKickPlayer(String account)
+	public void setServerStatus(int status)
 	{
-		L2GameClient client = _accountsInGameServer.get(account);
-		if (client != null)
+		switch (status)
 		{
-			LOG_ACCOUNTING.warn("Kicked by login: {}", client);
-			client.setAditionalClosePacket(SystemMessage.getSystemMessage(SystemMessageId.ANOTHER_LOGIN_WITH_ACCOUNT));
-			client.closeNow();
+			case ServerStatus.STATUS_AUTO:
+				sendServerStatus(ServerStatus.SERVER_LIST_STATUS, ServerStatus.STATUS_AUTO);
+				_status = status;
+				break;
+			case ServerStatus.STATUS_DOWN:
+				sendServerStatus(ServerStatus.SERVER_LIST_STATUS, ServerStatus.STATUS_DOWN);
+				_status = status;
+				break;
+			case ServerStatus.STATUS_FULL:
+				sendServerStatus(ServerStatus.SERVER_LIST_STATUS, ServerStatus.STATUS_FULL);
+				_status = status;
+				break;
+			case ServerStatus.STATUS_GM_ONLY:
+				sendServerStatus(ServerStatus.SERVER_LIST_STATUS, ServerStatus.STATUS_GM_ONLY);
+				_status = status;
+				break;
+			case ServerStatus.STATUS_GOOD:
+				sendServerStatus(ServerStatus.SERVER_LIST_STATUS, ServerStatus.STATUS_GOOD);
+				_status = status;
+				break;
+			case ServerStatus.STATUS_NORMAL:
+				sendServerStatus(ServerStatus.SERVER_LIST_STATUS, ServerStatus.STATUS_NORMAL);
+				_status = status;
+				break;
+			default:
+				throw new IllegalArgumentException("Status does not exists:" + status);
 		}
 	}
 	
@@ -597,6 +728,16 @@ public class LoginServerThread extends Thread
 	}
 	
 	/**
+	 * Hex to string.
+	 * @param hex the hex value
+	 * @return the hex value as string
+	 */
+	private String hexToString(byte[] hex)
+	{
+		return new BigInteger(hex).toString(16);
+	}
+	
+	/**
 	 * Send packet.
 	 * @param sl the sendable packet
 	 * @throws IOException Signals that an I/O exception has occurred.
@@ -615,138 +756,6 @@ public class LoginServerThread extends Thread
 			_out.write(data);
 			_out.flush();
 		}
-	}
-	
-	/**
-	 * Sets the max player.
-	 * @param maxPlayer The maxPlayer to set.
-	 */
-	public void setMaxPlayer(int maxPlayer)
-	{
-		sendServerStatus(ServerStatus.MAX_PLAYERS, maxPlayer);
-		_maxPlayer = maxPlayer;
-	}
-	
-	/**
-	 * Gets the max player.
-	 * @return Returns the maxPlayer.
-	 */
-	public int getMaxPlayer()
-	{
-		return _maxPlayer;
-	}
-	
-	/**
-	 * Send server status.
-	 * @param id the id
-	 * @param value the value
-	 */
-	public void sendServerStatus(int id, int value)
-	{
-		ServerStatus ss = new ServerStatus();
-		ss.addAttribute(id, value);
-		try
-		{
-			sendPacket(ss);
-		}
-		catch (IOException e)
-		{
-		}
-	}
-	
-	/**
-	 * Send Server Type Config to LS.
-	 */
-	public void sendServerType()
-	{
-		ServerStatus ss = new ServerStatus();
-		ss.addAttribute(ServerStatus.SERVER_TYPE, Config.SERVER_LIST_TYPE);
-		try
-		{
-			sendPacket(ss);
-		}
-		catch (IOException e)
-		{
-		}
-	}
-	
-	/**
-	 * Send change password.
-	 * @param accountName the account name
-	 * @param charName the char name
-	 * @param oldpass the old pass
-	 * @param newpass the new pass
-	 */
-	public void sendChangePassword(String accountName, String charName, String oldpass, String newpass)
-	{
-		ChangePassword cp = new ChangePassword(accountName, charName, oldpass, newpass);
-		try
-		{
-			sendPacket(cp);
-		}
-		catch (IOException e)
-		{
-		}
-	}
-	
-	/**
-	 * Gets the status string.
-	 * @return the status string
-	 */
-	public String getStatusString()
-	{
-		return ServerStatus.STATUS_STRING[_status];
-	}
-	
-	/**
-	 * Gets the server name.
-	 * @return the server name.
-	 */
-	public String getServerName()
-	{
-		return _serverName;
-	}
-	
-	/**
-	 * Sets the server status.
-	 * @param status the new server status
-	 */
-	public void setServerStatus(int status)
-	{
-		switch (status)
-		{
-			case ServerStatus.STATUS_AUTO:
-				sendServerStatus(ServerStatus.SERVER_LIST_STATUS, ServerStatus.STATUS_AUTO);
-				_status = status;
-				break;
-			case ServerStatus.STATUS_DOWN:
-				sendServerStatus(ServerStatus.SERVER_LIST_STATUS, ServerStatus.STATUS_DOWN);
-				_status = status;
-				break;
-			case ServerStatus.STATUS_FULL:
-				sendServerStatus(ServerStatus.SERVER_LIST_STATUS, ServerStatus.STATUS_FULL);
-				_status = status;
-				break;
-			case ServerStatus.STATUS_GM_ONLY:
-				sendServerStatus(ServerStatus.SERVER_LIST_STATUS, ServerStatus.STATUS_GM_ONLY);
-				_status = status;
-				break;
-			case ServerStatus.STATUS_GOOD:
-				sendServerStatus(ServerStatus.SERVER_LIST_STATUS, ServerStatus.STATUS_GOOD);
-				_status = status;
-				break;
-			case ServerStatus.STATUS_NORMAL:
-				sendServerStatus(ServerStatus.SERVER_LIST_STATUS, ServerStatus.STATUS_NORMAL);
-				_status = status;
-				break;
-			default:
-				throw new IllegalArgumentException("Status does not exists:" + status);
-		}
-	}
-	
-	public L2GameClient getClient(String name)
-	{
-		return name != null ? _accountsInGameServer.get(name) : null;
 	}
 	
 	public static class SessionKey
@@ -778,6 +787,11 @@ public class LoginServerThread extends Thread
 		}
 	}
 	
+	private static class SingletonHolder
+	{
+		protected static final LoginServerThread _instance = new LoginServerThread();
+	}
+	
 	private static class WaitingClient
 	{
 		public String account;
@@ -796,19 +810,5 @@ public class LoginServerThread extends Thread
 			gameClient = client;
 			session = key;
 		}
-	}
-	
-	/**
-	 * Gets the single instance of LoginServerThread.
-	 * @return single instance of LoginServerThread
-	 */
-	public static LoginServerThread getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	private static class SingletonHolder
-	{
-		protected static final LoginServerThread _instance = new LoginServerThread();
 	}
 }

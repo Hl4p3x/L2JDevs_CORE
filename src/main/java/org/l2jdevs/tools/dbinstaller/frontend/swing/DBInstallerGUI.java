@@ -62,10 +62,11 @@ public class DBInstallerGUI extends AbstractGUI
 		setVisible(true);
 	}
 	
-	private void appendToTextArea(String message)
+	@Override
+	public void reportError(boolean drawAttention, String message)
 	{
-		_progArea.append(message);
-		_progArea.append("\n");
+		appendToTextArea(message);
+		super.reportError(drawAttention, message);
 	}
 	
 	@Override
@@ -82,10 +83,9 @@ public class DBInstallerGUI extends AbstractGUI
 		super.reportWarn(drawAttention, message);
 	}
 	
-	@Override
-	public void reportError(boolean drawAttention, String message)
+	private void appendToTextArea(String message)
 	{
-		appendToTextArea(message);
-		super.reportError(drawAttention, message);
+		_progArea.append(message);
+		_progArea.append("\n");
 	}
 }

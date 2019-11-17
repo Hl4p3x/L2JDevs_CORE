@@ -46,6 +46,20 @@ public class OptionData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of OptionsData.
+	 * @return single instance of OptionsData
+	 */
+	public static final OptionData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public Options getOptions(int id)
+	{
+		return _optionData.get(id);
+	}
+	
 	@Override
 	public synchronized void load()
 	{
@@ -139,20 +153,6 @@ public class OptionData implements IXmlReader
 			order = Integer.parseInt(orderNode.getNodeValue());
 		}
 		op.addFunc(new FuncTemplate(null, null, functionName, order, stat, val));
-	}
-	
-	public Options getOptions(int id)
-	{
-		return _optionData.get(id);
-	}
-	
-	/**
-	 * Gets the single instance of OptionsData.
-	 * @return single instance of OptionsData
-	 */
-	public static final OptionData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

@@ -43,6 +43,12 @@ public class MoveToLocationInAirShip extends L2GameClientPacket
 	private int _originZ;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_20_MOVETOLOCATIONINAIRSHIP;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_shipId = readD();
@@ -96,11 +102,5 @@ public class MoveToLocationInAirShip extends L2GameClientPacket
 		
 		activeChar.setInVehiclePosition(new Location(_targetX, _targetY, _targetZ));
 		activeChar.broadcastPacket(new ExMoveToLocationInAirShip(activeChar));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_20_MOVETOLOCATIONINAIRSHIP;
 	}
 }

@@ -32,6 +32,12 @@ public class ExGetOnAirShip extends L2GameClientPacket
 	private int _shipId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_36_EXGETONAIRSHIP;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_x = readD();
@@ -47,11 +53,5 @@ public class ExGetOnAirShip extends L2GameClientPacket
 		_log.info("[T1:ExGetOnAirShip] y: " + _y);
 		_log.info("[T1:ExGetOnAirShip] z: " + _z);
 		_log.info("[T1:ExGetOnAirShip] ship ID: " + _shipId);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_36_EXGETONAIRSHIP;
 	}
 }

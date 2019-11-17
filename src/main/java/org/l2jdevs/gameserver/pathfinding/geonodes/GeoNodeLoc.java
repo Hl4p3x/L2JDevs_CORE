@@ -38,53 +38,6 @@ public class GeoNodeLoc extends AbstractNodeLoc
 	}
 	
 	@Override
-	public int getX()
-	{
-		return L2World.MAP_MIN_X + (_x * 128) + 48;
-	}
-	
-	@Override
-	public int getY()
-	{
-		return L2World.MAP_MIN_Y + (_y * 128) + 48;
-	}
-	
-	@Override
-	public int getZ()
-	{
-		return _z;
-	}
-	
-	@Override
-	public void setZ(short z)
-	{
-		//
-	}
-	
-	@Override
-	public int getNodeX()
-	{
-		return _x;
-	}
-	
-	@Override
-	public int getNodeY()
-	{
-		return _y;
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + _x;
-		result = (prime * result) + _y;
-		result = (prime * result) + _z;
-		return result;
-	}
-	
-	@Override
 	public boolean equals(Object obj)
 	{
 		if (this == obj)
@@ -113,5 +66,52 @@ public class GeoNodeLoc extends AbstractNodeLoc
 			return false;
 		}
 		return true;
+	}
+	
+	@Override
+	public int getNodeX()
+	{
+		return _x;
+	}
+	
+	@Override
+	public int getNodeY()
+	{
+		return _y;
+	}
+	
+	@Override
+	public int getX()
+	{
+		return L2World.MAP_MIN_X + (_x * 128) + 48;
+	}
+	
+	@Override
+	public int getY()
+	{
+		return L2World.MAP_MIN_Y + (_y * 128) + 48;
+	}
+	
+	@Override
+	public int getZ()
+	{
+		return _z;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + _x;
+		result = (prime * result) + _y;
+		result = (prime * result) + _z;
+		return result;
+	}
+	
+	@Override
+	public void setZ(short z)
+	{
+		//
 	}
 }

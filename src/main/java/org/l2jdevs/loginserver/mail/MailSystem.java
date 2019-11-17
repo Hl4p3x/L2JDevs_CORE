@@ -42,14 +42,19 @@ public class MailSystem
 	private static final Logger _log = Logger.getLogger(MailSystem.class.getName());
 	private final Map<String, MailContent> _mailData = new HashMap<>();
 	
+	public MailSystem()
+	{
+		loadMails();
+	}
+	
 	public static MailSystem getInstance()
 	{
 		return SingletonHolder._instance;
 	}
 	
-	public MailSystem()
+	public MailContent getMailContent(String mailId)
 	{
-		loadMails();
+		return _mailData.get(mailId);
 	}
 	
 	public void sendMail(String account, String messageId, String... args)
@@ -140,11 +145,6 @@ public class MailSystem
 		{
 			return _text;
 		}
-	}
-	
-	public MailContent getMailContent(String mailId)
-	{
-		return _mailData.get(mailId);
 	}
 	
 	private static class SingletonHolder

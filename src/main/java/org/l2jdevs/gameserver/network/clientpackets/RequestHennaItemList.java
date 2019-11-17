@@ -32,6 +32,12 @@ public final class RequestHennaItemList extends L2GameClientPacket
 	private int _unknown;
 	
 	@Override
+	public String getType()
+	{
+		return _C__C3_REQUESTHENNAITEMLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_unknown = readD(); // TODO: Identify.
@@ -45,11 +51,5 @@ public final class RequestHennaItemList extends L2GameClientPacket
 		{
 			activeChar.sendPacket(new HennaEquipList(activeChar));
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__C3_REQUESTHENNAITEMLIST;
 	}
 }

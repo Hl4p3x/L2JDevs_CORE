@@ -33,6 +33,12 @@ public class PcWarehouse extends Warehouse
 	}
 	
 	@Override
+	public ItemLocation getBaseLocation()
+	{
+		return ItemLocation.WAREHOUSE;
+	}
+	
+	@Override
 	public String getName()
 	{
 		return "Warehouse";
@@ -42,12 +48,6 @@ public class PcWarehouse extends Warehouse
 	public L2PcInstance getOwner()
 	{
 		return _owner;
-	}
-	
-	@Override
-	public ItemLocation getBaseLocation()
-	{
-		return ItemLocation.WAREHOUSE;
 	}
 	
 	@Override

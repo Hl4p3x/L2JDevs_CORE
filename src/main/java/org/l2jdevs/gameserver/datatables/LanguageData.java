@@ -59,6 +59,78 @@ public final class LanguageData
 		loadFiles();
 	}
 	
+	public static LanguageData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Get all languages.
+	 * @return
+	 */
+	public Map<String, String> getLanguages()
+	{
+		return _languages;
+	}
+	
+	/**
+	 * Get message key of player to send translation.
+	 * @param player
+	 * @param text
+	 */
+	public String getMsg(L2PcInstance player, String text)
+	{
+		String lang = player.getLang();
+		if (lang == null)
+		{
+			lang = Config.L2JMOD_MULTILANG_DEFAULT;
+		}
+		
+		final StringBuilder msg = new StringBuilder(50);
+		final StringTokenizer st = new StringTokenizer(text, " ");
+		while (st.hasMoreTokens())
+		{
+			final String textLang = st.nextToken();
+			if (_msgServer.containsKey(lang + "_" + textLang))
+			{
+				msg.append(_msgServer.get(lang + "_" + textLang));
+			}
+			else if (_msgServer.containsKey("en_" + textLang))
+			{
+				msg.append(_msgServer.get("en_" + textLang));
+			}
+			else
+			{
+				LOGGER.warning("Lang System failed! Message " + textLang + " not found.");
+				msg.append(textLang);
+			}
+		}
+		
+		return msg.toString();
+	}
+	
+	/**
+	 * Get values of player
+	 * @param activeChar
+	 * @param lang
+	 */
+	public void setPlayerLang(L2PcInstance activeChar, String lang)
+	{
+		if (activeChar != null)
+		{
+			if (lang == null)
+			{
+				activeChar.setLang(Config.L2JMOD_MULTILANG_DEFAULT);
+			}
+			else
+			{
+				activeChar.setLang(lang);
+			}
+		}
+		
+		return;
+	}
+	
 	private void loadFiles()
 	{
 		try
@@ -136,78 +208,6 @@ public final class LanguageData
 		}
 		
 		LOGGER.info("Loaded language file: " + lang.toUpperCase() + " with " + count + " messages.");
-	}
-	
-	/**
-	 * Get message key of player to send translation.
-	 * @param player
-	 * @param text
-	 */
-	public String getMsg(L2PcInstance player, String text)
-	{
-		String lang = player.getLang();
-		if (lang == null)
-		{
-			lang = Config.L2JMOD_MULTILANG_DEFAULT;
-		}
-		
-		final StringBuilder msg = new StringBuilder(50);
-		final StringTokenizer st = new StringTokenizer(text, " ");
-		while (st.hasMoreTokens())
-		{
-			final String textLang = st.nextToken();
-			if (_msgServer.containsKey(lang + "_" + textLang))
-			{
-				msg.append(_msgServer.get(lang + "_" + textLang));
-			}
-			else if (_msgServer.containsKey("en_" + textLang))
-			{
-				msg.append(_msgServer.get("en_" + textLang));
-			}
-			else
-			{
-				LOGGER.warning("Lang System failed! Message " + textLang + " not found.");
-				msg.append(textLang);
-			}
-		}
-		
-		return msg.toString();
-	}
-	
-	/**
-	 * Get values of player
-	 * @param activeChar
-	 * @param lang
-	 */
-	public void setPlayerLang(L2PcInstance activeChar, String lang)
-	{
-		if (activeChar != null)
-		{
-			if (lang == null)
-			{
-				activeChar.setLang(Config.L2JMOD_MULTILANG_DEFAULT);
-			}
-			else
-			{
-				activeChar.setLang(lang);
-			}
-		}
-		
-		return;
-	}
-	
-	/**
-	 * Get all languages.
-	 * @return
-	 */
-	public Map<String, String> getLanguages()
-	{
-		return _languages;
-	}
-	
-	public static LanguageData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

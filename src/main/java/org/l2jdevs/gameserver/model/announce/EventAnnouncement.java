@@ -40,6 +40,25 @@ public class EventAnnouncement implements IAnnouncement
 	}
 	
 	@Override
+	public boolean deleteMe()
+	{
+		IdFactory.getInstance().releaseId(_id);
+		return true;
+	}
+	
+	@Override
+	public String getAuthor()
+	{
+		return "N/A";
+	}
+	
+	@Override
+	public String getContent()
+	{
+		return _content;
+	}
+	
+	@Override
 	public int getId()
 	{
 		return _id;
@@ -52,33 +71,9 @@ public class EventAnnouncement implements IAnnouncement
 	}
 	
 	@Override
-	public void setType(AnnouncementType type)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
 	public boolean isValid()
 	{
 		return _range.isWithinRange(new Date());
-	}
-	
-	@Override
-	public String getContent()
-	{
-		return _content;
-	}
-	
-	@Override
-	public void setContent(String content)
-	{
-		_content = content;
-	}
-	
-	@Override
-	public String getAuthor()
-	{
-		return "N/A";
 	}
 	
 	@Override
@@ -88,10 +83,15 @@ public class EventAnnouncement implements IAnnouncement
 	}
 	
 	@Override
-	public boolean deleteMe()
+	public void setContent(String content)
 	{
-		IdFactory.getInstance().releaseId(_id);
-		return true;
+		_content = content;
+	}
+	
+	@Override
+	public void setType(AnnouncementType type)
+	{
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override

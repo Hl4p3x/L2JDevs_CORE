@@ -45,6 +45,19 @@ public final class L2GamePacketHandler implements IPacketHandler<L2GameClient>, 
 {
 	private static final Logger _log = Logger.getLogger(L2GamePacketHandler.class.getName());
 	
+	// impl
+	@Override
+	public L2GameClient create(MMOConnection<L2GameClient> con)
+	{
+		return new L2GameClient(con);
+	}
+	
+	@Override
+	public void execute(ReceivablePacket<L2GameClient> rp)
+	{
+		rp.getClient().execute(rp);
+	}
+	
 	// implementation
 	@Override
 	public ReceivablePacket<L2GameClient> handlePacket(ByteBuffer buf, L2GameClient client)
@@ -1234,18 +1247,5 @@ public final class L2GamePacketHandler implements IPacketHandler<L2GameClient>, 
 		byte[] array = new byte[size];
 		buf.get(array);
 		_log.warning(Util.printData(array, size));
-	}
-	
-	// impl
-	@Override
-	public L2GameClient create(MMOConnection<L2GameClient> con)
-	{
-		return new L2GameClient(con);
-	}
-	
-	@Override
-	public void execute(ReceivablePacket<L2GameClient> rp)
-	{
-		rp.getClient().execute(rp);
 	}
 }

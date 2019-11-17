@@ -40,6 +40,12 @@ public final class RequestAutoSoulShot extends L2GameClientPacket
 	private int _type; // 1 = on : 0 = off;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_0D_REQUESTAUTOSOULSHOT;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_itemId = readD();
@@ -159,12 +165,6 @@ public final class RequestAutoSoulShot extends L2GameClientPacket
 				activeChar.sendPacket(sm);
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_0D_REQUESTAUTOSOULSHOT;
 	}
 	
 	@Override

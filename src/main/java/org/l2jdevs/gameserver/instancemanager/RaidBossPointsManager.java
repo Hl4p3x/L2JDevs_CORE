@@ -54,6 +54,11 @@ public class RaidBossPointsManager
 		init();
 	}
 	
+	public static final RaidBossPointsManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	public final void addPoints(L2PcInstance player, int bossId, int points)
 	{
 		final Map<Integer, Integer> tmpPoint = list.computeIfAbsent(player.getObjectId(), k -> new HashMap<>());
@@ -175,11 +180,6 @@ public class RaidBossPointsManager
 		{
 			LOG.warn("{}: Couldn't load raid points {}", getClass().getSimpleName(), e);
 		}
-	}
-	
-	public static final RaidBossPointsManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

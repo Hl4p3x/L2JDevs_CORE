@@ -48,19 +48,96 @@ import org.l2jdevs.util.file.filter.NumericNameFilter;
 
 public final class MultisellData implements IXmlReader
 {
-	private final Map<Integer, ListContainer> _entries = new HashMap<>();
-	
 	public static final int PAGE_SIZE = 40;
+	
 	// Special IDs.
 	public static final int PC_BANG_POINTS = -100;
 	public static final int CLAN_REPUTATION = -200;
 	public static final int FAME = -300;
 	// Misc
 	private static final FileFilter NUMERIC_FILTER = new NumericNameFilter();
+	private final Map<Integer, ListContainer> _entries = new HashMap<>();
 	
 	protected MultisellData()
 	{
 		load();
+	}
+	
+	public static MultisellData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public static final void giveSpecialProduct(int id, long amount, L2PcInstance player)
+	{
+		switch (id)
+		{
+			case CLAN_REPUTATION:
+				player.getClan().addReputationScore((int) amount, true);
+				break;
+			case FAME:
+				player.setFame((int) (player.getFame() + amount));
+				player.sendPacket(new UserInfo(player));
+				player.sendPacket(new ExBrExtraUserInfo(player));
+				break;
+		}
+	}
+	
+	public static final boolean hasSpecialIngredient(int id, long amount, L2PcInstance player)
+	{
+		switch (id)
+		{
+			case CLAN_REPUTATION:
+				if (player.getClan() == null)
+				{
+					player.sendPacket(SystemMessageId.YOU_ARE_NOT_A_CLAN_MEMBER);
+					break;
+				}
+				if (!player.isClanLeader())
+				{
+					player.sendPacket(SystemMessageId.ONLY_THE_CLAN_LEADER_IS_ENABLED);
+					break;
+				}
+				if (player.getClan().getReputationScore() < amount)
+				{
+					player.sendPacket(SystemMessageId.THE_CLAN_REPUTATION_SCORE_IS_TOO_LOW);
+					break;
+				}
+				return true;
+			case FAME:
+				if (player.getFame() < amount)
+				{
+					player.sendPacket(SystemMessageId.NOT_ENOUGH_FAME_POINTS);
+					break;
+				}
+				return true;
+		}
+		return false;
+	}
+	
+	public static final boolean takeSpecialIngredient(int id, long amount, L2PcInstance player)
+	{
+		switch (id)
+		{
+			case CLAN_REPUTATION:
+				player.getClan().takeReputationScore((int) amount, true);
+				SystemMessage smsg = SystemMessage.getSystemMessage(SystemMessageId.S1_DEDUCTED_FROM_CLAN_REP);
+				smsg.addLong(amount);
+				player.sendPacket(smsg);
+				return true;
+			case FAME:
+				player.setFame(player.getFame() - (int) amount);
+				player.sendPacket(new UserInfo(player));
+				player.sendPacket(new ExBrExtraUserInfo(player));
+				return true;
+		}
+		return false;
+	}
+	
+	@Override
+	public FileFilter getCurrentFileFilter()
+	{
+		return NUMERIC_FILTER;
 	}
 	
 	@Override
@@ -159,48 +236,9 @@ public final class MultisellData implements IXmlReader
 		}
 	}
 	
-	@Override
-	public FileFilter getCurrentFileFilter()
+	public final void separateAndSend(int listId, L2PcInstance player, L2Npc npc, boolean inventoryOnly)
 	{
-		return NUMERIC_FILTER;
-	}
-	
-	private final Entry parseEntry(Node n, int entryId, ListContainer list)
-	{
-		Node first = n.getFirstChild();
-		final Entry entry = new Entry(entryId);
-		
-		NamedNodeMap attrs;
-		Node att;
-		StatsSet set;
-		
-		for (n = first; n != null; n = n.getNextSibling())
-		{
-			if ("ingredient".equalsIgnoreCase(n.getNodeName()))
-			{
-				attrs = n.getAttributes();
-				set = new StatsSet();
-				for (int i = 0; i < attrs.getLength(); i++)
-				{
-					att = attrs.item(i);
-					set.set(att.getNodeName(), att.getNodeValue());
-				}
-				entry.addIngredient(new Ingredient(set));
-			}
-			else if ("production".equalsIgnoreCase(n.getNodeName()))
-			{
-				attrs = n.getAttributes();
-				set = new StatsSet();
-				for (int i = 0; i < attrs.getLength(); i++)
-				{
-					att = attrs.item(i);
-					set.set(att.getNodeName(), att.getNodeValue());
-				}
-				entry.addProduct(new Ingredient(set));
-			}
-		}
-		
-		return entry;
+		separateAndSend(listId, player, npc, inventoryOnly, 1, 1);
 	}
 	
 	/**
@@ -273,75 +311,42 @@ public final class MultisellData implements IXmlReader
 		player.setMultiSell(list);
 	}
 	
-	public final void separateAndSend(int listId, L2PcInstance player, L2Npc npc, boolean inventoryOnly)
+	private final Entry parseEntry(Node n, int entryId, ListContainer list)
 	{
-		separateAndSend(listId, player, npc, inventoryOnly, 1, 1);
-	}
-	
-	public static final boolean hasSpecialIngredient(int id, long amount, L2PcInstance player)
-	{
-		switch (id)
+		Node first = n.getFirstChild();
+		final Entry entry = new Entry(entryId);
+		
+		NamedNodeMap attrs;
+		Node att;
+		StatsSet set;
+		
+		for (n = first; n != null; n = n.getNextSibling())
 		{
-			case CLAN_REPUTATION:
-				if (player.getClan() == null)
+			if ("ingredient".equalsIgnoreCase(n.getNodeName()))
+			{
+				attrs = n.getAttributes();
+				set = new StatsSet();
+				for (int i = 0; i < attrs.getLength(); i++)
 				{
-					player.sendPacket(SystemMessageId.YOU_ARE_NOT_A_CLAN_MEMBER);
-					break;
+					att = attrs.item(i);
+					set.set(att.getNodeName(), att.getNodeValue());
 				}
-				if (!player.isClanLeader())
+				entry.addIngredient(new Ingredient(set));
+			}
+			else if ("production".equalsIgnoreCase(n.getNodeName()))
+			{
+				attrs = n.getAttributes();
+				set = new StatsSet();
+				for (int i = 0; i < attrs.getLength(); i++)
 				{
-					player.sendPacket(SystemMessageId.ONLY_THE_CLAN_LEADER_IS_ENABLED);
-					break;
+					att = attrs.item(i);
+					set.set(att.getNodeName(), att.getNodeValue());
 				}
-				if (player.getClan().getReputationScore() < amount)
-				{
-					player.sendPacket(SystemMessageId.THE_CLAN_REPUTATION_SCORE_IS_TOO_LOW);
-					break;
-				}
-				return true;
-			case FAME:
-				if (player.getFame() < amount)
-				{
-					player.sendPacket(SystemMessageId.NOT_ENOUGH_FAME_POINTS);
-					break;
-				}
-				return true;
+				entry.addProduct(new Ingredient(set));
+			}
 		}
-		return false;
-	}
-	
-	public static final boolean takeSpecialIngredient(int id, long amount, L2PcInstance player)
-	{
-		switch (id)
-		{
-			case CLAN_REPUTATION:
-				player.getClan().takeReputationScore((int) amount, true);
-				SystemMessage smsg = SystemMessage.getSystemMessage(SystemMessageId.S1_DEDUCTED_FROM_CLAN_REP);
-				smsg.addLong(amount);
-				player.sendPacket(smsg);
-				return true;
-			case FAME:
-				player.setFame(player.getFame() - (int) amount);
-				player.sendPacket(new UserInfo(player));
-				player.sendPacket(new ExBrExtraUserInfo(player));
-				return true;
-		}
-		return false;
-	}
-	
-	public static final void giveSpecialProduct(int id, long amount, L2PcInstance player)
-	{
-		switch (id)
-		{
-			case CLAN_REPUTATION:
-				player.getClan().addReputationScore((int) amount, true);
-				break;
-			case FAME:
-				player.setFame((int) (player.getFame() + amount));
-				player.sendPacket(new UserInfo(player));
-				player.sendPacket(new ExBrExtraUserInfo(player));
-				break;
-		}
+		
+		return entry;
 	}
 	
 	private final void verify()
@@ -382,11 +387,6 @@ public final class MultisellData implements IXmlReader
 			default:
 				return ing.getTemplate() != null;
 		}
-	}
-	
-	public static MultisellData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

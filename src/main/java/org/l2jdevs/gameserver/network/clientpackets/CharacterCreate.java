@@ -72,6 +72,12 @@ public final class CharacterCreate extends L2GameClientPacket
 	private byte _face;
 	
 	@Override
+	public String getType()
+	{
+		return _C__0C_CHARACTERCREATE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -196,11 +202,6 @@ public final class CharacterCreate extends L2GameClientPacket
 		LOG.info("Created new character {} {}.", newChar, getClient());
 	}
 	
-	private boolean isValidName(String text)
-	{
-		return Config.PLAYER_NAME_TEMPLATE.matcher(text).matches();
-	}
-	
 	private void initNewChar(L2GameClient client, L2PcInstance newChar)
 	{
 		if (Config.DEBUG)
@@ -279,9 +280,8 @@ public final class CharacterCreate extends L2GameClientPacket
 		}
 	}
 	
-	@Override
-	public String getType()
+	private boolean isValidName(String text)
 	{
-		return _C__0C_CHARACTERCREATE;
+		return Config.PLAYER_NAME_TEMPLATE.matcher(text).matches();
 	}
 }

@@ -54,21 +54,13 @@ public final class ExperienceData
 		load();
 	}
 	
-	public void load()
+	/**
+	 * Gets the single instance of ExperienceTable.
+	 * @return single instance of ExperienceTable
+	 */
+	public static ExperienceData getInstance()
 	{
-		_expTable.clear();
-		try (JsonReader reader = new JsonReader(new FileReader(new File(Config.DATAPACK_ROOT, "data/stats/expData.json"))))
-		{
-			_expTable.putAll(GSON.fromJson(reader, TYPE_MAP_INTEGER_LONG));
-		}
-		catch (FileNotFoundException fnfe)
-		{
-			LOG.warn("data/stats/expData.json not found!");
-		}
-		catch (IOException ioe)
-		{
-			LOG.warn("Failed to load expData.json for: ", ioe);
-		}
+		return SingletonHolder._instance;
 	}
 	
 	/**
@@ -88,13 +80,21 @@ public final class ExperienceData
 		return (float) (exp - expPerLevel) / (expPerLevel2 - expPerLevel);
 	}
 	
-	/**
-	 * Gets the single instance of ExperienceTable.
-	 * @return single instance of ExperienceTable
-	 */
-	public static ExperienceData getInstance()
+	public void load()
 	{
-		return SingletonHolder._instance;
+		_expTable.clear();
+		try (JsonReader reader = new JsonReader(new FileReader(new File(Config.DATAPACK_ROOT, "data/stats/expData.json"))))
+		{
+			_expTable.putAll(GSON.fromJson(reader, TYPE_MAP_INTEGER_LONG));
+		}
+		catch (FileNotFoundException fnfe)
+		{
+			LOG.warn("data/stats/expData.json not found!");
+		}
+		catch (IOException ioe)
+		{
+			LOG.warn("Failed to load expData.json for: ", ioe);
+		}
 	}
 	
 	private static class SingletonHolder

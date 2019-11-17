@@ -32,6 +32,12 @@ public final class RequestFriendList extends L2GameClientPacket
 	private static final String _C__79_REQUESTFRIENDLIST = "[C] 79 RequestFriendList";
 	
 	@Override
+	public String getType()
+	{
+		return _C__79_REQUESTFRIENDLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -66,11 +72,5 @@ public final class RequestFriendList extends L2GameClientPacket
 		}
 		// =========================
 		activeChar.sendPacket(SystemMessageId.FRIEND_LIST_FOOTER);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__79_REQUESTFRIENDLIST;
 	}
 }

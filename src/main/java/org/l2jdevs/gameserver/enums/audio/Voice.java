@@ -84,14 +84,14 @@ public enum Voice implements IAudio
 	}
 	
 	@Override
-	public String getSoundName()
-	{
-		return _playSound.getSoundName();
-	}
-	
-	@Override
 	public PlaySound getPacket()
 	{
 		return _playSound;
+	}
+	
+	@Override
+	public String getSoundName()
+	{
+		return _playSound.getSoundName();
 	}
 }

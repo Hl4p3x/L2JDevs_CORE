@@ -84,11 +84,291 @@ public abstract class L2ZoneType extends ListenersContainer
 	}
 	
 	/**
+	 * Broadcasts packet to all players inside the zone
+	 * @param packet
+	 */
+	public void broadcastPacket(L2GameServerPacket packet)
+	{
+		if (_characterList.isEmpty())
+		{
+			return;
+		}
+		
+		for (L2Character character : _characterList.values())
+		{
+			if ((character != null) && character.isPlayer())
+			{
+				character.sendPacket(packet);
+			}
+		}
+	}
+	
+	public boolean getAllowStore()
+	{
+		return _allowStore;
+	}
+	
+	public Map<Integer, L2Character> getCharacters()
+	{
+		return _characterList;
+	}
+	
+	public Collection<L2Character> getCharactersInside()
+	{
+		return _characterList.values();
+	}
+	
+	public double getDistanceToZone(int x, int y)
+	{
+		return getZone().getDistanceToZone(x, y);
+	}
+	
+	public double getDistanceToZone(L2Object object)
+	{
+		return getZone().getDistanceToZone(object.getX(), object.getY());
+	}
+	
+	public GameTime getGameTime()
+	{
+		return _gameTime;
+	}
+	
+	/**
 	 * @return Returns the id.
 	 */
 	public int getId()
 	{
 		return _id;
+	}
+	
+	/**
+	 * Returns zone instanceId
+	 * @return
+	 */
+	public int getInstanceId()
+	{
+		return _instanceId;
+	}
+	
+	/**
+	 * Returns zone instanceTemplate
+	 * @return
+	 */
+	public String getInstanceTemplate()
+	{
+		return _instanceTemplate;
+	}
+	
+	/**
+	 * Returns zone name
+	 * @return
+	 */
+	public String getName()
+	{
+		return _name;
+	}
+	
+	public List<L2PcInstance> getPlayersInside()
+	{
+		List<L2PcInstance> players = new ArrayList<>();
+		for (L2Character ch : _characterList.values())
+		{
+			if ((ch != null) && ch.isPlayer())
+			{
+				players.add(ch.getActingPlayer());
+			}
+		}
+		
+		return players;
+	}
+	
+	public AbstractZoneSettings getSettings()
+	{
+		return _settings;
+	}
+	
+	public InstanceType getTargetType()
+	{
+		return _target;
+	}
+	
+	/**
+	 * Returns this zones zone form.
+	 * @return {@link #_zone}
+	 */
+	public L2ZoneForm getZone()
+	{
+		return _zone;
+	}
+	
+	/**
+	 * Will scan the zones char list for the character
+	 * @param character
+	 * @return
+	 */
+	public boolean isCharacterInZone(L2Character character)
+	{
+		return _characterList.containsKey(character.getObjectId());
+	}
+	
+	public boolean isEnabled()
+	{
+		return _enabled;
+	}
+	
+	/**
+	 * Checks if the given coordinates are within the zone, ignores instanceId check
+	 * @param loc
+	 * @return
+	 */
+	public boolean isInsideZone(ILocational loc)
+	{
+		return _zone.isInsideZone(loc.getX(), loc.getY(), loc.getZ());
+	}
+	
+	/**
+	 * Checks if the given coordinates are within zone's plane
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public boolean isInsideZone(int x, int y)
+	{
+		return _zone.isInsideZone(x, y, _zone.getHighZ());
+	}
+	
+	/**
+	 * Checks if the given coordinates are within the zone, ignores instanceId check
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	public boolean isInsideZone(int x, int y, int z)
+	{
+		return _zone.isInsideZone(x, y, z);
+	}
+	
+	/**
+	 * Checks if the given coordinates are within the zone and the instanceId used matched the zone's instanceId
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @param instanceId
+	 * @return
+	 */
+	public boolean isInsideZone(int x, int y, int z, int instanceId)
+	{
+		// It will check if coords are within the zone if the given instanceId or
+		// the zone's _instanceId are in the multiverse or they match
+		if ((_instanceId == -1) || (instanceId == -1) || (_instanceId == instanceId))
+		{
+			return _zone.isInsideZone(x, y, z);
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Checks if the given object is inside the zone.
+	 * @param object
+	 * @return
+	 */
+	public boolean isInsideZone(L2Object object)
+	{
+		return isInsideZone(object.getX(), object.getY(), object.getZ(), object.getInstanceId());
+	}
+	
+	public void onDieInside(L2Character character)
+	{
+	}
+	
+	public void onPlayerLoginInside(L2PcInstance player)
+	{
+	}
+	
+	public void onPlayerLogoutInside(L2PcInstance player)
+	{
+	}
+	
+	public void onReviveInside(L2Character character)
+	{
+	}
+	
+	/**
+	 * Force fully removes a character from the zone Should use during teleport / logoff
+	 * @param character
+	 */
+	public void removeCharacter(L2Character character)
+	{
+		// Was the character inside this zone?
+		if (_characterList.containsKey(character.getObjectId()))
+		{
+			// Notify to scripts.
+			EventDispatcher.getInstance().notifyEventAsync(new OnCreatureZoneExit(character, this), this);
+			
+			// Unregister player.
+			_characterList.remove(character.getObjectId());
+			
+			// Notify Zone implementation.
+			onExit(character);
+		}
+	}
+	
+	public void revalidateInZone(L2Character character)
+	{
+		// If the character can't be affected by this zone return
+		if (_checkAffected)
+		{
+			if (!isAffected(character))
+			{
+				return;
+			}
+		}
+		
+		// If the object is inside the zone...
+		if (isInsideZone(character))
+		{
+			// Was the character not yet inside this zone?
+			if (!_characterList.containsKey(character.getObjectId()))
+			{
+				// Notify to scripts.
+				EventDispatcher.getInstance().notifyEventAsync(new OnCreatureZoneEnter(character, this), this);
+				
+				// Register player.
+				_characterList.put(character.getObjectId(), character);
+				
+				// Notify Zone implementation.
+				onEnter(character);
+			}
+		}
+		else
+		{
+			removeCharacter(character);
+		}
+	}
+	
+	public void setEnabled(boolean state)
+	{
+		_enabled = state;
+	}
+	
+	/**
+	 * Set the zone instanceId.
+	 * @param instanceId
+	 */
+	public void setInstanceId(int instanceId)
+	{
+		_instanceId = instanceId;
+	}
+	
+	/**
+	 * Set the zone name.
+	 * @param name
+	 */
+	public void setName(String name)
+	{
+		_name = name;
 	}
 	
 	/**
@@ -206,6 +486,49 @@ public abstract class L2ZoneType extends ListenersContainer
 		}
 	}
 	
+	public void setSettings(AbstractZoneSettings settings)
+	{
+		if (_settings != null)
+		{
+			_settings.clear();
+		}
+		_settings = settings;
+	}
+	
+	public void setTargetType(InstanceType type)
+	{
+		_target = type;
+		_checkAffected = true;
+	}
+	
+	/**
+	 * Set the zone for this L2ZoneType Instance
+	 * @param zone
+	 */
+	public void setZone(L2ZoneForm zone)
+	{
+		if (_zone != null)
+		{
+			throw new IllegalStateException("Zone already set");
+		}
+		_zone = zone;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName() + "[" + _id + "]";
+	}
+	
+	public void visualizeZone(int z)
+	{
+		getZone().visualizeZone(z);
+	}
+	
+	protected abstract void onEnter(L2Character character);
+	
+	protected abstract void onExit(L2Character character);
+	
 	/**
 	 * @param character the player to verify.
 	 * @return {@code true} if the given character is affected by this zone, {@code false} otherwise.
@@ -283,328 +606,5 @@ public abstract class L2ZoneType extends ListenersContainer
 			}
 		}
 		return true;
-	}
-	
-	/**
-	 * Set the zone for this L2ZoneType Instance
-	 * @param zone
-	 */
-	public void setZone(L2ZoneForm zone)
-	{
-		if (_zone != null)
-		{
-			throw new IllegalStateException("Zone already set");
-		}
-		_zone = zone;
-	}
-	
-	/**
-	 * Returns this zones zone form.
-	 * @return {@link #_zone}
-	 */
-	public L2ZoneForm getZone()
-	{
-		return _zone;
-	}
-	
-	/**
-	 * Set the zone name.
-	 * @param name
-	 */
-	public void setName(String name)
-	{
-		_name = name;
-	}
-	
-	/**
-	 * Returns zone name
-	 * @return
-	 */
-	public String getName()
-	{
-		return _name;
-	}
-	
-	/**
-	 * Set the zone instanceId.
-	 * @param instanceId
-	 */
-	public void setInstanceId(int instanceId)
-	{
-		_instanceId = instanceId;
-	}
-	
-	/**
-	 * Returns zone instanceId
-	 * @return
-	 */
-	public int getInstanceId()
-	{
-		return _instanceId;
-	}
-	
-	/**
-	 * Returns zone instanceTemplate
-	 * @return
-	 */
-	public String getInstanceTemplate()
-	{
-		return _instanceTemplate;
-	}
-	
-	/**
-	 * Checks if the given coordinates are within zone's plane
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	public boolean isInsideZone(int x, int y)
-	{
-		return _zone.isInsideZone(x, y, _zone.getHighZ());
-	}
-	
-	/**
-	 * Checks if the given coordinates are within the zone, ignores instanceId check
-	 * @param loc
-	 * @return
-	 */
-	public boolean isInsideZone(ILocational loc)
-	{
-		return _zone.isInsideZone(loc.getX(), loc.getY(), loc.getZ());
-	}
-	
-	/**
-	 * Checks if the given coordinates are within the zone, ignores instanceId check
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @return
-	 */
-	public boolean isInsideZone(int x, int y, int z)
-	{
-		return _zone.isInsideZone(x, y, z);
-	}
-	
-	/**
-	 * Checks if the given coordinates are within the zone and the instanceId used matched the zone's instanceId
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param instanceId
-	 * @return
-	 */
-	public boolean isInsideZone(int x, int y, int z, int instanceId)
-	{
-		// It will check if coords are within the zone if the given instanceId or
-		// the zone's _instanceId are in the multiverse or they match
-		if ((_instanceId == -1) || (instanceId == -1) || (_instanceId == instanceId))
-		{
-			return _zone.isInsideZone(x, y, z);
-		}
-		
-		return false;
-	}
-	
-	/**
-	 * Checks if the given object is inside the zone.
-	 * @param object
-	 * @return
-	 */
-	public boolean isInsideZone(L2Object object)
-	{
-		return isInsideZone(object.getX(), object.getY(), object.getZ(), object.getInstanceId());
-	}
-	
-	public double getDistanceToZone(int x, int y)
-	{
-		return getZone().getDistanceToZone(x, y);
-	}
-	
-	public double getDistanceToZone(L2Object object)
-	{
-		return getZone().getDistanceToZone(object.getX(), object.getY());
-	}
-	
-	public void revalidateInZone(L2Character character)
-	{
-		// If the character can't be affected by this zone return
-		if (_checkAffected)
-		{
-			if (!isAffected(character))
-			{
-				return;
-			}
-		}
-		
-		// If the object is inside the zone...
-		if (isInsideZone(character))
-		{
-			// Was the character not yet inside this zone?
-			if (!_characterList.containsKey(character.getObjectId()))
-			{
-				// Notify to scripts.
-				EventDispatcher.getInstance().notifyEventAsync(new OnCreatureZoneEnter(character, this), this);
-				
-				// Register player.
-				_characterList.put(character.getObjectId(), character);
-				
-				// Notify Zone implementation.
-				onEnter(character);
-			}
-		}
-		else
-		{
-			removeCharacter(character);
-		}
-	}
-	
-	/**
-	 * Force fully removes a character from the zone Should use during teleport / logoff
-	 * @param character
-	 */
-	public void removeCharacter(L2Character character)
-	{
-		// Was the character inside this zone?
-		if (_characterList.containsKey(character.getObjectId()))
-		{
-			// Notify to scripts.
-			EventDispatcher.getInstance().notifyEventAsync(new OnCreatureZoneExit(character, this), this);
-			
-			// Unregister player.
-			_characterList.remove(character.getObjectId());
-			
-			// Notify Zone implementation.
-			onExit(character);
-		}
-	}
-	
-	/**
-	 * Will scan the zones char list for the character
-	 * @param character
-	 * @return
-	 */
-	public boolean isCharacterInZone(L2Character character)
-	{
-		return _characterList.containsKey(character.getObjectId());
-	}
-	
-	public AbstractZoneSettings getSettings()
-	{
-		return _settings;
-	}
-	
-	public void setSettings(AbstractZoneSettings settings)
-	{
-		if (_settings != null)
-		{
-			_settings.clear();
-		}
-		_settings = settings;
-	}
-	
-	protected abstract void onEnter(L2Character character);
-	
-	protected abstract void onExit(L2Character character);
-	
-	public void onDieInside(L2Character character)
-	{
-	}
-	
-	public void onReviveInside(L2Character character)
-	{
-	}
-	
-	public void onPlayerLoginInside(L2PcInstance player)
-	{
-	}
-	
-	public void onPlayerLogoutInside(L2PcInstance player)
-	{
-	}
-	
-	public Map<Integer, L2Character> getCharacters()
-	{
-		return _characterList;
-	}
-	
-	public Collection<L2Character> getCharactersInside()
-	{
-		return _characterList.values();
-	}
-	
-	public List<L2PcInstance> getPlayersInside()
-	{
-		List<L2PcInstance> players = new ArrayList<>();
-		for (L2Character ch : _characterList.values())
-		{
-			if ((ch != null) && ch.isPlayer())
-			{
-				players.add(ch.getActingPlayer());
-			}
-		}
-		
-		return players;
-	}
-	
-	/**
-	 * Broadcasts packet to all players inside the zone
-	 * @param packet
-	 */
-	public void broadcastPacket(L2GameServerPacket packet)
-	{
-		if (_characterList.isEmpty())
-		{
-			return;
-		}
-		
-		for (L2Character character : _characterList.values())
-		{
-			if ((character != null) && character.isPlayer())
-			{
-				character.sendPacket(packet);
-			}
-		}
-	}
-	
-	public InstanceType getTargetType()
-	{
-		return _target;
-	}
-	
-	public void setTargetType(InstanceType type)
-	{
-		_target = type;
-		_checkAffected = true;
-	}
-	
-	public boolean getAllowStore()
-	{
-		return _allowStore;
-	}
-	
-	@Override
-	public String toString()
-	{
-		return getClass().getSimpleName() + "[" + _id + "]";
-	}
-	
-	public void visualizeZone(int z)
-	{
-		getZone().visualizeZone(z);
-	}
-	
-	public void setEnabled(boolean state)
-	{
-		_enabled = state;
-	}
-	
-	public boolean isEnabled()
-	{
-		return _enabled;
-	}
-	
-	public GameTime getGameTime()
-	{
-		return _gameTime;
 	}
 }

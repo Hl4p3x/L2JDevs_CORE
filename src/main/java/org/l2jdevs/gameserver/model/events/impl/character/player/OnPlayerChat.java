@@ -45,6 +45,11 @@ public class OnPlayerChat implements IBaseEvent
 		return _activeChar;
 	}
 	
+	public int getChatType()
+	{
+		return _type;
+	}
+	
 	public L2PcInstance getTarget()
 	{
 		return _target;
@@ -53,11 +58,6 @@ public class OnPlayerChat implements IBaseEvent
 	public String getText()
 	{
 		return _text;
-	}
-	
-	public int getChatType()
-	{
-		return _type;
 	}
 	
 	@Override

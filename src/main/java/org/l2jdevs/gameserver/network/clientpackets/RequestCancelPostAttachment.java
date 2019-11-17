@@ -46,9 +46,9 @@ public final class RequestCancelPostAttachment extends L2GameClientPacket
 	private int _msgId;
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		_msgId = readD();
+		return _C__D0_6F_REQUESTCANCELPOSTATTACHMENT;
 	}
 	
 	@Override
@@ -230,9 +230,9 @@ public final class RequestCancelPostAttachment extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__D0_6F_REQUESTCANCELPOSTATTACHMENT;
+		_msgId = readD();
 	}
 	
 	@Override

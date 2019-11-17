@@ -34,6 +34,12 @@ public class SummonStatus extends PlayableStatus
 	}
 	
 	@Override
+	public L2Summon getActiveChar()
+	{
+		return (L2Summon) super.getActiveChar();
+	}
+	
+	@Override
 	public void reduceHp(double value, L2Character attacker)
 	{
 		reduceHp(value, attacker, true, false, false);
@@ -118,11 +124,5 @@ public class SummonStatus extends PlayableStatus
 			}
 		}
 		super.reduceHp(value, attacker, awake, isDOT, isHPConsumption);
-	}
-	
-	@Override
-	public L2Summon getActiveChar()
-	{
-		return (L2Summon) super.getActiveChar();
 	}
 }

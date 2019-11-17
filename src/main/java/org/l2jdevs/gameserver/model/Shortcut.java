@@ -52,6 +52,15 @@ public class Shortcut
 	}
 	
 	/**
+	 * Gets the shortcut character type.
+	 * @return the character type
+	 */
+	public int getCharacterType()
+	{
+		return _characterType;
+	}
+	
+	/**
 	 * Gets the shortcut ID.
 	 * @return the ID
 	 */
@@ -79,6 +88,15 @@ public class Shortcut
 	}
 	
 	/**
+	 * Gets the shared reuse group.
+	 * @return the shared reuse group
+	 */
+	public int getSharedReuseGroup()
+	{
+		return _sharedReuseGroup;
+	}
+	
+	/**
 	 * Gets the shortcut slot.
 	 * @return the slot
 	 */
@@ -94,24 +112,6 @@ public class Shortcut
 	public ShortcutType getType()
 	{
 		return _type;
-	}
-	
-	/**
-	 * Gets the shortcut character type.
-	 * @return the character type
-	 */
-	public int getCharacterType()
-	{
-		return _characterType;
-	}
-	
-	/**
-	 * Gets the shared reuse group.
-	 * @return the shared reuse group
-	 */
-	public int getSharedReuseGroup()
-	{
-		return _sharedReuseGroup;
 	}
 	
 	/**

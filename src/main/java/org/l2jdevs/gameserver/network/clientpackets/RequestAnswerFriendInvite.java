@@ -35,6 +35,12 @@ public final class RequestAnswerFriendInvite extends L2GameClientPacket
 	private int _response;
 	
 	@Override
+	public String getType()
+	{
+		return _C__78_REQUESTANSWERFRIENDINVITE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_response = readD();
@@ -105,11 +111,5 @@ public final class RequestAnswerFriendInvite extends L2GameClientPacket
 		
 		player.setActiveRequester(null);
 		requestor.onTransactionResponse();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__78_REQUESTANSWERFRIENDINVITE;
 	}
 }

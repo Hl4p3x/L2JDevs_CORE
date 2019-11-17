@@ -28,10 +28,10 @@ import org.l2jdevs.gameserver.model.actor.instance.L2ControllableMobInstance;
  */
 public class MobGroupTable
 {
-	private final Map<Integer, MobGroup> _groupMap;
-	
 	public static final int FOLLOW_RANGE = 300;
+	
 	public static final int RANDOM_RANGE = 300;
+	private final Map<Integer, MobGroup> _groupMap;
 	
 	protected MobGroupTable()
 	{

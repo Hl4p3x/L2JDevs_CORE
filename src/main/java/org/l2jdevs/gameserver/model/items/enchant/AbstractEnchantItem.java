@@ -71,27 +71,11 @@ public abstract class AbstractEnchantItem
 	}
 	
 	/**
-	 * @return id of current item
-	 */
-	public final int getId()
-	{
-		return _id;
-	}
-	
-	/**
 	 * @return bonus chance that would be added
 	 */
 	public final double getBonusRate()
 	{
 		return _bonusRate;
-	}
-	
-	/**
-	 * @return {@link L2Item} current item/scroll
-	 */
-	public final L2Item getItem()
-	{
-		return ItemTable.getInstance().getTemplate(_id);
 	}
 	
 	/**
@@ -103,9 +87,20 @@ public abstract class AbstractEnchantItem
 	}
 	
 	/**
-	 * @return {@code true} if scroll is for weapon, {@code false} for armor
+	 * @return id of current item
 	 */
-	public abstract boolean isWeapon();
+	public final int getId()
+	{
+		return _id;
+	}
+	
+	/**
+	 * @return {@link L2Item} current item/scroll
+	 */
+	public final L2Item getItem()
+	{
+		return ItemTable.getInstance().getTemplate(_id);
+	}
 	
 	/**
 	 * @return the maximum enchant level that this scroll/item can be used with
@@ -144,6 +139,11 @@ public abstract class AbstractEnchantItem
 		}
 		return true;
 	}
+	
+	/**
+	 * @return {@code true} if scroll is for weapon, {@code false} for armor
+	 */
+	public abstract boolean isWeapon();
 	
 	/**
 	 * @param type2

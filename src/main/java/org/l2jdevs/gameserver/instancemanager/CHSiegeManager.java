@@ -53,53 +53,14 @@ public final class CHSiegeManager
 		loadClanHalls();
 	}
 	
-	private final void loadClanHalls()
+	public static CHSiegeManager getInstance()
 	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement s = con.createStatement();
-			ResultSet rs = s.executeQuery(SQL_LOAD_HALLS))
-		{
-			_siegableHalls.clear();
-			
-			while (rs.next())
-			{
-				final int id = rs.getInt("clanHallId");
-				
-				StatsSet set = new StatsSet();
-				
-				set.set("id", id);
-				set.set("name", rs.getString("name"));
-				set.set("ownerId", rs.getInt("ownerId"));
-				set.set("desc", rs.getString("desc"));
-				set.set("location", rs.getString("location"));
-				set.set("nextSiege", rs.getLong("nextSiege"));
-				set.set("siegeLenght", rs.getLong("siegeLenght"));
-				set.set("scheduleConfig", rs.getString("schedule_config"));
-				SiegableHall hall = new SiegableHall(set);
-				_siegableHalls.put(id, hall);
-				ClanHallManager.addClanHall(hall);
-			}
-			_log.info(getClass().getSimpleName() + ": Loaded " + _siegableHalls.size() + " conquerable clan halls.");
-		}
-		catch (Exception e)
-		{
-			_log.warning("CHSiegeManager: Could not load siegable clan halls!:" + e.getMessage());
-		}
+		return SingletonHolder._instance;
 	}
 	
 	public Map<Integer, SiegableHall> getConquerableHalls()
 	{
 		return _siegableHalls;
-	}
-	
-	public SiegableHall getSiegableHall(int clanHall)
-	{
-		return getConquerableHalls().get(clanHall);
-	}
-	
-	public final SiegableHall getNearbyClanHall(L2Character activeChar)
-	{
-		return getNearbyClanHall(activeChar.getX(), activeChar.getY(), 10000);
 	}
 	
 	public final SiegableHall getNearbyClanHall(int x, int y, int maxDist)
@@ -117,6 +78,16 @@ public final class CHSiegeManager
 		return null;
 	}
 	
+	public final SiegableHall getNearbyClanHall(L2Character activeChar)
+	{
+		return getNearbyClanHall(activeChar.getX(), activeChar.getY(), 10000);
+	}
+	
+	public SiegableHall getSiegableHall(int clanHall)
+	{
+		return getConquerableHalls().get(clanHall);
+	}
+	
 	public final ClanHallSiegeEngine getSiege(L2Character character)
 	{
 		SiegableHall hall = getNearbyClanHall(character);
@@ -125,6 +96,32 @@ public final class CHSiegeManager
 			return null;
 		}
 		return hall.getSiege();
+	}
+	
+	public final boolean isClanParticipating(L2Clan clan)
+	{
+		for (SiegableHall hall : getConquerableHalls().values())
+		{
+			if ((hall.getSiege() != null) && hall.getSiege().checkIsAttacker(clan))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public final void onServerShutDown()
+	{
+		for (SiegableHall hall : getConquerableHalls().values())
+		{
+			// Rainbow springs has his own attackers table
+			if ((hall.getId() == 62) || (hall.getSiege() == null))
+			{
+				continue;
+			}
+			
+			hall.getSiege().saveAttackers();
+		}
 	}
 	
 	public final void registerClan(L2Clan clan, SiegableHall hall, L2PcInstance player)
@@ -178,35 +175,38 @@ public final class CHSiegeManager
 		hall.removeAttacker(clan);
 	}
 	
-	public final boolean isClanParticipating(L2Clan clan)
+	private final void loadClanHalls()
 	{
-		for (SiegableHall hall : getConquerableHalls().values())
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement s = con.createStatement();
+			ResultSet rs = s.executeQuery(SQL_LOAD_HALLS))
 		{
-			if ((hall.getSiege() != null) && hall.getSiege().checkIsAttacker(clan))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public final void onServerShutDown()
-	{
-		for (SiegableHall hall : getConquerableHalls().values())
-		{
-			// Rainbow springs has his own attackers table
-			if ((hall.getId() == 62) || (hall.getSiege() == null))
-			{
-				continue;
-			}
+			_siegableHalls.clear();
 			
-			hall.getSiege().saveAttackers();
+			while (rs.next())
+			{
+				final int id = rs.getInt("clanHallId");
+				
+				StatsSet set = new StatsSet();
+				
+				set.set("id", id);
+				set.set("name", rs.getString("name"));
+				set.set("ownerId", rs.getInt("ownerId"));
+				set.set("desc", rs.getString("desc"));
+				set.set("location", rs.getString("location"));
+				set.set("nextSiege", rs.getLong("nextSiege"));
+				set.set("siegeLenght", rs.getLong("siegeLenght"));
+				set.set("scheduleConfig", rs.getString("schedule_config"));
+				SiegableHall hall = new SiegableHall(set);
+				_siegableHalls.put(id, hall);
+				ClanHallManager.addClanHall(hall);
+			}
+			_log.info(getClass().getSimpleName() + ": Loaded " + _siegableHalls.size() + " conquerable clan halls.");
 		}
-	}
-	
-	public static CHSiegeManager getInstance()
-	{
-		return SingletonHolder._instance;
+		catch (Exception e)
+		{
+			_log.warning("CHSiegeManager: Could not load siegable clan halls!:" + e.getMessage());
+		}
 	}
 	
 	private static final class SingletonHolder

@@ -35,16 +35,9 @@ public class ActionShiftHandler implements IHandler<IActionShiftHandler, Instanc
 		_actionsShift = new HashMap<>();
 	}
 	
-	@Override
-	public void registerHandler(IActionShiftHandler handler)
+	public static ActionShiftHandler getInstance()
 	{
-		_actionsShift.put(handler.getInstanceType(), handler);
-	}
-	
-	@Override
-	public synchronized void removeHandler(IActionShiftHandler handler)
-	{
-		_actionsShift.remove(handler.getInstanceType());
+		return SingletonHolder._instance;
 	}
 	
 	@Override
@@ -63,14 +56,21 @@ public class ActionShiftHandler implements IHandler<IActionShiftHandler, Instanc
 	}
 	
 	@Override
+	public void registerHandler(IActionShiftHandler handler)
+	{
+		_actionsShift.put(handler.getInstanceType(), handler);
+	}
+	
+	@Override
+	public synchronized void removeHandler(IActionShiftHandler handler)
+	{
+		_actionsShift.remove(handler.getInstanceType());
+	}
+	
+	@Override
 	public int size()
 	{
 		return _actionsShift.size();
-	}
-	
-	public static ActionShiftHandler getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

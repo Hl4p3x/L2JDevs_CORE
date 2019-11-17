@@ -32,12 +32,6 @@ public class GameServerRegister extends BaseGameServerRegister
 {
 	private LineNumberReader _in;
 	
-	public static void main(String[] args)
-	{
-		// Backwards compatibility, redirect to the new one
-		BaseGameServerRegister.main(args);
-	}
-	
 	/**
 	 * @param bundle
 	 */
@@ -52,6 +46,12 @@ public class GameServerRegister extends BaseGameServerRegister
 			System.out.println(getBundle().getString("noServerNames"));
 			System.exit(1);
 		}
+	}
+	
+	public static void main(String[] args)
+	{
+		// Backwards compatibility, redirect to the new one
+		BaseGameServerRegister.main(args);
 	}
 	
 	public void consoleUI() throws IOException
@@ -110,6 +110,23 @@ public class GameServerRegister extends BaseGameServerRegister
 			}
 			while (!choiceOk);
 		}
+	}
+	
+	@Override
+	public void showError(String msg, Throwable t)
+	{
+		String title;
+		if (getBundle() != null)
+		{
+			title = getBundle().getString("error");
+			msg += Config.EOL + getBundle().getString("reason") + ' ' + t.getLocalizedMessage();
+		}
+		else
+		{
+			title = "Error";
+			msg += Config.EOL + "Cause: " + t.getLocalizedMessage();
+		}
+		System.out.println(title + ": " + msg);
 	}
 	
 	/**
@@ -177,6 +194,51 @@ public class GameServerRegister extends BaseGameServerRegister
 		}
 	}
 	
+	private void registerNewGS() throws IOException
+	{
+		String line;
+		int id = Integer.MIN_VALUE;
+		
+		do
+		{
+			System.out.println(getBundle().getString("enterDesiredId"));
+			line = _in.readLine();
+			try
+			{
+				id = Integer.parseInt(line);
+			}
+			catch (NumberFormatException e)
+			{
+				System.out.printf(getBundle().getString("invalidChoice") + Config.EOL, line);
+			}
+		}
+		while (id == Integer.MIN_VALUE);
+		
+		String name = GameServerTable.getInstance().getServerNameById(id);
+		if (name == null)
+		{
+			System.out.printf(getBundle().getString("noNameForId") + Config.EOL, id);
+		}
+		else
+		{
+			if (GameServerTable.getInstance().hasRegisteredGameServerOnId(id))
+			{
+				System.out.println(getBundle().getString("idIsNotFree"));
+			}
+			else
+			{
+				try
+				{
+					BaseGameServerRegister.registerGameServer(id, ".");
+				}
+				catch (IOException e)
+				{
+					showError(getBundle().getString("ioErrorRegister"), e);
+				}
+			}
+		}
+	}
+	
 	/**
 	 * @throws IOException
 	 */
@@ -194,37 +256,6 @@ public class GameServerRegister extends BaseGameServerRegister
 				showError(getBundle().getString("sqlErrorUnregisterAll"), e);
 			}
 		}
-	}
-	
-	private boolean yesNoQuestion(String question) throws IOException
-	{
-		
-		do
-		{
-			hr();
-			System.out.println(question);
-			System.out.println("1 - " + getBundle().getString("yes"));
-			System.out.println("2 - " + getBundle().getString("no"));
-			System.out.print(getBundle().getString("yourChoice") + ' ');
-			String choice;
-			choice = _in.readLine();
-			if (choice != null)
-			{
-				if (choice.equals("1"))
-				{
-					return true;
-				}
-				else if (choice.equals("2"))
-				{
-					return false;
-				}
-				else
-				{
-					System.out.printf(getBundle().getString("invalidChoice") + Config.EOL, choice);
-				}
-			}
-		}
-		while (true);
 	}
 	
 	/**
@@ -279,65 +310,34 @@ public class GameServerRegister extends BaseGameServerRegister
 		
 	}
 	
-	private void registerNewGS() throws IOException
+	private boolean yesNoQuestion(String question) throws IOException
 	{
-		String line;
-		int id = Integer.MIN_VALUE;
 		
 		do
 		{
-			System.out.println(getBundle().getString("enterDesiredId"));
-			line = _in.readLine();
-			try
+			hr();
+			System.out.println(question);
+			System.out.println("1 - " + getBundle().getString("yes"));
+			System.out.println("2 - " + getBundle().getString("no"));
+			System.out.print(getBundle().getString("yourChoice") + ' ');
+			String choice;
+			choice = _in.readLine();
+			if (choice != null)
 			{
-				id = Integer.parseInt(line);
-			}
-			catch (NumberFormatException e)
-			{
-				System.out.printf(getBundle().getString("invalidChoice") + Config.EOL, line);
-			}
-		}
-		while (id == Integer.MIN_VALUE);
-		
-		String name = GameServerTable.getInstance().getServerNameById(id);
-		if (name == null)
-		{
-			System.out.printf(getBundle().getString("noNameForId") + Config.EOL, id);
-		}
-		else
-		{
-			if (GameServerTable.getInstance().hasRegisteredGameServerOnId(id))
-			{
-				System.out.println(getBundle().getString("idIsNotFree"));
-			}
-			else
-			{
-				try
+				if (choice.equals("1"))
 				{
-					BaseGameServerRegister.registerGameServer(id, ".");
+					return true;
 				}
-				catch (IOException e)
+				else if (choice.equals("2"))
 				{
-					showError(getBundle().getString("ioErrorRegister"), e);
+					return false;
+				}
+				else
+				{
+					System.out.printf(getBundle().getString("invalidChoice") + Config.EOL, choice);
 				}
 			}
 		}
-	}
-	
-	@Override
-	public void showError(String msg, Throwable t)
-	{
-		String title;
-		if (getBundle() != null)
-		{
-			title = getBundle().getString("error");
-			msg += Config.EOL + getBundle().getString("reason") + ' ' + t.getLocalizedMessage();
-		}
-		else
-		{
-			title = "Error";
-			msg += Config.EOL + "Cause: " + t.getLocalizedMessage();
-		}
-		System.out.println(title + ": " + msg);
+		while (true);
 	}
 }

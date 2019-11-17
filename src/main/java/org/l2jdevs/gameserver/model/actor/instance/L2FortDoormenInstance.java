@@ -62,18 +62,6 @@ public class L2FortDoormenInstance extends L2DoormenInstance
 	}
 	
 	@Override
-	protected final void openDoors(L2PcInstance player, String command)
-	{
-		StringTokenizer st = new StringTokenizer(command.substring(10), ", ");
-		st.nextToken();
-		
-		while (st.hasMoreTokens())
-		{
-			getFort().openDoor(player, Integer.parseInt(st.nextToken()));
-		}
-	}
-	
-	@Override
 	protected final void closeDoors(L2PcInstance player, String command)
 	{
 		StringTokenizer st = new StringTokenizer(command.substring(11), ", ");
@@ -102,5 +90,17 @@ public class L2FortDoormenInstance extends L2DoormenInstance
 	protected final boolean isUnderSiege()
 	{
 		return getFort().getZone().isActive();
+	}
+	
+	@Override
+	protected final void openDoors(L2PcInstance player, String command)
+	{
+		StringTokenizer st = new StringTokenizer(command.substring(10), ", ");
+		st.nextToken();
+		
+		while (st.hasMoreTokens())
+		{
+			getFort().openDoor(player, Integer.parseInt(st.nextToken()));
+		}
 	}
 }

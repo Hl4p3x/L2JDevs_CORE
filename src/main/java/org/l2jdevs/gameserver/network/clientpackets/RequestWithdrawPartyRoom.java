@@ -36,6 +36,12 @@ public final class RequestWithdrawPartyRoom extends L2GameClientPacket
 	private int _unk1;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_0B_REQUESTWITHDRAWPARTYROOM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_roomid = readD();
@@ -76,11 +82,5 @@ public final class RequestWithdrawPartyRoom extends L2GameClientPacket
 			_activeChar.sendPacket(new ExClosePartyRoom());
 			_activeChar.sendPacket(SystemMessageId.PARTY_ROOM_EXITED);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_0B_REQUESTWITHDRAWPARTYROOM;
 	}
 }

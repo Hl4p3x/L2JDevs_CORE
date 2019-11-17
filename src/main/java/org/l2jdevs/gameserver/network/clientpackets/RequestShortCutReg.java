@@ -34,6 +34,12 @@ public final class RequestShortCutReg extends L2GameClientPacket
 	private int _characterType; // 1 - player, 2 - pet
 	
 	@Override
+	public String getType()
+	{
+		return _C__3D_REQUESTSHORTCUTREG;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		final int typeId = readD();
@@ -57,12 +63,6 @@ public final class RequestShortCutReg extends L2GameClientPacket
 		final Shortcut sc = new Shortcut(_slot, _page, _type, _id, _lvl, _characterType);
 		getActiveChar().registerShortCut(sc);
 		sendPacket(new ShortCutRegister(sc));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__3D_REQUESTSHORTCUTREG;
 	}
 	
 	@Override

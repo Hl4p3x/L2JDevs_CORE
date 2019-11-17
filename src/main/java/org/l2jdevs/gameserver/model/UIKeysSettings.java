@@ -49,33 +49,89 @@ public class UIKeysSettings
 		loadFromDB();
 	}
 	
-	public void storeAll(Map<Integer, List<Integer>> catMap, Map<Integer, List<ActionKey>> keyMap)
-	{
-		_saved = false;
-		_storedCategories = catMap;
-		_storedKeys = keyMap;
-	}
-	
-	public void storeCategories(Map<Integer, List<Integer>> catMap)
-	{
-		_saved = false;
-		_storedCategories = catMap;
-	}
-	
 	public Map<Integer, List<Integer>> getCategories()
 	{
 		return _storedCategories;
 	}
 	
-	public void storeKeys(Map<Integer, List<ActionKey>> keyMap)
+	public void getCatsFromDB()
 	{
-		_saved = false;
-		_storedKeys = keyMap;
+		if (_storedCategories != null)
+		{
+			return;
+		}
+		
+		_storedCategories = new HashMap<>();
+		
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM character_ui_categories WHERE `charId` = ? ORDER BY `catId`, `order`"))
+		{
+			ps.setInt(1, _playerObjId);
+			try (ResultSet rs = ps.executeQuery())
+			{
+				while (rs.next())
+				{
+					UIData.addCategory(_storedCategories, rs.getInt("catId"), rs.getInt("cmdId"));
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Exception: getCatsFromDB(): " + e.getMessage(), e);
+		}
+		
+		if (_storedCategories.isEmpty())
+		{
+			_storedCategories = UIData.getInstance().getCategories();
+		}
 	}
 	
 	public Map<Integer, List<ActionKey>> getKeys()
 	{
 		return _storedKeys;
+	}
+	
+	public void getKeysFromDB()
+	{
+		if (_storedKeys != null)
+		{
+			return;
+		}
+		
+		_storedKeys = new HashMap<>();
+		
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM character_ui_actions WHERE `charId` = ? ORDER BY `cat`, `order`"))
+		{
+			ps.setInt(1, _playerObjId);
+			try (ResultSet rs = ps.executeQuery())
+			{
+				while (rs.next())
+				{
+					int cat = rs.getInt("cat");
+					int cmd = rs.getInt("cmd");
+					int key = rs.getInt("key");
+					int tgKey1 = rs.getInt("tgKey1");
+					int tgKey2 = rs.getInt("tgKey2");
+					int show = rs.getInt("show");
+					UIData.addKey(_storedKeys, cat, new ActionKey(cat, cmd, key, tgKey1, tgKey2, show));
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Exception: getKeysFromDB(): " + e.getMessage(), e);
+		}
+		
+		if (_storedKeys.isEmpty())
+		{
+			_storedKeys = UIData.getInstance().getKeys();
+		}
+	}
+	
+	public boolean isSaved()
+	{
+		return _saved;
 	}
 	
 	public void loadFromDB()
@@ -139,78 +195,22 @@ public class UIKeysSettings
 		_saved = true;
 	}
 	
-	public void getCatsFromDB()
+	public void storeAll(Map<Integer, List<Integer>> catMap, Map<Integer, List<ActionKey>> keyMap)
 	{
-		if (_storedCategories != null)
-		{
-			return;
-		}
-		
-		_storedCategories = new HashMap<>();
-		
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM character_ui_categories WHERE `charId` = ? ORDER BY `catId`, `order`"))
-		{
-			ps.setInt(1, _playerObjId);
-			try (ResultSet rs = ps.executeQuery())
-			{
-				while (rs.next())
-				{
-					UIData.addCategory(_storedCategories, rs.getInt("catId"), rs.getInt("cmdId"));
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Exception: getCatsFromDB(): " + e.getMessage(), e);
-		}
-		
-		if (_storedCategories.isEmpty())
-		{
-			_storedCategories = UIData.getInstance().getCategories();
-		}
+		_saved = false;
+		_storedCategories = catMap;
+		_storedKeys = keyMap;
 	}
 	
-	public void getKeysFromDB()
+	public void storeCategories(Map<Integer, List<Integer>> catMap)
 	{
-		if (_storedKeys != null)
-		{
-			return;
-		}
-		
-		_storedKeys = new HashMap<>();
-		
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM character_ui_actions WHERE `charId` = ? ORDER BY `cat`, `order`"))
-		{
-			ps.setInt(1, _playerObjId);
-			try (ResultSet rs = ps.executeQuery())
-			{
-				while (rs.next())
-				{
-					int cat = rs.getInt("cat");
-					int cmd = rs.getInt("cmd");
-					int key = rs.getInt("key");
-					int tgKey1 = rs.getInt("tgKey1");
-					int tgKey2 = rs.getInt("tgKey2");
-					int show = rs.getInt("show");
-					UIData.addKey(_storedKeys, cat, new ActionKey(cat, cmd, key, tgKey1, tgKey2, show));
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Exception: getKeysFromDB(): " + e.getMessage(), e);
-		}
-		
-		if (_storedKeys.isEmpty())
-		{
-			_storedKeys = UIData.getInstance().getKeys();
-		}
+		_saved = false;
+		_storedCategories = catMap;
 	}
 	
-	public boolean isSaved()
+	public void storeKeys(Map<Integer, List<ActionKey>> keyMap)
 	{
-		return _saved;
+		_saved = false;
+		_storedKeys = keyMap;
 	}
 }

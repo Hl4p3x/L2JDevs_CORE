@@ -45,6 +45,19 @@ public final class SiegeGuardManager
 	
 	/**
 	 * Add guard.
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @param heading
+	 * @param npcId
+	 */
+	public void addSiegeGuard(int x, int y, int z, int heading, int npcId)
+	{
+		saveSiegeGuard(x, y, z, heading, npcId, 0);
+	}
+	
+	/**
+	 * Add guard.
 	 * @param activeChar
 	 * @param npcId
 	 */
@@ -57,17 +70,27 @@ public final class SiegeGuardManager
 		addSiegeGuard(activeChar.getX(), activeChar.getY(), activeChar.getZ(), activeChar.getHeading(), npcId);
 	}
 	
+	public final Castle getCastle()
+	{
+		return _castle;
+	}
+	
+	public final List<L2Spawn> getSiegeGuardSpawn()
+	{
+		return _siegeGuardSpawn;
+	}
+	
 	/**
-	 * Add guard.
+	 * Hire merc.
 	 * @param x
 	 * @param y
 	 * @param z
 	 * @param heading
 	 * @param npcId
 	 */
-	public void addSiegeGuard(int x, int y, int z, int heading, int npcId)
+	public void hireMerc(int x, int y, int z, int heading, int npcId)
 	{
-		saveSiegeGuard(x, y, z, heading, npcId, 0);
+		saveSiegeGuard(x, y, z, heading, npcId, 1);
 	}
 	
 	/**
@@ -82,19 +105,6 @@ public final class SiegeGuardManager
 			return;
 		}
 		hireMerc(activeChar.getX(), activeChar.getY(), activeChar.getZ(), activeChar.getHeading(), npcId);
-	}
-	
-	/**
-	 * Hire merc.
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param heading
-	 * @param npcId
-	 */
-	public void hireMerc(int x, int y, int z, int heading, int npcId)
-	{
-		saveSiegeGuard(x, y, z, heading, npcId, 1);
 	}
 	
 	/**
@@ -255,15 +265,5 @@ public final class SiegeGuardManager
 		{
 			_log.log(Level.WARNING, getClass().getSimpleName() + ": Error adding siege guard for castle " + getCastle().getName() + ": " + e.getMessage(), e);
 		}
-	}
-	
-	public final Castle getCastle()
-	{
-		return _castle;
-	}
-	
-	public final List<L2Spawn> getSiegeGuardSpawn()
-	{
-		return _siegeGuardSpawn;
 	}
 }

@@ -48,6 +48,12 @@ public final class Attack extends L2GameClientPacket
 	private int _attackId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__01_ATTACK;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -140,11 +146,5 @@ public final class Attack extends L2GameClientPacket
 				activeChar.sendPacket(ActionFailed.STATIC_PACKET);
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__01_ATTACK;
 	}
 }

@@ -46,6 +46,12 @@ public final class RequestCrystallizeItem extends L2GameClientPacket
 	private long _count;
 	
 	@Override
+	public String getType()
+	{
+		return _C__2F_REQUESTDCRYSTALLIZEITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -233,11 +239,5 @@ public final class RequestCrystallizeItem extends L2GameClientPacket
 		world.removeObject(removedItem);
 		
 		activeChar.setInCrystallize(false);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__2F_REQUESTDCRYSTALLIZEITEM;
 	}
 }

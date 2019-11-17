@@ -38,10 +38,9 @@ public final class L2ArtefactInstance extends L2Npc
 	}
 	
 	@Override
-	public void onSpawn()
+	public boolean canBeAttacked()
 	{
-		super.onSpawn();
-		getCastle().registerArtefact(this);
+		return false;
 	}
 	
 	/**
@@ -54,12 +53,6 @@ public final class L2ArtefactInstance extends L2Npc
 	}
 	
 	@Override
-	public boolean canBeAttacked()
-	{
-		return false;
-	}
-	
-	@Override
 	public void onForcedAttack(L2PcInstance player)
 	{
 		// Send a Server->Client ActionFailed to the L2PcInstance in order to avoid that the client wait another packet
@@ -67,12 +60,19 @@ public final class L2ArtefactInstance extends L2Npc
 	}
 	
 	@Override
-	public void reduceCurrentHp(double damage, L2Character attacker, Skill skill)
+	public void onSpawn()
 	{
+		super.onSpawn();
+		getCastle().registerArtefact(this);
 	}
 	
 	@Override
 	public void reduceCurrentHp(double damage, L2Character attacker, boolean awake, boolean isDOT, Skill skill)
+	{
+	}
+	
+	@Override
+	public void reduceCurrentHp(double damage, L2Character attacker, Skill skill)
 	{
 	}
 }

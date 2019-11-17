@@ -42,6 +42,12 @@ public final class RequestPetitionCancel extends L2GameClientPacket
 	// private int _unknown;
 	
 	@Override
+	public String getType()
+	{
+		return _C__8A_REQUEST_PETITIONCANCEL;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// _unknown = readD(); This is pretty much a trigger packet.
@@ -93,11 +99,5 @@ public final class RequestPetitionCancel extends L2GameClientPacket
 				activeChar.sendPacket(SystemMessageId.PETITION_NOT_SUBMITTED);
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__8A_REQUEST_PETITIONCANCEL;
 	}
 }

@@ -32,6 +32,45 @@ public abstract class AbstractVariables extends StatsSet implements IRestorable,
 	private final AtomicBoolean _hasChanges = new AtomicBoolean(false);
 	
 	/**
+	 * Atomically sets the value to the given updated value if the current value {@code ==} the expected value.
+	 * @param expect
+	 * @param update
+	 * @return {@code true} if successful. {@code false} return indicates that the actual value was not equal to the expected value.
+	 */
+	public final boolean compareAndSetChanges(boolean expect, boolean update)
+	{
+		return _hasChanges.compareAndSet(expect, update);
+	}
+	
+	/**
+	 * @return {@code true} if changes are made since last load/save.
+	 */
+	public final boolean hasChanges()
+	{
+		return _hasChanges.get();
+	}
+	
+	/**
+	 * Return true if there exists a record for the variable name.
+	 * @param name
+	 * @return
+	 */
+	public boolean hasVariable(String name)
+	{
+		return getSet().keySet().contains(name);
+	}
+	
+	/**
+	 * Removes variable
+	 * @param name
+	 */
+	public final void remove(String name)
+	{
+		_hasChanges.compareAndSet(false, true);
+		getSet().remove(name);
+	}
+	
+	/**
 	 * Overriding following methods to prevent from doing useless database operations if there is no changes since player's login.
 	 */
 	
@@ -75,44 +114,5 @@ public abstract class AbstractVariables extends StatsSet implements IRestorable,
 	{
 		_hasChanges.compareAndSet(false, true);
 		super.set(name, value);
-	}
-	
-	/**
-	 * Return true if there exists a record for the variable name.
-	 * @param name
-	 * @return
-	 */
-	public boolean hasVariable(String name)
-	{
-		return getSet().keySet().contains(name);
-	}
-	
-	/**
-	 * @return {@code true} if changes are made since last load/save.
-	 */
-	public final boolean hasChanges()
-	{
-		return _hasChanges.get();
-	}
-	
-	/**
-	 * Atomically sets the value to the given updated value if the current value {@code ==} the expected value.
-	 * @param expect
-	 * @param update
-	 * @return {@code true} if successful. {@code false} return indicates that the actual value was not equal to the expected value.
-	 */
-	public final boolean compareAndSetChanges(boolean expect, boolean update)
-	{
-		return _hasChanges.compareAndSet(expect, update);
-	}
-	
-	/**
-	 * Removes variable
-	 * @param name
-	 */
-	public final void remove(String name)
-	{
-		_hasChanges.compareAndSet(false, true);
-		getSet().remove(name);
 	}
 }

@@ -31,14 +31,14 @@ public class FuncMAtkMod extends AbstractFunction
 {
 	private static final FuncMAtkMod _fma_instance = new FuncMAtkMod();
 	
-	public static AbstractFunction getInstance()
-	{
-		return _fma_instance;
-	}
-	
 	private FuncMAtkMod()
 	{
 		super(Stats.MAGIC_ATTACK, 1, null, 0, null);
+	}
+	
+	public static AbstractFunction getInstance()
+	{
+		return _fma_instance;
 	}
 	
 	@Override

@@ -28,6 +28,12 @@ public final class RequestRecipeItemMakeInfo extends L2GameClientPacket
 	private int _id;
 	
 	@Override
+	public String getType()
+	{
+		return _C__B7_REQUESTRECIPEITEMMAKEINFO;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_id = readD();
@@ -44,11 +50,5 @@ public final class RequestRecipeItemMakeInfo extends L2GameClientPacket
 		
 		RecipeItemMakeInfo response = new RecipeItemMakeInfo(_id, player);
 		sendPacket(response);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__B7_REQUESTRECIPEITEMMAKEINFO;
 	}
 }

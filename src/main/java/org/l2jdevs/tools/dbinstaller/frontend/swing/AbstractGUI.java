@@ -38,6 +38,39 @@ public abstract class AbstractGUI extends JFrame implements IApplicationFrontend
 	}
 	
 	@Override
+	public void close()
+	{
+		setVisible(false);
+		dispose();
+	}
+	
+	@Override
+	public void reportError(boolean drawAttention, String message)
+	{
+		if (drawAttention)
+		{
+			JOptionPane.showMessageDialog(this, message, "Database Installer", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	@Override
+	public final void reportError(boolean drawAttention, Throwable t, String message)
+	{
+		if (t != null)
+		{
+			message += MessageFormat.format("\n\nReason:\n{0}", t.getMessage());
+		}
+		
+		reportError(drawAttention, message);
+	}
+	
+	@Override
+	public final void reportError(boolean drawAttention, Throwable t, String message, Object... args)
+	{
+		reportError(drawAttention, t, MessageFormat.format(message, args));
+	}
+	
+	@Override
 	public void reportInfo(boolean drawAttention, String message)
 	{
 		if (drawAttention)
@@ -68,47 +101,14 @@ public abstract class AbstractGUI extends JFrame implements IApplicationFrontend
 	}
 	
 	@Override
-	public void reportError(boolean drawAttention, String message)
-	{
-		if (drawAttention)
-		{
-			JOptionPane.showMessageDialog(this, message, "Database Installer", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-	
-	@Override
-	public final void reportError(boolean drawAttention, Throwable t, String message)
-	{
-		if (t != null)
-		{
-			message += MessageFormat.format("\n\nReason:\n{0}", t.getMessage());
-		}
-		
-		reportError(drawAttention, message);
-	}
-	
-	@Override
-	public final void reportError(boolean drawAttention, Throwable t, String message, Object... args)
-	{
-		reportError(drawAttention, t, MessageFormat.format(message, args));
-	}
-	
-	@Override
-	public final String requestUserInput(String message, Object... args)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
 	public final boolean requestUserConfirm(String message, Object... args)
 	{
 		return JOptionPane.showConfirmDialog(this, MessageFormat.format(message, args), "Database Installer", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == 0;
 	}
 	
 	@Override
-	public void close()
+	public final String requestUserInput(String message, Object... args)
 	{
-		setVisible(false);
-		dispose();
+		throw new UnsupportedOperationException();
 	}
 }

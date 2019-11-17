@@ -50,6 +50,15 @@ public class AttackStanceTaskManager
 	}
 	
 	/**
+	 * Gets the single instance of AttackStanceTaskManager.
+	 * @return single instance of AttackStanceTaskManager
+	 */
+	public static AttackStanceTaskManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
 	 * Adds the attack stance task.
 	 * @param actor the actor
 	 */
@@ -73,22 +82,6 @@ public class AttackStanceTaskManager
 	}
 	
 	/**
-	 * Removes the attack stance task.
-	 * @param actor the actor
-	 */
-	public void removeAttackStanceTask(L2Character actor)
-	{
-		if (actor != null)
-		{
-			if (actor.isSummon())
-			{
-				actor = actor.getActingPlayer();
-			}
-			_attackStanceTasks.remove(actor);
-		}
-	}
-	
-	/**
 	 * Checks for attack stance task.<br>
 	 * @param actor the actor
 	 * @return {@code true} if the character has an attack stance task, {@code false} otherwise
@@ -104,6 +97,22 @@ public class AttackStanceTaskManager
 			return _attackStanceTasks.containsKey(actor);
 		}
 		return false;
+	}
+	
+	/**
+	 * Removes the attack stance task.
+	 * @param actor the actor
+	 */
+	public void removeAttackStanceTask(L2Character actor)
+	{
+		if (actor != null)
+		{
+			if (actor.isSummon())
+			{
+				actor = actor.getActingPlayer();
+			}
+			_attackStanceTasks.remove(actor);
+		}
 	}
 	
 	protected class FightModeScheduler implements Runnable
@@ -142,15 +151,6 @@ public class AttackStanceTaskManager
 				_log.log(Level.WARNING, "Error in FightModeScheduler: " + e.getMessage(), e);
 			}
 		}
-	}
-	
-	/**
-	 * Gets the single instance of AttackStanceTaskManager.
-	 * @return single instance of AttackStanceTaskManager
-	 */
-	public static AttackStanceTaskManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

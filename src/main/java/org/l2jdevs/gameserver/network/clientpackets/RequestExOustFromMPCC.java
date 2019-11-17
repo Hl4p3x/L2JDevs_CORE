@@ -33,6 +33,12 @@ public final class RequestExOustFromMPCC extends L2GameClientPacket
 	private String _name;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_08_REQUESTEXOUSTFROMMPCC;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -69,11 +75,5 @@ public final class RequestExOustFromMPCC extends L2GameClientPacket
 		{
 			activeChar.sendPacket(SystemMessageId.TARGET_CANT_FOUND);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_08_REQUESTEXOUSTFROMMPCC;
 	}
 }

@@ -34,14 +34,14 @@ public final class AggroInfo
 		_attacker = pAttacker;
 	}
 	
-	public L2Character getAttacker()
+	public void addDamage(int value)
 	{
-		return _attacker;
+		_damage = (int) Math.min(_damage + (long) value, 999999999);
 	}
 	
-	public long getHate()
+	public void addHate(long value)
 	{
-		return _hate;
+		_hate = Math.min(_hate + value, 999999999);
 	}
 	
 	public long checkHate(L2Character owner)
@@ -52,26 +52,6 @@ public final class AggroInfo
 		}
 		
 		return _hate;
-	}
-	
-	public void addHate(long value)
-	{
-		_hate = Math.min(_hate + value, 999999999);
-	}
-	
-	public void stopHate()
-	{
-		_hate = 0;
-	}
-	
-	public int getDamage()
-	{
-		return _damage;
-	}
-	
-	public void addDamage(int value)
-	{
-		_damage = (int) Math.min(_damage + (long) value, 999999999);
 	}
 	
 	@Override
@@ -90,10 +70,30 @@ public final class AggroInfo
 		return false;
 	}
 	
+	public L2Character getAttacker()
+	{
+		return _attacker;
+	}
+	
+	public int getDamage()
+	{
+		return _damage;
+	}
+	
+	public long getHate()
+	{
+		return _hate;
+	}
+	
 	@Override
 	public final int hashCode()
 	{
 		return _attacker.getObjectId();
+	}
+	
+	public void stopHate()
+	{
+		_hate = 0;
 	}
 	
 	@Override

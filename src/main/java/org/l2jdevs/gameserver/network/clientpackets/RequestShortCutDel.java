@@ -32,6 +32,12 @@ public final class RequestShortCutDel extends L2GameClientPacket
 	private int _page;
 	
 	@Override
+	public String getType()
+	{
+		return _C__3F_REQUESTSHORTCUTDEL;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		int id = readD();
@@ -55,12 +61,6 @@ public final class RequestShortCutDel extends L2GameClientPacket
 		
 		activeChar.deleteShortCut(_slot, _page);
 		// client needs no confirmation. this packet is just to inform the server
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__3F_REQUESTSHORTCUTDEL;
 	}
 	
 	@Override

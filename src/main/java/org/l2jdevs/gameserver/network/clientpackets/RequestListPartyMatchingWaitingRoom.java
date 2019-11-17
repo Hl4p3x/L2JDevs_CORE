@@ -33,6 +33,12 @@ public class RequestListPartyMatchingWaitingRoom extends L2GameClientPacket
 	private int _mode; // 1 - waitlist 0 - room waitlist
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_31_REQUESTLISTPARTYMATCHINGWAITINGROOM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_page = readD();
@@ -52,12 +58,6 @@ public class RequestListPartyMatchingWaitingRoom extends L2GameClientPacket
 		}
 		
 		_activeChar.sendPacket(new ExListPartyMatchingWaitingRoom(_activeChar, _page, _minlvl, _maxlvl, _mode));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_31_REQUESTLISTPARTYMATCHINGWAITINGROOM;
 	}
 	
 }

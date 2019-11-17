@@ -57,6 +57,44 @@ public final class InitialShortcutData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of InitialEquipmentData.
+	 * @return single instance of InitialEquipmentData
+	 */
+	public static InitialShortcutData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the global shortcut list.
+	 * @return the global shortcut list
+	 */
+	public List<Shortcut> getGlobalMacroList()
+	{
+		return _initialGlobalShortcutList;
+	}
+	
+	/**
+	 * Gets the shortcut list.
+	 * @param cId the class ID for the shortcut list
+	 * @return the shortcut list for the give class ID
+	 */
+	public List<Shortcut> getShortcutList(ClassId cId)
+	{
+		return _initialShortcutData.get(cId);
+	}
+	
+	/**
+	 * Gets the shortcut list.
+	 * @param cId the class ID for the shortcut list
+	 * @return the shortcut list for the give class ID
+	 */
+	public List<Shortcut> getShortcutList(int cId)
+	{
+		return _initialShortcutData.get(ClassId.getClassId(cId));
+	}
+	
 	@Override
 	public void load()
 	{
@@ -95,164 +133,6 @@ public final class InitialShortcutData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Parses a shortcut.
-	 * @param d the node
-	 */
-	private void parseShortcuts(Node d)
-	{
-		NamedNodeMap attrs = d.getAttributes();
-		final Node classIdNode = attrs.getNamedItem("classId");
-		final List<Shortcut> list = new ArrayList<>();
-		for (Node c = d.getFirstChild(); c != null; c = c.getNextSibling())
-		{
-			if ("page".equals(c.getNodeName()))
-			{
-				attrs = c.getAttributes();
-				final int pageId = parseInteger(attrs, "pageId");
-				for (Node b = c.getFirstChild(); b != null; b = b.getNextSibling())
-				{
-					if ("slot".equals(b.getNodeName()))
-					{
-						list.add(createShortcut(pageId, b));
-					}
-				}
-			}
-		}
-		
-		if (classIdNode != null)
-		{
-			_initialShortcutData.put(ClassId.getClassId(Integer.parseInt(classIdNode.getNodeValue())), list);
-		}
-		else
-		{
-			_initialGlobalShortcutList.addAll(list);
-		}
-	}
-	
-	/**
-	 * Parses a macro.
-	 * @param d the node
-	 */
-	private void parseMacros(Node d)
-	{
-		for (Node c = d.getFirstChild(); c != null; c = c.getNextSibling())
-		{
-			if ("macro".equals(c.getNodeName()))
-			{
-				NamedNodeMap attrs = c.getAttributes();
-				if (!parseBoolean(attrs, "enabled", true))
-				{
-					continue;
-				}
-				
-				final int macroId = parseInteger(attrs, "macroId");
-				final int icon = parseInteger(attrs, "icon");
-				final String name = parseString(attrs, "name");
-				final String description = parseString(attrs, "description");
-				final String acronym = parseString(attrs, "acronym");
-				final List<MacroCmd> commands = new ArrayList<>(1);
-				int entry = 0;
-				for (Node b = c.getFirstChild(); b != null; b = b.getNextSibling())
-				{
-					if ("command".equals(b.getNodeName()))
-					{
-						attrs = b.getAttributes();
-						final MacroType type = parseEnum(attrs, MacroType.class, "type");
-						int d1 = 0;
-						int d2 = 0;
-						final String cmd = b.getTextContent();
-						switch (type)
-						{
-							case SKILL:
-							{
-								d1 = parseInteger(attrs, "skillId"); // Skill ID
-								d2 = parseInteger(attrs, "skillLvl", 0); // Skill level
-								break;
-							}
-							case ACTION:
-							{
-								// Not handled by client.
-								d1 = parseInteger(attrs, "actionId");
-								break;
-							}
-							case TEXT:
-							{
-								// Doesn't have numeric parameters.
-								break;
-							}
-							case SHORTCUT:
-							{
-								d1 = parseInteger(attrs, "page"); // Page
-								d2 = parseInteger(attrs, "slot", 0); // Slot
-								break;
-							}
-							case ITEM:
-							{
-								// Not handled by client.
-								d1 = parseInteger(attrs, "itemId");
-								break;
-							}
-							case DELAY:
-							{
-								d1 = parseInteger(attrs, "delay"); // Delay in seconds
-								break;
-							}
-						}
-						commands.add(new MacroCmd(entry++, type, d1, d2, cmd));
-					}
-				}
-				_macroPresets.put(macroId, new Macro(macroId, icon, name, description, acronym, commands));
-			}
-		}
-	}
-	
-	/**
-	 * Parses a node an create a shortcut from it.
-	 * @param pageId the page ID
-	 * @param b the node to parse
-	 * @return the new shortcut
-	 */
-	private Shortcut createShortcut(int pageId, Node b)
-	{
-		final NamedNodeMap attrs = b.getAttributes();
-		final int slotId = parseInteger(attrs, "slotId");
-		final ShortcutType shortcutType = parseEnum(attrs, ShortcutType.class, "shortcutType");
-		final int shortcutId = parseInteger(attrs, "shortcutId");
-		final int shortcutLevel = parseInteger(attrs, "shortcutLevel", 0);
-		final int characterType = parseInteger(attrs, "characterType", 0);
-		return new Shortcut(slotId, pageId, shortcutType, shortcutId, shortcutLevel, characterType);
-	}
-	
-	/**
-	 * Gets the shortcut list.
-	 * @param cId the class ID for the shortcut list
-	 * @return the shortcut list for the give class ID
-	 */
-	public List<Shortcut> getShortcutList(ClassId cId)
-	{
-		return _initialShortcutData.get(cId);
-	}
-	
-	/**
-	 * Gets the shortcut list.
-	 * @param cId the class ID for the shortcut list
-	 * @return the shortcut list for the give class ID
-	 */
-	public List<Shortcut> getShortcutList(int cId)
-	{
-		return _initialShortcutData.get(ClassId.getClassId(cId));
-	}
-	
-	/**
-	 * Gets the global shortcut list.
-	 * @return the global shortcut list
-	 */
-	public List<Shortcut> getGlobalMacroList()
-	{
-		return _initialGlobalShortcutList;
 	}
 	
 	/**
@@ -354,12 +234,132 @@ public final class InitialShortcutData implements IXmlReader
 	}
 	
 	/**
-	 * Gets the single instance of InitialEquipmentData.
-	 * @return single instance of InitialEquipmentData
+	 * Parses a node an create a shortcut from it.
+	 * @param pageId the page ID
+	 * @param b the node to parse
+	 * @return the new shortcut
 	 */
-	public static InitialShortcutData getInstance()
+	private Shortcut createShortcut(int pageId, Node b)
 	{
-		return SingletonHolder._instance;
+		final NamedNodeMap attrs = b.getAttributes();
+		final int slotId = parseInteger(attrs, "slotId");
+		final ShortcutType shortcutType = parseEnum(attrs, ShortcutType.class, "shortcutType");
+		final int shortcutId = parseInteger(attrs, "shortcutId");
+		final int shortcutLevel = parseInteger(attrs, "shortcutLevel", 0);
+		final int characterType = parseInteger(attrs, "characterType", 0);
+		return new Shortcut(slotId, pageId, shortcutType, shortcutId, shortcutLevel, characterType);
+	}
+	
+	/**
+	 * Parses a macro.
+	 * @param d the node
+	 */
+	private void parseMacros(Node d)
+	{
+		for (Node c = d.getFirstChild(); c != null; c = c.getNextSibling())
+		{
+			if ("macro".equals(c.getNodeName()))
+			{
+				NamedNodeMap attrs = c.getAttributes();
+				if (!parseBoolean(attrs, "enabled", true))
+				{
+					continue;
+				}
+				
+				final int macroId = parseInteger(attrs, "macroId");
+				final int icon = parseInteger(attrs, "icon");
+				final String name = parseString(attrs, "name");
+				final String description = parseString(attrs, "description");
+				final String acronym = parseString(attrs, "acronym");
+				final List<MacroCmd> commands = new ArrayList<>(1);
+				int entry = 0;
+				for (Node b = c.getFirstChild(); b != null; b = b.getNextSibling())
+				{
+					if ("command".equals(b.getNodeName()))
+					{
+						attrs = b.getAttributes();
+						final MacroType type = parseEnum(attrs, MacroType.class, "type");
+						int d1 = 0;
+						int d2 = 0;
+						final String cmd = b.getTextContent();
+						switch (type)
+						{
+							case SKILL:
+							{
+								d1 = parseInteger(attrs, "skillId"); // Skill ID
+								d2 = parseInteger(attrs, "skillLvl", 0); // Skill level
+								break;
+							}
+							case ACTION:
+							{
+								// Not handled by client.
+								d1 = parseInteger(attrs, "actionId");
+								break;
+							}
+							case TEXT:
+							{
+								// Doesn't have numeric parameters.
+								break;
+							}
+							case SHORTCUT:
+							{
+								d1 = parseInteger(attrs, "page"); // Page
+								d2 = parseInteger(attrs, "slot", 0); // Slot
+								break;
+							}
+							case ITEM:
+							{
+								// Not handled by client.
+								d1 = parseInteger(attrs, "itemId");
+								break;
+							}
+							case DELAY:
+							{
+								d1 = parseInteger(attrs, "delay"); // Delay in seconds
+								break;
+							}
+						}
+						commands.add(new MacroCmd(entry++, type, d1, d2, cmd));
+					}
+				}
+				_macroPresets.put(macroId, new Macro(macroId, icon, name, description, acronym, commands));
+			}
+		}
+	}
+	
+	/**
+	 * Parses a shortcut.
+	 * @param d the node
+	 */
+	private void parseShortcuts(Node d)
+	{
+		NamedNodeMap attrs = d.getAttributes();
+		final Node classIdNode = attrs.getNamedItem("classId");
+		final List<Shortcut> list = new ArrayList<>();
+		for (Node c = d.getFirstChild(); c != null; c = c.getNextSibling())
+		{
+			if ("page".equals(c.getNodeName()))
+			{
+				attrs = c.getAttributes();
+				final int pageId = parseInteger(attrs, "pageId");
+				for (Node b = c.getFirstChild(); b != null; b = b.getNextSibling())
+				{
+					if ("slot".equals(b.getNodeName()))
+					{
+						list.add(createShortcut(pageId, b));
+					}
+				}
+			}
+		}
+		
+		if (classIdNode != null)
+		{
+			_initialShortcutData.put(ClassId.getClassId(Integer.parseInt(classIdNode.getNodeValue())), list);
+		}
+		else
+		{
+			_initialGlobalShortcutList.addAll(list);
+		}
 	}
 	
 	private static class SingletonHolder

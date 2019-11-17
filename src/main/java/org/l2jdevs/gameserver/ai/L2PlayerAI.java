@@ -48,11 +48,6 @@ public class L2PlayerAI extends L2PlayableAI
 		super(creature);
 	}
 	
-	void saveNextIntention(CtrlIntention intention, Object arg0, Object arg1)
-	{
-		_nextIntention = new IntentionCommand(intention, arg0, arg1);
-	}
-	
 	@Override
 	public IntentionCommand getNextIntention()
 	{
@@ -88,23 +83,13 @@ public class L2PlayerAI extends L2PlayableAI
 		super.changeIntention(intention, arg0, arg1);
 	}
 	
-	/**
-	 * Launch actions corresponding to the Event ReadyToAct.<br>
-	 * <B><U> Actions</U> :</B>
-	 * <ul>
-	 * <li>Launch actions corresponding to the Event Think</li>
-	 * </ul>
-	 */
 	@Override
-	protected void onEvtReadyToAct()
+	protected void clientNotifyDead()
 	{
-		// Launch actions corresponding to the Event Think
-		if (_nextIntention != null)
-		{
-			setIntention(_nextIntention._crtlIntention, _nextIntention._arg0, _nextIntention._arg1);
-			_nextIntention = null;
-		}
-		super.onEvtReadyToAct();
+		_clientMovingToPawnOffset = 0;
+		_clientMoving = false;
+		
+		super.clientNotifyDead();
 	}
 	
 	/**
@@ -154,18 +139,56 @@ public class L2PlayerAI extends L2PlayableAI
 		}
 	}
 	
+	/**
+	 * Launch actions corresponding to the Event ReadyToAct.<br>
+	 * <B><U> Actions</U> :</B>
+	 * <ul>
+	 * <li>Launch actions corresponding to the Event Think</li>
+	 * </ul>
+	 */
 	@Override
-	protected void onIntentionRest()
+	protected void onEvtReadyToAct()
 	{
-		if (getIntention() != AI_INTENTION_REST)
+		// Launch actions corresponding to the Event Think
+		if (_nextIntention != null)
 		{
-			changeIntention(AI_INTENTION_REST, null, null);
-			setTarget(null);
-			if (getAttackTarget() != null)
+			setIntention(_nextIntention._crtlIntention, _nextIntention._arg0, _nextIntention._arg1);
+			_nextIntention = null;
+		}
+		super.onEvtReadyToAct();
+	}
+	
+	@Override
+	protected void onEvtThink()
+	{
+		if (_thinking && (getIntention() != AI_INTENTION_CAST))
+		{
+			return;
+		}
+		
+		_thinking = true;
+		try
+		{
+			if (getIntention() == AI_INTENTION_ATTACK)
 			{
-				setAttackTarget(null);
+				thinkAttack();
 			}
-			clientStopMoving(null);
+			else if (getIntention() == AI_INTENTION_CAST)
+			{
+				thinkCast();
+			}
+			else if (getIntention() == AI_INTENTION_PICK_UP)
+			{
+				thinkPickUp();
+			}
+			else if (getIntention() == AI_INTENTION_INTERACT)
+			{
+				thinkInteract();
+			}
+		}
+		finally
+		{
+			_thinking = false;
 		}
 	}
 	
@@ -220,12 +243,23 @@ public class L2PlayerAI extends L2PlayableAI
 	}
 	
 	@Override
-	protected void clientNotifyDead()
+	protected void onIntentionRest()
 	{
-		_clientMovingToPawnOffset = 0;
-		_clientMoving = false;
-		
-		super.clientNotifyDead();
+		if (getIntention() != AI_INTENTION_REST)
+		{
+			changeIntention(AI_INTENTION_REST, null, null);
+			setTarget(null);
+			if (getAttackTarget() != null)
+			{
+				setAttackTarget(null);
+			}
+			clientStopMoving(null);
+		}
+	}
+	
+	void saveNextIntention(CtrlIntention intention, Object arg0, Object arg1)
+	{
+		_nextIntention = new IntentionCommand(intention, arg0, arg1);
 	}
 	
 	private void thinkAttack()
@@ -288,25 +322,6 @@ public class L2PlayerAI extends L2PlayableAI
 		_actor.doCast(_skill);
 	}
 	
-	private void thinkPickUp()
-	{
-		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow())
-		{
-			return;
-		}
-		L2Object target = getTarget();
-		if (checkTargetLost(target))
-		{
-			return;
-		}
-		if (maybeMoveToPawn(target, 36))
-		{
-			return;
-		}
-		setIntention(AI_INTENTION_IDLE);
-		_actor.getActingPlayer().doPickupItem(target);
-	}
-	
 	private void thinkInteract()
 	{
 		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow())
@@ -329,37 +344,22 @@ public class L2PlayerAI extends L2PlayableAI
 		setIntention(AI_INTENTION_IDLE);
 	}
 	
-	@Override
-	protected void onEvtThink()
+	private void thinkPickUp()
 	{
-		if (_thinking && (getIntention() != AI_INTENTION_CAST))
+		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow())
 		{
 			return;
 		}
-		
-		_thinking = true;
-		try
+		L2Object target = getTarget();
+		if (checkTargetLost(target))
 		{
-			if (getIntention() == AI_INTENTION_ATTACK)
-			{
-				thinkAttack();
-			}
-			else if (getIntention() == AI_INTENTION_CAST)
-			{
-				thinkCast();
-			}
-			else if (getIntention() == AI_INTENTION_PICK_UP)
-			{
-				thinkPickUp();
-			}
-			else if (getIntention() == AI_INTENTION_INTERACT)
-			{
-				thinkInteract();
-			}
+			return;
 		}
-		finally
+		if (maybeMoveToPawn(target, 36))
 		{
-			_thinking = false;
+			return;
 		}
+		setIntention(AI_INTENTION_IDLE);
+		_actor.getActingPlayer().doPickupItem(target);
 	}
 }

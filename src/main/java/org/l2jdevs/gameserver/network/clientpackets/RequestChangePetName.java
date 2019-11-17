@@ -35,6 +35,12 @@ public final class RequestChangePetName extends L2GameClientPacket
 	private String _name;
 	
 	@Override
+	public String getType()
+	{
+		return _C__93_REQUESTCHANGEPETNAME;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -87,11 +93,5 @@ public final class RequestChangePetName extends L2GameClientPacket
 		
 		pet.setName(_name);
 		pet.updateAndBroadcastStatus(1);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__93_REQUESTCHANGEPETNAME;
 	}
 }

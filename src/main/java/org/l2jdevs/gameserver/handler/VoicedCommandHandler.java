@@ -33,6 +33,22 @@ public class VoicedCommandHandler implements IHandler<IVoicedCommandHandler, Str
 		_datatable = new HashMap<>();
 	}
 	
+	public static VoicedCommandHandler getInstance()
+	{
+		return SingletonHolder.INSTANCE;
+	}
+	
+	@Override
+	public IVoicedCommandHandler getHandler(String voicedCommand)
+	{
+		String command = voicedCommand;
+		if (voicedCommand.contains(" "))
+		{
+			command = voicedCommand.substring(0, voicedCommand.indexOf(" "));
+		}
+		return _datatable.get(command);
+	}
+	
 	@Override
 	public void registerHandler(IVoicedCommandHandler handler)
 	{
@@ -52,25 +68,9 @@ public class VoicedCommandHandler implements IHandler<IVoicedCommandHandler, Str
 	}
 	
 	@Override
-	public IVoicedCommandHandler getHandler(String voicedCommand)
-	{
-		String command = voicedCommand;
-		if (voicedCommand.contains(" "))
-		{
-			command = voicedCommand.substring(0, voicedCommand.indexOf(" "));
-		}
-		return _datatable.get(command);
-	}
-	
-	@Override
 	public int size()
 	{
 		return _datatable.size();
-	}
-	
-	public static VoicedCommandHandler getInstance()
-	{
-		return SingletonHolder.INSTANCE;
 	}
 	
 	private static class SingletonHolder

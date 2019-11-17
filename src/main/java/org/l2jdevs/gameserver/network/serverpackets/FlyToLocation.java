@@ -30,12 +30,9 @@ public final class FlyToLocation extends L2GameServerPacket
 	private final int _chaObjId, _chaX, _chaY, _chaZ;
 	private final FlyType _type;
 	
-	public enum FlyType
+	public FlyToLocation(L2Character cha, ILocational dest, FlyType type)
 	{
-		THROW_UP,
-		THROW_HORIZONTAL,
-		DUMMY, // no effect
-		CHARGE;
+		this(cha, dest.getX(), dest.getY(), dest.getZ(), type);
 	}
 	
 	public FlyToLocation(L2Character cha, int destX, int destY, int destZ, FlyType type)
@@ -50,11 +47,6 @@ public final class FlyToLocation extends L2GameServerPacket
 		_type = type;
 	}
 	
-	public FlyToLocation(L2Character cha, ILocational dest, FlyType type)
-	{
-		this(cha, dest.getX(), dest.getY(), dest.getZ(), type);
-	}
-	
 	@Override
 	protected void writeImpl()
 	{
@@ -67,5 +59,13 @@ public final class FlyToLocation extends L2GameServerPacket
 		writeD(_chaY);
 		writeD(_chaZ);
 		writeD(_type.ordinal());
+	}
+	
+	public enum FlyType
+	{
+		THROW_UP,
+		THROW_HORIZONTAL,
+		DUMMY, // no effect
+		CHARGE;
 	}
 }

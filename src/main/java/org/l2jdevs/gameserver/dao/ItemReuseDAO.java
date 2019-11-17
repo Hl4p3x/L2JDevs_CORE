@@ -27,10 +27,10 @@ import org.l2jdevs.gameserver.model.actor.instance.L2PcInstance;
 public interface ItemReuseDAO
 {
 	/**
-	 * Restores the item reuse for the given player.
+	 * Deletes the item reuse from the player.
 	 * @param player the player
 	 */
-	void load(L2PcInstance player);
+	void delete(L2PcInstance player);
 	
 	/**
 	 * Inserts the item reuse for the given player.
@@ -39,8 +39,8 @@ public interface ItemReuseDAO
 	void insert(L2PcInstance player);
 	
 	/**
-	 * Deletes the item reuse from the player.
+	 * Restores the item reuse for the given player.
 	 * @param player the player
 	 */
-	void delete(L2PcInstance player);
+	void load(L2PcInstance player);
 }

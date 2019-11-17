@@ -49,6 +49,16 @@ public final class TransformData implements IXmlReader
 		load();
 	}
 	
+	public static TransformData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public Transform getTransform(int id)
+	{
+		return _transformData.get(id);
+	}
+	
 	@Override
 	public synchronized void load()
 	{
@@ -218,11 +228,6 @@ public final class TransformData implements IXmlReader
 		}
 	}
 	
-	public Transform getTransform(int id)
-	{
-		return _transformData.get(id);
-	}
-	
 	public boolean transformPlayer(int id, L2PcInstance player)
 	{
 		final Transform transform = getTransform(id);
@@ -231,11 +236,6 @@ public final class TransformData implements IXmlReader
 			player.transform(transform);
 		}
 		return transform != null;
-	}
-	
-	public static TransformData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

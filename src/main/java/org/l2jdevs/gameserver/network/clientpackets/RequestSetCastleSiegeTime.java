@@ -39,6 +39,45 @@ public class RequestSetCastleSiegeTime extends L2GameClientPacket
 	private int _castleId;
 	private long _time;
 	
+	private static boolean isEqual(Calendar cal1, Calendar cal2, int... fields)
+	{
+		for (int field : fields)
+		{
+			if (cal1.get(field) != cal2.get(field))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private static boolean isSiegeTimeValid(long siegeDate, long choosenDate)
+	{
+		Calendar cal1 = Calendar.getInstance();
+		cal1.setTimeInMillis(siegeDate);
+		cal1.set(Calendar.MINUTE, 0);
+		cal1.set(Calendar.SECOND, 0);
+		
+		Calendar cal2 = Calendar.getInstance();
+		cal2.setTimeInMillis(choosenDate);
+		
+		for (int hour : Config.SIEGE_HOUR_LIST)
+		{
+			cal1.set(Calendar.HOUR_OF_DAY, hour);
+			if (isEqual(cal1, cal2, Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, Calendar.HOUR, Calendar.MINUTE, Calendar.SECOND))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public String getType()
+	{
+		return getClass().getSimpleName();
+	}
+	
 	@Override
 	protected void readImpl()
 	{
@@ -88,44 +127,5 @@ public class RequestSetCastleSiegeTime extends L2GameClientPacket
 		{
 			_log.log(Level.WARNING, getType() + ": activeChar: " + activeChar + " castle: " + castle + " castleId: " + _castleId + " is trying to change siege date but currently not possible!");
 		}
-	}
-	
-	private static boolean isSiegeTimeValid(long siegeDate, long choosenDate)
-	{
-		Calendar cal1 = Calendar.getInstance();
-		cal1.setTimeInMillis(siegeDate);
-		cal1.set(Calendar.MINUTE, 0);
-		cal1.set(Calendar.SECOND, 0);
-		
-		Calendar cal2 = Calendar.getInstance();
-		cal2.setTimeInMillis(choosenDate);
-		
-		for (int hour : Config.SIEGE_HOUR_LIST)
-		{
-			cal1.set(Calendar.HOUR_OF_DAY, hour);
-			if (isEqual(cal1, cal2, Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, Calendar.HOUR, Calendar.MINUTE, Calendar.SECOND))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	private static boolean isEqual(Calendar cal1, Calendar cal2, int... fields)
-	{
-		for (int field : fields)
-		{
-			if (cal1.get(field) != cal2.get(field))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	@Override
-	public String getType()
-	{
-		return getClass().getSimpleName();
 	}
 }

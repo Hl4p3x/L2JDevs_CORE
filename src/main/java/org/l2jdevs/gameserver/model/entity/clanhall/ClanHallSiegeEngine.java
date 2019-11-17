@@ -90,126 +90,30 @@ public abstract class ClanHallSiegeEngine extends Quest implements Siegable
 		loadAttackers();
 	}
 	
-	public void loadAttackers()
+	public final void broadcastNpcSay(final L2Npc npc, final int type, final NpcStringId messageId)
 	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(SQL_LOAD_ATTACKERS))
+		final NpcSay npcSay = new NpcSay(npc.getObjectId(), type, npc.getId(), messageId);
+		final int sourceRegion = MapRegionManager.getInstance().getMapRegionLocId(npc);
+		for (L2PcInstance pc : L2World.getInstance().getPlayers())
 		{
-			ps.setInt(1, _hall.getId());
-			try (ResultSet rset = ps.executeQuery())
+			if ((pc != null) && (MapRegionManager.getInstance().getMapRegionLocId(pc) == sourceRegion))
 			{
-				while (rset.next())
-				{
-					final int id = rset.getInt("attacker_id");
-					L2SiegeClan clan = new L2SiegeClan(id, SiegeClanType.ATTACKER);
-					_attackers.put(id, clan);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			_log.warn("{}: Could not load siege attackers!", getName(), e);
-		}
-	}
-	
-	public final void saveAttackers()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM clanhall_siege_attackers WHERE clanhall_id = ?"))
-		{
-			ps.setInt(1, _hall.getId());
-			ps.execute();
-			
-			if (_attackers.size() > 0)
-			{
-				try (PreparedStatement insert = con.prepareStatement(SQL_SAVE_ATTACKERS))
-				{
-					for (L2SiegeClan clan : _attackers.values())
-					{
-						insert.setInt(1, _hall.getId());
-						insert.setInt(2, clan.getClanId());
-						insert.execute();
-						insert.clearParameters();
-					}
-				}
-			}
-			_log.info("{}: Successfully saved attackers to database.", getName());
-		}
-		catch (Exception e)
-		{
-			_log.warn("{}: Couldnt save attacker list!", getName(), e);
-		}
-	}
-	
-	public final void loadGuards()
-	{
-		if (_guards == null)
-		{
-			_guards = new ArrayList<>();
-			try (Connection con = ConnectionFactory.getInstance().getConnection();
-				PreparedStatement ps = con.prepareStatement(SQL_LOAD_GUARDS))
-			{
-				ps.setInt(1, _hall.getId());
-				try (ResultSet rset = ps.executeQuery())
-				{
-					while (rset.next())
-					{
-						final L2Spawn spawn = new L2Spawn(rset.getInt("npcId"));
-						spawn.setX(rset.getInt("x"));
-						spawn.setY(rset.getInt("y"));
-						spawn.setZ(rset.getInt("z"));
-						spawn.setHeading(rset.getInt("heading"));
-						spawn.setRespawnDelay(rset.getInt("respawnDelay"));
-						spawn.setAmount(1);
-						_guards.add(spawn);
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				_log.warn("{}: Couldn't load siege guards!", getName(), e);
+				pc.sendPacket(npcSay);
 			}
 		}
 	}
 	
-	private final void spawnSiegeGuards()
+	public void cancelSiegeTask()
 	{
-		for (L2Spawn guard : _guards)
+		if (_siegeTask != null)
 		{
-			guard.init();
+			_siegeTask.cancel(false);
 		}
 	}
 	
-	private final void unSpawnSiegeGuards()
+	public boolean canPlantFlag()
 	{
-		if (_guards != null)
-		{
-			for (L2Spawn guard : _guards)
-			{
-				guard.stopRespawn();
-				if (guard.getLastSpawn() != null)
-				{
-					guard.getLastSpawn().deleteMe();
-				}
-			}
-		}
-	}
-	
-	@Override
-	public List<L2Npc> getFlag(L2Clan clan)
-	{
-		List<L2Npc> result = null;
-		L2SiegeClan sClan = getAttackerClan(clan);
-		if (sClan != null)
-		{
-			result = sClan.getFlag();
-		}
-		return result;
-	}
-	
-	public final Map<Integer, L2SiegeClan> getAttackers()
-	{
-		return _attackers;
+		return true;
 	}
 	
 	@Override
@@ -229,116 +133,9 @@ public abstract class ClanHallSiegeEngine extends Quest implements Siegable
 		return false;
 	}
 	
-	@Override
-	public L2SiegeClan getAttackerClan(int clanId)
+	public boolean doorIsAutoAttackable()
 	{
-		return _attackers.get(clanId);
-	}
-	
-	@Override
-	public L2SiegeClan getAttackerClan(L2Clan clan)
-	{
-		return getAttackerClan(clan.getId());
-	}
-	
-	@Override
-	public List<L2SiegeClan> getAttackerClans()
-	{
-		return new ArrayList<>(_attackers.values());
-	}
-	
-	@Override
-	public List<L2PcInstance> getAttackersInZone()
-	{
-		final List<L2PcInstance> attackers = new ArrayList<>();
-		for (L2PcInstance pc : _hall.getSiegeZone().getPlayersInside())
-		{
-			final L2Clan clan = pc.getClan();
-			if ((clan != null) && _attackers.containsKey(clan.getId()))
-			{
-				attackers.add(pc);
-			}
-		}
-		return attackers;
-	}
-	
-	@Override
-	public L2SiegeClan getDefenderClan(int clanId)
-	{
-		return null;
-	}
-	
-	@Override
-	public L2SiegeClan getDefenderClan(L2Clan clan)
-	{
-		return null;
-	}
-	
-	@Override
-	public List<L2SiegeClan> getDefenderClans()
-	{
-		return null;
-	}
-	
-	public void prepareOwner()
-	{
-		if (_hall.getOwnerId() > 0)
-		{
-			final L2SiegeClan clan = new L2SiegeClan(_hall.getOwnerId(), SiegeClanType.ATTACKER);
-			_attackers.put(clan.getClanId(), new L2SiegeClan(clan.getClanId(), SiegeClanType.ATTACKER));
-		}
-		
-		_hall.free();
-		_hall.banishForeigners();
-		SystemMessage msg = SystemMessage.getSystemMessage(SystemMessageId.REGISTRATION_TERM_FOR_S1_ENDED);
-		msg.addString(getName());
-		Broadcast.toAllOnlinePlayers(msg);
-		_hall.updateSiegeStatus(SiegeStatus.WAITING_BATTLE);
-		
-		_siegeTask = ThreadPoolManager.getInstance().scheduleGeneral(new SiegeStarts(), 3600000);
-	}
-	
-	@Override
-	public void startSiege()
-	{
-		if ((_attackers.size() < 1) && (_hall.getId() != 21)) // Fortress of resistance don't have attacker list
-		{
-			onSiegeEnds();
-			_attackers.clear();
-			_hall.updateNextSiege();
-			_siegeTask = ThreadPoolManager.getInstance().scheduleGeneral(new PrepareOwner(), _hall.getSiegeDate().getTimeInMillis());
-			_hall.updateSiegeStatus(SiegeStatus.WAITING_BATTLE);
-			SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.SIEGE_OF_S1_HAS_BEEN_CANCELED_DUE_TO_LACK_OF_INTEREST);
-			sm.addString(_hall.getName());
-			Broadcast.toAllOnlinePlayers(sm);
-			return;
-		}
-		
-		_hall.spawnDoor();
-		loadGuards();
-		spawnSiegeGuards();
-		_hall.updateSiegeZone(true);
-		
-		final byte state = 1;
-		for (L2SiegeClan sClan : _attackers.values())
-		{
-			final L2Clan clan = ClanTable.getInstance().getClan(sClan.getClanId());
-			if (clan == null)
-			{
-				continue;
-			}
-			
-			for (L2PcInstance pc : clan.getOnlineMembers(0))
-			{
-				pc.setSiegeState(state);
-				pc.broadcastUserInfo();
-				pc.setIsInHideoutSiege(true);
-			}
-		}
-		
-		_hall.updateSiegeStatus(SiegeStatus.RUNNING);
-		onSiegeStarts();
-		_siegeTask = ThreadPoolManager.getInstance().scheduleGeneral(new SiegeEnds(), _hall.getSiegeLenght());
+		return true;
 	}
 	
 	@Override
@@ -410,31 +207,59 @@ public abstract class ClanHallSiegeEngine extends Quest implements Siegable
 	}
 	
 	@Override
-	public void updateSiege()
+	public L2SiegeClan getAttackerClan(int clanId)
 	{
-		cancelSiegeTask();
-		_siegeTask = ThreadPoolManager.getInstance().scheduleGeneral(new PrepareOwner(), _hall.getNextSiegeTime() - 3600000);
-		_log.info("{} siege scheduled for {}.", _hall.getName(), _hall.getSiegeDate().getTime());
+		return _attackers.get(clanId);
 	}
 	
-	public void cancelSiegeTask()
+	@Override
+	public L2SiegeClan getAttackerClan(L2Clan clan)
 	{
-		if (_siegeTask != null)
+		return getAttackerClan(clan.getId());
+	}
+	
+	@Override
+	public List<L2SiegeClan> getAttackerClans()
+	{
+		return new ArrayList<>(_attackers.values());
+	}
+	
+	public final Map<Integer, L2SiegeClan> getAttackers()
+	{
+		return _attackers;
+	}
+	
+	@Override
+	public List<L2PcInstance> getAttackersInZone()
+	{
+		final List<L2PcInstance> attackers = new ArrayList<>();
+		for (L2PcInstance pc : _hall.getSiegeZone().getPlayersInside())
 		{
-			_siegeTask.cancel(false);
+			final L2Clan clan = pc.getClan();
+			if ((clan != null) && _attackers.containsKey(clan.getId()))
+			{
+				attackers.add(pc);
+			}
 		}
+		return attackers;
 	}
 	
 	@Override
-	public Calendar getSiegeDate()
+	public L2SiegeClan getDefenderClan(int clanId)
 	{
-		return _hall.getSiegeDate();
+		return null;
 	}
 	
 	@Override
-	public boolean giveFame()
+	public L2SiegeClan getDefenderClan(L2Clan clan)
 	{
-		return Config.CHS_ENABLE_FAME;
+		return null;
+	}
+	
+	@Override
+	public List<L2SiegeClan> getDefenderClans()
+	{
+		return null;
 	}
 	
 	@Override
@@ -449,17 +274,16 @@ public abstract class ClanHallSiegeEngine extends Quest implements Siegable
 		return Config.CHS_FAME_FREQUENCY;
 	}
 	
-	public final void broadcastNpcSay(final L2Npc npc, final int type, final NpcStringId messageId)
+	@Override
+	public List<L2Npc> getFlag(L2Clan clan)
 	{
-		final NpcSay npcSay = new NpcSay(npc.getObjectId(), type, npc.getId(), messageId);
-		final int sourceRegion = MapRegionManager.getInstance().getMapRegionLocId(npc);
-		for (L2PcInstance pc : L2World.getInstance().getPlayers())
+		List<L2Npc> result = null;
+		L2SiegeClan sClan = getAttackerClan(clan);
+		if (sClan != null)
 		{
-			if ((pc != null) && (MapRegionManager.getInstance().getMapRegionLocId(pc) == sourceRegion))
-			{
-				pc.sendPacket(npcSay);
-			}
+			result = sClan.getFlag();
 		}
+		return result;
 	}
 	
 	public Location getInnerSpawnLoc(L2PcInstance player)
@@ -467,25 +291,201 @@ public abstract class ClanHallSiegeEngine extends Quest implements Siegable
 		return null;
 	}
 	
-	public boolean canPlantFlag()
+	@Override
+	public Calendar getSiegeDate()
 	{
-		return true;
+		return _hall.getSiegeDate();
 	}
 	
-	public boolean doorIsAutoAttackable()
+	public abstract L2Clan getWinner();
+	
+	@Override
+	public boolean giveFame()
 	{
-		return true;
+		return Config.CHS_ENABLE_FAME;
 	}
 	
-	public void onSiegeStarts()
+	public void loadAttackers()
 	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(SQL_LOAD_ATTACKERS))
+		{
+			ps.setInt(1, _hall.getId());
+			try (ResultSet rset = ps.executeQuery())
+			{
+				while (rset.next())
+				{
+					final int id = rset.getInt("attacker_id");
+					L2SiegeClan clan = new L2SiegeClan(id, SiegeClanType.ATTACKER);
+					_attackers.put(id, clan);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			_log.warn("{}: Could not load siege attackers!", getName(), e);
+		}
+	}
+	
+	public final void loadGuards()
+	{
+		if (_guards == null)
+		{
+			_guards = new ArrayList<>();
+			try (Connection con = ConnectionFactory.getInstance().getConnection();
+				PreparedStatement ps = con.prepareStatement(SQL_LOAD_GUARDS))
+			{
+				ps.setInt(1, _hall.getId());
+				try (ResultSet rset = ps.executeQuery())
+				{
+					while (rset.next())
+					{
+						final L2Spawn spawn = new L2Spawn(rset.getInt("npcId"));
+						spawn.setX(rset.getInt("x"));
+						spawn.setY(rset.getInt("y"));
+						spawn.setZ(rset.getInt("z"));
+						spawn.setHeading(rset.getInt("heading"));
+						spawn.setRespawnDelay(rset.getInt("respawnDelay"));
+						spawn.setAmount(1);
+						_guards.add(spawn);
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				_log.warn("{}: Couldn't load siege guards!", getName(), e);
+			}
+		}
 	}
 	
 	public void onSiegeEnds()
 	{
 	}
 	
-	public abstract L2Clan getWinner();
+	public void onSiegeStarts()
+	{
+	}
+	
+	public void prepareOwner()
+	{
+		if (_hall.getOwnerId() > 0)
+		{
+			final L2SiegeClan clan = new L2SiegeClan(_hall.getOwnerId(), SiegeClanType.ATTACKER);
+			_attackers.put(clan.getClanId(), new L2SiegeClan(clan.getClanId(), SiegeClanType.ATTACKER));
+		}
+		
+		_hall.free();
+		_hall.banishForeigners();
+		SystemMessage msg = SystemMessage.getSystemMessage(SystemMessageId.REGISTRATION_TERM_FOR_S1_ENDED);
+		msg.addString(getName());
+		Broadcast.toAllOnlinePlayers(msg);
+		_hall.updateSiegeStatus(SiegeStatus.WAITING_BATTLE);
+		
+		_siegeTask = ThreadPoolManager.getInstance().scheduleGeneral(new SiegeStarts(), 3600000);
+	}
+	
+	public final void saveAttackers()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM clanhall_siege_attackers WHERE clanhall_id = ?"))
+		{
+			ps.setInt(1, _hall.getId());
+			ps.execute();
+			
+			if (_attackers.size() > 0)
+			{
+				try (PreparedStatement insert = con.prepareStatement(SQL_SAVE_ATTACKERS))
+				{
+					for (L2SiegeClan clan : _attackers.values())
+					{
+						insert.setInt(1, _hall.getId());
+						insert.setInt(2, clan.getClanId());
+						insert.execute();
+						insert.clearParameters();
+					}
+				}
+			}
+			_log.info("{}: Successfully saved attackers to database.", getName());
+		}
+		catch (Exception e)
+		{
+			_log.warn("{}: Couldnt save attacker list!", getName(), e);
+		}
+	}
+	
+	@Override
+	public void startSiege()
+	{
+		if ((_attackers.size() < 1) && (_hall.getId() != 21)) // Fortress of resistance don't have attacker list
+		{
+			onSiegeEnds();
+			_attackers.clear();
+			_hall.updateNextSiege();
+			_siegeTask = ThreadPoolManager.getInstance().scheduleGeneral(new PrepareOwner(), _hall.getSiegeDate().getTimeInMillis());
+			_hall.updateSiegeStatus(SiegeStatus.WAITING_BATTLE);
+			SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.SIEGE_OF_S1_HAS_BEEN_CANCELED_DUE_TO_LACK_OF_INTEREST);
+			sm.addString(_hall.getName());
+			Broadcast.toAllOnlinePlayers(sm);
+			return;
+		}
+		
+		_hall.spawnDoor();
+		loadGuards();
+		spawnSiegeGuards();
+		_hall.updateSiegeZone(true);
+		
+		final byte state = 1;
+		for (L2SiegeClan sClan : _attackers.values())
+		{
+			final L2Clan clan = ClanTable.getInstance().getClan(sClan.getClanId());
+			if (clan == null)
+			{
+				continue;
+			}
+			
+			for (L2PcInstance pc : clan.getOnlineMembers(0))
+			{
+				pc.setSiegeState(state);
+				pc.broadcastUserInfo();
+				pc.setIsInHideoutSiege(true);
+			}
+		}
+		
+		_hall.updateSiegeStatus(SiegeStatus.RUNNING);
+		onSiegeStarts();
+		_siegeTask = ThreadPoolManager.getInstance().scheduleGeneral(new SiegeEnds(), _hall.getSiegeLenght());
+	}
+	
+	@Override
+	public void updateSiege()
+	{
+		cancelSiegeTask();
+		_siegeTask = ThreadPoolManager.getInstance().scheduleGeneral(new PrepareOwner(), _hall.getNextSiegeTime() - 3600000);
+		_log.info("{} siege scheduled for {}.", _hall.getName(), _hall.getSiegeDate().getTime());
+	}
+	
+	private final void spawnSiegeGuards()
+	{
+		for (L2Spawn guard : _guards)
+		{
+			guard.init();
+		}
+	}
+	
+	private final void unSpawnSiegeGuards()
+	{
+		if (_guards != null)
+		{
+			for (L2Spawn guard : _guards)
+			{
+				guard.stopRespawn();
+				if (guard.getLastSpawn() != null)
+				{
+					guard.getLastSpawn().deleteMe();
+				}
+			}
+		}
+	}
 	
 	public class PrepareOwner implements Runnable
 	{
@@ -496,21 +496,21 @@ public abstract class ClanHallSiegeEngine extends Quest implements Siegable
 		}
 	}
 	
-	public class SiegeStarts implements Runnable
-	{
-		@Override
-		public void run()
-		{
-			startSiege();
-		}
-	}
-	
 	public class SiegeEnds implements Runnable
 	{
 		@Override
 		public void run()
 		{
 			endSiege();
+		}
+	}
+	
+	public class SiegeStarts implements Runnable
+	{
+		@Override
+		public void run()
+		{
+			startSiege();
 		}
 	}
 }

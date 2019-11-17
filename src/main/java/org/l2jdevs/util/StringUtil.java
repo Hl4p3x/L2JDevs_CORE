@@ -195,38 +195,6 @@ public final class StringUtil
 	}
 	
 	/**
-	 * Concatenates strings.
-	 * @param strings strings to be concatenated
-	 * @return concatenated string
-	 */
-	public static String concat(final String... strings)
-	{
-		final StringBuilder sbString = new StringBuilder();
-		for (final String string : strings)
-		{
-			sbString.append(string);
-		}
-		return sbString.toString();
-	}
-	
-	/**
-	 * Creates new string builder with size initializated to <code>sizeHint</code>, unless total length of strings is greater than <code>sizeHint</code>.
-	 * @param sizeHint hint for string builder size allocation
-	 * @param strings strings to be appended
-	 * @return created string builder
-	 */
-	public static StringBuilder startAppend(final int sizeHint, final String... strings)
-	{
-		final int length = getLength(strings);
-		final StringBuilder sbString = new StringBuilder(sizeHint > length ? sizeHint : length);
-		for (final String string : strings)
-		{
-			sbString.append(string);
-		}
-		return sbString;
-	}
-	
-	/**
 	 * Appends strings to existing string builder.
 	 * @param sbString string builder
 	 * @param strings strings to be appended
@@ -239,6 +207,21 @@ public final class StringUtil
 		{
 			sbString.append(string);
 		}
+	}
+	
+	/**
+	 * Concatenates strings.
+	 * @param strings strings to be concatenated
+	 * @return concatenated string
+	 */
+	public static String concat(final String... strings)
+	{
+		final StringBuilder sbString = new StringBuilder();
+		for (final String string : strings)
+		{
+			sbString.append(string);
+		}
+		return sbString.toString();
 	}
 	
 	public static int getLength(final Iterable<String> strings)
@@ -274,5 +257,22 @@ public final class StringUtil
 			sbString.append(element.toString()).append(Config.EOL);
 		}
 		return sbString.toString();
+	}
+	
+	/**
+	 * Creates new string builder with size initializated to <code>sizeHint</code>, unless total length of strings is greater than <code>sizeHint</code>.
+	 * @param sizeHint hint for string builder size allocation
+	 * @param strings strings to be appended
+	 * @return created string builder
+	 */
+	public static StringBuilder startAppend(final int sizeHint, final String... strings)
+	{
+		final int length = getLength(strings);
+		final StringBuilder sbString = new StringBuilder(sizeHint > length ? sizeHint : length);
+		for (final String string : strings)
+		{
+			sbString.append(string);
+		}
+		return sbString;
 	}
 }

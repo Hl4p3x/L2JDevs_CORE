@@ -27,38 +27,6 @@ import org.l2jdevs.gameserver.model.Location;
 public interface IPositionable extends ILocational
 {
 	/**
-	 * Sets the X coordinate of this object.
-	 * @param x the new X coordinate
-	 */
-	public void setX(int x);
-	
-	/**
-	 * Sets the Y coordinate of this object.
-	 * @param y the new Y coordinate
-	 */
-	public void setY(int y);
-	
-	/**
-	 * Sets the Z coordinate of this object.
-	 * @param z the new Z coordinate
-	 */
-	public void setZ(int z);
-	
-	/**
-	 * Sets all three coordinates of this object.
-	 * @param x the new X coordinate
-	 * @param y the new Y coordinate
-	 * @param z the new Z coordinate
-	 */
-	public void setXYZ(int x, int y, int z);
-	
-	/**
-	 * Sets all three coordinates of this object.
-	 * @param loc the object whose coordinates to use
-	 */
-	public void setXYZ(ILocational loc);
-	
-	/**
 	 * Sets the heading of this object.
 	 * @param heading the new heading
 	 */
@@ -75,4 +43,36 @@ public interface IPositionable extends ILocational
 	 * @param loc the new location
 	 */
 	public void setLocation(Location loc);
+	
+	/**
+	 * Sets the X coordinate of this object.
+	 * @param x the new X coordinate
+	 */
+	public void setX(int x);
+	
+	/**
+	 * Sets all three coordinates of this object.
+	 * @param loc the object whose coordinates to use
+	 */
+	public void setXYZ(ILocational loc);
+	
+	/**
+	 * Sets all three coordinates of this object.
+	 * @param x the new X coordinate
+	 * @param y the new Y coordinate
+	 * @param z the new Z coordinate
+	 */
+	public void setXYZ(int x, int y, int z);
+	
+	/**
+	 * Sets the Y coordinate of this object.
+	 * @param y the new Y coordinate
+	 */
+	public void setY(int y);
+	
+	/**
+	 * Sets the Z coordinate of this object.
+	 * @param z the new Z coordinate
+	 */
+	public void setZ(int z);
 }

@@ -43,6 +43,16 @@ public class L2JailZone extends L2ZoneType
 		super(id);
 	}
 	
+	public static Location getLocationIn()
+	{
+		return JAIL_IN_LOC;
+	}
+	
+	public static Location getLocationOut()
+	{
+		return JAIL_OUT_LOC;
+	}
+	
 	@Override
 	protected void onEnter(L2Character character)
 	{
@@ -88,15 +98,5 @@ public class L2JailZone extends L2ZoneType
 				character.setInsideZone(ZoneId.NO_STORE, false);
 			}
 		}
-	}
-	
-	public static Location getLocationIn()
-	{
-		return JAIL_IN_LOC;
-	}
-	
-	public static Location getLocationOut()
-	{
-		return JAIL_OUT_LOC;
 	}
 }

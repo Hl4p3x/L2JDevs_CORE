@@ -37,6 +37,12 @@ public class RequestExTryToPutEnchantTargetItem extends L2GameClientPacket
 	private int _objectId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_4C_REQUESTEXTRYTOPUTENCHANTTARGETITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -78,11 +84,5 @@ public class RequestExTryToPutEnchantTargetItem extends L2GameClientPacket
 		activeChar.setIsEnchanting(true);
 		activeChar.setActiveEnchantTimestamp(System.currentTimeMillis());
 		activeChar.sendPacket(new ExPutEnchantTargetItemResult(_objectId));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_4C_REQUESTEXTRYTOPUTENCHANTTARGETITEM;
 	}
 }

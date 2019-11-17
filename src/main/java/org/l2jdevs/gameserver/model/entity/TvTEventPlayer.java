@@ -33,21 +33,6 @@ public class TvTEventPlayer
 		
 	}
 	
-	public boolean isOnEvent()
-	{
-		return TvTEvent.isStarted() && TvTEvent.isPlayerParticipant(getPlayer().getObjectId());
-	}
-	
-	public boolean isBlockingExit()
-	{
-		return true;
-	}
-	
-	public boolean isBlockingDeathPenalty()
-	{
-		return true;
-	}
-	
 	public boolean canRevive()
 	{
 		return false;
@@ -56,5 +41,20 @@ public class TvTEventPlayer
 	public L2PcInstance getPlayer()
 	{
 		return _player;
+	}
+	
+	public boolean isBlockingDeathPenalty()
+	{
+		return true;
+	}
+	
+	public boolean isBlockingExit()
+	{
+		return true;
+	}
+	
+	public boolean isOnEvent()
+	{
+		return TvTEvent.isStarted() && TvTEvent.isPlayerParticipant(getPlayer().getObjectId());
 	}
 }

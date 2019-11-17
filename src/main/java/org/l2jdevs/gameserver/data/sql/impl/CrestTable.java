@@ -56,6 +56,54 @@ public final class CrestTable
 		load();
 	}
 	
+	public static CrestTable getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Creates a {@code L2Crest} object and inserts it in database and cache.
+	 * @param data
+	 * @param crestType
+	 * @return {@code L2Crest} on success, {@code null} on failure.
+	 */
+	public L2Crest createCrest(byte[] data, CrestType crestType)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement statement = con.prepareStatement("INSERT INTO `crests`(`crest_id`, `data`, `type`) VALUES(?, ?, ?)"))
+		{
+			final L2Crest crest = new L2Crest(getNextId(), data, crestType);
+			statement.setInt(1, crest.getId());
+			statement.setBytes(2, crest.getData());
+			statement.setInt(3, crest.getType().getId());
+			statement.executeUpdate();
+			_crests.put(crest.getId(), crest);
+			return crest;
+		}
+		catch (SQLException e)
+		{
+			LOGGER.log(Level.WARNING, "There was an error while saving crest in database:", e);
+		}
+		return null;
+	}
+	
+	/**
+	 * @param crestId The crest id
+	 * @return {@code L2Crest} if crest is found, {@code null} if crest was not found.
+	 */
+	public L2Crest getCrest(int crestId)
+	{
+		return _crests.get(crestId);
+	}
+	
+	/**
+	 * @return The next crest id.
+	 */
+	public int getNextId()
+	{
+		return _nextId.getAndIncrement();
+	}
+	
 	public synchronized void load()
 	{
 		_crests.clear();
@@ -156,6 +204,33 @@ public final class CrestTable
 	}
 	
 	/**
+	 * Removes crest from database and cache.
+	 * @param crestId the id of crest to be removed.
+	 */
+	public void removeCrest(int crestId)
+	{
+		_crests.remove(crestId);
+		
+		// avoid removing last crest id we dont want to lose index...
+		// because client will display wrong crest if its reused
+		if (crestId == (_nextId.get() - 1))
+		{
+			return;
+		}
+		
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement statement = con.prepareStatement("DELETE FROM `crests` WHERE `crest_id` = ?"))
+		{
+			statement.setInt(1, crestId);
+			statement.executeUpdate();
+		}
+		catch (SQLException e)
+		{
+			LOGGER.log(Level.WARNING, "There was an error while deleting crest from database:", e);
+		}
+	}
+	
+	/**
 	 * Moves old crests from data/crests folder to database and deletes crest folder<br>
 	 * <b>TODO:</b> remove it after some time
 	 * @param crestsInUse the set of crests in use
@@ -242,81 +317,6 @@ public final class CrestTable
 			}
 			crestDir.delete();
 		}
-	}
-	
-	/**
-	 * @param crestId The crest id
-	 * @return {@code L2Crest} if crest is found, {@code null} if crest was not found.
-	 */
-	public L2Crest getCrest(int crestId)
-	{
-		return _crests.get(crestId);
-	}
-	
-	/**
-	 * Creates a {@code L2Crest} object and inserts it in database and cache.
-	 * @param data
-	 * @param crestType
-	 * @return {@code L2Crest} on success, {@code null} on failure.
-	 */
-	public L2Crest createCrest(byte[] data, CrestType crestType)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement statement = con.prepareStatement("INSERT INTO `crests`(`crest_id`, `data`, `type`) VALUES(?, ?, ?)"))
-		{
-			final L2Crest crest = new L2Crest(getNextId(), data, crestType);
-			statement.setInt(1, crest.getId());
-			statement.setBytes(2, crest.getData());
-			statement.setInt(3, crest.getType().getId());
-			statement.executeUpdate();
-			_crests.put(crest.getId(), crest);
-			return crest;
-		}
-		catch (SQLException e)
-		{
-			LOGGER.log(Level.WARNING, "There was an error while saving crest in database:", e);
-		}
-		return null;
-	}
-	
-	/**
-	 * Removes crest from database and cache.
-	 * @param crestId the id of crest to be removed.
-	 */
-	public void removeCrest(int crestId)
-	{
-		_crests.remove(crestId);
-		
-		// avoid removing last crest id we dont want to lose index...
-		// because client will display wrong crest if its reused
-		if (crestId == (_nextId.get() - 1))
-		{
-			return;
-		}
-		
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement statement = con.prepareStatement("DELETE FROM `crests` WHERE `crest_id` = ?"))
-		{
-			statement.setInt(1, crestId);
-			statement.executeUpdate();
-		}
-		catch (SQLException e)
-		{
-			LOGGER.log(Level.WARNING, "There was an error while deleting crest from database:", e);
-		}
-	}
-	
-	/**
-	 * @return The next crest id.
-	 */
-	public int getNextId()
-	{
-		return _nextId.getAndIncrement();
-	}
-	
-	public static CrestTable getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

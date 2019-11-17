@@ -36,6 +36,12 @@ public final class RequestMagicSkillUse extends L2GameClientPacket
 	private boolean _shiftPressed;
 	
 	@Override
+	public String getType()
+	{
+		return _C__39_REQUESTMAGICSKILLUSE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_magicId = readD(); // Identifier of the used skill
@@ -117,11 +123,5 @@ public final class RequestMagicSkillUse extends L2GameClientPacket
 		}
 		
 		activeChar.useMagic(skill, _ctrlPressed, _shiftPressed);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__39_REQUESTMAGICSKILLUSE;
 	}
 }

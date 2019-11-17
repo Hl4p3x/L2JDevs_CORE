@@ -52,53 +52,6 @@ public class Macro implements IIdentifiable, INamable
 	}
 	
 	/**
-	 * Gets the marco ID.
-	 * @returns the marco ID
-	 */
-	@Override
-	public int getId()
-	{
-		return _id;
-	}
-	
-	/**
-	 * Sets the marco ID.
-	 * @param id the marco ID
-	 */
-	public void setId(int id)
-	{
-		_id = id;
-	}
-	
-	/**
-	 * Gets the macro icon ID.
-	 * @return the icon
-	 */
-	public int getIcon()
-	{
-		return _icon;
-	}
-	
-	/**
-	 * Gets the macro name.
-	 * @return the name
-	 */
-	@Override
-	public String getName()
-	{
-		return _name;
-	}
-	
-	/**
-	 * Gets the macro description.
-	 * @return the description
-	 */
-	public String getDescr()
-	{
-		return _descr;
-	}
-	
-	/**
 	 * Gets the macro acronym.
 	 * @return the acronym
 	 */
@@ -114,5 +67,52 @@ public class Macro implements IIdentifiable, INamable
 	public List<MacroCmd> getCommands()
 	{
 		return _commands;
+	}
+	
+	/**
+	 * Gets the macro description.
+	 * @return the description
+	 */
+	public String getDescr()
+	{
+		return _descr;
+	}
+	
+	/**
+	 * Gets the macro icon ID.
+	 * @return the icon
+	 */
+	public int getIcon()
+	{
+		return _icon;
+	}
+	
+	/**
+	 * Gets the marco ID.
+	 * @returns the marco ID
+	 */
+	@Override
+	public int getId()
+	{
+		return _id;
+	}
+	
+	/**
+	 * Gets the macro name.
+	 * @return the name
+	 */
+	@Override
+	public String getName()
+	{
+		return _name;
+	}
+	
+	/**
+	 * Sets the marco ID.
+	 * @param id the marco ID
+	 */
+	public void setId(int id)
+	{
+		_id = id;
 	}
 }

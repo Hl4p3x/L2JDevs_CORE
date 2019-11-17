@@ -24,9 +24,9 @@ package org.l2jdevs.gameserver.network.clientpackets;
 public final class DummyPacket extends L2GameClientPacket
 {
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		
+		return "DummyPacket";
 	}
 	
 	@Override
@@ -36,8 +36,8 @@ public final class DummyPacket extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return "DummyPacket";
+		
 	}
 }

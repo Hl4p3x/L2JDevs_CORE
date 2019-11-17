@@ -71,44 +71,6 @@ public class ObjectKnownList
 		return (getKnownObjects().put(object.getObjectId(), object) == null);
 	}
 	
-	public final boolean knowsObject(L2Object object)
-	{
-		if (object == null)
-		{
-			return false;
-		}
-		
-		return (getActiveObject() == object) || getKnownObjects().containsKey(object.getObjectId());
-	}
-	
-	/**
-	 * Remove all L2Object from _knownObjects
-	 */
-	public void removeAllKnownObjects()
-	{
-		getKnownObjects().clear();
-	}
-	
-	public final boolean removeKnownObject(L2Object object)
-	{
-		return removeKnownObject(object, false);
-	}
-	
-	protected boolean removeKnownObject(L2Object object, boolean forget)
-	{
-		if (object == null)
-		{
-			return false;
-		}
-		
-		if (forget)
-		{
-			return true;
-		}
-		
-		return getKnownObjects().remove(object.getObjectId()) != null;
-	}
-	
 	/**
 	 * Used only in Config.MOVE_BASED_KNOWNLIST and does not support guards seeing moving monsters
 	 */
@@ -210,5 +172,43 @@ public class ObjectKnownList
 			}
 		}
 		return _knownObjects;
+	}
+	
+	public final boolean knowsObject(L2Object object)
+	{
+		if (object == null)
+		{
+			return false;
+		}
+		
+		return (getActiveObject() == object) || getKnownObjects().containsKey(object.getObjectId());
+	}
+	
+	/**
+	 * Remove all L2Object from _knownObjects
+	 */
+	public void removeAllKnownObjects()
+	{
+		getKnownObjects().clear();
+	}
+	
+	public final boolean removeKnownObject(L2Object object)
+	{
+		return removeKnownObject(object, false);
+	}
+	
+	protected boolean removeKnownObject(L2Object object, boolean forget)
+	{
+		if (object == null)
+		{
+			return false;
+		}
+		
+		if (forget)
+		{
+			return true;
+		}
+		
+		return getKnownObjects().remove(object.getObjectId()) != null;
 	}
 }

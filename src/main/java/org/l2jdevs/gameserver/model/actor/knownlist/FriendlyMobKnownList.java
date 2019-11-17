@@ -48,6 +48,12 @@ public class FriendlyMobKnownList extends AttackableKnownList
 	}
 	
 	@Override
+	public final L2FriendlyMobInstance getActiveChar()
+	{
+		return (L2FriendlyMobInstance) super.getActiveChar();
+	}
+	
+	@Override
 	protected boolean removeKnownObject(L2Object object, boolean forget)
 	{
 		if (!super.removeKnownObject(object, forget))
@@ -79,11 +85,5 @@ public class FriendlyMobKnownList extends AttackableKnownList
 		}
 		
 		return true;
-	}
-	
-	@Override
-	public final L2FriendlyMobInstance getActiveChar()
-	{
-		return (L2FriendlyMobInstance) super.getActiveChar();
 	}
 }

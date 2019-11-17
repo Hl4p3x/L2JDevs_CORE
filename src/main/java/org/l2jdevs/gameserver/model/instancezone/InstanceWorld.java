@@ -39,24 +39,14 @@ public class InstanceWorld
 	private final List<Integer> _allowed = new CopyOnWriteArrayList<>();
 	private final AtomicInteger _status = new AtomicInteger();
 	
-	public List<Integer> getAllowed()
-	{
-		return _allowed;
-	}
-	
-	public void removeAllowed(int id)
-	{
-		_allowed.remove(_allowed.indexOf(Integer.valueOf(id)));
-	}
-	
 	public void addAllowed(int id)
 	{
 		_allowed.add(id);
 	}
 	
-	public boolean isAllowed(int id)
+	public List<Integer> getAllowed()
 	{
-		return _allowed.contains(id);
+		return _allowed;
 	}
 	
 	/**
@@ -68,13 +58,9 @@ public class InstanceWorld
 		return _instanceId;
 	}
 	
-	/**
-	 * Sets the instance ID.
-	 * @param instanceId the instance ID
-	 */
-	public void setInstanceId(int instanceId)
+	public int getStatus()
 	{
-		_instanceId = instanceId;
+		return _status.get();
 	}
 	
 	/**
@@ -86,33 +72,19 @@ public class InstanceWorld
 		return _templateId;
 	}
 	
-	/**
-	 * Sets the template ID.
-	 * @param templateId the template ID
-	 */
-	public void setTemplateId(int templateId)
+	public void incStatus()
 	{
-		_templateId = templateId;
+		_status.incrementAndGet();
 	}
 	
-	public int getStatus()
+	public boolean isAllowed(int id)
 	{
-		return _status.get();
+		return _allowed.contains(id);
 	}
 	
 	public boolean isStatus(int status)
 	{
 		return _status.get() == status;
-	}
-	
-	public void setStatus(int status)
-	{
-		_status.set(status);
-	}
-	
-	public void incStatus()
-	{
-		_status.incrementAndGet();
 	}
 	
 	/**
@@ -132,5 +104,33 @@ public class InstanceWorld
 				instance.addEjectDeadTask(victim.getActingPlayer());
 			}
 		}
+	}
+	
+	public void removeAllowed(int id)
+	{
+		_allowed.remove(_allowed.indexOf(Integer.valueOf(id)));
+	}
+	
+	/**
+	 * Sets the instance ID.
+	 * @param instanceId the instance ID
+	 */
+	public void setInstanceId(int instanceId)
+	{
+		_instanceId = instanceId;
+	}
+	
+	public void setStatus(int status)
+	{
+		_status.set(status);
+	}
+	
+	/**
+	 * Sets the template ID.
+	 * @param templateId the template ID
+	 */
+	public void setTemplateId(int templateId)
+	{
+		_templateId = templateId;
 	}
 }

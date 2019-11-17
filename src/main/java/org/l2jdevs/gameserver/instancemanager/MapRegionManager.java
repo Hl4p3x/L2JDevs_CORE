@@ -58,84 +58,46 @@ public final class MapRegionManager implements IXmlReader
 		load();
 	}
 	
-	@Override
-	public void load()
+	/**
+	 * Gets the single instance of {@code MapRegionManager}.
+	 * @return single instance of {@code MapRegionManager}
+	 */
+	public static MapRegionManager getInstance()
 	{
-		_regions.clear();
-		parseDatapackDirectory("data/mapregion", false);
-		LOG.info("{}: Loaded {} map regions.", getClass().getSimpleName(), _regions.size());
+		return SingletonHolder._instance;
 	}
 	
-	@Override
-	public void parseDocument(Document doc)
+	/**
+	 * @param activeChar
+	 * @return
+	 */
+	public int getAreaCastle(L2Character activeChar)
 	{
-		NamedNodeMap attrs;
-		String name;
-		String town;
-		int locId;
-		int castle;
-		int bbs;
+		L2MapRegion region = getMapRegion(activeChar);
 		
-		for (Node n = doc.getFirstChild(); n != null; n = n.getNextSibling())
+		if (region == null)
 		{
-			if ("list".equalsIgnoreCase(n.getNodeName()))
-			{
-				for (Node d = n.getFirstChild(); d != null; d = d.getNextSibling())
-				{
-					if ("region".equalsIgnoreCase(d.getNodeName()))
-					{
-						attrs = d.getAttributes();
-						name = attrs.getNamedItem("name").getNodeValue();
-						town = attrs.getNamedItem("town").getNodeValue();
-						locId = parseInteger(attrs, "locId");
-						castle = parseInteger(attrs, "castle");
-						bbs = parseInteger(attrs, "bbs");
-						
-						L2MapRegion region = new L2MapRegion(name, town, locId, castle, bbs);
-						for (Node c = d.getFirstChild(); c != null; c = c.getNextSibling())
-						{
-							attrs = c.getAttributes();
-							if ("respawnPoint".equalsIgnoreCase(c.getNodeName()))
-							{
-								int spawnX = parseInteger(attrs, "X");
-								int spawnY = parseInteger(attrs, "Y");
-								int spawnZ = parseInteger(attrs, "Z");
-								
-								boolean other = parseBoolean(attrs, "isOther", false);
-								boolean chaotic = parseBoolean(attrs, "isChaotic", false);
-								boolean banish = parseBoolean(attrs, "isBanish", false);
-								
-								if (other)
-								{
-									region.addOtherSpawn(spawnX, spawnY, spawnZ);
-								}
-								else if (chaotic)
-								{
-									region.addChaoticSpawn(spawnX, spawnY, spawnZ);
-								}
-								else if (banish)
-								{
-									region.addBanishSpawn(spawnX, spawnY, spawnZ);
-								}
-								else
-								{
-									region.addSpawn(spawnX, spawnY, spawnZ);
-								}
-							}
-							else if ("map".equalsIgnoreCase(c.getNodeName()))
-							{
-								region.addMap(parseInteger(attrs, "X"), parseInteger(attrs, "Y"));
-							}
-							else if ("banned".equalsIgnoreCase(c.getNodeName()))
-							{
-								region.addBannedRace(attrs.getNamedItem("race").getNodeValue(), attrs.getNamedItem("point").getNodeValue());
-							}
-						}
-						_regions.put(name, region);
-					}
-				}
-			}
+			return 0;
 		}
+		
+		return region.getCastle();
+	}
+	
+	/**
+	 * Get town name by character position
+	 * @param activeChar
+	 * @return
+	 */
+	public String getClosestTownName(L2Character activeChar)
+	{
+		L2MapRegion region = getMapRegion(activeChar);
+		
+		if (region == null)
+		{
+			return "Aden Castle Town";
+		}
+		
+		return region.getTown();
 	}
 	
 	/**
@@ -156,6 +118,24 @@ public final class MapRegionManager implements IXmlReader
 	}
 	
 	/**
+	 * @param obj
+	 * @return
+	 */
+	public final L2MapRegion getMapRegion(L2Object obj)
+	{
+		return getMapRegion(obj.getX(), obj.getY());
+	}
+	
+	/**
+	 * @param regionName the map region name.
+	 * @return if exists the map region identified by that name, null otherwise.
+	 */
+	public L2MapRegion getMapRegionByName(String regionName)
+	{
+		return _regions.get(regionName);
+	}
+	
+	/**
 	 * @param locX
 	 * @param locY
 	 * @return
@@ -168,15 +148,6 @@ public final class MapRegionManager implements IXmlReader
 			return region.getLocId();
 		}
 		return 0;
-	}
-	
-	/**
-	 * @param obj
-	 * @return
-	 */
-	public final L2MapRegion getMapRegion(L2Object obj)
-	{
-		return getMapRegion(obj.getX(), obj.getY());
 	}
 	
 	/**
@@ -207,36 +178,27 @@ public final class MapRegionManager implements IXmlReader
 	}
 	
 	/**
-	 * Get town name by character position
 	 * @param activeChar
+	 * @param point
 	 * @return
 	 */
-	public String getClosestTownName(L2Character activeChar)
+	public L2MapRegion getRestartRegion(L2Character activeChar, String point)
 	{
-		L2MapRegion region = getMapRegion(activeChar);
-		
-		if (region == null)
+		try
 		{
-			return "Aden Castle Town";
+			L2PcInstance player = ((L2PcInstance) activeChar);
+			L2MapRegion region = _regions.get(point);
+			
+			if (region.getBannedRace().containsKey(player.getRace()))
+			{
+				getRestartRegion(player, region.getBannedRace().get(player.getRace()));
+			}
+			return region;
 		}
-		
-		return region.getTown();
-	}
-	
-	/**
-	 * @param activeChar
-	 * @return
-	 */
-	public int getAreaCastle(L2Character activeChar)
-	{
-		L2MapRegion region = getMapRegion(activeChar);
-		
-		if (region == null)
+		catch (Exception e)
 		{
-			return 0;
+			return _regions.get(defaultRespawn);
 		}
-		
-		return region.getCastle();
 	}
 	
 	/**
@@ -444,46 +406,84 @@ public final class MapRegionManager implements IXmlReader
 		}
 	}
 	
-	/**
-	 * @param activeChar
-	 * @param point
-	 * @return
-	 */
-	public L2MapRegion getRestartRegion(L2Character activeChar, String point)
+	@Override
+	public void load()
 	{
-		try
+		_regions.clear();
+		parseDatapackDirectory("data/mapregion", false);
+		LOG.info("{}: Loaded {} map regions.", getClass().getSimpleName(), _regions.size());
+	}
+	
+	@Override
+	public void parseDocument(Document doc)
+	{
+		NamedNodeMap attrs;
+		String name;
+		String town;
+		int locId;
+		int castle;
+		int bbs;
+		
+		for (Node n = doc.getFirstChild(); n != null; n = n.getNextSibling())
 		{
-			L2PcInstance player = ((L2PcInstance) activeChar);
-			L2MapRegion region = _regions.get(point);
-			
-			if (region.getBannedRace().containsKey(player.getRace()))
+			if ("list".equalsIgnoreCase(n.getNodeName()))
 			{
-				getRestartRegion(player, region.getBannedRace().get(player.getRace()));
+				for (Node d = n.getFirstChild(); d != null; d = d.getNextSibling())
+				{
+					if ("region".equalsIgnoreCase(d.getNodeName()))
+					{
+						attrs = d.getAttributes();
+						name = attrs.getNamedItem("name").getNodeValue();
+						town = attrs.getNamedItem("town").getNodeValue();
+						locId = parseInteger(attrs, "locId");
+						castle = parseInteger(attrs, "castle");
+						bbs = parseInteger(attrs, "bbs");
+						
+						L2MapRegion region = new L2MapRegion(name, town, locId, castle, bbs);
+						for (Node c = d.getFirstChild(); c != null; c = c.getNextSibling())
+						{
+							attrs = c.getAttributes();
+							if ("respawnPoint".equalsIgnoreCase(c.getNodeName()))
+							{
+								int spawnX = parseInteger(attrs, "X");
+								int spawnY = parseInteger(attrs, "Y");
+								int spawnZ = parseInteger(attrs, "Z");
+								
+								boolean other = parseBoolean(attrs, "isOther", false);
+								boolean chaotic = parseBoolean(attrs, "isChaotic", false);
+								boolean banish = parseBoolean(attrs, "isBanish", false);
+								
+								if (other)
+								{
+									region.addOtherSpawn(spawnX, spawnY, spawnZ);
+								}
+								else if (chaotic)
+								{
+									region.addChaoticSpawn(spawnX, spawnY, spawnZ);
+								}
+								else if (banish)
+								{
+									region.addBanishSpawn(spawnX, spawnY, spawnZ);
+								}
+								else
+								{
+									region.addSpawn(spawnX, spawnY, spawnZ);
+								}
+							}
+							else if ("map".equalsIgnoreCase(c.getNodeName()))
+							{
+								region.addMap(parseInteger(attrs, "X"), parseInteger(attrs, "Y"));
+							}
+							else if ("banned".equalsIgnoreCase(c.getNodeName()))
+							{
+								region.addBannedRace(attrs.getNamedItem("race").getNodeValue(), attrs.getNamedItem("point").getNodeValue());
+							}
+						}
+						_regions.put(name, region);
+					}
+				}
 			}
-			return region;
 		}
-		catch (Exception e)
-		{
-			return _regions.get(defaultRespawn);
-		}
-	}
-	
-	/**
-	 * @param regionName the map region name.
-	 * @return if exists the map region identified by that name, null otherwise.
-	 */
-	public L2MapRegion getMapRegionByName(String regionName)
-	{
-		return _regions.get(regionName);
-	}
-	
-	/**
-	 * Gets the single instance of {@code MapRegionManager}.
-	 * @return single instance of {@code MapRegionManager}
-	 */
-	public static MapRegionManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

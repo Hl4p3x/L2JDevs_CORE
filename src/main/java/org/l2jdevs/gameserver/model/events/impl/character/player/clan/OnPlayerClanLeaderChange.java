@@ -39,9 +39,9 @@ public class OnPlayerClanLeaderChange implements IBaseEvent
 		_clan = clan;
 	}
 	
-	public L2ClanMember getOldLeader()
+	public L2Clan getClan()
 	{
-		return _oldLeader;
+		return _clan;
 	}
 	
 	public L2ClanMember getNewLeader()
@@ -49,9 +49,9 @@ public class OnPlayerClanLeaderChange implements IBaseEvent
 		return _newLeader;
 	}
 	
-	public L2Clan getClan()
+	public L2ClanMember getOldLeader()
 	{
-		return _clan;
+		return _oldLeader;
 	}
 	
 	@Override

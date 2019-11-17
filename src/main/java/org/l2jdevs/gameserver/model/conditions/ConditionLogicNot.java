@@ -44,6 +44,12 @@ public class ConditionLogicNot extends Condition
 	}
 	
 	@Override
+	public boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item)
+	{
+		return !_condition.test(effector, effected, skill, item);
+	}
+	
+	@Override
 	void setListener(ConditionListener listener)
 	{
 		if (listener != null)
@@ -55,11 +61,5 @@ public class ConditionLogicNot extends Condition
 			_condition.setListener(null);
 		}
 		super.setListener(listener);
-	}
-	
-	@Override
-	public boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item)
-	{
-		return !_condition.test(effector, effected, skill, item);
 	}
 }

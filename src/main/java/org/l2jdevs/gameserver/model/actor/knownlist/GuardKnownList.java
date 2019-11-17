@@ -82,6 +82,12 @@ public class GuardKnownList extends AttackableKnownList
 	}
 	
 	@Override
+	public final L2GuardInstance getActiveChar()
+	{
+		return (L2GuardInstance) super.getActiveChar();
+	}
+	
+	@Override
 	protected boolean removeKnownObject(L2Object object, boolean forget)
 	{
 		if (!super.removeKnownObject(object, forget))
@@ -100,11 +106,5 @@ public class GuardKnownList extends AttackableKnownList
 		}
 		
 		return true;
-	}
-	
-	@Override
-	public final L2GuardInstance getActiveChar()
-	{
-		return (L2GuardInstance) super.getActiveChar();
 	}
 }

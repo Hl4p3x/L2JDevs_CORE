@@ -34,6 +34,12 @@ public final class RequestStartPledgeWar extends L2GameClientPacket
 	private String _pledgeName;
 	
 	@Override
+	public String getType()
+	{
+		return _C__03_REQUESTSTARTPLEDGEWAR;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_pledgeName = readS();
@@ -106,11 +112,5 @@ public final class RequestStartPledgeWar extends L2GameClientPacket
 		{
 			member.broadcastUserInfo();
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__03_REQUESTSTARTPLEDGEWAR;
 	}
 }

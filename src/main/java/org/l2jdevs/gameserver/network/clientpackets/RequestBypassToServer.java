@@ -72,6 +72,30 @@ public final class RequestBypassToServer extends L2GameClientPacket
 	// S
 	private String _command;
 	
+	/**
+	 * @param activeChar
+	 */
+	private static void comeHere(L2PcInstance activeChar)
+	{
+		L2Object obj = activeChar.getTarget();
+		if (obj == null)
+		{
+			return;
+		}
+		if (obj instanceof L2Npc)
+		{
+			L2Npc temp = (L2Npc) obj;
+			temp.setTarget(activeChar);
+			temp.getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, activeChar.getLocation());
+		}
+	}
+	
+	@Override
+	public String getType()
+	{
+		return _C__23_REQUESTBYPASSTOSERVER;
+	}
+	
 	@Override
 	protected void readImpl()
 	{
@@ -325,29 +349,5 @@ public final class RequestBypassToServer extends L2GameClientPacket
 		}
 		
 		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerBypass(activeChar, _command), activeChar);
-	}
-	
-	/**
-	 * @param activeChar
-	 */
-	private static void comeHere(L2PcInstance activeChar)
-	{
-		L2Object obj = activeChar.getTarget();
-		if (obj == null)
-		{
-			return;
-		}
-		if (obj instanceof L2Npc)
-		{
-			L2Npc temp = (L2Npc) obj;
-			temp.setTarget(activeChar);
-			temp.getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, activeChar.getLocation());
-		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__23_REQUESTBYPASSTOSERVER;
 	}
 }

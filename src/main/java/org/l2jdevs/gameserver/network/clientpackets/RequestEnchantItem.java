@@ -52,6 +52,12 @@ public final class RequestEnchantItem extends L2GameClientPacket
 	private int _supportId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__5F_REQUESTENCHANTITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -417,11 +423,5 @@ public final class RequestEnchantItem extends L2GameClientPacket
 			activeChar.broadcastUserInfo();
 			activeChar.setActiveEnchantItemId(L2PcInstance.ID_NONE);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__5F_REQUESTENCHANTITEM;
 	}
 }

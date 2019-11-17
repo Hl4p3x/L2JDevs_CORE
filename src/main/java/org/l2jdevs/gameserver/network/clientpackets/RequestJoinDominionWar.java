@@ -38,6 +38,12 @@ public final class RequestJoinDominionWar extends L2GameClientPacket
 	private int _isJoining;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_57_REQUESTJOINDOMINIONWAR;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_territoryId = readD();
@@ -126,11 +132,5 @@ public final class RequestJoinDominionWar extends L2GameClientPacket
 			}
 		}
 		activeChar.sendPacket(new ExShowDominionRegistry(castleId, activeChar));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_57_REQUESTJOINDOMINIONWAR;
 	}
 }

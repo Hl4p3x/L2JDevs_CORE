@@ -39,6 +39,13 @@ public class TaskOlympiadSave extends Task
 	}
 	
 	@Override
+	public void initializate()
+	{
+		super.initializate();
+		TaskManager.addUniqueTask(NAME, TaskTypes.TYPE_FIXED_SHEDULED, "900000", "1800000", "");
+	}
+	
+	@Override
 	public void onTimeElapsed(ExecutedTask task)
 	{
 		if (Olympiad.getInstance().inCompPeriod())
@@ -46,12 +53,5 @@ public class TaskOlympiadSave extends Task
 			Olympiad.getInstance().saveOlympiadStatus();
 			_log.info("Olympiad System: Data updated.");
 		}
-	}
-	
-	@Override
-	public void initializate()
-	{
-		super.initializate();
-		TaskManager.addUniqueTask(NAME, TaskTypes.TYPE_FIXED_SHEDULED, "900000", "1800000", "");
 	}
 }

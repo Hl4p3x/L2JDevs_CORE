@@ -30,6 +30,12 @@ public final class RequestDismissAlly extends L2GameClientPacket
 	private static final String _C__90_REQUESTDISMISSALLY = "[C] 90 RequestDismissAlly";
 	
 	@Override
+	public String getType()
+	{
+		return _C__90_REQUESTDISMISSALLY;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger packet
@@ -49,11 +55,5 @@ public final class RequestDismissAlly extends L2GameClientPacket
 			return;
 		}
 		activeChar.getClan().dissolveAlly(activeChar);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__90_REQUESTDISMISSALLY;
 	}
 }

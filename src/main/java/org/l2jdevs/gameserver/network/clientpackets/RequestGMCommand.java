@@ -42,6 +42,12 @@ public final class RequestGMCommand extends L2GameClientPacket
 	private int _command;
 	
 	@Override
+	public String getType()
+	{
+		return _C__7E_REQUESTGMCOMMAND;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_targetName = readS();
@@ -116,11 +122,5 @@ public final class RequestGMCommand extends L2GameClientPacket
 			}
 			
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__7E_REQUESTGMCOMMAND;
 	}
 }

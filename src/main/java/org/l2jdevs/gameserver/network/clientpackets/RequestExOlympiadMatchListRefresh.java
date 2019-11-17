@@ -30,6 +30,12 @@ public class RequestExOlympiadMatchListRefresh extends L2GameClientPacket
 	private static final String _C__D0_88_REQUESTEXOLYMPIADMATCHLISTREFRESH = "[C] D0:88 RequestExOlympiadMatchListRefresh";
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_88_REQUESTEXOLYMPIADMATCHLISTREFRESH;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// readD();
@@ -45,11 +51,5 @@ public class RequestExOlympiadMatchListRefresh extends L2GameClientPacket
 		}
 		
 		activeChar.sendPacket(new ExOlympiadMatchList());
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_88_REQUESTEXOLYMPIADMATCHLISTREFRESH;
 	}
 }

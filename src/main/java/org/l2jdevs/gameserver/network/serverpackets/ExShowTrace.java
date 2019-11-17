@@ -32,14 +32,14 @@ public final class ExShowTrace extends L2GameServerPacket
 {
 	private final List<Location> _locations = new ArrayList<>();
 	
-	public void addLocation(int x, int y, int z)
-	{
-		_locations.add(new Location(x, y, z));
-	}
-	
 	public void addLocation(ILocational loc)
 	{
 		addLocation(loc.getX(), loc.getY(), loc.getZ());
+	}
+	
+	public void addLocation(int x, int y, int z)
+	{
+		_locations.add(new Location(x, y, z));
 	}
 	
 	@Override

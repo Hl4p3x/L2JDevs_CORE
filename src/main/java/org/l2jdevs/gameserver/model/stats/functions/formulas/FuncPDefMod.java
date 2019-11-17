@@ -33,14 +33,14 @@ public class FuncPDefMod extends AbstractFunction
 {
 	private static final FuncPDefMod _fmm_instance = new FuncPDefMod();
 	
-	public static AbstractFunction getInstance()
-	{
-		return _fmm_instance;
-	}
-	
 	private FuncPDefMod()
 	{
 		super(Stats.POWER_DEFENCE, 1, null, 0, null);
+	}
+	
+	public static AbstractFunction getInstance()
+	{
+		return _fmm_instance;
 	}
 	
 	@Override

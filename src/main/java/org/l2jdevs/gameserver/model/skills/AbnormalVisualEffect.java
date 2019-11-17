@@ -109,20 +109,20 @@ public enum AbnormalVisualEffect
 	}
 	
 	/**
-	 * Verify if it's a special abnormal visual effect.
-	 * @return {@code true} it's a special abnormal visual effect, {@code false} otherwise
-	 */
-	public final boolean isSpecial()
-	{
-		return _type == 1;
-	}
-	
-	/**
 	 * Verify if it's an event abnormal visual effect.
 	 * @return {@code true} it's an event abnormal visual effect, {@code false} otherwise
 	 */
 	public final boolean isEvent()
 	{
 		return _type == 2;
+	}
+	
+	/**
+	 * Verify if it's a special abnormal visual effect.
+	 * @return {@code true} it's a special abnormal visual effect, {@code false} otherwise
+	 */
+	public final boolean isSpecial()
+	{
+		return _type == 1;
 	}
 }

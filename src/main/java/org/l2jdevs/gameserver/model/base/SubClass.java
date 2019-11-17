@@ -41,14 +41,19 @@ public final class SubClass
 		_stats.setLevel(Config.BASE_SUBCLASS_LEVEL);
 	}
 	
+	public void addExp(long exp)
+	{
+		_stats.addExp(exp);
+	}
+	
 	public PlayerClass getClassDefinition()
 	{
 		return _class;
 	}
 	
-	public void setClassIndex(int classIndex)
+	public int getClassId()
 	{
-		_classIndex = classIndex;
+		return _class.ordinal();
 	}
 	
 	/**
@@ -58,16 +63,6 @@ public final class SubClass
 	public int getClassIndex()
 	{
 		return _classIndex;
-	}
-	
-	public void setClassId(int classId)
-	{
-		_class = PlayerClass.values()[classId];
-	}
-	
-	public int getClassId()
-	{
-		return _class.ordinal();
 	}
 	
 	public long getExp()
@@ -85,9 +80,19 @@ public final class SubClass
 		return _stats.getSp();
 	}
 	
-	public void setSp(int sp)
+	public PcStat getStat()
 	{
-		_stats.setSp(sp);
+		return _stats;
+	}
+	
+	public void setClassId(int classId)
+	{
+		_class = PlayerClass.values()[classId];
+	}
+	
+	public void setClassIndex(int classIndex)
+	{
+		_classIndex = classIndex;
 	}
 	
 	public void setExp(long exp)
@@ -100,13 +105,8 @@ public final class SubClass
 		_stats.setLevel(level);
 	}
 	
-	public void addExp(long exp)
+	public void setSp(int sp)
 	{
-		_stats.addExp(exp);
-	}
-	
-	public PcStat getStat()
-	{
-		return _stats;
+		_stats.setSp(sp);
 	}
 }

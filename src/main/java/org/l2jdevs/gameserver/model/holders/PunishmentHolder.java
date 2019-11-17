@@ -45,6 +45,30 @@ public final class PunishmentHolder
 	}
 	
 	/**
+	 * @param key
+	 * @param type
+	 * @return {@link PunishmentTask} by specified key and type if exists, null otherwise.
+	 */
+	public PunishmentTask getPunishment(String key, PunishmentType type)
+	{
+		if (_holder.containsKey(key))
+		{
+			return _holder.get(key).get(type);
+		}
+		return null;
+	}
+	
+	/**
+	 * @param key
+	 * @param type
+	 * @return {@code true} if Map contains the current key and type, {@code false} otherwise.
+	 */
+	public boolean hasPunishment(String key, PunishmentType type)
+	{
+		return getPunishment(key, type) != null;
+	}
+	
+	/**
 	 * Removes previously stopped task from the Map.
 	 * @param task
 	 */
@@ -61,29 +85,5 @@ public final class PunishmentHolder
 				_holder.remove(key);
 			}
 		}
-	}
-	
-	/**
-	 * @param key
-	 * @param type
-	 * @return {@code true} if Map contains the current key and type, {@code false} otherwise.
-	 */
-	public boolean hasPunishment(String key, PunishmentType type)
-	{
-		return getPunishment(key, type) != null;
-	}
-	
-	/**
-	 * @param key
-	 * @param type
-	 * @return {@link PunishmentTask} by specified key and type if exists, null otherwise.
-	 */
-	public PunishmentTask getPunishment(String key, PunishmentType type)
-	{
-		if (_holder.containsKey(key))
-		{
-			return _holder.get(key).get(type);
-		}
-		return null;
 	}
 }

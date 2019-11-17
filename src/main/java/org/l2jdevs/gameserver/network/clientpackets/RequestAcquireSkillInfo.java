@@ -42,6 +42,12 @@ public final class RequestAcquireSkillInfo extends L2GameClientPacket
 	private AcquireSkillType _skillType;
 	
 	@Override
+	public String getType()
+	{
+		return _C__73_REQUESTACQUIRESKILLINFO;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_id = readD();
@@ -141,11 +147,5 @@ public final class RequestAcquireSkillInfo extends L2GameClientPacket
 				break;
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__73_REQUESTACQUIRESKILLINFO;
 	}
 }

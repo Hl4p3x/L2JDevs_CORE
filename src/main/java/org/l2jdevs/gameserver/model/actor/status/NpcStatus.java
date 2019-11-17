@@ -31,6 +31,12 @@ public class NpcStatus extends CharStatus
 	}
 	
 	@Override
+	public L2Npc getActiveChar()
+	{
+		return (L2Npc) super.getActiveChar();
+	}
+	
+	@Override
 	public void reduceHp(double value, L2Character attacker)
 	{
 		reduceHp(value, attacker, true, false, false);
@@ -57,11 +63,5 @@ public class NpcStatus extends CharStatus
 		}
 		
 		super.reduceHp(value, attacker, awake, isDOT, isHpConsumption);
-	}
-	
-	@Override
-	public L2Npc getActiveChar()
-	{
-		return (L2Npc) super.getActiveChar();
 	}
 }

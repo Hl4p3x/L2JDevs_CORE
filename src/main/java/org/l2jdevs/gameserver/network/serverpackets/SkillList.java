@@ -25,24 +25,6 @@ public final class SkillList extends L2GameServerPacket
 {
 	private final List<Skill> _skills = new ArrayList<>();
 	
-	static class Skill
-	{
-		public int id;
-		public int level;
-		public boolean passive;
-		public boolean disabled;
-		public boolean enchanted;
-		
-		Skill(int pId, int pLevel, boolean pPassive, boolean pDisabled, boolean pEnchanted)
-		{
-			id = pId;
-			level = pLevel;
-			passive = pPassive;
-			disabled = pDisabled;
-			enchanted = pEnchanted;
-		}
-	}
-	
 	public void addSkill(int id, int level, boolean passive, boolean disabled, boolean enchanted)
 	{
 		_skills.add(new Skill(id, level, passive, disabled, enchanted));
@@ -61,6 +43,24 @@ public final class SkillList extends L2GameServerPacket
 			writeD(temp.id);
 			writeC(temp.disabled ? 1 : 0);
 			writeC(temp.enchanted ? 1 : 0);
+		}
+	}
+	
+	static class Skill
+	{
+		public int id;
+		public int level;
+		public boolean passive;
+		public boolean disabled;
+		public boolean enchanted;
+		
+		Skill(int pId, int pLevel, boolean pPassive, boolean pDisabled, boolean pEnchanted)
+		{
+			id = pId;
+			level = pLevel;
+			passive = pPassive;
+			disabled = pDisabled;
+			enchanted = pEnchanted;
 		}
 	}
 }

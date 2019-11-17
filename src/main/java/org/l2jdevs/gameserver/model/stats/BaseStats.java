@@ -56,109 +56,6 @@ public enum BaseStats
 	protected static final double[] CONbonus = new double[MAX_STAT_VALUE];
 	protected static final double[] MENbonus = new double[MAX_STAT_VALUE];
 	
-	private final BaseStat _stat;
-	
-	public final String getValue()
-	{
-		return _stat.getClass().getSimpleName();
-	}
-	
-	private BaseStats(BaseStat s)
-	{
-		_stat = s;
-	}
-	
-	public final double calcBonus(L2Character actor)
-	{
-		if (actor != null)
-		{
-			return _stat.calcBonus(actor);
-		}
-		
-		return 1;
-	}
-	
-	public static final BaseStats valueOfXml(String name)
-	{
-		name = name.intern();
-		for (BaseStats s : values())
-		{
-			if (s.getValue().equalsIgnoreCase(name))
-			{
-				return s;
-			}
-		}
-		throw new NoSuchElementException("Unknown name '" + name + "' for enum BaseStats");
-	}
-	
-	private interface BaseStat
-	{
-		public double calcBonus(L2Character actor);
-	}
-	
-	protected static final class STR implements BaseStat
-	{
-		@Override
-		public final double calcBonus(L2Character actor)
-		{
-			return STRbonus[actor.getSTR()];
-		}
-	}
-	
-	protected static final class INT implements BaseStat
-	{
-		@Override
-		public final double calcBonus(L2Character actor)
-		{
-			return INTbonus[actor.getINT()];
-		}
-	}
-	
-	protected static final class DEX implements BaseStat
-	{
-		@Override
-		public final double calcBonus(L2Character actor)
-		{
-			return DEXbonus[actor.getDEX()];
-		}
-	}
-	
-	protected static final class WIT implements BaseStat
-	{
-		@Override
-		public final double calcBonus(L2Character actor)
-		{
-			return WITbonus[actor.getWIT()];
-		}
-	}
-	
-	protected static final class CON implements BaseStat
-	{
-		@Override
-		public final double calcBonus(L2Character actor)
-		{
-			return CONbonus[actor.getCON()];
-		}
-	}
-	
-	protected static final class MEN implements BaseStat
-	{
-		@Override
-		public final double calcBonus(L2Character actor)
-		{
-			return MENbonus[actor.getMEN()];
-		}
-	}
-	
-	protected static final class NONE implements BaseStat
-	{
-		@Override
-		public final double calcBonus(L2Character actor)
-		{
-			return 1f;
-		}
-	}
-	
 	static
 	{
 		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -246,5 +143,108 @@ public enum BaseStats
 		{
 			throw new Error("[BaseStats] File not found: " + file.getAbsolutePath());
 		}
+	}
+	
+	private final BaseStat _stat;
+	
+	private BaseStats(BaseStat s)
+	{
+		_stat = s;
+	}
+	
+	public static final BaseStats valueOfXml(String name)
+	{
+		name = name.intern();
+		for (BaseStats s : values())
+		{
+			if (s.getValue().equalsIgnoreCase(name))
+			{
+				return s;
+			}
+		}
+		throw new NoSuchElementException("Unknown name '" + name + "' for enum BaseStats");
+	}
+	
+	public final double calcBonus(L2Character actor)
+	{
+		if (actor != null)
+		{
+			return _stat.calcBonus(actor);
+		}
+		
+		return 1;
+	}
+	
+	public final String getValue()
+	{
+		return _stat.getClass().getSimpleName();
+	}
+	
+	protected static final class CON implements BaseStat
+	{
+		@Override
+		public final double calcBonus(L2Character actor)
+		{
+			return CONbonus[actor.getCON()];
+		}
+	}
+	
+	protected static final class DEX implements BaseStat
+	{
+		@Override
+		public final double calcBonus(L2Character actor)
+		{
+			return DEXbonus[actor.getDEX()];
+		}
+	}
+	
+	protected static final class INT implements BaseStat
+	{
+		@Override
+		public final double calcBonus(L2Character actor)
+		{
+			return INTbonus[actor.getINT()];
+		}
+	}
+	
+	protected static final class MEN implements BaseStat
+	{
+		@Override
+		public final double calcBonus(L2Character actor)
+		{
+			return MENbonus[actor.getMEN()];
+		}
+	}
+	
+	protected static final class NONE implements BaseStat
+	{
+		@Override
+		public final double calcBonus(L2Character actor)
+		{
+			return 1f;
+		}
+	}
+	
+	protected static final class STR implements BaseStat
+	{
+		@Override
+		public final double calcBonus(L2Character actor)
+		{
+			return STRbonus[actor.getSTR()];
+		}
+	}
+	
+	protected static final class WIT implements BaseStat
+	{
+		@Override
+		public final double calcBonus(L2Character actor)
+		{
+			return WITbonus[actor.getWIT()];
+		}
+	}
+	
+	private interface BaseStat
+	{
+		public double calcBonus(L2Character actor);
 	}
 }

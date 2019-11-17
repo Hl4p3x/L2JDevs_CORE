@@ -32,6 +32,17 @@ public class OlympiadGameNonClassed extends OlympiadGameNormal
 		super(id, opponents);
 	}
 	
+	protected static final OlympiadGameNonClassed createGame(int id, List<Integer> list)
+	{
+		final Participant[] opponents = OlympiadGameNormal.createListOfParticipants(list);
+		if (opponents == null)
+		{
+			return null;
+		}
+		
+		return new OlympiadGameNonClassed(id, opponents);
+	}
+	
 	@Override
 	public final CompetitionType getType()
 	{
@@ -54,16 +65,5 @@ public class OlympiadGameNonClassed extends OlympiadGameNormal
 	protected final String getWeeklyMatchType()
 	{
 		return COMP_DONE_WEEK_NON_CLASSED;
-	}
-	
-	protected static final OlympiadGameNonClassed createGame(int id, List<Integer> list)
-	{
-		final Participant[] opponents = OlympiadGameNormal.createListOfParticipants(list);
-		if (opponents == null)
-		{
-			return null;
-		}
-		
-		return new OlympiadGameNonClassed(id, opponents);
 	}
 }

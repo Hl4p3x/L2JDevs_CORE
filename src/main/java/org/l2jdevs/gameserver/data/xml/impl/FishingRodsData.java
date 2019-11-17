@@ -45,6 +45,25 @@ public final class FishingRodsData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of FishingRodsData.
+	 * @return single instance of FishingRodsData
+	 */
+	public static FishingRodsData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the fishing rod.
+	 * @param itemId the item id
+	 * @return A fishing Rod by Item Id
+	 */
+	public L2FishingRod getFishingRod(int itemId)
+	{
+		return _fishingRods.get(itemId);
+	}
+	
 	@Override
 	public void load()
 	{
@@ -78,25 +97,6 @@ public final class FishingRodsData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Gets the fishing rod.
-	 * @param itemId the item id
-	 * @return A fishing Rod by Item Id
-	 */
-	public L2FishingRod getFishingRod(int itemId)
-	{
-		return _fishingRods.get(itemId);
-	}
-	
-	/**
-	 * Gets the single instance of FishingRodsData.
-	 * @return single instance of FishingRodsData
-	 */
-	public static FishingRodsData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

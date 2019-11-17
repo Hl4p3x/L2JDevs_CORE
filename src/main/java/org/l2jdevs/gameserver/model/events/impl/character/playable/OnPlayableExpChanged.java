@@ -43,14 +43,14 @@ public class OnPlayableExpChanged implements IBaseEvent
 		return _activeChar;
 	}
 	
-	public long getOldExp()
-	{
-		return _oldExp;
-	}
-	
 	public long getNewExp()
 	{
 		return _newExp;
+	}
+	
+	public long getOldExp()
+	{
+		return _oldExp;
 	}
 	
 	@Override

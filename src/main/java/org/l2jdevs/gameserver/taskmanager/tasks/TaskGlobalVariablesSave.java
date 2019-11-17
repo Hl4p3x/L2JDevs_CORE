@@ -38,15 +38,15 @@ public class TaskGlobalVariablesSave extends Task
 	}
 	
 	@Override
-	public void onTimeElapsed(ExecutedTask task)
-	{
-		GlobalVariablesManager.getInstance().storeMe();
-	}
-	
-	@Override
 	public void initializate()
 	{
 		super.initializate();
 		TaskManager.addUniqueTask(NAME, TaskTypes.TYPE_FIXED_SHEDULED, "500000", "1800000", "");
+	}
+	
+	@Override
+	public void onTimeElapsed(ExecutedTask task)
+	{
+		GlobalVariablesManager.getInstance().storeMe();
 	}
 }

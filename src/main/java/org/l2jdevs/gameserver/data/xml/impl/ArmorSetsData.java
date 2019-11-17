@@ -45,6 +45,35 @@ public final class ArmorSetsData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of ArmorSetsData.
+	 * @return single instance of ArmorSetsData
+	 */
+	public static ArmorSetsData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the sets the.
+	 * @param chestId the chest Id identifying the armor set.
+	 * @return the armor set associated to the give chest Id.
+	 */
+	public L2ArmorSet getSet(int chestId)
+	{
+		return _armorSets.get(chestId);
+	}
+	
+	/**
+	 * Checks if is armor set.
+	 * @param chestId the chest Id to verify.
+	 * @return {@code true} if the chest Id belongs to a registered armor set, {@code false} otherwise.
+	 */
+	public boolean isArmorSet(int chestId)
+	{
+		return _armorSets.containsKey(chestId);
+	}
+	
 	@Override
 	public void load()
 	{
@@ -158,35 +187,6 @@ public final class ArmorSetsData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Checks if is armor set.
-	 * @param chestId the chest Id to verify.
-	 * @return {@code true} if the chest Id belongs to a registered armor set, {@code false} otherwise.
-	 */
-	public boolean isArmorSet(int chestId)
-	{
-		return _armorSets.containsKey(chestId);
-	}
-	
-	/**
-	 * Gets the sets the.
-	 * @param chestId the chest Id identifying the armor set.
-	 * @return the armor set associated to the give chest Id.
-	 */
-	public L2ArmorSet getSet(int chestId)
-	{
-		return _armorSets.get(chestId);
-	}
-	
-	/**
-	 * Gets the single instance of ArmorSetsData.
-	 * @return single instance of ArmorSetsData
-	 */
-	public static ArmorSetsData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

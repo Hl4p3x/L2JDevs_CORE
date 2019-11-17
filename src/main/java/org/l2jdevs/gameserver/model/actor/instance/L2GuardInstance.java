@@ -54,44 +54,6 @@ public class L2GuardInstance extends L2Attackable
 		setInstanceType(InstanceType.L2GuardInstance);
 	}
 	
-	@Override
-	public final GuardKnownList getKnownList()
-	{
-		return (GuardKnownList) super.getKnownList();
-	}
-	
-	@Override
-	public void initKnownList()
-	{
-		setKnownList(new GuardKnownList(this));
-	}
-	
-	/**
-	 * Return True if hte attacker is a L2MonsterInstance.
-	 */
-	@Override
-	public boolean isAutoAttackable(L2Character attacker)
-	{
-		return attacker instanceof L2MonsterInstance;
-	}
-	
-	/**
-	 * Set the home location of its L2GuardInstance.
-	 */
-	@Override
-	public void onSpawn()
-	{
-		setIsNoRndWalk(true);
-		super.onSpawn();
-		
-		// check the region where this mob is, do not activate the AI if region is inactive.
-		L2WorldRegion region = L2World.getInstance().getRegion(getX(), getY());
-		if ((region != null) && (!region.isActive()))
-		{
-			getAI().stopAITask();
-		}
-	}
-	
 	/**
 	 * Return the pathfile of the selected HTML file in function of the L2GuardInstance Identifier and of the page number.<br>
 	 * <B><U> Format of the pathfile </U> :</B>
@@ -115,6 +77,27 @@ public class L2GuardInstance extends L2Attackable
 			pom = npcId + "-" + val;
 		}
 		return "data/html/guard/" + pom + ".htm";
+	}
+	
+	@Override
+	public final GuardKnownList getKnownList()
+	{
+		return (GuardKnownList) super.getKnownList();
+	}
+	
+	@Override
+	public void initKnownList()
+	{
+		setKnownList(new GuardKnownList(this));
+	}
+	
+	/**
+	 * Return True if hte attacker is a L2MonsterInstance.
+	 */
+	@Override
+	public boolean isAutoAttackable(L2Character attacker)
+	{
+		return attacker instanceof L2MonsterInstance;
 	}
 	
 	/**
@@ -199,5 +182,22 @@ public class L2GuardInstance extends L2Attackable
 		}
 		// Send a Server->Client ActionFailed to the L2PcInstance in order to avoid that the client wait another packet
 		player.sendPacket(ActionFailed.STATIC_PACKET);
+	}
+	
+	/**
+	 * Set the home location of its L2GuardInstance.
+	 */
+	@Override
+	public void onSpawn()
+	{
+		setIsNoRndWalk(true);
+		super.onSpawn();
+		
+		// check the region where this mob is, do not activate the AI if region is inactive.
+		L2WorldRegion region = L2World.getInstance().getRegion(getX(), getY());
+		if ((region != null) && (!region.isActive()))
+		{
+			getAI().stopAITask();
+		}
 	}
 }

@@ -34,6 +34,12 @@ public final class RequestExAcceptJoinMPCC extends L2GameClientPacket
 	private int _response;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_07_REQUESTEXASKJOINMPCC;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_response = readD();
@@ -78,11 +84,5 @@ public final class RequestExAcceptJoinMPCC extends L2GameClientPacket
 			requestor.onTransactionResponse();
 		}
 		
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_07_REQUESTEXASKJOINMPCC;
 	}
 }

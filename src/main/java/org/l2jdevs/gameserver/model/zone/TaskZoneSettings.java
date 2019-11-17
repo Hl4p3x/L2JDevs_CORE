@@ -28,6 +28,16 @@ public class TaskZoneSettings extends AbstractZoneSettings
 {
 	private Future<?> _task;
 	
+	@Override
+	public void clear()
+	{
+		if (_task != null)
+		{
+			_task.cancel(true);
+			_task = null;
+		}
+	}
+	
 	/**
 	 * Gets the task.
 	 * @return the task
@@ -44,15 +54,5 @@ public class TaskZoneSettings extends AbstractZoneSettings
 	public void setTask(Future<?> task)
 	{
 		_task = task;
-	}
-	
-	@Override
-	public void clear()
-	{
-		if (_task != null)
-		{
-			_task.cancel(true);
-			_task = null;
-		}
 	}
 }

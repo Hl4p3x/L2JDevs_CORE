@@ -37,9 +37,9 @@ public final class RequestSentPost extends L2GameClientPacket
 	private int _msgId;
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		_msgId = readD();
+		return _C__D0_6E_REQUESTSENTPOST;
 	}
 	
 	@Override
@@ -78,9 +78,9 @@ public final class RequestSentPost extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__D0_6E_REQUESTSENTPOST;
+		_msgId = readD();
 	}
 	
 	@Override

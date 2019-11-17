@@ -33,8 +33,6 @@ public abstract class L2GameServerPacket extends SendablePacket<L2GameClient>
 {
 	protected static final Logger _log = Logger.getLogger(L2GameServerPacket.class.getName());
 	
-	private boolean _invisible = false;
-	
 	private static final int[] PAPERDOLL_ORDER = new int[]
 	{
 		Inventory.PAPERDOLL_UNDER,
@@ -65,12 +63,19 @@ public abstract class L2GameServerPacket extends SendablePacket<L2GameClient>
 		Inventory.PAPERDOLL_BELT
 	};
 	
+	private boolean _invisible = false;
+	
 	/**
 	 * @return True if packet originated from invisible character.
 	 */
 	public boolean isInvisible()
 	{
 		return _invisible;
+	}
+	
+	public void runImpl()
+	{
+		
 	}
 	
 	/**
@@ -81,17 +86,6 @@ public abstract class L2GameServerPacket extends SendablePacket<L2GameClient>
 	public void setInvisible(boolean b)
 	{
 		_invisible = b;
-	}
-	
-	/**
-	 * Writes 3 D (int32) with current location x, y, z
-	 * @param loc
-	 */
-	protected void writeLoc(IPositionable loc)
-	{
-		writeD(loc.getX());
-		writeD(loc.getY());
-		writeD(loc.getZ());
 	}
 	
 	protected int[] getPaperdollOrder()
@@ -112,10 +106,16 @@ public abstract class L2GameServerPacket extends SendablePacket<L2GameClient>
 		}
 	}
 	
-	public void runImpl()
-	{
-		
-	}
-	
 	protected abstract void writeImpl();
+	
+	/**
+	 * Writes 3 D (int32) with current location x, y, z
+	 * @param loc
+	 */
+	protected void writeLoc(IPositionable loc)
+	{
+		writeD(loc.getX());
+		writeD(loc.getY());
+		writeD(loc.getZ());
+	}
 }

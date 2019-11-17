@@ -39,13 +39,13 @@ public class ClanInfo
 		return _clan;
 	}
 	
-	public int getTotal()
-	{
-		return _total;
-	}
-	
 	public int getOnline()
 	{
 		return _online;
+	}
+	
+	public int getTotal()
+	{
+		return _total;
 	}
 }

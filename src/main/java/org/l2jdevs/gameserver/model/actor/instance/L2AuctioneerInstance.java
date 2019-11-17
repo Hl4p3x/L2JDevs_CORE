@@ -681,20 +681,6 @@ public final class L2AuctioneerInstance extends L2Npc
 		player.sendPacket(html);
 	}
 	
-	private int validateCondition(L2PcInstance player)
-	{
-		if ((getCastle() != null) && (getCastle().getResidenceId() > 0))
-		{
-			if (getCastle().getSiege().isInProgress())
-			{
-				return COND_BUSY_BECAUSE_OF_SIEGE; // Busy because of siege
-			}
-			return COND_REGULAR;
-		}
-		
-		return COND_ALL_FALSE;
-	}
-	
 	private String getPictureName(L2PcInstance plyr)
 	{
 		int nearestTownId = MapRegionManager.getInstance().getMapRegionLocId(plyr);
@@ -729,5 +715,19 @@ public final class L2AuctioneerInstance extends L2Npc
 		}
 		
 		return nearestTown;
+	}
+	
+	private int validateCondition(L2PcInstance player)
+	{
+		if ((getCastle() != null) && (getCastle().getResidenceId() > 0))
+		{
+			if (getCastle().getSiege().isInProgress())
+			{
+				return COND_BUSY_BECAUSE_OF_SIEGE; // Busy because of siege
+			}
+			return COND_REGULAR;
+		}
+		
+		return COND_ALL_FALSE;
 	}
 }

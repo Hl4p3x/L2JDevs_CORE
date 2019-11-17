@@ -48,6 +48,12 @@ public class RequestPackageSend extends L2GameClientPacket
 	private int _objectId;
 	
 	@Override
+	public String getType()
+	{
+		return _C_A8_REQUESTPACKAGESEND;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -207,11 +213,5 @@ public class RequestPackageSend extends L2GameClientPacket
 		final StatusUpdate su = new StatusUpdate(player);
 		su.addAttribute(StatusUpdate.CUR_LOAD, player.getCurrentLoad());
 		sendPacket(su);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C_A8_REQUESTPACKAGESEND;
 	}
 }

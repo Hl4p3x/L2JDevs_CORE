@@ -38,6 +38,33 @@ public class PcRefund extends ItemContainer
 	}
 	
 	@Override
+	public void deleteMe()
+	{
+		try
+		{
+			for (L2ItemInstance item : _items)
+			{
+				if (item != null)
+				{
+					ItemTable.getInstance().destroyItem("ClearRefund", item, getOwner(), null);
+					item.updateDatabase(true);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.SEVERE, "deleteMe()", e);
+		}
+		_items.clear();
+	}
+	
+	@Override
+	public ItemLocation getBaseLocation()
+	{
+		return ItemLocation.REFUND;
+	}
+	
+	@Override
 	public String getName()
 	{
 		return "Refund";
@@ -50,9 +77,13 @@ public class PcRefund extends ItemContainer
 	}
 	
 	@Override
-	public ItemLocation getBaseLocation()
+	public void refreshWeight()
 	{
-		return ItemLocation.REFUND;
+	}
+	
+	@Override
+	public void restore()
+	{
 	}
 	
 	@Override
@@ -75,36 +106,5 @@ public class PcRefund extends ItemContainer
 		{
 			_log.log(Level.SEVERE, "addItem()", e);
 		}
-	}
-	
-	@Override
-	public void refreshWeight()
-	{
-	}
-	
-	@Override
-	public void deleteMe()
-	{
-		try
-		{
-			for (L2ItemInstance item : _items)
-			{
-				if (item != null)
-				{
-					ItemTable.getInstance().destroyItem("ClearRefund", item, getOwner(), null);
-					item.updateDatabase(true);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.SEVERE, "deleteMe()", e);
-		}
-		_items.clear();
-	}
-	
-	@Override
-	public void restore()
-	{
 	}
 }

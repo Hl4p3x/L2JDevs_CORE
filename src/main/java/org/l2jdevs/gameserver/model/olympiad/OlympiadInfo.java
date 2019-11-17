@@ -43,11 +43,11 @@ public class OlympiadInfo
 	}
 	
 	/**
-	 * @return the name the player's name.
+	 * @return the name the player's clan id.
 	 */
-	public String getName()
+	public int getClanId()
 	{
-		return _name;
+		return _clanId;
 	}
 	
 	/**
@@ -59,27 +59,11 @@ public class OlympiadInfo
 	}
 	
 	/**
-	 * @return the name the player's clan id.
-	 */
-	public int getClanId()
-	{
-		return _clanId;
-	}
-	
-	/**
 	 * @return the name the player's class id.
 	 */
 	public int getClassId()
 	{
 		return _classId;
-	}
-	
-	/**
-	 * @return the name the player's damage.
-	 */
-	public int getDamage()
-	{
-		return _dmg;
 	}
 	
 	/**
@@ -91,10 +75,26 @@ public class OlympiadInfo
 	}
 	
 	/**
+	 * @return the name the player's damage.
+	 */
+	public int getDamage()
+	{
+		return _dmg;
+	}
+	
+	/**
 	 * @return the name the player's points difference since this match.
 	 */
 	public int getDiffPoints()
 	{
 		return _diffPoints;
+	}
+	
+	/**
+	 * @return the name the player's name.
+	 */
+	public String getName()
+	{
+		return _name;
 	}
 }

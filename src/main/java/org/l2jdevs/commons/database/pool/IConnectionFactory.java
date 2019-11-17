@@ -35,12 +35,6 @@ public interface IConnectionFactory
 	static final Logger LOG = LoggerFactory.getLogger(IConnectionFactory.class);
 	
 	/**
-	 * Gets the data source.
-	 * @return the data source
-	 */
-	DataSource getDataSource();
-	
-	/**
 	 * Closes the data source.<br>
 	 * <i>Same as shutdown.</i>
 	 */
@@ -66,4 +60,10 @@ public interface IConnectionFactory
 		}
 		return con;
 	}
+	
+	/**
+	 * Gets the data source.
+	 * @return the data source
+	 */
+	DataSource getDataSource();
 }

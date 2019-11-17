@@ -48,6 +48,35 @@ public class EnchantItemData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of EnchantItemData.
+	 * @return single instance of EnchantItemData
+	 */
+	public static final EnchantItemData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the enchant scroll.
+	 * @param scroll the scroll
+	 * @return enchant template for scroll
+	 */
+	public final EnchantScroll getEnchantScroll(L2ItemInstance scroll)
+	{
+		return _scrolls.get(scroll.getId());
+	}
+	
+	/**
+	 * Gets the support item.
+	 * @param item the item
+	 * @return enchant template for support item
+	 */
+	public final EnchantSupportItem getSupportItem(L2ItemInstance item)
+	{
+		return _supports.get(item.getId());
+	}
+	
 	@Override
 	public synchronized void load()
 	{
@@ -128,35 +157,6 @@ public class EnchantItemData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Gets the enchant scroll.
-	 * @param scroll the scroll
-	 * @return enchant template for scroll
-	 */
-	public final EnchantScroll getEnchantScroll(L2ItemInstance scroll)
-	{
-		return _scrolls.get(scroll.getId());
-	}
-	
-	/**
-	 * Gets the support item.
-	 * @param item the item
-	 * @return enchant template for support item
-	 */
-	public final EnchantSupportItem getSupportItem(L2ItemInstance item)
-	{
-		return _supports.get(item.getId());
-	}
-	
-	/**
-	 * Gets the single instance of EnchantItemData.
-	 * @return single instance of EnchantItemData
-	 */
-	public static final EnchantItemData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

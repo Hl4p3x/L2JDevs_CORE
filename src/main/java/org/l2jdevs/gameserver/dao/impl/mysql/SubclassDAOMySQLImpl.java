@@ -44,31 +44,18 @@ public class SubclassDAOMySQLImpl implements SubclassDAO
 	private static final String DELETE = "DELETE FROM character_subclasses WHERE charId=? AND class_index=?";
 	
 	@Override
-	public void update(L2PcInstance player)
+	public void delete(L2PcInstance player, int classIndex)
 	{
-		if (player.getTotalSubClasses() <= 0)
-		{
-			return;
-		}
-		
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(UPDATE))
+			PreparedStatement ps = con.prepareStatement(DELETE))
 		{
-			for (SubClass subClass : player.getSubClasses().values())
-			{
-				ps.setLong(1, subClass.getExp());
-				ps.setInt(2, subClass.getSp());
-				ps.setInt(3, subClass.getLevel());
-				ps.setInt(4, subClass.getClassId());
-				ps.setInt(5, player.getObjectId());
-				ps.setInt(6, subClass.getClassIndex());
-				ps.addBatch();
-			}
-			ps.executeBatch();
+			ps.setInt(1, player.getObjectId());
+			ps.setInt(2, classIndex);
+			ps.execute();
 		}
 		catch (Exception e)
 		{
-			LOG.error("Could not store sub class data for {} : {}", player, e);
+			LOG.error("Could not delete subclass for {} to class index {}, {}", player, classIndex, e);
 		}
 	}
 	
@@ -92,22 +79,6 @@ public class SubclassDAOMySQLImpl implements SubclassDAO
 			return false;
 		}
 		return true;
-	}
-	
-	@Override
-	public void delete(L2PcInstance player, int classIndex)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(DELETE))
-		{
-			ps.setInt(1, player.getObjectId());
-			ps.setInt(2, classIndex);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.error("Could not delete subclass for {} to class index {}, {}", player, classIndex, e);
-		}
 	}
 	
 	@Override
@@ -136,6 +107,35 @@ public class SubclassDAOMySQLImpl implements SubclassDAO
 		catch (Exception e)
 		{
 			LOG.error("Could not restore classes for {}, {}", player, e);
+		}
+	}
+	
+	@Override
+	public void update(L2PcInstance player)
+	{
+		if (player.getTotalSubClasses() <= 0)
+		{
+			return;
+		}
+		
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(UPDATE))
+		{
+			for (SubClass subClass : player.getSubClasses().values())
+			{
+				ps.setLong(1, subClass.getExp());
+				ps.setInt(2, subClass.getSp());
+				ps.setInt(3, subClass.getLevel());
+				ps.setInt(4, subClass.getClassId());
+				ps.setInt(5, player.getObjectId());
+				ps.setInt(6, subClass.getClassIndex());
+				ps.addBatch();
+			}
+			ps.executeBatch();
+		}
+		catch (Exception e)
+		{
+			LOG.error("Could not store sub class data for {} : {}", player, e);
 		}
 	}
 }

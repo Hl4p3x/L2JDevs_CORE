@@ -46,14 +46,9 @@ public class Entry
 	{
 	}
 	
-	public final void setEntryId(int id)
+	public final void addIngredient(Ingredient ingredient)
 	{
-		_entryId = id;
-	}
-	
-	public final int getEntryId()
-	{
-		return _entryId;
+		_ingredients.add(ingredient);
 	}
 	
 	public final void addProduct(Ingredient product)
@@ -66,14 +61,9 @@ public class Entry
 		}
 	}
 	
-	public final List<Ingredient> getProducts()
+	public final int getEntryId()
 	{
-		return _products;
-	}
-	
-	public final void addIngredient(Ingredient ingredient)
-	{
-		_ingredients.add(ingredient);
+		return _entryId;
 	}
 	
 	public final List<Ingredient> getIngredients()
@@ -81,13 +71,23 @@ public class Entry
 		return _ingredients;
 	}
 	
-	public final boolean isStackable()
+	public final List<Ingredient> getProducts()
 	{
-		return _stackable;
+		return _products;
 	}
 	
 	public long getTaxAmount()
 	{
 		return 0;
+	}
+	
+	public final boolean isStackable()
+	{
+		return _stackable;
+	}
+	
+	public final void setEntryId(int id)
+	{
+		_entryId = id;
 	}
 }

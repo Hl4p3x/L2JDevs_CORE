@@ -41,6 +41,11 @@ public final class MagicSkillUse extends L2GameServerPacket
 	private final List<Integer> _unknown = Collections.emptyList();
 	private final List<Location> _groundLocations;
 	
+	public MagicSkillUse(L2Character cha, int skillId, int skillLevel, int hitTime, int reuseDelay)
+	{
+		this(cha, cha, skillId, skillLevel, hitTime, reuseDelay);
+	}
+	
 	public MagicSkillUse(L2Character cha, L2Character target, int skillId, int skillLevel, int hitTime, int reuseDelay)
 	{
 		_activeChar = cha;
@@ -50,11 +55,6 @@ public final class MagicSkillUse extends L2GameServerPacket
 		_hitTime = hitTime;
 		_reuseDelay = reuseDelay;
 		_groundLocations = cha.isPlayer() && (cha.getActingPlayer().getCurrentSkillWorldPosition() != null) ? Arrays.asList(cha.getActingPlayer().getCurrentSkillWorldPosition()) : Collections.<Location> emptyList();
-	}
-	
-	public MagicSkillUse(L2Character cha, int skillId, int skillLevel, int hitTime, int reuseDelay)
-	{
-		this(cha, cha, skillId, skillLevel, hitTime, reuseDelay);
 	}
 	
 	@Override

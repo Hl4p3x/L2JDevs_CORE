@@ -46,22 +46,10 @@ public abstract class AbstractResidence extends ListenersContainer implements IN
 		initResidentialSkills();
 	}
 	
-	protected abstract void load();
-	
-	protected abstract void initResidenceZone();
-	
-	protected void initResidentialSkills()
+	@Override
+	public boolean equals(Object obj)
 	{
-		final List<L2SkillLearn> residentialSkills = SkillTreesData.getInstance().getAvailableResidentialSkills(getResidenceId());
-		for (L2SkillLearn s : residentialSkills)
-		{
-			_residentialSkills.add(new SkillHolder(s.getSkillId(), s.getSkillLevel()));
-		}
-	}
-	
-	public final int getResidenceId()
-	{
-		return _residenceId;
+		return (obj instanceof AbstractResidence) && (((AbstractResidence) obj).getResidenceId() == getResidenceId());
 	}
 	
 	@Override
@@ -70,20 +58,14 @@ public abstract class AbstractResidence extends ListenersContainer implements IN
 		return _name;
 	}
 	
-	// TODO: Remove it later when both castles and forts are loaded from same table.
-	public final void setName(String name)
+	public final int getResidenceId()
 	{
-		_name = name;
+		return _residenceId;
 	}
 	
 	public L2ResidenceZone getResidenceZone()
 	{
 		return _zone;
-	}
-	
-	protected void setResidenceZone(L2ResidenceZone zone)
-	{
-		_zone = zone;
 	}
 	
 	public final List<SkillHolder> getResidentialSkills()
@@ -113,15 +95,33 @@ public abstract class AbstractResidence extends ListenersContainer implements IN
 		}
 	}
 	
-	@Override
-	public boolean equals(Object obj)
+	// TODO: Remove it later when both castles and forts are loaded from same table.
+	public final void setName(String name)
 	{
-		return (obj instanceof AbstractResidence) && (((AbstractResidence) obj).getResidenceId() == getResidenceId());
+		_name = name;
 	}
 	
 	@Override
 	public String toString()
 	{
 		return getName() + "(" + getResidenceId() + ")";
+	}
+	
+	protected abstract void initResidenceZone();
+	
+	protected void initResidentialSkills()
+	{
+		final List<L2SkillLearn> residentialSkills = SkillTreesData.getInstance().getAvailableResidentialSkills(getResidenceId());
+		for (L2SkillLearn s : residentialSkills)
+		{
+			_residentialSkills.add(new SkillHolder(s.getSkillId(), s.getSkillLevel()));
+		}
+	}
+	
+	protected abstract void load();
+	
+	protected void setResidenceZone(L2ResidenceZone zone)
+	{
+		_zone = zone;
 	}
 }

@@ -36,6 +36,22 @@ public final class L2SiegableHallZone extends L2ClanHallZone
 		super(id);
 	}
 	
+	public void banishNonSiegeParticipants()
+	{
+		for (L2PcInstance player : getPlayersInside())
+		{
+			if ((player != null) && player.isInHideoutSiege())
+			{
+				player.teleToLocation(getBanishSpawnLoc(), true);
+			}
+		}
+	}
+	
+	public List<Location> getChallengerSpawns()
+	{
+		return _challengerLocations;
+	}
+	
 	@Override
 	public void parseLoc(int x, int y, int z, String type)
 	{
@@ -50,22 +66,6 @@ public final class L2SiegableHallZone extends L2ClanHallZone
 		else
 		{
 			super.parseLoc(x, y, z, type);
-		}
-	}
-	
-	public List<Location> getChallengerSpawns()
-	{
-		return _challengerLocations;
-	}
-	
-	public void banishNonSiegeParticipants()
-	{
-		for (L2PcInstance player : getPlayersInside())
-		{
-			if ((player != null) && player.isInHideoutSiege())
-			{
-				player.teleToLocation(getBanishSpawnLoc(), true);
-			}
 		}
 	}
 }

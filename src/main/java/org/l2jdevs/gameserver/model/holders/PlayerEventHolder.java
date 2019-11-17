@@ -72,6 +72,16 @@ public final class PlayerEventHolder
 		_sitForced = sitForced;
 	}
 	
+	public List<L2PcInstance> getKills()
+	{
+		return _kills;
+	}
+	
+	public boolean isSitForced()
+	{
+		return _sitForced;
+	}
+	
 	public void restorePlayerStats()
 	{
 		_player.setName(_name);
@@ -87,15 +97,5 @@ public final class PlayerEventHolder
 	public void setSitForced(boolean sitForced)
 	{
 		_sitForced = sitForced;
-	}
-	
-	public boolean isSitForced()
-	{
-		return _sitForced;
-	}
-	
-	public List<L2PcInstance> getKills()
-	{
-		return _kills;
 	}
 }

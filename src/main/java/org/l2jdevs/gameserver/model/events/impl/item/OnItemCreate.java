@@ -41,9 +41,9 @@ public class OnItemCreate implements IBaseEvent
 		_reference = reference;
 	}
 	
-	public String getProcess()
+	public L2PcInstance getActiveChar()
 	{
-		return _process;
+		return _activeChar;
 	}
 	
 	public L2ItemInstance getItem()
@@ -51,9 +51,9 @@ public class OnItemCreate implements IBaseEvent
 		return _item;
 	}
 	
-	public L2PcInstance getActiveChar()
+	public String getProcess()
 	{
-		return _activeChar;
+		return _process;
 	}
 	
 	public Object getReference()

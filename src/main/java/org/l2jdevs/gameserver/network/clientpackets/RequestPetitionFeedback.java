@@ -41,6 +41,12 @@ public class RequestPetitionFeedback extends L2GameClientPacket
 	private String _message;
 	
 	@Override
+	public String getType()
+	{
+		return _C__C9_REQUESTPETITIONFEEDBACK;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// _unknown =
@@ -78,11 +84,5 @@ public class RequestPetitionFeedback extends L2GameClientPacket
 		{
 			_log.log(Level.SEVERE, "Error while saving petition feedback");
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__C9_REQUESTPETITIONFEEDBACK;
 	}
 }

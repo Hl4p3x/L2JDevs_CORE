@@ -31,20 +31,6 @@ public class ItemInfo
 	private final int _elementPower;
 	private final int[] _elementals = new int[6];
 	
-	public ItemInfo(L2ItemInstance item)
-	{
-		_enchantLevel = item.getEnchantLevel();
-		_augmentId = item.getAugmentation() != null ? item.getAugmentation().getAugmentationId() : 0;
-		_elementId = item.getAttackElementType();
-		_elementPower = item.getAttackElementPower();
-		_elementals[0] = item.getElementDefAttr(Elementals.FIRE);
-		_elementals[1] = item.getElementDefAttr(Elementals.WATER);
-		_elementals[2] = item.getElementDefAttr(Elementals.WIND);
-		_elementals[3] = item.getElementDefAttr(Elementals.EARTH);
-		_elementals[4] = item.getElementDefAttr(Elementals.HOLY);
-		_elementals[5] = item.getElementDefAttr(Elementals.DARK);
-	}
-	
 	public ItemInfo(int enchantLevel)
 	{
 		_enchantLevel = enchantLevel;
@@ -59,14 +45,28 @@ public class ItemInfo
 		_elementals[5] = 0;
 	}
 	
-	public final int getEnchantLevel()
+	public ItemInfo(L2ItemInstance item)
 	{
-		return _enchantLevel;
+		_enchantLevel = item.getEnchantLevel();
+		_augmentId = item.getAugmentation() != null ? item.getAugmentation().getAugmentationId() : 0;
+		_elementId = item.getAttackElementType();
+		_elementPower = item.getAttackElementPower();
+		_elementals[0] = item.getElementDefAttr(Elementals.FIRE);
+		_elementals[1] = item.getElementDefAttr(Elementals.WATER);
+		_elementals[2] = item.getElementDefAttr(Elementals.WIND);
+		_elementals[3] = item.getElementDefAttr(Elementals.EARTH);
+		_elementals[4] = item.getElementDefAttr(Elementals.HOLY);
+		_elementals[5] = item.getElementDefAttr(Elementals.DARK);
 	}
 	
 	public final int getAugmentId()
 	{
 		return _augmentId;
+	}
+	
+	public final int[] getElementals()
+	{
+		return _elementals;
 	}
 	
 	public final byte getElementId()
@@ -79,8 +79,8 @@ public class ItemInfo
 		return _elementPower;
 	}
 	
-	public final int[] getElementals()
+	public final int getEnchantLevel()
 	{
-		return _elementals;
+		return _enchantLevel;
 	}
 }

@@ -29,6 +29,12 @@ public class RequestAllFortressInfo extends L2GameClientPacket
 	private static final String _C__D0_3D_REQUESTALLFORTRESSINFO = "[C] D0:3D RequestAllFortressInfo";
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_3D_REQUESTALLFORTRESSINFO;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger packet
@@ -48,11 +54,5 @@ public class RequestAllFortressInfo extends L2GameClientPacket
 	protected boolean triggersOnActionRequest()
 	{
 		return false;
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_3D_REQUESTALLFORTRESSINFO;
 	}
 }

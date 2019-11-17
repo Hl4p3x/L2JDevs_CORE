@@ -47,17 +47,17 @@ public class L2FlameTowerInstance extends L2Tower
 	}
 	
 	@Override
-	public boolean doDie(L2Character killer)
-	{
-		enableZones(false);
-		return super.doDie(killer);
-	}
-	
-	@Override
 	public boolean deleteMe()
 	{
 		enableZones(false);
 		return super.deleteMe();
+	}
+	
+	@Override
+	public boolean doDie(L2Character killer)
+	{
+		enableZones(false);
+		return super.doDie(killer);
 	}
 	
 	public final void enableZones(boolean state)

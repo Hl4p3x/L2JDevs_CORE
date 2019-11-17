@@ -36,6 +36,12 @@ public class RequestDispel extends L2GameClientPacket
 	private int _skillLevel;
 	
 	@Override
+	public String getType()
+	{
+		return _C_D0_4B_REQUESTDISPEL;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -83,11 +89,5 @@ public class RequestDispel extends L2GameClientPacket
 				activeChar.getSummon().stopSkillEffects(true, _skillId);
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C_D0_4B_REQUESTDISPEL;
 	}
 }

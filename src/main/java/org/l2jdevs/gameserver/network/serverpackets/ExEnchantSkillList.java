@@ -23,38 +23,18 @@ import java.util.List;
 
 public class ExEnchantSkillList extends L2GameServerPacket
 {
-	public enum EnchantSkillType
-	{
-		NORMAL,
-		SAFE,
-		UNTRAIN,
-		CHANGE_ROUTE,
-	}
-	
 	private final EnchantSkillType _type;
-	private final List<Skill> _skills;
 	
-	static class Skill
+	private final List<Skill> _skills;
+	public ExEnchantSkillList(EnchantSkillType type)
 	{
-		public int id;
-		public int nextLevel;
-		
-		Skill(int pId, int pNextLevel)
-		{
-			id = pId;
-			nextLevel = pNextLevel;
-		}
+		_type = type;
+		_skills = new ArrayList<>();
 	}
 	
 	public void addSkill(int id, int level)
 	{
 		_skills.add(new Skill(id, level));
-	}
-	
-	public ExEnchantSkillList(EnchantSkillType type)
-	{
-		_type = type;
-		_skills = new ArrayList<>();
 	}
 	
 	@Override
@@ -69,6 +49,26 @@ public class ExEnchantSkillList extends L2GameServerPacket
 		{
 			writeD(sk.id);
 			writeD(sk.nextLevel);
+		}
+	}
+	
+	public enum EnchantSkillType
+	{
+		NORMAL,
+		SAFE,
+		UNTRAIN,
+		CHANGE_ROUTE,
+	}
+	
+	static class Skill
+	{
+		public int id;
+		public int nextLevel;
+		
+		Skill(int pId, int pNextLevel)
+		{
+			id = pId;
+			nextLevel = pNextLevel;
 		}
 	}
 }

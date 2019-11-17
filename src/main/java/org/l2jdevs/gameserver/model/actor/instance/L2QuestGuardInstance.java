@@ -58,6 +58,15 @@ public final class L2QuestGuardInstance extends L2GuardInstance
 	}
 	
 	@Override
+	public void addDamageHate(L2Character attacker, int damage, long aggro)
+	{
+		if (!_isPassive && !(attacker instanceof L2PcInstance))
+		{
+			super.addDamageHate(attacker, damage, aggro);
+		}
+	}
+	
+	@Override
 	public boolean doDie(L2Character killer)
 	{
 		// Kill the L2NpcInstance (the corpse disappeared after 7 seconds)
@@ -75,23 +84,14 @@ public final class L2QuestGuardInstance extends L2GuardInstance
 	}
 	
 	@Override
-	public void addDamageHate(L2Character attacker, int damage, long aggro)
-	{
-		if (!_isPassive && !(attacker instanceof L2PcInstance))
-		{
-			super.addDamageHate(attacker, damage, aggro);
-		}
-	}
-	
-	public void setPassive(boolean state)
-	{
-		_isPassive = state;
-	}
-	
-	@Override
 	public boolean isAutoAttackable(L2Character attacker)
 	{
 		return _isAutoAttackable && !(attacker instanceof L2PcInstance);
+	}
+	
+	public boolean isPassive()
+	{
+		return _isPassive;
 	}
 	
 	@Override
@@ -100,8 +100,8 @@ public final class L2QuestGuardInstance extends L2GuardInstance
 		_isAutoAttackable = state;
 	}
 	
-	public boolean isPassive()
+	public void setPassive(boolean state)
 	{
-		return _isPassive;
+		_isPassive = state;
 	}
 }

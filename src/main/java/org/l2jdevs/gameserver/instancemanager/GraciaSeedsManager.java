@@ -48,6 +48,85 @@ public final class GraciaSeedsManager
 		handleSodStages();
 	}
 	
+	/**
+	 * Gets the single instance of {@code GraciaSeedsManager}.
+	 * @return single instance of {@code GraciaSeedsManager}
+	 */
+	public static final GraciaSeedsManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public Calendar getSoDLastStateChangeDate()
+	{
+		return _SoDLastStateChangeDate;
+	}
+	
+	public int getSoDState()
+	{
+		return _SoDState;
+	}
+	
+	public int getSoDTiatKilled()
+	{
+		return _SoDTiatKilled;
+	}
+	
+	public long getSoDTimeForNextStateChange()
+	{
+		switch (_SoDState)
+		{
+			case 1:
+				return -1;
+			case 2:
+				return ((_SoDLastStateChangeDate.getTimeInMillis() + Config.SOD_STAGE_2_LENGTH) - System.currentTimeMillis());
+			case 3:
+				// not implemented yet
+				return -1;
+			default:
+				// this should not happen!
+				return -1;
+		}
+	}
+	
+	public void increaseSoDTiatKilled()
+	{
+		if (_SoDState == 1)
+		{
+			_SoDTiatKilled++;
+			if (_SoDTiatKilled >= Config.SOD_TIAT_KILL_COUNT)
+			{
+				setSoDState(2, false);
+			}
+			saveData(SODTYPE);
+			Quest esQuest = QuestManager.getInstance().getQuest(ENERGY_SEEDS);
+			if (esQuest == null)
+			{
+				_log.warning(getClass().getSimpleName() + ": missing EnergySeeds Quest!");
+			}
+			else
+			{
+				esQuest.notifyEvent("StartSoDAi", null, null);
+			}
+		}
+	}
+	
+	public void loadData()
+	{
+		// Seed of Destruction variables
+		if (GlobalVariablesManager.getInstance().hasVariable("SoDState"))
+		{
+			_SoDState = GlobalVariablesManager.getInstance().getInt("SoDState");
+			_SoDTiatKilled = GlobalVariablesManager.getInstance().getInt("SoDTiatKilled", _SoDTiatKilled);
+			_SoDLastStateChangeDate.setTimeInMillis(GlobalVariablesManager.getInstance().getLong("SoDLSCDate"));
+		}
+		else
+		{
+			// save Initial values
+			saveData(SODTYPE);
+		}
+	}
+	
 	public void saveData(byte seedType)
 	{
 		switch (seedType)
@@ -70,19 +149,35 @@ public final class GraciaSeedsManager
 		}
 	}
 	
-	public void loadData()
+	public void setSoDState(int value, boolean doSave)
 	{
-		// Seed of Destruction variables
-		if (GlobalVariablesManager.getInstance().hasVariable("SoDState"))
+		_log.info(getClass().getSimpleName() + ": New Seed of Destruction state -> " + value + ".");
+		_SoDLastStateChangeDate.setTimeInMillis(System.currentTimeMillis());
+		_SoDState = value;
+		// reset number of Tiat kills
+		if (_SoDState == 1)
 		{
-			_SoDState = GlobalVariablesManager.getInstance().getInt("SoDState");
-			_SoDTiatKilled = GlobalVariablesManager.getInstance().getInt("SoDTiatKilled", _SoDTiatKilled);
-			_SoDLastStateChangeDate.setTimeInMillis(GlobalVariablesManager.getInstance().getLong("SoDLSCDate"));
+			_SoDTiatKilled = 0;
+		}
+		
+		handleSodStages();
+		
+		if (doSave)
+		{
+			saveData(SODTYPE);
+		}
+	}
+	
+	public void updateSodState()
+	{
+		final Quest quest = QuestManager.getInstance().getQuest(ENERGY_SEEDS);
+		if (quest == null)
+		{
+			_log.warning(getClass().getSimpleName() + ": missing EnergySeeds Quest!");
 		}
 		else
 		{
-			// save Initial values
-			saveData(SODTYPE);
+			quest.notifyEvent("StopSoDAi", null, null);
 		}
 	}
 	
@@ -113,101 +208,6 @@ public final class GraciaSeedsManager
 			default:
 				_log.warning(getClass().getSimpleName() + ": Unknown Seed of Destruction state(" + _SoDState + ")! ");
 		}
-	}
-	
-	public void updateSodState()
-	{
-		final Quest quest = QuestManager.getInstance().getQuest(ENERGY_SEEDS);
-		if (quest == null)
-		{
-			_log.warning(getClass().getSimpleName() + ": missing EnergySeeds Quest!");
-		}
-		else
-		{
-			quest.notifyEvent("StopSoDAi", null, null);
-		}
-	}
-	
-	public void increaseSoDTiatKilled()
-	{
-		if (_SoDState == 1)
-		{
-			_SoDTiatKilled++;
-			if (_SoDTiatKilled >= Config.SOD_TIAT_KILL_COUNT)
-			{
-				setSoDState(2, false);
-			}
-			saveData(SODTYPE);
-			Quest esQuest = QuestManager.getInstance().getQuest(ENERGY_SEEDS);
-			if (esQuest == null)
-			{
-				_log.warning(getClass().getSimpleName() + ": missing EnergySeeds Quest!");
-			}
-			else
-			{
-				esQuest.notifyEvent("StartSoDAi", null, null);
-			}
-		}
-	}
-	
-	public int getSoDTiatKilled()
-	{
-		return _SoDTiatKilled;
-	}
-	
-	public void setSoDState(int value, boolean doSave)
-	{
-		_log.info(getClass().getSimpleName() + ": New Seed of Destruction state -> " + value + ".");
-		_SoDLastStateChangeDate.setTimeInMillis(System.currentTimeMillis());
-		_SoDState = value;
-		// reset number of Tiat kills
-		if (_SoDState == 1)
-		{
-			_SoDTiatKilled = 0;
-		}
-		
-		handleSodStages();
-		
-		if (doSave)
-		{
-			saveData(SODTYPE);
-		}
-	}
-	
-	public long getSoDTimeForNextStateChange()
-	{
-		switch (_SoDState)
-		{
-			case 1:
-				return -1;
-			case 2:
-				return ((_SoDLastStateChangeDate.getTimeInMillis() + Config.SOD_STAGE_2_LENGTH) - System.currentTimeMillis());
-			case 3:
-				// not implemented yet
-				return -1;
-			default:
-				// this should not happen!
-				return -1;
-		}
-	}
-	
-	public Calendar getSoDLastStateChangeDate()
-	{
-		return _SoDLastStateChangeDate;
-	}
-	
-	public int getSoDState()
-	{
-		return _SoDState;
-	}
-	
-	/**
-	 * Gets the single instance of {@code GraciaSeedsManager}.
-	 * @return single instance of {@code GraciaSeedsManager}
-	 */
-	public static final GraciaSeedsManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

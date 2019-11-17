@@ -38,6 +38,11 @@ public class WarehouseCacheManager
 		ThreadPoolManager.getInstance().scheduleAiAtFixedRate(new CacheScheduler(), 120000, 60000);
 	}
 	
+	public static WarehouseCacheManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	public void addCacheTask(L2PcInstance pc)
 	{
 		_cachedWh.put(pc, System.currentTimeMillis());
@@ -63,11 +68,6 @@ public class WarehouseCacheManager
 				}
 			}
 		}
-	}
-	
-	public static WarehouseCacheManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

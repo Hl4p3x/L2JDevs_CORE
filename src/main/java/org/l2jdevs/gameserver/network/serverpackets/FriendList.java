@@ -35,20 +35,6 @@ public class FriendList extends L2GameServerPacket
 {
 	private List<FriendInfo> _info;
 	
-	private static class FriendInfo
-	{
-		int _objId;
-		String _name;
-		boolean _online;
-		
-		public FriendInfo(int objId, String name, boolean online)
-		{
-			_objId = objId;
-			_name = name;
-			_online = online;
-		}
-	}
-	
 	public FriendList(L2PcInstance player)
 	{
 		if (!player.hasFriends())
@@ -78,6 +64,20 @@ public class FriendList extends L2GameServerPacket
 			writeS(info._name);
 			writeD(info._online ? 0x01 : 0x00); // online
 			writeD(info._online ? info._objId : 0x00); // object id if online
+		}
+	}
+	
+	private static class FriendInfo
+	{
+		int _objId;
+		String _name;
+		boolean _online;
+		
+		public FriendInfo(int objId, String name, boolean online)
+		{
+			_objId = objId;
+			_name = name;
+			_online = online;
 		}
 	}
 }

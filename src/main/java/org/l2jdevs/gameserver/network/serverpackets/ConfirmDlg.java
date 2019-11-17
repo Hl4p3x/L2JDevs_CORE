@@ -29,11 +29,6 @@ public class ConfirmDlg extends AbstractMessagePacket<ConfirmDlg>
 	private int _time;
 	private int _requesterId;
 	
-	public ConfirmDlg(SystemMessageId smId)
-	{
-		super(smId);
-	}
-	
 	public ConfirmDlg(int id)
 	{
 		this(SystemMessageId.getSystemMessageId(id));
@@ -45,15 +40,20 @@ public class ConfirmDlg extends AbstractMessagePacket<ConfirmDlg>
 		addString(text);
 	}
 	
-	public ConfirmDlg addTime(int time)
+	public ConfirmDlg(SystemMessageId smId)
 	{
-		_time = time;
-		return this;
+		super(smId);
 	}
 	
 	public ConfirmDlg addRequesterId(int id)
 	{
 		_requesterId = id;
+		return this;
+	}
+	
+	public ConfirmDlg addTime(int time)
+	{
+		_time = time;
 		return this;
 	}
 	

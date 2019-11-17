@@ -39,9 +39,9 @@ public class OnOlympiadMatchResult implements IBaseEvent
 		_type = type;
 	}
 	
-	public Participant getWinner()
+	public CompetitionType getCompetitionType()
 	{
-		return _winner;
+		return _type;
 	}
 	
 	public Participant getLoser()
@@ -49,14 +49,14 @@ public class OnOlympiadMatchResult implements IBaseEvent
 		return _loser;
 	}
 	
-	public CompetitionType getCompetitionType()
-	{
-		return _type;
-	}
-	
 	@Override
 	public EventType getType()
 	{
 		return EventType.ON_OLYMPIAD_MATCH_RESULT;
+	}
+	
+	public Participant getWinner()
+	{
+		return _winner;
 	}
 }

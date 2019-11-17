@@ -43,9 +43,9 @@ public class OnPlayerSkillLearn implements IBaseEvent
 		_type = type;
 	}
 	
-	public L2Npc getTrainer()
+	public AcquireSkillType getAcquireType()
 	{
-		return _trainer;
+		return _type;
 	}
 	
 	public L2PcInstance getActiveChar()
@@ -58,9 +58,9 @@ public class OnPlayerSkillLearn implements IBaseEvent
 		return _skill;
 	}
 	
-	public AcquireSkillType getAcquireType()
+	public L2Npc getTrainer()
 	{
-		return _type;
+		return _trainer;
 	}
 	
 	@Override

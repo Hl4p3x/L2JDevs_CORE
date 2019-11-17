@@ -27,8 +27,8 @@ import org.l2jdevs.gameserver.script.faenor.FaenorInterface;
  */
 public class ScriptEngine
 {
-	protected EngineInterface _utils = FaenorInterface.getInstance();
 	public static final Hashtable<String, ParserFactory> parserFactories = new Hashtable<>();
+	protected EngineInterface _utils = FaenorInterface.getInstance();
 	
 	protected static Parser createParser(String name) throws ParserNotCreatedException
 	{

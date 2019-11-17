@@ -31,7 +31,9 @@ import org.l2jdevs.gameserver.model.actor.instance.L2PcInstance;
  */
 public interface Siegable
 {
-	public void startSiege();
+	public boolean checkIsAttacker(L2Clan clan);
+	
+	public boolean checkIsDefender(L2Clan clan);
 	
 	public void endSiege();
 	
@@ -43,15 +45,15 @@ public interface Siegable
 	
 	public List<L2PcInstance> getAttackersInZone();
 	
-	public boolean checkIsAttacker(L2Clan clan);
-	
 	public L2SiegeClan getDefenderClan(int clanId);
 	
 	public L2SiegeClan getDefenderClan(L2Clan clan);
 	
 	public List<L2SiegeClan> getDefenderClans();
 	
-	public boolean checkIsDefender(L2Clan clan);
+	public int getFameAmount();
+	
+	public int getFameFrequency();
 	
 	public List<L2Npc> getFlag(L2Clan clan);
 	
@@ -59,9 +61,7 @@ public interface Siegable
 	
 	public boolean giveFame();
 	
-	public int getFameFrequency();
-	
-	public int getFameAmount();
+	public void startSiege();
 	
 	public void updateSiege();
 }

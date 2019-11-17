@@ -39,19 +39,9 @@ public final class RequestDeleteReceivedPost extends L2GameClientPacket
 	int[] _msgIds = null;
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		int count = readD();
-		if ((count <= 0) || (count > Config.MAX_ITEM_IN_PACKET) || ((count * BATCH_LENGTH) != _buf.remaining()))
-		{
-			return;
-		}
-		
-		_msgIds = new int[count];
-		for (int i = 0; i < count; i++)
-		{
-			_msgIds[i] = readD();
-		}
+		return _C__D0_68_REQUESTDELETERECEIVEDPOST;
 	}
 	
 	@Override
@@ -93,9 +83,19 @@ public final class RequestDeleteReceivedPost extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__D0_68_REQUESTDELETERECEIVEDPOST;
+		int count = readD();
+		if ((count <= 0) || (count > Config.MAX_ITEM_IN_PACKET) || ((count * BATCH_LENGTH) != _buf.remaining()))
+		{
+			return;
+		}
+		
+		_msgIds = new int[count];
+		for (int i = 0; i < count; i++)
+		{
+			_msgIds[i] = readD();
+		}
 	}
 	
 	@Override

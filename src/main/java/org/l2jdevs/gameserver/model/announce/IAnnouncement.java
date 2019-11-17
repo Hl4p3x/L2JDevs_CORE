@@ -27,19 +27,19 @@ import org.l2jdevs.gameserver.model.interfaces.IUpdatable;
  */
 public interface IAnnouncement extends IStorable, IUpdatable, IDeletable
 {
+	public String getAuthor();
+	
+	public String getContent();
+	
 	public int getId();
 	
 	public AnnouncementType getType();
 	
-	public void setType(AnnouncementType type);
-	
 	public boolean isValid();
 	
-	public String getContent();
+	public void setAuthor(String author);
 	
 	public void setContent(String content);
 	
-	public String getAuthor();
-	
-	public void setAuthor(String author);
+	public void setType(AnnouncementType type);
 }

@@ -49,6 +49,32 @@ public class MonsterRace
 		return SingletonHolder._instance;
 	}
 	
+	public int getFirstPlace()
+	{
+		return _first[0];
+	}
+	
+	/**
+	 * @return Returns the monsters.
+	 */
+	public L2Npc[] getMonsters()
+	{
+		return _monsters;
+	}
+	
+	public int getSecondPlace()
+	{
+		return _second[0];
+	}
+	
+	/**
+	 * @return Returns the speeds.
+	 */
+	public int[][] getSpeeds()
+	{
+		return _speeds;
+	}
+	
 	public void newRace()
 	{
 		int random = 0;
@@ -117,32 +143,6 @@ public class MonsterRace
 				_second[1] = total;
 			}
 		}
-	}
-	
-	/**
-	 * @return Returns the monsters.
-	 */
-	public L2Npc[] getMonsters()
-	{
-		return _monsters;
-	}
-	
-	/**
-	 * @return Returns the speeds.
-	 */
-	public int[][] getSpeeds()
-	{
-		return _speeds;
-	}
-	
-	public int getFirstPlace()
-	{
-		return _first[0];
-	}
-	
-	public int getSecondPlace()
-	{
-		return _second[0];
 	}
 	
 	private static class SingletonHolder

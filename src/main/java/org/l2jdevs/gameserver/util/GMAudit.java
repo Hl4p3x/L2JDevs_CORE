@@ -41,6 +41,17 @@ public class GMAudit
 	}
 	
 	/**
+	 * Wrapper method.
+	 * @param gmName the Game Master's name
+	 * @param action the performed action
+	 * @param target the target's name
+	 */
+	public static void auditGMAction(String gmName, String action, String target)
+	{
+		auditGMAction(gmName, action, target, "");
+	}
+	
+	/**
 	 * Logs a Game Master's action into a file.
 	 * @param gmName the Game Master's name
 	 * @param action the performed action
@@ -66,16 +77,5 @@ public class GMAudit
 		{
 			_log.log(Level.SEVERE, "GMAudit for GM " + gmName + " could not be saved: ", e);
 		}
-	}
-	
-	/**
-	 * Wrapper method.
-	 * @param gmName the Game Master's name
-	 * @param action the performed action
-	 * @param target the target's name
-	 */
-	public static void auditGMAction(String gmName, String action, String target)
-	{
-		auditGMAction(gmName, action, target, "");
 	}
 }

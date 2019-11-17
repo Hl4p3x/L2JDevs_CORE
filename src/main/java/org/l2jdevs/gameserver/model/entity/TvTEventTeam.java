@@ -75,23 +75,6 @@ public class TvTEventTeam
 	}
 	
 	/**
-	 * Removes a player from the team
-	 * @param playerObjectId
-	 */
-	public void removePlayer(int playerObjectId)
-	{
-		_participatedPlayers.remove(playerObjectId);
-	}
-	
-	/**
-	 * Increases the points of the team<br>
-	 */
-	public void increasePoints()
-	{
-		++_points;
-	}
-	
-	/**
 	 * Cleanup the team and make it ready for adding players again<br>
 	 */
 	public void cleanMe()
@@ -111,16 +94,6 @@ public class TvTEventTeam
 	}
 	
 	/**
-	 * Returns the name of the team<br>
-	 * <br>
-	 * @return String: name of the team<br>
-	 */
-	public String getName()
-	{
-		return _name;
-	}
-	
-	/**
 	 * Returns the coordinates of the team spot<br>
 	 * <br>
 	 * @return int[]: team coordinates<br>
@@ -131,13 +104,23 @@ public class TvTEventTeam
 	}
 	
 	/**
-	 * Returns the points of the team<br>
+	 * Returns the name of the team<br>
 	 * <br>
-	 * @return short: team points<br>
+	 * @return String: name of the team<br>
 	 */
-	public short getPoints()
+	public String getName()
 	{
-		return _points;
+		return _name;
+	}
+	
+	/**
+	 * Returns player count of this team<br>
+	 * <br>
+	 * @return int: number of players in team<br>
+	 */
+	public int getParticipatedPlayerCount()
+	{
+		return _participatedPlayers.size();
 	}
 	
 	/**
@@ -151,12 +134,29 @@ public class TvTEventTeam
 	}
 	
 	/**
-	 * Returns player count of this team<br>
+	 * Returns the points of the team<br>
 	 * <br>
-	 * @return int: number of players in team<br>
+	 * @return short: team points<br>
 	 */
-	public int getParticipatedPlayerCount()
+	public short getPoints()
 	{
-		return _participatedPlayers.size();
+		return _points;
+	}
+	
+	/**
+	 * Increases the points of the team<br>
+	 */
+	public void increasePoints()
+	{
+		++_points;
+	}
+	
+	/**
+	 * Removes a player from the team
+	 * @param playerObjectId
+	 */
+	public void removePlayer(int playerObjectId)
+	{
+		_participatedPlayers.remove(playerObjectId);
 	}
 }

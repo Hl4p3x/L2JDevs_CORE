@@ -36,6 +36,12 @@ public final class Appearing extends L2GameClientPacket
 	private static final String _C__3A_APPEARING = "[C] 3A Appearing";
 	
 	@Override
+	public String getType()
+	{
+		return _C__3A_APPEARING;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		
@@ -56,12 +62,6 @@ public final class Appearing extends L2GameClientPacket
 		
 		sendPacket(new UserInfo(activeChar));
 		sendPacket(new ExBrExtraUserInfo(activeChar));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__3A_APPEARING;
 	}
 	
 	@Override

@@ -31,6 +31,12 @@ public final class NewCharacter extends L2GameClientPacket
 	private static final String _C__13_NEWCHARACTER = "[C] 13 NewCharacter";
 	
 	@Override
+	public String getType()
+	{
+		return _C__13_NEWCHARACTER;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		
@@ -57,11 +63,5 @@ public final class NewCharacter extends L2GameClientPacket
 		ct.addChar(PlayerTemplateData.getInstance().getTemplate(ClassId.maleSoldier)); // Male Kamael Soldier
 		ct.addChar(PlayerTemplateData.getInstance().getTemplate(ClassId.femaleSoldier)); // Female Kamael Soldier
 		sendPacket(ct);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__13_NEWCHARACTER;
 	}
 }

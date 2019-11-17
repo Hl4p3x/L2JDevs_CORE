@@ -32,6 +32,12 @@ public class RequestPartyLootModification extends L2GameClientPacket
 	private int _partyDistributionTypeId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_78_REQUESTPARTYLOOTMODIFICATION;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_partyDistributionTypeId = readD();
@@ -58,11 +64,5 @@ public class RequestPartyLootModification extends L2GameClientPacket
 			return;
 		}
 		party.requestLootChange(partyDistributionType);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_78_REQUESTPARTYLOOTMODIFICATION;
 	}
 }

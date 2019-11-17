@@ -114,40 +114,6 @@ public class RegisterDialog extends JDialog implements ActionListener
 		setLocationRelativeTo(owner.getFrame());
 	}
 	
-	class ComboServer
-	{
-		private final int _id;
-		private final String _name;
-		
-		public ComboServer(int id, String name)
-		{
-			_id = id;
-			_name = name;
-		}
-		
-		/**
-		 * @return Returns the id.
-		 */
-		public int getId()
-		{
-			return _id;
-		}
-		
-		/**
-		 * @return Returns the name.
-		 */
-		public String getName()
-		{
-			return _name;
-		}
-		
-		@Override
-		public String toString()
-		{
-			return getName();
-		}
-	}
-	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -194,6 +160,40 @@ public class RegisterDialog extends JDialog implements ActionListener
 		else if (cmd.equals("cancel"))
 		{
 			setVisible(false);
+		}
+	}
+	
+	class ComboServer
+	{
+		private final int _id;
+		private final String _name;
+		
+		public ComboServer(int id, String name)
+		{
+			_id = id;
+			_name = name;
+		}
+		
+		/**
+		 * @return Returns the id.
+		 */
+		public int getId()
+		{
+			return _id;
+		}
+		
+		/**
+		 * @return Returns the name.
+		 */
+		public String getName()
+		{
+			return _name;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return getName();
 		}
 	}
 }

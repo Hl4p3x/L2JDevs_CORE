@@ -79,17 +79,6 @@ public class Attack extends L2GameServerPacket
 		return _soulshot;
 	}
 	
-	/**
-	 * Writes current hit
-	 * @param hit
-	 */
-	private void writeHit(Hit hit)
-	{
-		writeD(hit.getTargetId());
-		writeD(hit.getDamage());
-		writeC(hit.getFlags());
-	}
-	
 	@Override
 	protected final void writeImpl()
 	{
@@ -107,5 +96,16 @@ public class Attack extends L2GameServerPacket
 		}
 		
 		writeLoc(_targetLoc);
+	}
+	
+	/**
+	 * Writes current hit
+	 * @param hit
+	 */
+	private void writeHit(Hit hit)
+	{
+		writeD(hit.getTargetId());
+		writeD(hit.getDamage());
+		writeC(hit.getFlags());
 	}
 }

@@ -41,6 +41,20 @@ public class ListContainer
 		_listId = listId;
 	}
 	
+	public void allowNpc(int npcId)
+	{
+		if (_npcsAllowed == null)
+		{
+			_npcsAllowed = new HashSet<>();
+		}
+		_npcsAllowed.add(npcId);
+	}
+	
+	public final boolean getApplyTaxes()
+	{
+		return _applyTaxes;
+	}
+	
 	public final List<Entry> getEntries()
 	{
 		return _entries;
@@ -51,48 +65,14 @@ public class ListContainer
 		return _listId;
 	}
 	
-	public final void setApplyTaxes(boolean applyTaxes)
-	{
-		_applyTaxes = applyTaxes;
-	}
-	
-	public final boolean getApplyTaxes()
-	{
-		return _applyTaxes;
-	}
-	
-	public final void setMaintainEnchantment(boolean maintainEnchantment)
-	{
-		_maintainEnchantment = maintainEnchantment;
-	}
-	
-	public double getUseRate()
-	{
-		return _useRate;
-	}
-	
-	/**
-	 * Set this to create multisell with increased products, all product counts will be multiplied by the rate specified.<br>
-	 * <b>NOTE:</b> It affects only parser, it won't change values of already parsed multisell since MultiSells' parseEntry method handles this feature.
-	 * @param rate
-	 */
-	public void setUseRate(double rate)
-	{
-		_useRate = rate;
-	}
-	
 	public final boolean getMaintainEnchantment()
 	{
 		return _maintainEnchantment;
 	}
 	
-	public void allowNpc(int npcId)
+	public double getUseRate()
 	{
-		if (_npcsAllowed == null)
-		{
-			_npcsAllowed = new HashSet<>();
-		}
-		_npcsAllowed.add(npcId);
+		return _useRate;
 	}
 	
 	public boolean isNpcAllowed(int npcId)
@@ -103,5 +83,25 @@ public class ListContainer
 	public boolean isNpcOnly()
 	{
 		return _npcsAllowed != null;
+	}
+	
+	public final void setApplyTaxes(boolean applyTaxes)
+	{
+		_applyTaxes = applyTaxes;
+	}
+	
+	public final void setMaintainEnchantment(boolean maintainEnchantment)
+	{
+		_maintainEnchantment = maintainEnchantment;
+	}
+	
+	/**
+	 * Set this to create multisell with increased products, all product counts will be multiplied by the rate specified.<br>
+	 * <b>NOTE:</b> It affects only parser, it won't change values of already parsed multisell since MultiSells' parseEntry method handles this feature.
+	 * @param rate
+	 */
+	public void setUseRate(double rate)
+	{
+		_useRate = rate;
 	}
 }

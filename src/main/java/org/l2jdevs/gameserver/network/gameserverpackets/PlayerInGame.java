@@ -27,13 +27,6 @@ import org.l2jdevs.util.network.BaseSendablePacket;
  */
 public class PlayerInGame extends BaseSendablePacket
 {
-	public PlayerInGame(String player)
-	{
-		writeC(0x02);
-		writeH(1);
-		writeS(player);
-	}
-	
 	public PlayerInGame(List<String> players)
 	{
 		writeC(0x02);
@@ -42,6 +35,13 @@ public class PlayerInGame extends BaseSendablePacket
 		{
 			writeS(pc);
 		}
+	}
+	
+	public PlayerInGame(String player)
+	{
+		writeC(0x02);
+		writeH(1);
+		writeS(player);
 	}
 	
 	@Override

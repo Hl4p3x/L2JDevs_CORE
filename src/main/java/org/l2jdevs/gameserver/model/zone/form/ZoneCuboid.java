@@ -48,18 +48,6 @@ public class ZoneCuboid extends L2ZoneForm
 	}
 	
 	@Override
-	public boolean isInsideZone(int x, int y, int z)
-	{
-		return (_r.contains(x, y) && (z >= _z1) && (z <= _z2));
-	}
-	
-	@Override
-	public boolean intersectsRectangle(int ax1, int ax2, int ay1, int ay2)
-	{
-		return (_r.intersects(Math.min(ax1, ax2), Math.min(ay1, ay2), Math.abs(ax2 - ax1), Math.abs(ay2 - ay1)));
-	}
-	
-	@Override
 	public double getDistanceToZone(int x, int y)
 	{
 		int _x1 = _r.x;
@@ -89,6 +77,12 @@ public class ZoneCuboid extends L2ZoneForm
 		return Math.sqrt(shortestDist);
 	}
 	
+	@Override
+	public int getHighZ()
+	{
+		return _z2;
+	}
+	
 	/*
 	 * getLowZ() / getHighZ() - These two functions were added to cope with the demand of the new fishing algorithms, which are now able to correctly place the hook in the water, thanks to getHighZ(). getLowZ() was added, considering potential future modifications.
 	 */
@@ -99,9 +93,29 @@ public class ZoneCuboid extends L2ZoneForm
 	}
 	
 	@Override
-	public int getHighZ()
+	public int[] getRandomPoint()
 	{
-		return _z2;
+		int x = Rnd.get(_r.x, _r.x + _r.width);
+		int y = Rnd.get(_r.y, _r.y + _r.height);
+		
+		return new int[]
+		{
+			x,
+			y,
+			GeoData.getInstance().getHeight(x, y, _z1)
+		};
+	}
+	
+	@Override
+	public boolean intersectsRectangle(int ax1, int ax2, int ay1, int ay2)
+	{
+		return (_r.intersects(Math.min(ax1, ax2), Math.min(ay1, ay2), Math.abs(ax2 - ax1), Math.abs(ay2 - ay1)));
+	}
+	
+	@Override
+	public boolean isInsideZone(int x, int y, int z)
+	{
+		return (_r.contains(x, y) && (z >= _z1) && (z <= _z2));
 	}
 	
 	@Override
@@ -124,19 +138,5 @@ public class ZoneCuboid extends L2ZoneForm
 			dropDebugItem(Inventory.ADENA_ID, 1, _x1, y, z);
 			dropDebugItem(Inventory.ADENA_ID, 1, _x2, y, z);
 		}
-	}
-	
-	@Override
-	public int[] getRandomPoint()
-	{
-		int x = Rnd.get(_r.x, _r.x + _r.width);
-		int y = Rnd.get(_r.y, _r.y + _r.height);
-		
-		return new int[]
-		{
-			x,
-			y,
-			GeoData.getInstance().getHeight(x, y, _z1)
-		};
 	}
 }

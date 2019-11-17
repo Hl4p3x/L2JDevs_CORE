@@ -45,6 +45,45 @@ public final class ClassListData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of ClassListData.
+	 * @return single instance of ClassListData
+	 */
+	public static ClassListData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the class info.
+	 * @param classId the class ID
+	 * @return the class info related to the given {@code classId}
+	 */
+	public ClassInfo getClass(ClassId classId)
+	{
+		return _classData.get(classId);
+	}
+	
+	/**
+	 * Gets the class info.
+	 * @param classId the class Id as integer
+	 * @return the class info related to the given {@code classId}
+	 */
+	public ClassInfo getClass(int classId)
+	{
+		final ClassId id = ClassId.getClassId(classId);
+		return (id != null) ? _classData.get(id) : null;
+	}
+	
+	/**
+	 * Gets the class list.
+	 * @return the complete class list
+	 */
+	public Map<ClassId, ClassInfo> getClassList()
+	{
+		return _classData;
+	}
+	
 	@Override
 	public void load()
 	{
@@ -76,45 +115,6 @@ public final class ClassListData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Gets the class list.
-	 * @return the complete class list
-	 */
-	public Map<ClassId, ClassInfo> getClassList()
-	{
-		return _classData;
-	}
-	
-	/**
-	 * Gets the class info.
-	 * @param classId the class ID
-	 * @return the class info related to the given {@code classId}
-	 */
-	public ClassInfo getClass(ClassId classId)
-	{
-		return _classData.get(classId);
-	}
-	
-	/**
-	 * Gets the class info.
-	 * @param classId the class Id as integer
-	 * @return the class info related to the given {@code classId}
-	 */
-	public ClassInfo getClass(int classId)
-	{
-		final ClassId id = ClassId.getClassId(classId);
-		return (id != null) ? _classData.get(id) : null;
-	}
-	
-	/**
-	 * Gets the single instance of ClassListData.
-	 * @return single instance of ClassListData
-	 */
-	public static ClassListData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

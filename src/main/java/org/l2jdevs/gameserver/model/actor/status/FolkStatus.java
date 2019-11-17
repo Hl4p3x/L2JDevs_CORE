@@ -32,6 +32,12 @@ public class FolkStatus extends NpcStatus
 	}
 	
 	@Override
+	public L2NpcInstance getActiveChar()
+	{
+		return (L2NpcInstance) super.getActiveChar();
+	}
+	
+	@Override
 	public final void reduceHp(double value, L2Character attacker)
 	{
 		reduceHp(value, attacker, true, false, false);
@@ -51,11 +57,5 @@ public class FolkStatus extends NpcStatus
 			return;
 		}
 		super.reduceMp(value);
-	}
-	
-	@Override
-	public L2NpcInstance getActiveChar()
-	{
-		return (L2NpcInstance) super.getActiveChar();
 	}
 }

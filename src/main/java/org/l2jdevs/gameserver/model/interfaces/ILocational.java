@@ -25,24 +25,6 @@ package org.l2jdevs.gameserver.model.interfaces;
 public interface ILocational
 {
 	/**
-	 * Gets the X coordinate of this object.
-	 * @return the X coordinate
-	 */
-	public int getX();
-	
-	/**
-	 * Gets the Y coordinate of this object.
-	 * @return the current Y coordinate
-	 */
-	public int getY();
-	
-	/**
-	 * Gets the Z coordinate of this object.
-	 * @return the current Z coordinate
-	 */
-	public int getZ();
-	
-	/**
 	 * Gets the heading of this object.
 	 * @return the current heading
 	 */
@@ -59,4 +41,22 @@ public interface ILocational
 	 * @return a {@link ILocational} object containing the current position of this object
 	 */
 	public ILocational getLocation();
+	
+	/**
+	 * Gets the X coordinate of this object.
+	 * @return the X coordinate
+	 */
+	public int getX();
+	
+	/**
+	 * Gets the Y coordinate of this object.
+	 * @return the current Y coordinate
+	 */
+	public int getY();
+	
+	/**
+	 * Gets the Z coordinate of this object.
+	 * @return the current Z coordinate
+	 */
+	public int getZ();
 }

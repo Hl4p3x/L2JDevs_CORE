@@ -53,65 +53,24 @@ public class SkillChannelizer implements Runnable
 		_channelizer = channelizer;
 	}
 	
-	public L2Character getChannelizer()
-	{
-		return _channelizer;
-	}
-	
 	public List<L2Character> getChannelized()
 	{
 		return _channelized;
 	}
 	
-	public boolean hasChannelized()
+	public L2Character getChannelizer()
 	{
-		return _channelized != null;
-	}
-	
-	public void startChanneling(Skill skill)
-	{
-		// Verify for same status.
-		if (isChanneling())
-		{
-			_log.warning("Character: " + _channelizer + " is attempting to channel skill but he already does!");
-			return;
-		}
-		
-		// Start channeling.
-		_skill = skill;
-		_task = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(this, skill.getChannelingTickInitialDelay(), skill.getChannelingTickInterval());
-	}
-	
-	public void stopChanneling()
-	{
-		// Verify for same status.
-		if (!isChanneling())
-		{
-			_log.warning("Character: " + _channelizer + " is attempting to stop channel skill but he does not!");
-			return;
-		}
-		
-		// Cancel the task and unset it.
-		_task.cancel(true);
-		_task = null;
-		
-		// Cancel target channelization and unset it.
-		if (_channelized != null)
-		{
-			for (L2Character chars : _channelized)
-			{
-				chars.getSkillChannelized().removeChannelizer(_skill.getChannelingSkillId(), getChannelizer());
-			}
-			_channelized = null;
-		}
-		
-		// unset skill.
-		_skill = null;
+		return _channelizer;
 	}
 	
 	public Skill getSkill()
 	{
 		return _skill;
+	}
+	
+	public boolean hasChannelized()
+	{
+		return _channelized != null;
 	}
 	
 	public boolean isChanneling()
@@ -233,5 +192,46 @@ public class SkillChannelizer implements Runnable
 		{
 			_log.warning("Error while channelizing skill: " + _skill + " channelizer: " + _channelizer + " channelized: " + _channelized + "; " + e.getMessage());
 		}
+	}
+	
+	public void startChanneling(Skill skill)
+	{
+		// Verify for same status.
+		if (isChanneling())
+		{
+			_log.warning("Character: " + _channelizer + " is attempting to channel skill but he already does!");
+			return;
+		}
+		
+		// Start channeling.
+		_skill = skill;
+		_task = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(this, skill.getChannelingTickInitialDelay(), skill.getChannelingTickInterval());
+	}
+	
+	public void stopChanneling()
+	{
+		// Verify for same status.
+		if (!isChanneling())
+		{
+			_log.warning("Character: " + _channelizer + " is attempting to stop channel skill but he does not!");
+			return;
+		}
+		
+		// Cancel the task and unset it.
+		_task.cancel(true);
+		_task = null;
+		
+		// Cancel target channelization and unset it.
+		if (_channelized != null)
+		{
+			for (L2Character chars : _channelized)
+			{
+				chars.getSkillChannelized().removeChannelizer(_skill.getChannelingSkillId(), getChannelizer());
+			}
+			_channelized = null;
+		}
+		
+		// unset skill.
+		_skill = null;
 	}
 }

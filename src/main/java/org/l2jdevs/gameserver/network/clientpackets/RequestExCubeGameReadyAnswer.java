@@ -33,12 +33,9 @@ public final class RequestExCubeGameReadyAnswer extends L2GameClientPacket
 	private int _answer;
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		// client sends -1,0,1,2 for arena parameter
-		_arena = readD() + 1;
-		// client sends 1 if clicked confirm on not clicked, 0 if clicked cancel
-		_answer = readD();
+		return _C__D0_5C_REQUESTEXCUBEGAMEREADYANSWER;
 	}
 	
 	@Override
@@ -67,8 +64,11 @@ public final class RequestExCubeGameReadyAnswer extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__D0_5C_REQUESTEXCUBEGAMEREADYANSWER;
+		// client sends -1,0,1,2 for arena parameter
+		_arena = readD() + 1;
+		// client sends 1 if clicked confirm on not clicked, 0 if clicked cancel
+		_answer = readD();
 	}
 }

@@ -29,6 +29,12 @@ public final class RequestPrivateStoreManageBuy extends L2GameClientPacket
 	private static final String _C__99_REQUESTPRIVATESTOREMANAGEBUY = "[C] 99 RequestPrivateStoreManageBuy";
 	
 	@Override
+	public String getType()
+	{
+		return _C__99_REQUESTPRIVATESTOREMANAGEBUY;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 	}
@@ -41,12 +47,6 @@ public final class RequestPrivateStoreManageBuy extends L2GameClientPacket
 		{
 			player.tryOpenPrivateBuyStore();
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__99_REQUESTPRIVATESTOREMANAGEBUY;
 	}
 	
 	@Override

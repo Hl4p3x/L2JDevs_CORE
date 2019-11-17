@@ -38,6 +38,11 @@ public class PartyMatchRoomList
 		_rooms = new ConcurrentHashMap<>();
 	}
 	
+	public static PartyMatchRoomList getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	public synchronized void addPartyMatchRoom(int id, PartyMatchRoom room)
 	{
 		_rooms.put(id, room);
@@ -63,24 +68,14 @@ public class PartyMatchRoomList
 		_rooms.remove(id);
 	}
 	
-	public PartyMatchRoom getRoom(int id)
+	public int getMaxId()
 	{
-		return _rooms.get(id);
-	}
-	
-	public PartyMatchRoom[] getRooms()
-	{
-		return _rooms.values().toArray(new PartyMatchRoom[_rooms.size()]);
+		return _maxid;
 	}
 	
 	public int getPartyMatchRoomCount()
 	{
 		return _rooms.size();
-	}
-	
-	public int getMaxId()
-	{
-		return _maxid;
 	}
 	
 	public PartyMatchRoom getPlayerRoom(L2PcInstance player)
@@ -113,9 +108,14 @@ public class PartyMatchRoomList
 		return -1;
 	}
 	
-	public static PartyMatchRoomList getInstance()
+	public PartyMatchRoom getRoom(int id)
 	{
-		return SingletonHolder._instance;
+		return _rooms.get(id);
+	}
+	
+	public PartyMatchRoom[] getRooms()
+	{
+		return _rooms.values().toArray(new PartyMatchRoom[_rooms.size()]);
 	}
 	
 	private static class SingletonHolder

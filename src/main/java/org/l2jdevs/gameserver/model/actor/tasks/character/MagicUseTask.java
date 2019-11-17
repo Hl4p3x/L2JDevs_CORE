@@ -47,33 +47,6 @@ public final class MagicUseTask implements Runnable
 		_simultaneously = simultaneous;
 	}
 	
-	@Override
-	public void run()
-	{
-		if (_character == null)
-		{
-			return;
-		}
-		switch (_phase)
-		{
-			case 1:
-			{
-				_character.onMagicLaunchedTimer(this);
-				break;
-			}
-			case 2:
-			{
-				_character.onMagicHitTimer(this);
-				break;
-			}
-			case 3:
-			{
-				_character.onMagicFinalizer(this);
-				break;
-			}
-		}
-	}
-	
 	public int getCount()
 	{
 		return _count;
@@ -102,6 +75,33 @@ public final class MagicUseTask implements Runnable
 	public boolean isSimultaneous()
 	{
 		return _simultaneously;
+	}
+	
+	@Override
+	public void run()
+	{
+		if (_character == null)
+		{
+			return;
+		}
+		switch (_phase)
+		{
+			case 1:
+			{
+				_character.onMagicLaunchedTimer(this);
+				break;
+			}
+			case 2:
+			{
+				_character.onMagicHitTimer(this);
+				break;
+			}
+			case 3:
+			{
+				_character.onMagicFinalizer(this);
+				break;
+			}
+		}
 	}
 	
 	public void setCount(int count)

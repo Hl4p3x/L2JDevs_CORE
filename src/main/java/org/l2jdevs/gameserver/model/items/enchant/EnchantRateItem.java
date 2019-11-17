@@ -36,6 +36,15 @@ public final class EnchantRateItem
 	}
 	
 	/**
+	 * Adds body slot verification.
+	 * @param slot
+	 */
+	public void addSlot(int slot)
+	{
+		_slot |= slot;
+	}
+	
+	/**
 	 * @return name of enchant group.
 	 */
 	public String getName()
@@ -50,15 +59,6 @@ public final class EnchantRateItem
 	public void setItemId(int id)
 	{
 		_itemId = id;
-	}
-	
-	/**
-	 * Adds body slot verification.
-	 * @param slot
-	 */
-	public void addSlot(int slot)
-	{
-		_slot |= slot;
 	}
 	
 	/**

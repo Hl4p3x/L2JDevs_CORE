@@ -54,6 +54,11 @@ public class RequestAuthLogin extends L2LoginClientPacket
 	private String _password;
 	private int _ncotp;
 	
+	public int getOneTimePassword()
+	{
+		return _ncotp;
+	}
+	
 	/**
 	 * @return
 	 */
@@ -68,11 +73,6 @@ public class RequestAuthLogin extends L2LoginClientPacket
 	public String getUser()
 	{
 		return _user;
-	}
-	
-	public int getOneTimePassword()
-	{
-		return _ncotp;
 	}
 	
 	@Override

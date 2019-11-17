@@ -37,17 +37,6 @@ public class Post
 {
 	private static final Logger LOG = LoggerFactory.getLogger(Post.class);
 	
-	public static class CPost
-	{
-		public int postId;
-		public String postOwner;
-		public int postOwnerId;
-		public long postDate;
-		public int postTopicId;
-		public int postForumId;
-		public String postTxt;
-	}
-	
 	private final List<CPost> _post = new ArrayList<>();
 	
 	/**
@@ -78,6 +67,27 @@ public class Post
 		load(t);
 	}
 	
+	public void deleteme(Topic t)
+	{
+		PostBBSManager.getInstance().delPostByTopic(t);
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM posts WHERE post_forum_id=? AND post_topic_id=?"))
+		{
+			ps.setInt(1, t.getForumID());
+			ps.setInt(2, t.getID());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.warn("Unable to delete post for topic ID {} in forum ID {} from database!", t.getForumID(), t.getID(), e);
+		}
+	}
+	
+	public CPost getCPost(int id)
+	{
+		return _post.get(id);
+	}
+	
 	public void insertindb(CPost cp)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -98,24 +108,24 @@ public class Post
 		}
 	}
 	
-	public CPost getCPost(int id)
+	/**
+	 * @param i
+	 */
+	public void updatetxt(int i)
 	{
-		return _post.get(id);
-	}
-	
-	public void deleteme(Topic t)
-	{
-		PostBBSManager.getInstance().delPostByTopic(t);
+		final CPost cp = getCPost(i);
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM posts WHERE post_forum_id=? AND post_topic_id=?"))
+			PreparedStatement ps = con.prepareStatement("UPDATE posts SET post_txt=? WHERE post_id=? AND post_topic_id=? AND post_forum_id=?"))
 		{
-			ps.setInt(1, t.getForumID());
-			ps.setInt(2, t.getID());
+			ps.setString(1, cp.postTxt);
+			ps.setInt(2, cp.postId);
+			ps.setInt(3, cp.postTopicId);
+			ps.setInt(4, cp.postForumId);
 			ps.execute();
 		}
 		catch (Exception e)
 		{
-			LOG.warn("Unable to delete post for topic ID {} in forum ID {} from database!", t.getForumID(), t.getID(), e);
+			LOG.warn("Unable to store post ID {} in database!", cp.postId, e);
 		}
 	}
 	
@@ -151,24 +161,14 @@ public class Post
 		}
 	}
 	
-	/**
-	 * @param i
-	 */
-	public void updatetxt(int i)
+	public static class CPost
 	{
-		final CPost cp = getCPost(i);
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("UPDATE posts SET post_txt=? WHERE post_id=? AND post_topic_id=? AND post_forum_id=?"))
-		{
-			ps.setString(1, cp.postTxt);
-			ps.setInt(2, cp.postId);
-			ps.setInt(3, cp.postTopicId);
-			ps.setInt(4, cp.postForumId);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.warn("Unable to store post ID {} in database!", cp.postId, e);
-		}
+		public int postId;
+		public String postOwner;
+		public int postOwnerId;
+		public long postDate;
+		public int postTopicId;
+		public int postForumId;
+		public String postTxt;
 	}
 }

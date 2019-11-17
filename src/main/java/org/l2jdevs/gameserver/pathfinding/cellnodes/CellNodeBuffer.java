@@ -53,9 +53,29 @@ public class CellNodeBuffer
 		_buffer = new CellNode[_mapSize][_mapSize];
 	}
 	
-	public final boolean lock()
+	public final List<CellNode> debugPath()
 	{
-		return _lock.tryLock();
+		final List<CellNode> result = new LinkedList<>();
+		for (CellNode n = _current; n.getParent() != null; n = (CellNode) n.getParent())
+		{
+			result.add(n);
+			n.setCost(-n.getCost());
+		}
+		
+		for (int i = 0; i < _mapSize; i++)
+		{
+			for (int j = 0; j < _mapSize; j++)
+			{
+				CellNode n = _buffer[i][j];
+				if ((n == null) || !n.isInUse() || (n.getCost() <= 0))
+				{
+					continue;
+				}
+				
+				result.add(n);
+			}
+		}
+		return result;
 	}
 	
 	public final CellNode findPath(int x, int y, int z, int tx, int ty, int tz)
@@ -113,28 +133,95 @@ public class CellNodeBuffer
 		return _lastElapsedTime;
 	}
 	
-	public final List<CellNode> debugPath()
+	public final boolean lock()
 	{
-		final List<CellNode> result = new LinkedList<>();
-		for (CellNode n = _current; n.getParent() != null; n = (CellNode) n.getParent())
+		return _lock.tryLock();
+	}
+	
+	private final CellNode addNode(int x, int y, int z, boolean diagonal)
+	{
+		CellNode newNode = getNode(x, y, z);
+		if (newNode == null)
 		{
-			result.add(n);
-			n.setCost(-n.getCost());
+			return null;
+		}
+		if (newNode.getCost() >= 0)
+		{
+			return newNode;
 		}
 		
-		for (int i = 0; i < _mapSize; i++)
+		final int geoZ = newNode.getLoc().getZ();
+		
+		final int stepZ = Math.abs(geoZ - _current.getLoc().getZ());
+		float weight = diagonal ? Config.DIAGONAL_WEIGHT : Config.LOW_WEIGHT;
+		
+		if (!newNode.getLoc().canGoAll() || (stepZ > 16))
 		{
-			for (int j = 0; j < _mapSize; j++)
+			weight = Config.HIGH_WEIGHT;
+		}
+		else
+		{
+			if (isHighWeight(x + 1, y, geoZ))
 			{
-				CellNode n = _buffer[i][j];
-				if ((n == null) || !n.isInUse() || (n.getCost() <= 0))
-				{
-					continue;
-				}
-				
-				result.add(n);
+				weight = Config.MEDIUM_WEIGHT;
+			}
+			else if (isHighWeight(x - 1, y, geoZ))
+			{
+				weight = Config.MEDIUM_WEIGHT;
+			}
+			else if (isHighWeight(x, y + 1, geoZ))
+			{
+				weight = Config.MEDIUM_WEIGHT;
+			}
+			else if (isHighWeight(x, y - 1, geoZ))
+			{
+				weight = Config.MEDIUM_WEIGHT;
 			}
 		}
+		
+		newNode.setParent(_current);
+		newNode.setCost(getCost(x, y, geoZ, weight));
+		
+		CellNode node = _current;
+		int count = 0;
+		while ((node.getNext() != null) && (count < (MAX_ITERATIONS * 4)))
+		{
+			count++;
+			if (node.getNext().getCost() > newNode.getCost())
+			{
+				// insert node into a chain
+				newNode.setNext(node.getNext());
+				break;
+			}
+			node = node.getNext();
+		}
+		if (count == (MAX_ITERATIONS * 4))
+		{
+			System.err.println("Pathfinding: too long loop detected, cost:" + newNode.getCost());
+		}
+		
+		node.setNext(newNode); // add last
+		
+		return newNode;
+	}
+	
+	private final double getCost(int x, int y, int z, float weight)
+	{
+		final int dX = x - _targetX;
+		final int dY = y - _targetY;
+		final int dZ = z - _targetZ;
+		// Math.abs(dx) + Math.abs(dy) + Math.abs(dz) / 16
+		double result = Math.sqrt((dX * dX) + (dY * dY) + ((dZ * dZ) / 256.0));
+		if (result > weight)
+		{
+			result += weight;
+		}
+		
+		if (result > Float.MAX_VALUE)
+		{
+			result = Float.MAX_VALUE;
+		}
+		
 		return result;
 	}
 	
@@ -255,73 +342,6 @@ public class CellNodeBuffer
 		return result;
 	}
 	
-	private final CellNode addNode(int x, int y, int z, boolean diagonal)
-	{
-		CellNode newNode = getNode(x, y, z);
-		if (newNode == null)
-		{
-			return null;
-		}
-		if (newNode.getCost() >= 0)
-		{
-			return newNode;
-		}
-		
-		final int geoZ = newNode.getLoc().getZ();
-		
-		final int stepZ = Math.abs(geoZ - _current.getLoc().getZ());
-		float weight = diagonal ? Config.DIAGONAL_WEIGHT : Config.LOW_WEIGHT;
-		
-		if (!newNode.getLoc().canGoAll() || (stepZ > 16))
-		{
-			weight = Config.HIGH_WEIGHT;
-		}
-		else
-		{
-			if (isHighWeight(x + 1, y, geoZ))
-			{
-				weight = Config.MEDIUM_WEIGHT;
-			}
-			else if (isHighWeight(x - 1, y, geoZ))
-			{
-				weight = Config.MEDIUM_WEIGHT;
-			}
-			else if (isHighWeight(x, y + 1, geoZ))
-			{
-				weight = Config.MEDIUM_WEIGHT;
-			}
-			else if (isHighWeight(x, y - 1, geoZ))
-			{
-				weight = Config.MEDIUM_WEIGHT;
-			}
-		}
-		
-		newNode.setParent(_current);
-		newNode.setCost(getCost(x, y, geoZ, weight));
-		
-		CellNode node = _current;
-		int count = 0;
-		while ((node.getNext() != null) && (count < (MAX_ITERATIONS * 4)))
-		{
-			count++;
-			if (node.getNext().getCost() > newNode.getCost())
-			{
-				// insert node into a chain
-				newNode.setNext(node.getNext());
-				break;
-			}
-			node = node.getNext();
-		}
-		if (count == (MAX_ITERATIONS * 4))
-		{
-			System.err.println("Pathfinding: too long loop detected, cost:" + newNode.getCost());
-		}
-		
-		node.setNext(newNode); // add last
-		
-		return newNode;
-	}
-	
 	private final boolean isHighWeight(int x, int y, int z)
 	{
 		final CellNode result = getNode(x, y, z);
@@ -340,25 +360,5 @@ public class CellNodeBuffer
 		}
 		
 		return false;
-	}
-	
-	private final double getCost(int x, int y, int z, float weight)
-	{
-		final int dX = x - _targetX;
-		final int dY = y - _targetY;
-		final int dZ = z - _targetZ;
-		// Math.abs(dx) + Math.abs(dy) + Math.abs(dz) / 16
-		double result = Math.sqrt((dX * dX) + (dY * dY) + ((dZ * dZ) / 256.0));
-		if (result > weight)
-		{
-			result += weight;
-		}
-		
-		if (result > Float.MAX_VALUE)
-		{
-			result = Float.MAX_VALUE;
-		}
-		
-		return result;
 	}
 }

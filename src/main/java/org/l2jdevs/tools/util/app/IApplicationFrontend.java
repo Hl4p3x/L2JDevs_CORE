@@ -23,6 +23,14 @@ package org.l2jdevs.tools.util.app;
  */
 public interface IApplicationFrontend
 {
+	void close();
+	
+	void reportError(boolean drawAttention, String message);
+	
+	void reportError(boolean drawAttention, Throwable t, String message);
+	
+	void reportError(boolean drawAttention, Throwable t, String message, Object... args);
+	
 	void reportInfo(boolean drawAttention, String message);
 	
 	void reportInfo(boolean drawAttention, String message, Object... args);
@@ -31,15 +39,7 @@ public interface IApplicationFrontend
 	
 	void reportWarn(boolean drawAttention, String message, Object... args);
 	
-	void reportError(boolean drawAttention, String message);
-	
-	void reportError(boolean drawAttention, Throwable t, String message);
-	
-	void reportError(boolean drawAttention, Throwable t, String message, Object... args);
-	
-	String requestUserInput(String message, Object... args);
-	
 	boolean requestUserConfirm(String message, Object... args);
 	
-	void close();
+	String requestUserInput(String message, Object... args);
 }

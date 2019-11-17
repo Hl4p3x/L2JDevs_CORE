@@ -36,17 +36,29 @@ public final class L2EnchantSkillLearn
 		_baseLvl = baseLvl;
 	}
 	
+	public static int getEnchantIndex(int level)
+	{
+		return (level % 100) - 1;
+	}
+	
+	public static int getEnchantRoute(int level)
+	{
+		return (int) Math.floor(level / 100);
+	}
+	
+	public static int getEnchantType(int level)
+	{
+		return ((level - 1) / 100) - 1;
+	}
+	
 	public void addNewEnchantRoute(int route, int group)
 	{
 		_enchantRoutes.put(route, group);
 	}
 	
-	/**
-	 * @return Returns the id.
-	 */
-	public int getId()
+	public Set<Integer> getAllRoutes()
 	{
-		return _id;
+		return _enchantRoutes.keySet();
 	}
 	
 	/**
@@ -57,19 +69,25 @@ public final class L2EnchantSkillLearn
 		return _baseLvl;
 	}
 	
-	public static int getEnchantRoute(int level)
+	public EnchantSkillHolder getEnchantSkillHolder(int level)
 	{
-		return (int) Math.floor(level / 100);
-	}
-	
-	public static int getEnchantIndex(int level)
-	{
-		return (level % 100) - 1;
-	}
-	
-	public static int getEnchantType(int level)
-	{
-		return ((level - 1) / 100) - 1;
+		int enchantType = getEnchantRoute(level);
+		if ((enchantType < 1) || !_enchantRoutes.containsKey(enchantType))
+		{
+			return null;
+		}
+		int index = getEnchantIndex(level);
+		L2EnchantSkillGroup group = EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(enchantType));
+		
+		if (index < 0)
+		{
+			return group.getEnchantGroupDetails().get(0);
+		}
+		else if (index >= group.getEnchantGroupDetails().size())
+		{
+			return group.getEnchantGroupDetails().get(EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(enchantType)).getEnchantGroupDetails().size() - 1);
+		}
+		return group.getEnchantGroupDetails().get(index);
 	}
 	
 	public L2EnchantSkillGroup getFirstRouteGroup()
@@ -77,9 +95,12 @@ public final class L2EnchantSkillLearn
 		return EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.firstEntry().getValue());
 	}
 	
-	public Set<Integer> getAllRoutes()
+	/**
+	 * @return Returns the id.
+	 */
+	public int getId()
 	{
-		return _enchantRoutes.keySet();
+		return _id;
 	}
 	
 	public int getMinSkillLevel(int level)
@@ -105,26 +126,5 @@ public final class L2EnchantSkillLearn
 			return true;
 		}
 		return false;
-	}
-	
-	public EnchantSkillHolder getEnchantSkillHolder(int level)
-	{
-		int enchantType = getEnchantRoute(level);
-		if ((enchantType < 1) || !_enchantRoutes.containsKey(enchantType))
-		{
-			return null;
-		}
-		int index = getEnchantIndex(level);
-		L2EnchantSkillGroup group = EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(enchantType));
-		
-		if (index < 0)
-		{
-			return group.getEnchantGroupDetails().get(0);
-		}
-		else if (index >= group.getEnchantGroupDetails().size())
-		{
-			return group.getEnchantGroupDetails().get(EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(enchantType)).getEnchantGroupDetails().size() - 1);
-		}
-		return group.getEnchantGroupDetails().get(index);
 	}
 }

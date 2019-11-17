@@ -34,24 +34,6 @@ public final class TvTEventListener implements IEventListener
 	}
 	
 	@Override
-	public boolean isOnEvent()
-	{
-		return TvTEvent.isStarted() && TvTEvent.isPlayerParticipant(getPlayer().getObjectId());
-	}
-	
-	@Override
-	public boolean isBlockingExit()
-	{
-		return true;
-	}
-	
-	@Override
-	public boolean isBlockingDeathPenalty()
-	{
-		return true;
-	}
-	
-	@Override
 	public boolean canRevive()
 	{
 		return false;
@@ -61,5 +43,23 @@ public final class TvTEventListener implements IEventListener
 	public L2PcInstance getPlayer()
 	{
 		return _player;
+	}
+	
+	@Override
+	public boolean isBlockingDeathPenalty()
+	{
+		return true;
+	}
+	
+	@Override
+	public boolean isBlockingExit()
+	{
+		return true;
+	}
+	
+	@Override
+	public boolean isOnEvent()
+	{
+		return TvTEvent.isStarted() && TvTEvent.isPlayerParticipant(getPlayer().getObjectId());
 	}
 }

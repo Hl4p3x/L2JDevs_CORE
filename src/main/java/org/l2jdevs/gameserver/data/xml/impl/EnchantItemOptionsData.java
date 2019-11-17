@@ -41,6 +41,38 @@ public class EnchantItemOptionsData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of EnchantOptionsData.
+	 * @return single instance of EnchantOptionsData
+	 */
+	public static final EnchantItemOptionsData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * @param itemId
+	 * @param enchantLevel
+	 * @return enchant effects information.
+	 */
+	public EnchantOptions getOptions(int itemId, int enchantLevel)
+	{
+		if (!_data.containsKey(itemId) || !_data.get(itemId).containsKey(enchantLevel))
+		{
+			return null;
+		}
+		return _data.get(itemId).get(enchantLevel);
+	}
+	
+	/**
+	 * @param item
+	 * @return enchant effects information.
+	 */
+	public EnchantOptions getOptions(L2ItemInstance item)
+	{
+		return item != null ? getOptions(item.getId(), item.getEnchantLevel()) : null;
+	}
+	
 	@Override
 	public synchronized void load()
 	{
@@ -88,38 +120,6 @@ public class EnchantItemOptionsData implements IXmlReader
 			}
 		}
 		LOG.info("{}: Loaded: {} Items and {} Options.", getClass().getSimpleName(), _data.size(), counter);
-	}
-	
-	/**
-	 * @param itemId
-	 * @param enchantLevel
-	 * @return enchant effects information.
-	 */
-	public EnchantOptions getOptions(int itemId, int enchantLevel)
-	{
-		if (!_data.containsKey(itemId) || !_data.get(itemId).containsKey(enchantLevel))
-		{
-			return null;
-		}
-		return _data.get(itemId).get(enchantLevel);
-	}
-	
-	/**
-	 * @param item
-	 * @return enchant effects information.
-	 */
-	public EnchantOptions getOptions(L2ItemInstance item)
-	{
-		return item != null ? getOptions(item.getId(), item.getEnchantLevel()) : null;
-	}
-	
-	/**
-	 * Gets the single instance of EnchantOptionsData.
-	 * @return single instance of EnchantOptionsData
-	 */
-	public static final EnchantItemOptionsData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

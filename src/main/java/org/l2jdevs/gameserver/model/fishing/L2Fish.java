@@ -79,43 +79,19 @@ public class L2Fish implements Cloneable
 	}
 	
 	/**
-	 * @return the fish Id.
+	 * @return the fish Cheating prob.
 	 */
-	public int getFishId()
+	public double getCheatingProb()
 	{
-		return _fishId;
+		return _cheatingProb;
 	}
 	
 	/**
-	 * @return the fish Item Id.
+	 * @return the fish Combat duration.
 	 */
-	public int getItemId()
+	public int getCombatDuration()
 	{
-		return _itemId;
-	}
-	
-	/**
-	 * @return the fish Item name Id.
-	 */
-	public String getItemName()
-	{
-		return _itemName;
-	}
-	
-	/**
-	 * @return the fish Group.
-	 */
-	public int getFishGroup()
-	{
-		return _fishGroup;
-	}
-	
-	/**
-	 * @return the fish Level.
-	 */
-	public int getFishLevel()
-	{
-		return _fishLevel;
+		return _combatDuration;
 	}
 	
 	/**
@@ -124,6 +100,22 @@ public class L2Fish implements Cloneable
 	public double getFishBiteRate()
 	{
 		return _fishBiteRate;
+	}
+	
+	/**
+	 * @return the fish Grade.
+	 */
+	public int getFishGrade()
+	{
+		return _fishGrade;
+	}
+	
+	/**
+	 * @return the fish Group.
+	 */
+	public int getFishGroup()
+	{
+		return _fishGroup;
 	}
 	
 	/**
@@ -143,11 +135,11 @@ public class L2Fish implements Cloneable
 	}
 	
 	/**
-	 * @return the fish Max length.
+	 * @return the fish Id.
 	 */
-	public int getFishMaxLength()
+	public int getFishId()
 	{
-		return _fishMaxLength;
+		return _fishId;
 	}
 	
 	/**
@@ -159,35 +151,19 @@ public class L2Fish implements Cloneable
 	}
 	
 	/**
-	 * @return the fish Hp regen.
+	 * @return the fish Level.
 	 */
-	public double getHpRegen()
+	public int getFishLevel()
 	{
-		return _hpRegen;
+		return _fishLevel;
 	}
 	
 	/**
-	 * @return the fish start Combat time.
+	 * @return the fish Max length.
 	 */
-	public int getStartCombatTime()
+	public int getFishMaxLength()
 	{
-		return _startCombatTime;
-	}
-	
-	/**
-	 * @return the fish Combat duration.
-	 */
-	public int getCombatDuration()
-	{
-		return _combatDuration;
-	}
-	
-	/**
-	 * @return the fish Guts check time.
-	 */
-	public int getGutsCheckTime()
-	{
-		return _gutsCheckTime;
+		return _fishMaxLength;
 	}
 	
 	/**
@@ -199,19 +175,43 @@ public class L2Fish implements Cloneable
 	}
 	
 	/**
-	 * @return the fish Cheating prob.
+	 * @return the fish Guts check time.
 	 */
-	public double getCheatingProb()
+	public int getGutsCheckTime()
 	{
-		return _cheatingProb;
+		return _gutsCheckTime;
 	}
 	
 	/**
-	 * @return the fish Grade.
+	 * @return the fish Hp regen.
 	 */
-	public int getFishGrade()
+	public double getHpRegen()
 	{
-		return _fishGrade;
+		return _hpRegen;
+	}
+	
+	/**
+	 * @return the fish Item Id.
+	 */
+	public int getItemId()
+	{
+		return _itemId;
+	}
+	
+	/**
+	 * @return the fish Item name Id.
+	 */
+	public String getItemName()
+	{
+		return _itemName;
+	}
+	
+	/**
+	 * @return the fish start Combat time.
+	 */
+	public int getStartCombatTime()
+	{
+		return _startCombatTime;
 	}
 	
 	/**
@@ -220,6 +220,24 @@ public class L2Fish implements Cloneable
 	public void setFishGroup(int fg)
 	{
 		_fishGroup = fg;
+	}
+	
+	/**
+	 * @param name the Grade Name.
+	 * @return the fish Grade Id.
+	 */
+	private int getGradeId(String name)
+	{
+		switch (name)
+		{
+			case "fish_easy":
+				return 0;
+			case "fish_hard":
+				return 2;
+			case "fish_normal":
+			default:
+				return 1;
+		}
 	}
 	
 	/**
@@ -253,24 +271,6 @@ public class L2Fish implements Cloneable
 			case "wide":
 			default:
 				return 0;
-		}
-	}
-	
-	/**
-	 * @param name the Grade Name.
-	 * @return the fish Grade Id.
-	 */
-	private int getGradeId(String name)
-	{
-		switch (name)
-		{
-			case "fish_easy":
-				return 0;
-			case "fish_hard":
-				return 2;
-			case "fish_normal":
-			default:
-				return 1;
 		}
 	}
 }

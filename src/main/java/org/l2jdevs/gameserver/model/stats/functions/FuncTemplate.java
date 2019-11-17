@@ -77,30 +77,16 @@ public final class FuncTemplate
 	}
 	
 	/**
-	 * Gets the function stat.
-	 * @return the stat.
+	 * Gets the functions for items.
+	 * @param caster the caster
+	 * @param target the target
+	 * @param item the item
+	 * @param owner the owner
+	 * @return the function if conditions are met, {@code null} otherwise
 	 */
-	public Stats getStat()
+	public AbstractFunction getFunc(L2Character caster, L2Character target, L2ItemInstance item, Object owner)
 	{
-		return _stat;
-	}
-	
-	/**
-	 * Gets the function priority order.
-	 * @return the order
-	 */
-	public int getOrder()
-	{
-		return _order;
-	}
-	
-	/**
-	 * Gets the function value.
-	 * @return the value
-	 */
-	public double getValue()
-	{
-		return _value;
+		return getFunc(caster, target, null, item, owner);
 	}
 	
 	/**
@@ -117,16 +103,30 @@ public final class FuncTemplate
 	}
 	
 	/**
-	 * Gets the functions for items.
-	 * @param caster the caster
-	 * @param target the target
-	 * @param item the item
-	 * @param owner the owner
-	 * @return the function if conditions are met, {@code null} otherwise
+	 * Gets the function priority order.
+	 * @return the order
 	 */
-	public AbstractFunction getFunc(L2Character caster, L2Character target, L2ItemInstance item, Object owner)
+	public int getOrder()
 	{
-		return getFunc(caster, target, null, item, owner);
+		return _order;
+	}
+	
+	/**
+	 * Gets the function stat.
+	 * @return the stat.
+	 */
+	public Stats getStat()
+	{
+		return _stat;
+	}
+	
+	/**
+	 * Gets the function value.
+	 * @return the value
+	 */
+	public double getValue()
+	{
+		return _value;
 	}
 	
 	/**

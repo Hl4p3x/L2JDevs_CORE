@@ -58,31 +58,6 @@ public final class AuctionItem
 		return true;
 	}
 	
-	public final int getAuctionItemId()
-	{
-		return _auctionItemId;
-	}
-	
-	public final int getAuctionLength()
-	{
-		return _auctionLength;
-	}
-	
-	public final long getAuctionInitBid()
-	{
-		return _auctionInitBid;
-	}
-	
-	public final int getItemId()
-	{
-		return _itemId;
-	}
-	
-	public final long getItemCount()
-	{
-		return _itemCount;
-	}
-	
 	public final L2ItemInstance createNewItemInstance()
 	{
 		final L2ItemInstance item = ItemTable.getInstance().createItem("ItemAuction", _itemId, _itemCount, null, null);
@@ -96,5 +71,30 @@ public final class AuctionItem
 		}
 		
 		return item;
+	}
+	
+	public final long getAuctionInitBid()
+	{
+		return _auctionInitBid;
+	}
+	
+	public final int getAuctionItemId()
+	{
+		return _auctionItemId;
+	}
+	
+	public final int getAuctionLength()
+	{
+		return _auctionLength;
+	}
+	
+	public final long getItemCount()
+	{
+		return _itemCount;
+	}
+	
+	public final int getItemId()
+	{
+		return _itemId;
 	}
 }

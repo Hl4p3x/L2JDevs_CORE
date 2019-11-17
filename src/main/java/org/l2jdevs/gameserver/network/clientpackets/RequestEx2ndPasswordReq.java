@@ -34,6 +34,12 @@ public class RequestEx2ndPasswordReq extends L2GameClientPacket
 	private String _password, _newPassword;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_AF_REQUESTEX2NDPASSWORDREQ;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_changePass = readC();
@@ -68,11 +74,5 @@ public class RequestEx2ndPasswordReq extends L2GameClientPacket
 		{
 			getClient().sendPacket(new Ex2ndPasswordAck(Ex2ndPasswordAck.SUCCESS));
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_AF_REQUESTEX2NDPASSWORDREQ;
 	}
 }

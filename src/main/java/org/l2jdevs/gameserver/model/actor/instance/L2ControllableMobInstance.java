@@ -42,33 +42,9 @@ public class L2ControllableMobInstance extends L2MonsterInstance
 	}
 	
 	@Override
-	public boolean isAggressive()
+	public void detachAI()
 	{
-		return true;
-	}
-	
-	@Override
-	public int getAggroRange()
-	{
-		// force mobs to be aggro
-		return 500;
-	}
-	
-	@Override
-	protected L2CharacterAI initAI()
-	{
-		return new L2ControllableMobAI(this);
-	}
-	
-	@Override
-	public boolean isInvul()
-	{
-		return _isInvul;
-	}
-	
-	public void setInvul(boolean isInvul)
-	{
-		_isInvul = isInvul;
+		// do nothing, AI of controllable mobs can't be detached automatically
 	}
 	
 	@Override
@@ -84,8 +60,32 @@ public class L2ControllableMobInstance extends L2MonsterInstance
 	}
 	
 	@Override
-	public void detachAI()
+	public int getAggroRange()
 	{
-		// do nothing, AI of controllable mobs can't be detached automatically
+		// force mobs to be aggro
+		return 500;
+	}
+	
+	@Override
+	public boolean isAggressive()
+	{
+		return true;
+	}
+	
+	@Override
+	public boolean isInvul()
+	{
+		return _isInvul;
+	}
+	
+	public void setInvul(boolean isInvul)
+	{
+		_isInvul = isInvul;
+	}
+	
+	@Override
+	protected L2CharacterAI initAI()
+	{
+		return new L2ControllableMobAI(this);
 	}
 }

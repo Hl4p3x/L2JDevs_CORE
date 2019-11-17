@@ -29,18 +29,25 @@ public class L2SiegeClan
 	private final List<L2Npc> _flag = new CopyOnWriteArrayList<>();
 	private SiegeClanType _type;
 	
-	public enum SiegeClanType
-	{
-		OWNER,
-		DEFENDER,
-		ATTACKER,
-		DEFENDER_PENDING
-	}
-	
 	public L2SiegeClan(int clanId, SiegeClanType type)
 	{
 		_clanId = clanId;
 		_type = type;
+	}
+	
+	public void addFlag(L2Npc flag)
+	{
+		_flag.add(flag);
+	}
+	
+	public final int getClanId()
+	{
+		return _clanId;
+	}
+	
+	public final List<L2Npc> getFlag()
+	{
+		return _flag;
 	}
 	
 	public int getNumFlags()
@@ -48,9 +55,9 @@ public class L2SiegeClan
 		return _flag.size();
 	}
 	
-	public void addFlag(L2Npc flag)
+	public SiegeClanType getType()
 	{
-		_flag.add(flag);
+		return _type;
 	}
 	
 	public boolean removeFlag(L2Npc flag)
@@ -66,23 +73,16 @@ public class L2SiegeClan
 		_flag.clear();
 	}
 	
-	public final int getClanId()
-	{
-		return _clanId;
-	}
-	
-	public final List<L2Npc> getFlag()
-	{
-		return _flag;
-	}
-	
-	public SiegeClanType getType()
-	{
-		return _type;
-	}
-	
 	public void setType(SiegeClanType setType)
 	{
 		_type = setType;
+	}
+	
+	public enum SiegeClanType
+	{
+		OWNER,
+		DEFENDER,
+		ATTACKER,
+		DEFENDER_PENDING
 	}
 }

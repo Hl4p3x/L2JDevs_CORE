@@ -42,6 +42,28 @@ public class RecommendationBonusDAOMySQLImpl implements RecommendationBonusDAO
 	private static final String INSERT = "INSERT INTO character_reco_bonus (charId,rec_have,rec_left,time_left) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE rec_have=?, rec_left=?, time_left=?";
 	
 	@Override
+	public void insert(L2PcInstance player, long recoTaskEnd)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(INSERT))
+		{
+			ps.setInt(1, player.getObjectId());
+			ps.setInt(2, player.getRecomHave());
+			ps.setInt(3, player.getRecomLeft());
+			ps.setLong(4, recoTaskEnd);
+			// Update part
+			ps.setInt(5, player.getRecomHave());
+			ps.setInt(6, player.getRecomLeft());
+			ps.setLong(7, recoTaskEnd);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.error("Could not update Recommendations for player: {}", player, e);
+		}
+	}
+	
+	@Override
 	public long load(L2PcInstance player)
 	{
 		long timeLeft = 0;
@@ -68,27 +90,5 @@ public class RecommendationBonusDAOMySQLImpl implements RecommendationBonusDAO
 			LOG.error("Could not restore Recommendations for {}, {}", player, e);
 		}
 		return timeLeft;
-	}
-	
-	@Override
-	public void insert(L2PcInstance player, long recoTaskEnd)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(INSERT))
-		{
-			ps.setInt(1, player.getObjectId());
-			ps.setInt(2, player.getRecomHave());
-			ps.setInt(3, player.getRecomLeft());
-			ps.setLong(4, recoTaskEnd);
-			// Update part
-			ps.setInt(5, player.getRecomHave());
-			ps.setInt(6, player.getRecomLeft());
-			ps.setLong(7, recoTaskEnd);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.error("Could not update Recommendations for player: {}", player, e);
-		}
 	}
 }

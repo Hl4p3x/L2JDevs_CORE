@@ -40,14 +40,6 @@ public final class EnchantItemGroup
 	}
 	
 	/**
-	 * @return name of current enchant item group.
-	 */
-	public String getName()
-	{
-		return _name;
-	}
-	
-	/**
 	 * @param holder
 	 */
 	public void addChance(RangeChanceHolder holder)
@@ -75,5 +67,13 @@ public final class EnchantItemGroup
 		}
 		_log.log(Level.WARNING, getClass().getSimpleName() + ": item group: " + _name + " doesn't have any chances!");
 		return -1;
+	}
+	
+	/**
+	 * @return name of current enchant item group.
+	 */
+	public String getName()
+	{
+		return _name;
 	}
 }

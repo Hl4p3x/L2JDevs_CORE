@@ -40,21 +40,6 @@ public class L2NpcWalkerNode extends Location
 		_chatString = ((chatText == null) ? "" : chatText);
 	}
 	
-	public int getDelay()
-	{
-		return _delay;
-	}
-	
-	public boolean runToLocation()
-	{
-		return _runToLocation;
-	}
-	
-	public NpcStringId getNpcString()
-	{
-		return _npcString;
-	}
-	
 	public String getChatText()
 	{
 		if (_npcString != null)
@@ -62,5 +47,20 @@ public class L2NpcWalkerNode extends Location
 			throw new IllegalStateException("npcString is defined for walker route!");
 		}
 		return _chatString;
+	}
+	
+	public int getDelay()
+	{
+		return _delay;
+	}
+	
+	public NpcStringId getNpcString()
+	{
+		return _npcString;
+	}
+	
+	public boolean runToLocation()
+	{
+		return _runToLocation;
 	}
 }

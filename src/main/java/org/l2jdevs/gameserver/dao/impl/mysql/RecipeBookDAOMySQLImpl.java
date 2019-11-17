@@ -49,6 +49,23 @@ public class RecipeBookDAOMySQLImpl implements RecipeBookDAO
 	private static final String SELECT = "SELECT id FROM character_recipebook WHERE charId=? AND classIndex=? AND type = 1";
 	
 	@Override
+	public void delete(L2PcInstance player, int recipeId, boolean isDwarf)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(DELETE))
+		{
+			ps.setInt(1, player.getObjectId());
+			ps.setInt(2, recipeId);
+			ps.setInt(3, isDwarf ? player.getClassIndex() : 0);
+			ps.execute();
+		}
+		catch (SQLException e)
+		{
+			LOG.warn("SQL exception while deleting recipe: {} from player {}", recipeId, player, e);
+		}
+	}
+	
+	@Override
 	public void insert(L2PcInstance player, int recipeId, boolean isDwarf)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -63,23 +80,6 @@ public class RecipeBookDAOMySQLImpl implements RecipeBookDAO
 		catch (SQLException e)
 		{
 			LOG.warn("SQL exception while inserting recipe: {} from player {}", recipeId, player, e);
-		}
-	}
-	
-	@Override
-	public void delete(L2PcInstance player, int recipeId, boolean isDwarf)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(DELETE))
-		{
-			ps.setInt(1, player.getObjectId());
-			ps.setInt(2, recipeId);
-			ps.setInt(3, isDwarf ? player.getClassIndex() : 0);
-			ps.execute();
-		}
-		catch (SQLException e)
-		{
-			LOG.warn("SQL exception while deleting recipe: {} from player {}", recipeId, player, e);
 		}
 	}
 	

@@ -68,39 +68,9 @@ public class ActionKey
 		return _cmd;
 	}
 	
-	public void setCommandId(int cmd)
-	{
-		_cmd = cmd;
-	}
-	
 	public int getKeyId()
 	{
 		return _key;
-	}
-	
-	public void setKeyId(int key)
-	{
-		_key = key;
-	}
-	
-	public int getToogleKey1()
-	{
-		return _tgKey1;
-	}
-	
-	public void setToogleKey1(int tKey1)
-	{
-		_tgKey1 = tKey1;
-	}
-	
-	public int getToogleKey2()
-	{
-		return _tgKey2;
-	}
-	
-	public void setToogleKey2(int tKey2)
-	{
-		_tgKey2 = tKey2;
 	}
 	
 	public int getShowStatus()
@@ -108,13 +78,43 @@ public class ActionKey
 		return _show;
 	}
 	
+	public String getSqlSaveString(int playerId, int order)
+	{
+		return "(" + playerId + ", " + _cat + ", " + order + ", " + _cmd + "," + _key + ", " + _tgKey1 + ", " + _tgKey2 + ", " + _show + ")";
+	}
+	
+	public int getToogleKey1()
+	{
+		return _tgKey1;
+	}
+	
+	public int getToogleKey2()
+	{
+		return _tgKey2;
+	}
+	
+	public void setCommandId(int cmd)
+	{
+		_cmd = cmd;
+	}
+	
+	public void setKeyId(int key)
+	{
+		_key = key;
+	}
+	
 	public void setShowStatus(int show)
 	{
 		_show = show;
 	}
 	
-	public String getSqlSaveString(int playerId, int order)
+	public void setToogleKey1(int tKey1)
 	{
-		return "(" + playerId + ", " + _cat + ", " + order + ", " + _cmd + "," + _key + ", " + _tgKey1 + ", " + _tgKey2 + ", " + _show + ")";
+		_tgKey1 = tKey1;
+	}
+	
+	public void setToogleKey2(int tKey2)
+	{
+		_tgKey2 = tKey2;
 	}
 }

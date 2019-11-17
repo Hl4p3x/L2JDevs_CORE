@@ -31,9 +31,9 @@ public abstract class Event extends Quest
 		super(-1, name, descr);
 	}
 	
+	public abstract boolean eventBypass(L2PcInstance activeChar, String bypass);
+	
 	public abstract boolean eventStart(L2PcInstance eventMaker);
 	
 	public abstract boolean eventStop();
-	
-	public abstract boolean eventBypass(L2PcInstance activeChar, String bypass);
 }

@@ -32,6 +32,12 @@ public final class RequestExMPCCShowPartyMembersInfo extends L2GameClientPacket
 	private int _partyLeaderId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_2D_REQUESTMPCCSHOWPARTYMEMBERINFO;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_partyLeaderId = readD();
@@ -50,11 +56,5 @@ public final class RequestExMPCCShowPartyMembersInfo extends L2GameClientPacket
 		{
 			activeChar.sendPacket(new ExMPCCShowPartyMemberInfo(player.getParty()));
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_2D_REQUESTMPCCSHOWPARTYMEMBERINFO;
 	}
 }

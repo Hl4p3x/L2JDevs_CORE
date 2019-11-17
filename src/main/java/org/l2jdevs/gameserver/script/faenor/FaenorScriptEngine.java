@@ -64,6 +64,11 @@ public class FaenorScriptEngine extends ScriptEngine
 		}
 	}
 	
+	public static FaenorScriptEngine getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	public void parseScript(ScriptDocument script, ScriptContext context)
 	{
 		Node node = script.getDocument().getFirstChild();
@@ -94,11 +99,6 @@ public class FaenorScriptEngine extends ScriptEngine
 		{
 			_log.log(Level.WARNING, "Script Parsing Failed: " + e.getMessage(), e);
 		}
-	}
-	
-	public static FaenorScriptEngine getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

@@ -35,6 +35,12 @@ public class RequestRecipeShopMessageSet extends L2GameClientPacket
 	private String _name;
 	
 	@Override
+	public String getType()
+	{
+		return _C__BA_RequestRecipeShopMessageSet;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -59,11 +65,5 @@ public class RequestRecipeShopMessageSet extends L2GameClientPacket
 		{
 			player.setStoreName(_name);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__BA_RequestRecipeShopMessageSet;
 	}
 }

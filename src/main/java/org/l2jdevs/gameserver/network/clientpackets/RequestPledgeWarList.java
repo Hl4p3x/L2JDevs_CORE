@@ -33,6 +33,12 @@ public final class RequestPledgeWarList extends L2GameClientPacket
 	private int _tab;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_17_REQUESTPLEDGEWARLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_unk1 = readD();
@@ -56,11 +62,5 @@ public final class RequestPledgeWarList extends L2GameClientPacket
 		
 		// do we need powers to do that??
 		activeChar.sendPacket(new PledgeReceiveWarList(activeChar.getClan(), _tab));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_17_REQUESTPLEDGEWARLIST;
 	}
 }

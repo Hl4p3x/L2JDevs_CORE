@@ -31,6 +31,12 @@ public class RequestExDeleteContactFromContactList extends L2GameClientPacket
 	private String _name;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_85_REQUESTEXDELETECONTACTFROMCONTACTLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -56,11 +62,5 @@ public class RequestExDeleteContactFromContactList extends L2GameClientPacket
 		}
 		
 		activeChar.getContactList().remove(_name);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_85_REQUESTEXDELETECONTACTFROMCONTACTLIST;
 	}
 }

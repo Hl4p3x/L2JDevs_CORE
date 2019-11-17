@@ -36,6 +36,22 @@ public final class EffectHandler implements IHandler<Class<? extends AbstractEff
 		_handlers = new HashMap<>();
 	}
 	
+	public static EffectHandler getInstance()
+	{
+		return SingletonHolder.INSTANCE;
+	}
+	
+	public void executeScript() throws Exception
+	{
+		ScriptEngineManager.getInstance().executeScript("handlers/EffectMasterHandler.java");
+	}
+	
+	@Override
+	public Class<? extends AbstractEffect> getHandler(String name)
+	{
+		return _handlers.get(name);
+	}
+	
 	@Override
 	public void registerHandler(Class<? extends AbstractEffect> handler)
 	{
@@ -49,25 +65,9 @@ public final class EffectHandler implements IHandler<Class<? extends AbstractEff
 	}
 	
 	@Override
-	public Class<? extends AbstractEffect> getHandler(String name)
-	{
-		return _handlers.get(name);
-	}
-	
-	@Override
 	public int size()
 	{
 		return _handlers.size();
-	}
-	
-	public void executeScript() throws Exception
-	{
-		ScriptEngineManager.getInstance().executeScript("handlers/EffectMasterHandler.java");
-	}
-	
-	public static EffectHandler getInstance()
-	{
-		return SingletonHolder.INSTANCE;
 	}
 	
 	private static final class SingletonHolder

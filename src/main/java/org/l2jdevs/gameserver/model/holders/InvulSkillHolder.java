@@ -37,6 +37,11 @@ public class InvulSkillHolder extends SkillHolder
 		super(holder.getSkill());
 	}
 	
+	public int decreaseInstances()
+	{
+		return _instances.decrementAndGet();
+	}
+	
 	public int getInstances()
 	{
 		return _instances.get();
@@ -45,10 +50,5 @@ public class InvulSkillHolder extends SkillHolder
 	public int increaseInstances()
 	{
 		return _instances.incrementAndGet();
-	}
-	
-	public int decreaseInstances()
-	{
-		return _instances.decrementAndGet();
 	}
 }

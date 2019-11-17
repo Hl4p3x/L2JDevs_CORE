@@ -26,12 +26,12 @@ import org.l2jdevs.gameserver.network.serverpackets.PlaySound;
 public interface IAudio
 {
 	/**
-	 * @return the name of the sound of this audio object
-	 */
-	public String getSoundName();
-	
-	/**
 	 * @return the {@link PlaySound} packet of this audio object
 	 */
 	public PlaySound getPacket();
+	
+	/**
+	 * @return the name of the sound of this audio object
+	 */
+	public String getSoundName();
 }

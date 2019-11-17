@@ -90,12 +90,16 @@ public final class L2Armor extends L2Item
 	}
 	
 	/**
-	 * @return the type of the armor.
+	 * @return skill that player get when has equipped armor +4 or more
 	 */
 	@Override
-	public ArmorType getItemType()
+	public Skill getEnchant4Skill()
 	{
-		return _type;
+		if (_enchant4Skill == null)
+		{
+			return null;
+		}
+		return _enchant4Skill.getSkill();
 	}
 	
 	/**
@@ -108,15 +112,11 @@ public final class L2Armor extends L2Item
 	}
 	
 	/**
-	 * @return skill that player get when has equipped armor +4 or more
+	 * @return the type of the armor.
 	 */
 	@Override
-	public Skill getEnchant4Skill()
+	public ArmorType getItemType()
 	{
-		if (_enchant4Skill == null)
-		{
-			return null;
-		}
-		return _enchant4Skill.getSkill();
+		return _type;
 	}
 }

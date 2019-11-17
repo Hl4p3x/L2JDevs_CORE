@@ -40,6 +40,11 @@ public final class DecayTaskManager
 	
 	protected final Map<L2Character, ScheduledFuture<?>> _decayTasks = new ConcurrentHashMap<>();
 	
+	public static DecayTaskManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	/**
 	 * Adds a decay task for the specified character.<br>
 	 * <br>
@@ -128,23 +133,6 @@ public final class DecayTaskManager
 		return Long.MAX_VALUE;
 	}
 	
-	private class DecayTask implements Runnable
-	{
-		private final L2Character _character;
-		
-		protected DecayTask(L2Character character)
-		{
-			_character = character;
-		}
-		
-		@Override
-		public void run()
-		{
-			_decayTasks.remove(_character);
-			_character.onDecay();
-		}
-	}
-	
 	@Override
 	public String toString()
 	{
@@ -171,9 +159,21 @@ public final class DecayTaskManager
 		return ret.toString();
 	}
 	
-	public static DecayTaskManager getInstance()
+	private class DecayTask implements Runnable
 	{
-		return SingletonHolder._instance;
+		private final L2Character _character;
+		
+		protected DecayTask(L2Character character)
+		{
+			_character = character;
+		}
+		
+		@Override
+		public void run()
+		{
+			_decayTasks.remove(_character);
+			_character.onDecay();
+		}
 	}
 	
 	private static class SingletonHolder

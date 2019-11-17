@@ -50,11 +50,6 @@ public class OnAttackableAttack implements IBaseEvent
 		return _attacker;
 	}
 	
-	public final L2Attackable getTarget()
-	{
-		return _target;
-	}
-	
 	public int getDamage()
 	{
 		return _damage;
@@ -65,14 +60,19 @@ public class OnAttackableAttack implements IBaseEvent
 		return _skill;
 	}
 	
-	public boolean isSummon()
+	public final L2Attackable getTarget()
 	{
-		return _isSummon;
+		return _target;
 	}
 	
 	@Override
 	public EventType getType()
 	{
 		return EventType.ON_ATTACKABLE_ATTACK;
+	}
+	
+	public boolean isSummon()
+	{
+		return _isSummon;
 	}
 }

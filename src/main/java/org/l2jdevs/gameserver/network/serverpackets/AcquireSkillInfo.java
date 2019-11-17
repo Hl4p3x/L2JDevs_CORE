@@ -40,31 +40,6 @@ public class AcquireSkillInfo extends L2GameServerPacket
 	private final List<Req> _reqs;
 	
 	/**
-	 * Private class containing learning skill requisites.
-	 */
-	private static class Req
-	{
-		public int itemId;
-		public long count;
-		public int type;
-		public int unk;
-		
-		/**
-		 * @param pType TODO identify.
-		 * @param pItemId the item Id.
-		 * @param itemCount the item count.
-		 * @param pUnk TODO identify.
-		 */
-		public Req(int pType, int pItemId, long itemCount, int pUnk)
-		{
-			itemId = pItemId;
-			type = pType;
-			count = itemCount;
-			unk = pUnk;
-		}
-	}
-	
-	/**
 	 * Constructor for the acquire skill info object.
 	 * @param skillType the skill learning type.
 	 * @param skillLearn the skill learn.
@@ -124,6 +99,31 @@ public class AcquireSkillInfo extends L2GameServerPacket
 			writeD(temp.itemId);
 			writeQ(temp.count);
 			writeD(temp.unk);
+		}
+	}
+	
+	/**
+	 * Private class containing learning skill requisites.
+	 */
+	private static class Req
+	{
+		public int itemId;
+		public long count;
+		public int type;
+		public int unk;
+		
+		/**
+		 * @param pType TODO identify.
+		 * @param pItemId the item Id.
+		 * @param itemCount the item count.
+		 * @param pUnk TODO identify.
+		 */
+		public Req(int pType, int pItemId, long itemCount, int pUnk)
+		{
+			itemId = pItemId;
+			type = pType;
+			count = itemCount;
+			unk = pUnk;
 		}
 	}
 }

@@ -55,6 +55,88 @@ public class SkillDAOMySQLImpl implements SkillDAO
 	private static final String DELETE_ALL = "DELETE FROM character_skills WHERE charId=? AND class_index=?";
 	
 	@Override
+	public void delete(L2PcInstance player, Skill skill)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(DELETE_ONE))
+		{
+			ps.setInt(1, skill.getId());
+			ps.setInt(2, player.getObjectId());
+			ps.setInt(3, player.getClassIndex());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.warn("Error could not delete skill: {}", e);
+		}
+	}
+	
+	@Override
+	public void deleteAll(L2PcInstance player, int classIndex)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(DELETE_ALL))
+		{
+			ps.setInt(1, player.getObjectId());
+			ps.setInt(2, classIndex);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.warn("Error could not delete skill: {}", e);
+		}
+	}
+	
+	@Override
+	public void insert(L2PcInstance player, int newClassIndex, List<Skill> newSkills)
+	{
+		if (newSkills.isEmpty())
+		{
+			return;
+		}
+		
+		final int classIndex = (newClassIndex > -1) ? newClassIndex : player.getClassIndex();
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(REPLACE))
+		{
+			con.setAutoCommit(false);
+			for (final Skill addSkill : newSkills)
+			{
+				
+				ps.setInt(1, player.getObjectId());
+				ps.setInt(2, addSkill.getId());
+				ps.setInt(3, addSkill.getLevel());
+				ps.setInt(4, classIndex);
+				ps.addBatch();
+			}
+			ps.executeBatch();
+			con.commit();
+		}
+		catch (SQLException e)
+		{
+			LOG.error("Error could not store {} skills: {}", player, e);
+		}
+	}
+	
+	@Override
+	public void insert(L2PcInstance player, int classIndex, Skill skill)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(INSERT))
+		{
+			ps.setInt(1, player.getObjectId());
+			ps.setInt(2, skill.getId());
+			ps.setInt(3, skill.getLevel());
+			ps.setInt(4, classIndex);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.warn("Error could not store char skills: {}", e);
+		}
+	}
+	
+	@Override
 	public void load(L2PcInstance player)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -103,55 +185,6 @@ public class SkillDAOMySQLImpl implements SkillDAO
 	}
 	
 	@Override
-	public void insert(L2PcInstance player, int classIndex, Skill skill)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(INSERT))
-		{
-			ps.setInt(1, player.getObjectId());
-			ps.setInt(2, skill.getId());
-			ps.setInt(3, skill.getLevel());
-			ps.setInt(4, classIndex);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.warn("Error could not store char skills: {}", e);
-		}
-	}
-	
-	@Override
-	public void insert(L2PcInstance player, int newClassIndex, List<Skill> newSkills)
-	{
-		if (newSkills.isEmpty())
-		{
-			return;
-		}
-		
-		final int classIndex = (newClassIndex > -1) ? newClassIndex : player.getClassIndex();
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(REPLACE))
-		{
-			con.setAutoCommit(false);
-			for (final Skill addSkill : newSkills)
-			{
-				
-				ps.setInt(1, player.getObjectId());
-				ps.setInt(2, addSkill.getId());
-				ps.setInt(3, addSkill.getLevel());
-				ps.setInt(4, classIndex);
-				ps.addBatch();
-			}
-			ps.executeBatch();
-			con.commit();
-		}
-		catch (SQLException e)
-		{
-			LOG.error("Error could not store {} skills: {}", player, e);
-		}
-	}
-	
-	@Override
 	public void update(L2PcInstance player, int classIndex, Skill newSkill, Skill oldSkill)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -166,39 +199,6 @@ public class SkillDAOMySQLImpl implements SkillDAO
 		catch (Exception e)
 		{
 			LOG.warn("Error could not store char skills: {}", e);
-		}
-	}
-	
-	@Override
-	public void delete(L2PcInstance player, Skill skill)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(DELETE_ONE))
-		{
-			ps.setInt(1, skill.getId());
-			ps.setInt(2, player.getObjectId());
-			ps.setInt(3, player.getClassIndex());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.warn("Error could not delete skill: {}", e);
-		}
-	}
-	
-	@Override
-	public void deleteAll(L2PcInstance player, int classIndex)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(DELETE_ALL))
-		{
-			ps.setInt(1, player.getObjectId());
-			ps.setInt(2, classIndex);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.warn("Error could not delete skill: {}", e);
 		}
 	}
 }

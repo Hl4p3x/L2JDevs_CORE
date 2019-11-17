@@ -55,14 +55,29 @@ public class PetInventory extends Inventory
 		return id;
 	}
 	
-	/**
-	 * Refresh the weight of equipment loaded
-	 */
 	@Override
-	protected void refreshWeight()
+	public void restore()
 	{
-		super.refreshWeight();
-		getOwner().updateAndBroadcastStatus(1);
+		super.restore();
+		// check for equiped items from other pets
+		for (L2ItemInstance item : _items)
+		{
+			if (item.isEquipped())
+			{
+				if (!item.getItem().checkCondition(getOwner(), getOwner(), false))
+				{
+					unEquipItemInSlot(item.getLocationSlot());
+				}
+			}
+		}
+	}
+	
+	public void transferItemsToOwner()
+	{
+		for (L2ItemInstance item : _items)
+		{
+			getOwner().transferItem("return", item.getObjectId(), item.getCount(), getOwner().getOwner().getInventory(), getOwner().getOwner(), getOwner());
+		}
 	}
 	
 	public boolean validateCapacity(L2ItemInstance item)
@@ -113,28 +128,13 @@ public class PetInventory extends Inventory
 		return ItemLocation.PET_EQUIP;
 	}
 	
+	/**
+	 * Refresh the weight of equipment loaded
+	 */
 	@Override
-	public void restore()
+	protected void refreshWeight()
 	{
-		super.restore();
-		// check for equiped items from other pets
-		for (L2ItemInstance item : _items)
-		{
-			if (item.isEquipped())
-			{
-				if (!item.getItem().checkCondition(getOwner(), getOwner(), false))
-				{
-					unEquipItemInSlot(item.getLocationSlot());
-				}
-			}
-		}
-	}
-	
-	public void transferItemsToOwner()
-	{
-		for (L2ItemInstance item : _items)
-		{
-			getOwner().transferItem("return", item.getObjectId(), item.getCount(), getOwner().getOwner().getInventory(), getOwner().getOwner(), getOwner());
-		}
+		super.refreshWeight();
+		getOwner().updateAndBroadcastStatus(1);
 	}
 }

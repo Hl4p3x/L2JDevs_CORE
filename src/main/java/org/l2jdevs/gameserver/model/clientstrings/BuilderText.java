@@ -31,18 +31,6 @@ final class BuilderText extends Builder
 	}
 	
 	@Override
-	public final String toString(final Object param)
-	{
-		return toString();
-	}
-	
-	@Override
-	public final String toString(final Object... params)
-	{
-		return toString();
-	}
-	
-	@Override
 	public final int getIndex()
 	{
 		return -1;
@@ -52,5 +40,17 @@ final class BuilderText extends Builder
 	public final String toString()
 	{
 		return _text;
+	}
+	
+	@Override
+	public final String toString(final Object param)
+	{
+		return toString();
+	}
+	
+	@Override
+	public final String toString(final Object... params)
+	{
+		return toString();
 	}
 }

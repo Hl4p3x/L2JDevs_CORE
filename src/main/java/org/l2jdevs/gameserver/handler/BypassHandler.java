@@ -33,6 +33,21 @@ public class BypassHandler implements IHandler<IBypassHandler, String>
 		_datatable = new HashMap<>();
 	}
 	
+	public static BypassHandler getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	@Override
+	public IBypassHandler getHandler(String command)
+	{
+		if (command.contains(" "))
+		{
+			command = command.substring(0, command.indexOf(" "));
+		}
+		return _datatable.get(command.toLowerCase());
+	}
+	
 	@Override
 	public void registerHandler(IBypassHandler handler)
 	{
@@ -52,24 +67,9 @@ public class BypassHandler implements IHandler<IBypassHandler, String>
 	}
 	
 	@Override
-	public IBypassHandler getHandler(String command)
-	{
-		if (command.contains(" "))
-		{
-			command = command.substring(0, command.indexOf(" "));
-		}
-		return _datatable.get(command.toLowerCase());
-	}
-	
-	@Override
 	public int size()
 	{
 		return _datatable.size();
-	}
-	
-	public static BypassHandler getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

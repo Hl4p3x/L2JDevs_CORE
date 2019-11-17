@@ -42,6 +42,12 @@ public final class RequestJoinParty extends L2GameClientPacket
 	private int _partyDistributionTypeId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__42_REQUESTJOINPARTY;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -241,11 +247,5 @@ public final class RequestJoinParty extends L2GameClientPacket
 				_log.warning(requestor.getName() + " already received a party invitation");
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__42_REQUESTJOINPARTY;
 	}
 }

@@ -29,6 +29,12 @@ public final class ObserverReturn extends L2GameClientPacket
 	private static final String __C__C1_OBSERVERRETURN = "[C] C1 ObserverReturn";
 	
 	@Override
+	public String getType()
+	{
+		return __C__C1_OBSERVERRETURN;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 	}
@@ -46,11 +52,5 @@ public final class ObserverReturn extends L2GameClientPacket
 			activeChar.leaveObserverMode();
 			// activeChar.teleToLocation(activeChar.getObsX(), activeChar.getObsY(), activeChar.getObsZ());
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return __C__C1_OBSERVERRETURN;
 	}
 }

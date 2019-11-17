@@ -116,394 +116,9 @@ public class AugmentationData
 		}
 	}
 	
-	public class AugmentationChance
+	public static final AugmentationData getInstance()
 	{
-		private final String _WeaponType;
-		private final int _StoneId;
-		private final int _VariationId;
-		private final int _CategoryChance;
-		private final int _AugmentId;
-		private final float _AugmentChance;
-		
-		public AugmentationChance(String WeaponType, int StoneId, int VariationId, int CategoryChance, int AugmentId, float AugmentChance)
-		{
-			_WeaponType = WeaponType;
-			_StoneId = StoneId;
-			_VariationId = VariationId;
-			_CategoryChance = CategoryChance;
-			_AugmentId = AugmentId;
-			_AugmentChance = AugmentChance;
-		}
-		
-		public String getWeaponType()
-		{
-			return _WeaponType;
-		}
-		
-		public int getStoneId()
-		{
-			return _StoneId;
-		}
-		
-		public int getVariationId()
-		{
-			return _VariationId;
-		}
-		
-		public int getCategoryChance()
-		{
-			return _CategoryChance;
-		}
-		
-		public int getAugmentId()
-		{
-			return _AugmentId;
-		}
-		
-		public float getAugmentChance()
-		{
-			return _AugmentChance;
-		}
-	}
-	
-	public class augmentationChanceAcc
-	{
-		private final String _WeaponType;
-		private final int _StoneId;
-		private final int _VariationId;
-		private final int _CategoryChance;
-		private final int _AugmentId;
-		private final float _AugmentChance;
-		
-		public augmentationChanceAcc(String WeaponType, int StoneId, int VariationId, int CategoryChance, int AugmentId, float AugmentChance)
-		{
-			_WeaponType = WeaponType;
-			_StoneId = StoneId;
-			_VariationId = VariationId;
-			_CategoryChance = CategoryChance;
-			_AugmentId = AugmentId;
-			_AugmentChance = AugmentChance;
-		}
-		
-		public String getWeaponType()
-		{
-			return _WeaponType;
-		}
-		
-		public int getStoneId()
-		{
-			return _StoneId;
-		}
-		
-		public int getVariationId()
-		{
-			return _VariationId;
-		}
-		
-		public int getCategoryChance()
-		{
-			return _CategoryChance;
-		}
-		
-		public int getAugmentId()
-		{
-			return _AugmentId;
-		}
-		
-		public float getAugmentChance()
-		{
-			return _AugmentChance;
-		}
-	}
-	
-	private final void load()
-	{
-		// Load stats
-		DocumentBuilderFactory factory2 = DocumentBuilderFactory.newInstance();
-		factory2.setValidating(false);
-		factory2.setIgnoringComments(true);
-		
-		// Load the skillmap
-		// Note: the skillmap data is only used when generating new augmentations
-		// the client expects a different id in order to display the skill in the
-		// items description...
-		if (!Config.RETAIL_LIKE_AUGMENTATION)
-		{
-			try
-			{
-				int badAugmantData = 0;
-				DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-				factory.setValidating(false);
-				factory.setIgnoringComments(true);
-				
-				File file = new File(Config.DATAPACK_ROOT + "/data/stats/augmentation/augmentation_skillmap.xml");
-				if (!file.exists())
-				{
-					LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": ERROR The augmentation skillmap file is missing.");
-					return;
-				}
-				
-				Document doc = factory.newDocumentBuilder().parse(file);
-				
-				for (Node n = doc.getFirstChild(); n != null; n = n.getNextSibling())
-				{
-					if ("list".equalsIgnoreCase(n.getNodeName()))
-					{
-						for (Node d = n.getFirstChild(); d != null; d = d.getNextSibling())
-						{
-							if ("augmentation".equalsIgnoreCase(d.getNodeName()))
-							{
-								NamedNodeMap attrs = d.getAttributes();
-								int skillId = 0, augmentationId = Integer.parseInt(attrs.getNamedItem("id").getNodeValue());
-								int skillLvL = 0;
-								String type = "blue";
-								
-								for (Node cd = d.getFirstChild(); cd != null; cd = cd.getNextSibling())
-								{
-									if ("skillId".equalsIgnoreCase(cd.getNodeName()))
-									{
-										attrs = cd.getAttributes();
-										skillId = Integer.parseInt(attrs.getNamedItem("val").getNodeValue());
-									}
-									else if ("skillLevel".equalsIgnoreCase(cd.getNodeName()))
-									{
-										attrs = cd.getAttributes();
-										skillLvL = Integer.parseInt(attrs.getNamedItem("val").getNodeValue());
-									}
-									else if ("type".equalsIgnoreCase(cd.getNodeName()))
-									{
-										attrs = cd.getAttributes();
-										type = attrs.getNamedItem("val").getNodeValue();
-									}
-								}
-								if (skillId == 0)
-								{
-									badAugmantData++;
-									continue;
-								}
-								else if (skillLvL == 0)
-								{
-									badAugmantData++;
-									continue;
-								}
-								int k = (augmentationId - BLUE_START) / SKILLS_BLOCKSIZE;
-								
-								if (type.equalsIgnoreCase("blue"))
-								{
-									_blueSkills.get(k).add(augmentationId);
-								}
-								else if (type.equalsIgnoreCase("purple"))
-								{
-									_purpleSkills.get(k).add(augmentationId);
-								}
-								else
-								{
-									_redSkills.get(k).add(augmentationId);
-								}
-								
-								_allSkills.put(augmentationId, new SkillHolder(skillId, skillLvL));
-							}
-						}
-					}
-				}
-				if (badAugmantData != 0)
-				{
-					LOGGER.info(getClass().getSimpleName() + ": " + badAugmantData + " bad skill(s) were skipped.");
-				}
-			}
-			catch (Exception e)
-			{
-				LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": ERROR parsing augmentation_skillmap.xml.", e);
-				return;
-			}
-		}
-		else
-		{
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			factory.setValidating(false);
-			factory.setIgnoringComments(true);
-			
-			File aFile = new File(Config.DATAPACK_ROOT + "/data/stats/augmentation/retailchances.xml");
-			if (aFile.exists())
-			{
-				Document aDoc = null;
-				
-				try
-				{
-					aDoc = factory.newDocumentBuilder().parse(aFile);
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-					return;
-				}
-				String aWeaponType = null;
-				int aStoneId = 0;
-				int aVariationId = 0;
-				int aCategoryChance = 0;
-				int aAugmentId = 0;
-				float aAugmentChance = 0;
-				
-				for (Node l = aDoc.getFirstChild(); l != null; l = l.getNextSibling())
-				{
-					if (l.getNodeName().equals("list"))
-					{
-						NamedNodeMap aNodeAttributes = null;
-						
-						for (Node n = l.getFirstChild(); n != null; n = n.getNextSibling())
-						{
-							if (n.getNodeName().equals("weapon"))
-							{
-								aNodeAttributes = n.getAttributes();
-								
-								aWeaponType = aNodeAttributes.getNamedItem("type").getNodeValue();
-								
-								for (Node c = n.getFirstChild(); c != null; c = c.getNextSibling())
-								{
-									if (c.getNodeName().equals("stone"))
-									{
-										aNodeAttributes = c.getAttributes();
-										
-										aStoneId = Integer.parseInt(aNodeAttributes.getNamedItem("id").getNodeValue());
-										
-										for (Node v = c.getFirstChild(); v != null; v = v.getNextSibling())
-										{
-											if (v.getNodeName().equals("variation"))
-											{
-												aNodeAttributes = v.getAttributes();
-												
-												aVariationId = Integer.parseInt(aNodeAttributes.getNamedItem("id").getNodeValue());
-												
-												for (Node j = v.getFirstChild(); j != null; j = j.getNextSibling())
-												{
-													if (j.getNodeName().equals("category"))
-													{
-														aNodeAttributes = j.getAttributes();
-														
-														aCategoryChance = Integer.parseInt(aNodeAttributes.getNamedItem("probability").getNodeValue());
-														
-														for (Node e = j.getFirstChild(); e != null; e = e.getNextSibling())
-														{
-															if (e.getNodeName().equals("augment"))
-															{
-																aNodeAttributes = e.getAttributes();
-																
-																aAugmentId = Integer.parseInt(aNodeAttributes.getNamedItem("id").getNodeValue());
-																aAugmentChance = Float.parseFloat(aNodeAttributes.getNamedItem("chance").getNodeValue());
-																
-																_augmentationChances.add(new AugmentationChance(aWeaponType, aStoneId, aVariationId, aCategoryChance, aAugmentId, aAugmentChance));
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-				LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": ERROR The retailchances.xml data file is missing.");
-				return;
-			}
-		}
-		if (Config.RETAIL_LIKE_AUGMENTATION_ACCESSORY)
-		{
-			DocumentBuilderFactory factory3 = DocumentBuilderFactory.newInstance();
-			factory3.setValidating(false);
-			factory3.setIgnoringComments(true);
-			
-			File aFile3 = new File(Config.DATAPACK_ROOT + "/data/stats/augmentation/retailchances_accessory.xml");
-			if (aFile3.exists())
-			{
-				Document aDoc = null;
-				
-				try
-				{
-					aDoc = factory3.newDocumentBuilder().parse(aFile3);
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-					return;
-				}
-				String aWeaponType = null;
-				int aStoneId = 0;
-				int aVariationId = 0;
-				int aCategoryChance = 0;
-				int aAugmentId = 0;
-				float aAugmentChance = 0;
-				
-				for (Node l = aDoc.getFirstChild(); l != null; l = l.getNextSibling())
-				{
-					if (l.getNodeName().equals("list"))
-					{
-						NamedNodeMap aNodeAttributes = null;
-						for (Node n = l.getFirstChild(); n != null; n = n.getNextSibling())
-						{
-							if (n.getNodeName().equals("weapon"))
-							{
-								aNodeAttributes = n.getAttributes();
-								
-								aWeaponType = aNodeAttributes.getNamedItem("type").getNodeValue();
-								
-								for (Node c = n.getFirstChild(); c != null; c = c.getNextSibling())
-								{
-									if (c.getNodeName().equals("stone"))
-									{
-										aNodeAttributes = c.getAttributes();
-										
-										aStoneId = Integer.parseInt(aNodeAttributes.getNamedItem("id").getNodeValue());
-										
-										for (Node v = c.getFirstChild(); v != null; v = v.getNextSibling())
-										{
-											if (v.getNodeName().equals("variation"))
-											{
-												aNodeAttributes = v.getAttributes();
-												
-												aVariationId = Integer.parseInt(aNodeAttributes.getNamedItem("id").getNodeValue());
-												
-												for (Node j = v.getFirstChild(); j != null; j = j.getNextSibling())
-												{
-													if (j.getNodeName().equals("category"))
-													{
-														aNodeAttributes = j.getAttributes();
-														
-														aCategoryChance = Integer.parseInt(aNodeAttributes.getNamedItem("probability").getNodeValue());
-														
-														for (Node e = j.getFirstChild(); e != null; e = e.getNextSibling())
-														{
-															if (e.getNodeName().equals("augment"))
-															{
-																aNodeAttributes = e.getAttributes();
-																
-																aAugmentId = Integer.parseInt(aNodeAttributes.getNamedItem("id").getNodeValue());
-																aAugmentChance = Float.parseFloat(aNodeAttributes.getNamedItem("chance").getNodeValue());
-																
-																_augmentationChancesAcc.add(new augmentationChanceAcc(aWeaponType, aStoneId, aVariationId, aCategoryChance, aAugmentId, aAugmentChance));
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-				LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": ERROR The retailchances_accessory.xml data file is missing.");
-				return;
-			}
-		}
+		return SingletonHolder._instance;
 	}
 	
 	/**
@@ -526,6 +141,130 @@ public class AugmentationData
 			default:
 				return generateRandomWeaponAugmentation(lifeStoneLevel, lifeStoneGrade, lifeStoneId, targetItem);
 		}
+	}
+	
+	private L2Augmentation generateRandomAccessoryAugmentation(int lifeStoneLevel, int bodyPart, int lifeStoneId)
+	{
+		int stat12 = 0;
+		int stat34 = 0;
+		if (Config.RETAIL_LIKE_AUGMENTATION_ACCESSORY)
+		{
+			List<augmentationChanceAcc> _selectedChances12 = new ArrayList<>();
+			List<augmentationChanceAcc> _selectedChances34 = new ArrayList<>();
+			for (augmentationChanceAcc ac : _augmentationChancesAcc)
+			{
+				if (ac.getWeaponType().equals("warrior") && (ac.getStoneId() == lifeStoneId))
+				{
+					if (ac.getVariationId() == 1)
+					{
+						_selectedChances12.add(ac);
+					}
+					else
+					{
+						_selectedChances34.add(ac);
+					}
+				}
+			}
+			int r = Rnd.get(10000);
+			float s = 10000;
+			for (augmentationChanceAcc ac : _selectedChances12)
+			{
+				if (s > r)
+				{
+					s -= (ac.getAugmentChance() * 100);
+					stat12 = ac.getAugmentId();
+				}
+			}
+			int c = Rnd.get(100);
+			if (c < 55)
+			{
+				c = 55;
+			}
+			else if (c < 90)
+			{
+				c = 35;
+			}
+			else if (c < 99)
+			{
+				c = 9;
+			}
+			else
+			{
+				c = 1;
+			}
+			List<augmentationChanceAcc> _selectedChances34final = new ArrayList<>();
+			for (augmentationChanceAcc ac : _selectedChances34)
+			{
+				if (ac.getCategoryChance() == c)
+				{
+					_selectedChances34final.add(ac);
+				}
+			}
+			r = Rnd.get(10000);
+			s = 10000;
+			for (augmentationChanceAcc ac : _selectedChances34final)
+			{
+				if (s > r)
+				{
+					s -= (ac.getAugmentChance() * 100);
+					stat34 = ac.getAugmentId();
+				}
+			}
+			
+			return new L2Augmentation(((stat34 << 16) + stat12));
+		}
+		lifeStoneLevel = Math.min(lifeStoneLevel, 9);
+		int base = 0;
+		int skillsLength = 0;
+		
+		switch (bodyPart)
+		{
+			case L2Item.SLOT_LR_FINGER:
+				base = ACC_RING_START + (ACC_RING_BLOCKSIZE * lifeStoneLevel);
+				skillsLength = ACC_RING_SKILLS;
+				break;
+			case L2Item.SLOT_LR_EAR:
+				base = ACC_EAR_START + (ACC_EAR_BLOCKSIZE * lifeStoneLevel);
+				skillsLength = ACC_EAR_SKILLS;
+				break;
+			case L2Item.SLOT_NECK:
+				base = ACC_NECK_START + (ACC_NECK_BLOCKSIZE * lifeStoneLevel);
+				skillsLength = ACC_NECK_SKILLS;
+				break;
+			default:
+				return null;
+		}
+		
+		int resultColor = Rnd.get(0, 3);
+		
+		// first augmentation (stats only)
+		stat12 = Rnd.get(ACC_STAT_SUBBLOCKSIZE);
+		Options op = null;
+		if (Rnd.get(1, 100) <= Config.AUGMENTATION_ACC_SKILL_CHANCE)
+		{
+			// second augmentation (skill)
+			stat34 = base + Rnd.get(skillsLength);
+			op = OptionData.getInstance().getOptions(stat34);
+		}
+		
+		if ((op == null) || (!op.hasActiveSkill() && !op.hasPassiveSkill() && !op.hasActivationSkills()))
+		{
+			// second augmentation (stats)
+			// calculating any different from stat12 value inside sub-block
+			// starting from next and wrapping over using remainder
+			stat34 = (stat12 + 1 + Rnd.get(ACC_STAT_SUBBLOCKSIZE - 1)) % ACC_STAT_SUBBLOCKSIZE;
+			// this is a stats - skipping skills
+			stat34 = base + skillsLength + (ACC_STAT_SUBBLOCKSIZE * resultColor) + stat34;
+		}
+		
+		// stat12 has stats only
+		stat12 = base + skillsLength + (ACC_STAT_SUBBLOCKSIZE * resultColor) + stat12;
+		
+		if (Config.DEBUG)
+		{
+			LOGGER.info(getClass().getSimpleName() + ": Accessory augmentation success: stat12=" + stat12 + "; stat34=" + stat34 + "; level=" + lifeStoneLevel);
+		}
+		return new L2Augmentation(((stat34 << 16) + stat12));
 	}
 	
 	private L2Augmentation generateRandomWeaponAugmentation(int lifeStoneLevel, int lifeStoneGrade, int lifeStoneId, L2ItemInstance item)
@@ -872,133 +611,394 @@ public class AugmentationData
 		return new L2Augmentation(((stat34 << 16) + stat12));
 	}
 	
-	private L2Augmentation generateRandomAccessoryAugmentation(int lifeStoneLevel, int bodyPart, int lifeStoneId)
+	private final void load()
 	{
-		int stat12 = 0;
-		int stat34 = 0;
-		if (Config.RETAIL_LIKE_AUGMENTATION_ACCESSORY)
+		// Load stats
+		DocumentBuilderFactory factory2 = DocumentBuilderFactory.newInstance();
+		factory2.setValidating(false);
+		factory2.setIgnoringComments(true);
+		
+		// Load the skillmap
+		// Note: the skillmap data is only used when generating new augmentations
+		// the client expects a different id in order to display the skill in the
+		// items description...
+		if (!Config.RETAIL_LIKE_AUGMENTATION)
 		{
-			List<augmentationChanceAcc> _selectedChances12 = new ArrayList<>();
-			List<augmentationChanceAcc> _selectedChances34 = new ArrayList<>();
-			for (augmentationChanceAcc ac : _augmentationChancesAcc)
+			try
 			{
-				if (ac.getWeaponType().equals("warrior") && (ac.getStoneId() == lifeStoneId))
+				int badAugmantData = 0;
+				DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+				factory.setValidating(false);
+				factory.setIgnoringComments(true);
+				
+				File file = new File(Config.DATAPACK_ROOT + "/data/stats/augmentation/augmentation_skillmap.xml");
+				if (!file.exists())
 				{
-					if (ac.getVariationId() == 1)
+					LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": ERROR The augmentation skillmap file is missing.");
+					return;
+				}
+				
+				Document doc = factory.newDocumentBuilder().parse(file);
+				
+				for (Node n = doc.getFirstChild(); n != null; n = n.getNextSibling())
+				{
+					if ("list".equalsIgnoreCase(n.getNodeName()))
 					{
-						_selectedChances12.add(ac);
-					}
-					else
-					{
-						_selectedChances34.add(ac);
+						for (Node d = n.getFirstChild(); d != null; d = d.getNextSibling())
+						{
+							if ("augmentation".equalsIgnoreCase(d.getNodeName()))
+							{
+								NamedNodeMap attrs = d.getAttributes();
+								int skillId = 0, augmentationId = Integer.parseInt(attrs.getNamedItem("id").getNodeValue());
+								int skillLvL = 0;
+								String type = "blue";
+								
+								for (Node cd = d.getFirstChild(); cd != null; cd = cd.getNextSibling())
+								{
+									if ("skillId".equalsIgnoreCase(cd.getNodeName()))
+									{
+										attrs = cd.getAttributes();
+										skillId = Integer.parseInt(attrs.getNamedItem("val").getNodeValue());
+									}
+									else if ("skillLevel".equalsIgnoreCase(cd.getNodeName()))
+									{
+										attrs = cd.getAttributes();
+										skillLvL = Integer.parseInt(attrs.getNamedItem("val").getNodeValue());
+									}
+									else if ("type".equalsIgnoreCase(cd.getNodeName()))
+									{
+										attrs = cd.getAttributes();
+										type = attrs.getNamedItem("val").getNodeValue();
+									}
+								}
+								if (skillId == 0)
+								{
+									badAugmantData++;
+									continue;
+								}
+								else if (skillLvL == 0)
+								{
+									badAugmantData++;
+									continue;
+								}
+								int k = (augmentationId - BLUE_START) / SKILLS_BLOCKSIZE;
+								
+								if (type.equalsIgnoreCase("blue"))
+								{
+									_blueSkills.get(k).add(augmentationId);
+								}
+								else if (type.equalsIgnoreCase("purple"))
+								{
+									_purpleSkills.get(k).add(augmentationId);
+								}
+								else
+								{
+									_redSkills.get(k).add(augmentationId);
+								}
+								
+								_allSkills.put(augmentationId, new SkillHolder(skillId, skillLvL));
+							}
+						}
 					}
 				}
-			}
-			int r = Rnd.get(10000);
-			float s = 10000;
-			for (augmentationChanceAcc ac : _selectedChances12)
-			{
-				if (s > r)
+				if (badAugmantData != 0)
 				{
-					s -= (ac.getAugmentChance() * 100);
-					stat12 = ac.getAugmentId();
+					LOGGER.info(getClass().getSimpleName() + ": " + badAugmantData + " bad skill(s) were skipped.");
 				}
 			}
-			int c = Rnd.get(100);
-			if (c < 55)
+			catch (Exception e)
 			{
-				c = 55;
+				LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": ERROR parsing augmentation_skillmap.xml.", e);
+				return;
 			}
-			else if (c < 90)
+		}
+		else
+		{
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setValidating(false);
+			factory.setIgnoringComments(true);
+			
+			File aFile = new File(Config.DATAPACK_ROOT + "/data/stats/augmentation/retailchances.xml");
+			if (aFile.exists())
 			{
-				c = 35;
-			}
-			else if (c < 99)
-			{
-				c = 9;
+				Document aDoc = null;
+				
+				try
+				{
+					aDoc = factory.newDocumentBuilder().parse(aFile);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					return;
+				}
+				String aWeaponType = null;
+				int aStoneId = 0;
+				int aVariationId = 0;
+				int aCategoryChance = 0;
+				int aAugmentId = 0;
+				float aAugmentChance = 0;
+				
+				for (Node l = aDoc.getFirstChild(); l != null; l = l.getNextSibling())
+				{
+					if (l.getNodeName().equals("list"))
+					{
+						NamedNodeMap aNodeAttributes = null;
+						
+						for (Node n = l.getFirstChild(); n != null; n = n.getNextSibling())
+						{
+							if (n.getNodeName().equals("weapon"))
+							{
+								aNodeAttributes = n.getAttributes();
+								
+								aWeaponType = aNodeAttributes.getNamedItem("type").getNodeValue();
+								
+								for (Node c = n.getFirstChild(); c != null; c = c.getNextSibling())
+								{
+									if (c.getNodeName().equals("stone"))
+									{
+										aNodeAttributes = c.getAttributes();
+										
+										aStoneId = Integer.parseInt(aNodeAttributes.getNamedItem("id").getNodeValue());
+										
+										for (Node v = c.getFirstChild(); v != null; v = v.getNextSibling())
+										{
+											if (v.getNodeName().equals("variation"))
+											{
+												aNodeAttributes = v.getAttributes();
+												
+												aVariationId = Integer.parseInt(aNodeAttributes.getNamedItem("id").getNodeValue());
+												
+												for (Node j = v.getFirstChild(); j != null; j = j.getNextSibling())
+												{
+													if (j.getNodeName().equals("category"))
+													{
+														aNodeAttributes = j.getAttributes();
+														
+														aCategoryChance = Integer.parseInt(aNodeAttributes.getNamedItem("probability").getNodeValue());
+														
+														for (Node e = j.getFirstChild(); e != null; e = e.getNextSibling())
+														{
+															if (e.getNodeName().equals("augment"))
+															{
+																aNodeAttributes = e.getAttributes();
+																
+																aAugmentId = Integer.parseInt(aNodeAttributes.getNamedItem("id").getNodeValue());
+																aAugmentChance = Float.parseFloat(aNodeAttributes.getNamedItem("chance").getNodeValue());
+																
+																_augmentationChances.add(new AugmentationChance(aWeaponType, aStoneId, aVariationId, aCategoryChance, aAugmentId, aAugmentChance));
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 			else
 			{
-				c = 1;
+				LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": ERROR The retailchances.xml data file is missing.");
+				return;
 			}
-			List<augmentationChanceAcc> _selectedChances34final = new ArrayList<>();
-			for (augmentationChanceAcc ac : _selectedChances34)
-			{
-				if (ac.getCategoryChance() == c)
-				{
-					_selectedChances34final.add(ac);
-				}
-			}
-			r = Rnd.get(10000);
-			s = 10000;
-			for (augmentationChanceAcc ac : _selectedChances34final)
-			{
-				if (s > r)
-				{
-					s -= (ac.getAugmentChance() * 100);
-					stat34 = ac.getAugmentId();
-				}
-			}
+		}
+		if (Config.RETAIL_LIKE_AUGMENTATION_ACCESSORY)
+		{
+			DocumentBuilderFactory factory3 = DocumentBuilderFactory.newInstance();
+			factory3.setValidating(false);
+			factory3.setIgnoringComments(true);
 			
-			return new L2Augmentation(((stat34 << 16) + stat12));
+			File aFile3 = new File(Config.DATAPACK_ROOT + "/data/stats/augmentation/retailchances_accessory.xml");
+			if (aFile3.exists())
+			{
+				Document aDoc = null;
+				
+				try
+				{
+					aDoc = factory3.newDocumentBuilder().parse(aFile3);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					return;
+				}
+				String aWeaponType = null;
+				int aStoneId = 0;
+				int aVariationId = 0;
+				int aCategoryChance = 0;
+				int aAugmentId = 0;
+				float aAugmentChance = 0;
+				
+				for (Node l = aDoc.getFirstChild(); l != null; l = l.getNextSibling())
+				{
+					if (l.getNodeName().equals("list"))
+					{
+						NamedNodeMap aNodeAttributes = null;
+						for (Node n = l.getFirstChild(); n != null; n = n.getNextSibling())
+						{
+							if (n.getNodeName().equals("weapon"))
+							{
+								aNodeAttributes = n.getAttributes();
+								
+								aWeaponType = aNodeAttributes.getNamedItem("type").getNodeValue();
+								
+								for (Node c = n.getFirstChild(); c != null; c = c.getNextSibling())
+								{
+									if (c.getNodeName().equals("stone"))
+									{
+										aNodeAttributes = c.getAttributes();
+										
+										aStoneId = Integer.parseInt(aNodeAttributes.getNamedItem("id").getNodeValue());
+										
+										for (Node v = c.getFirstChild(); v != null; v = v.getNextSibling())
+										{
+											if (v.getNodeName().equals("variation"))
+											{
+												aNodeAttributes = v.getAttributes();
+												
+												aVariationId = Integer.parseInt(aNodeAttributes.getNamedItem("id").getNodeValue());
+												
+												for (Node j = v.getFirstChild(); j != null; j = j.getNextSibling())
+												{
+													if (j.getNodeName().equals("category"))
+													{
+														aNodeAttributes = j.getAttributes();
+														
+														aCategoryChance = Integer.parseInt(aNodeAttributes.getNamedItem("probability").getNodeValue());
+														
+														for (Node e = j.getFirstChild(); e != null; e = e.getNextSibling())
+														{
+															if (e.getNodeName().equals("augment"))
+															{
+																aNodeAttributes = e.getAttributes();
+																
+																aAugmentId = Integer.parseInt(aNodeAttributes.getNamedItem("id").getNodeValue());
+																aAugmentChance = Float.parseFloat(aNodeAttributes.getNamedItem("chance").getNodeValue());
+																
+																_augmentationChancesAcc.add(new augmentationChanceAcc(aWeaponType, aStoneId, aVariationId, aCategoryChance, aAugmentId, aAugmentChance));
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": ERROR The retailchances_accessory.xml data file is missing.");
+				return;
+			}
 		}
-		lifeStoneLevel = Math.min(lifeStoneLevel, 9);
-		int base = 0;
-		int skillsLength = 0;
-		
-		switch (bodyPart)
-		{
-			case L2Item.SLOT_LR_FINGER:
-				base = ACC_RING_START + (ACC_RING_BLOCKSIZE * lifeStoneLevel);
-				skillsLength = ACC_RING_SKILLS;
-				break;
-			case L2Item.SLOT_LR_EAR:
-				base = ACC_EAR_START + (ACC_EAR_BLOCKSIZE * lifeStoneLevel);
-				skillsLength = ACC_EAR_SKILLS;
-				break;
-			case L2Item.SLOT_NECK:
-				base = ACC_NECK_START + (ACC_NECK_BLOCKSIZE * lifeStoneLevel);
-				skillsLength = ACC_NECK_SKILLS;
-				break;
-			default:
-				return null;
-		}
-		
-		int resultColor = Rnd.get(0, 3);
-		
-		// first augmentation (stats only)
-		stat12 = Rnd.get(ACC_STAT_SUBBLOCKSIZE);
-		Options op = null;
-		if (Rnd.get(1, 100) <= Config.AUGMENTATION_ACC_SKILL_CHANCE)
-		{
-			// second augmentation (skill)
-			stat34 = base + Rnd.get(skillsLength);
-			op = OptionData.getInstance().getOptions(stat34);
-		}
-		
-		if ((op == null) || (!op.hasActiveSkill() && !op.hasPassiveSkill() && !op.hasActivationSkills()))
-		{
-			// second augmentation (stats)
-			// calculating any different from stat12 value inside sub-block
-			// starting from next and wrapping over using remainder
-			stat34 = (stat12 + 1 + Rnd.get(ACC_STAT_SUBBLOCKSIZE - 1)) % ACC_STAT_SUBBLOCKSIZE;
-			// this is a stats - skipping skills
-			stat34 = base + skillsLength + (ACC_STAT_SUBBLOCKSIZE * resultColor) + stat34;
-		}
-		
-		// stat12 has stats only
-		stat12 = base + skillsLength + (ACC_STAT_SUBBLOCKSIZE * resultColor) + stat12;
-		
-		if (Config.DEBUG)
-		{
-			LOGGER.info(getClass().getSimpleName() + ": Accessory augmentation success: stat12=" + stat12 + "; stat34=" + stat34 + "; level=" + lifeStoneLevel);
-		}
-		return new L2Augmentation(((stat34 << 16) + stat12));
 	}
 	
-	public static final AugmentationData getInstance()
+	public class AugmentationChance
 	{
-		return SingletonHolder._instance;
+		private final String _WeaponType;
+		private final int _StoneId;
+		private final int _VariationId;
+		private final int _CategoryChance;
+		private final int _AugmentId;
+		private final float _AugmentChance;
+		
+		public AugmentationChance(String WeaponType, int StoneId, int VariationId, int CategoryChance, int AugmentId, float AugmentChance)
+		{
+			_WeaponType = WeaponType;
+			_StoneId = StoneId;
+			_VariationId = VariationId;
+			_CategoryChance = CategoryChance;
+			_AugmentId = AugmentId;
+			_AugmentChance = AugmentChance;
+		}
+		
+		public float getAugmentChance()
+		{
+			return _AugmentChance;
+		}
+		
+		public int getAugmentId()
+		{
+			return _AugmentId;
+		}
+		
+		public int getCategoryChance()
+		{
+			return _CategoryChance;
+		}
+		
+		public int getStoneId()
+		{
+			return _StoneId;
+		}
+		
+		public int getVariationId()
+		{
+			return _VariationId;
+		}
+		
+		public String getWeaponType()
+		{
+			return _WeaponType;
+		}
+	}
+	
+	public class augmentationChanceAcc
+	{
+		private final String _WeaponType;
+		private final int _StoneId;
+		private final int _VariationId;
+		private final int _CategoryChance;
+		private final int _AugmentId;
+		private final float _AugmentChance;
+		
+		public augmentationChanceAcc(String WeaponType, int StoneId, int VariationId, int CategoryChance, int AugmentId, float AugmentChance)
+		{
+			_WeaponType = WeaponType;
+			_StoneId = StoneId;
+			_VariationId = VariationId;
+			_CategoryChance = CategoryChance;
+			_AugmentId = AugmentId;
+			_AugmentChance = AugmentChance;
+		}
+		
+		public float getAugmentChance()
+		{
+			return _AugmentChance;
+		}
+		
+		public int getAugmentId()
+		{
+			return _AugmentId;
+		}
+		
+		public int getCategoryChance()
+		{
+			return _CategoryChance;
+		}
+		
+		public int getStoneId()
+		{
+			return _StoneId;
+		}
+		
+		public int getVariationId()
+		{
+			return _VariationId;
+		}
+		
+		public String getWeaponType()
+		{
+			return _WeaponType;
+		}
 	}
 	
 	private static class SingletonHolder

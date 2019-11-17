@@ -28,28 +28,10 @@ import java.util.List;
  */
 public class NextAction
 {
-	public interface NextActionCallback
-	{
-		public void doWork();
-	}
-	
 	private List<CtrlEvent> _events;
+	
 	private List<CtrlIntention> _intentions;
 	private NextActionCallback _callback;
-	
-	/**
-	 * Main constructor.
-	 * @param events
-	 * @param intentions
-	 * @param callback
-	 */
-	public NextAction(List<CtrlEvent> events, List<CtrlIntention> intentions, NextActionCallback callback)
-	{
-		_events = events;
-		_intentions = intentions;
-		setCallback(callback);
-	}
-	
 	/**
 	 * Single constructor.
 	 * @param event
@@ -81,35 +63,16 @@ public class NextAction
 	}
 	
 	/**
-	 * Do action.
+	 * Main constructor.
+	 * @param events
+	 * @param intentions
+	 * @param callback
 	 */
-	public void doAction()
+	public NextAction(List<CtrlEvent> events, List<CtrlIntention> intentions, NextActionCallback callback)
 	{
-		if (_callback != null)
-		{
-			_callback.doWork();
-		}
-	}
-	
-	/**
-	 * @return the _event
-	 */
-	public List<CtrlEvent> getEvents()
-	{
-		// If null return empty list.
-		if (_events == null)
-		{
-			_events = new ArrayList<>();
-		}
-		return _events;
-	}
-	
-	/**
-	 * @param event the event to set.
-	 */
-	public void setEvents(ArrayList<CtrlEvent> event)
-	{
-		_events = event;
+		_events = events;
+		_intentions = intentions;
+		setCallback(callback);
 	}
 	
 	/**
@@ -129,55 +92,6 @@ public class NextAction
 	}
 	
 	/**
-	 * @param event
-	 */
-	public void removeEvent(CtrlEvent event)
-	{
-		if (_events == null)
-		{
-			return;
-		}
-		_events.remove(event);
-	}
-	
-	/**
-	 * @return the _callback
-	 */
-	public NextActionCallback getCallback()
-	{
-		return _callback;
-	}
-	
-	/**
-	 * @param callback the callback to set.
-	 */
-	public void setCallback(NextActionCallback callback)
-	{
-		_callback = callback;
-	}
-	
-	/**
-	 * @return the _intentions
-	 */
-	public List<CtrlIntention> getIntentions()
-	{
-		// If null return empty list.
-		if (_intentions == null)
-		{
-			_intentions = new ArrayList<>();
-		}
-		return _intentions;
-	}
-	
-	/**
-	 * @param intentions the intention to set.
-	 */
-	public void setIntentions(ArrayList<CtrlIntention> intentions)
-	{
-		_intentions = intentions;
-	}
-	
-	/**
 	 * @param intention
 	 */
 	public void addIntention(CtrlIntention intention)
@@ -194,6 +108,63 @@ public class NextAction
 	}
 	
 	/**
+	 * Do action.
+	 */
+	public void doAction()
+	{
+		if (_callback != null)
+		{
+			_callback.doWork();
+		}
+	}
+	
+	/**
+	 * @return the _callback
+	 */
+	public NextActionCallback getCallback()
+	{
+		return _callback;
+	}
+	
+	/**
+	 * @return the _event
+	 */
+	public List<CtrlEvent> getEvents()
+	{
+		// If null return empty list.
+		if (_events == null)
+		{
+			_events = new ArrayList<>();
+		}
+		return _events;
+	}
+	
+	/**
+	 * @return the _intentions
+	 */
+	public List<CtrlIntention> getIntentions()
+	{
+		// If null return empty list.
+		if (_intentions == null)
+		{
+			_intentions = new ArrayList<>();
+		}
+		return _intentions;
+	}
+	
+	/**
+	 * @param event
+	 */
+	public void removeEvent(CtrlEvent event)
+	{
+		if (_events == null)
+		{
+			return;
+		}
+		_events.remove(event);
+	}
+	
+	/**
 	 * @param intention
 	 */
 	public void removeIntention(CtrlIntention intention)
@@ -203,5 +174,34 @@ public class NextAction
 			return;
 		}
 		_intentions.remove(intention);
+	}
+	
+	/**
+	 * @param callback the callback to set.
+	 */
+	public void setCallback(NextActionCallback callback)
+	{
+		_callback = callback;
+	}
+	
+	/**
+	 * @param event the event to set.
+	 */
+	public void setEvents(ArrayList<CtrlEvent> event)
+	{
+		_events = event;
+	}
+	
+	/**
+	 * @param intentions the intention to set.
+	 */
+	public void setIntentions(ArrayList<CtrlIntention> intentions)
+	{
+		_intentions = intentions;
+	}
+	
+	public interface NextActionCallback
+	{
+		public void doWork();
 	}
 }

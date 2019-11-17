@@ -53,6 +53,12 @@ public final class RequestExEnchantSkillRouteChange extends L2GameClientPacket
 	private int _skillLvl;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_34_REQUESTEXENCHANTSKILLROUTECHANGE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_skillId = readD();
@@ -217,11 +223,5 @@ public final class RequestExEnchantSkillRouteChange extends L2GameClientPacket
 			SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.YOU_DONT_HAVE_ENOUGH_SP_TO_ENCHANT_THAT_SKILL);
 			player.sendPacket(sm);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_34_REQUESTEXENCHANTSKILLROUTECHANGE;
 	}
 }

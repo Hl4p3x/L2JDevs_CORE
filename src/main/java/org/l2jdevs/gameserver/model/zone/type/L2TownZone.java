@@ -38,6 +38,24 @@ public class L2TownZone extends L2ZoneType
 		_taxById = 0;
 	}
 	
+	/**
+	 * Returns this town zones castle id
+	 * @return
+	 */
+	public final int getTaxById()
+	{
+		return _taxById;
+	}
+	
+	/**
+	 * Returns this zones town id (if any)
+	 * @return
+	 */
+	public int getTownId()
+	{
+		return _townId;
+	}
+	
 	@Override
 	public void setParameter(String name, String value)
 	{
@@ -65,23 +83,5 @@ public class L2TownZone extends L2ZoneType
 	protected void onExit(L2Character character)
 	{
 		character.setInsideZone(ZoneId.TOWN, false);
-	}
-	
-	/**
-	 * Returns this zones town id (if any)
-	 * @return
-	 */
-	public int getTownId()
-	{
-		return _townId;
-	}
-	
-	/**
-	 * Returns this town zones castle id
-	 * @return
-	 */
-	public final int getTaxById()
-	{
-		return _taxById;
 	}
 }

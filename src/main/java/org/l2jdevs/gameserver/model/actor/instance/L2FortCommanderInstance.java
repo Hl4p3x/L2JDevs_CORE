@@ -54,77 +54,6 @@ public class L2FortCommanderInstance extends L2DefenderInstance
 		_canTalk = true;
 	}
 	
-	/**
-	 * Return True if a siege is in progress and the L2Character attacker isn't a Defender.
-	 * @param attacker The L2Character that the L2CommanderInstance try to attack
-	 */
-	@Override
-	public boolean isAutoAttackable(L2Character attacker)
-	{
-		if ((attacker == null) || !(attacker instanceof L2PcInstance))
-		{
-			return false;
-		}
-		
-		boolean isFort = ((getFort() != null) && (getFort().getResidenceId() > 0) && getFort().getSiege().isInProgress() && !getFort().getSiege().checkIsDefender(((L2PcInstance) attacker).getClan()));
-		
-		// Attackable during siege by all except defenders
-		return (isFort);
-	}
-	
-	@Override
-	public void addDamageHate(L2Character attacker, int damage, long aggro)
-	{
-		if (attacker == null)
-		{
-			return;
-		}
-		
-		if (!(attacker instanceof L2FortCommanderInstance))
-		{
-			super.addDamageHate(attacker, damage, aggro);
-		}
-	}
-	
-	@Override
-	public boolean doDie(L2Character killer)
-	{
-		if (!super.doDie(killer))
-		{
-			return false;
-		}
-		
-		if (getFort().getSiege().isInProgress())
-		{
-			getFort().getSiege().killedCommander(this);
-			
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * This method forces guard to return to home location previously set
-	 */
-	@Override
-	public void returnHome()
-	{
-		if (!isInsideRadius(getSpawn(), 200, false, false))
-		{
-			if (Config.DEBUG)
-			{
-				LOG.debug("{} moving home", getObjectId());
-			}
-			setisReturningToSpawnPoint(true);
-			clearAggroList();
-			
-			if (hasAI())
-			{
-				getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, getSpawn().getLocation());
-			}
-		}
-	}
-	
 	@Override
 	public final void addDamage(L2Character attacker, int damage, Skill skill)
 	{
@@ -171,17 +100,80 @@ public class L2FortCommanderInstance extends L2DefenderInstance
 		super.addDamage(attacker, damage, skill);
 	}
 	
-	private class ScheduleTalkTask implements Runnable
+	@Override
+	public void addDamageHate(L2Character attacker, int damage, long aggro)
 	{
-		
-		public ScheduleTalkTask()
+		if (attacker == null)
 		{
+			return;
 		}
 		
-		@Override
-		public void run()
+		if (!(attacker instanceof L2FortCommanderInstance))
 		{
-			setCanTalk(true);
+			super.addDamageHate(attacker, damage, aggro);
+		}
+	}
+	
+	@Override
+	public boolean doDie(L2Character killer)
+	{
+		if (!super.doDie(killer))
+		{
+			return false;
+		}
+		
+		if (getFort().getSiege().isInProgress())
+		{
+			getFort().getSiege().killedCommander(this);
+			
+		}
+		
+		return true;
+	}
+	
+	@Override
+	public boolean hasRandomAnimation()
+	{
+		return false;
+	}
+	
+	/**
+	 * Return True if a siege is in progress and the L2Character attacker isn't a Defender.
+	 * @param attacker The L2Character that the L2CommanderInstance try to attack
+	 */
+	@Override
+	public boolean isAutoAttackable(L2Character attacker)
+	{
+		if ((attacker == null) || !(attacker instanceof L2PcInstance))
+		{
+			return false;
+		}
+		
+		boolean isFort = ((getFort() != null) && (getFort().getResidenceId() > 0) && getFort().getSiege().isInProgress() && !getFort().getSiege().checkIsDefender(((L2PcInstance) attacker).getClan()));
+		
+		// Attackable during siege by all except defenders
+		return (isFort);
+	}
+	
+	/**
+	 * This method forces guard to return to home location previously set
+	 */
+	@Override
+	public void returnHome()
+	{
+		if (!isInsideRadius(getSpawn(), 200, false, false))
+		{
+			if (Config.DEBUG)
+			{
+				LOG.debug("{} moving home", getObjectId());
+			}
+			setisReturningToSpawnPoint(true);
+			clearAggroList();
+			
+			if (hasAI())
+			{
+				getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, getSpawn().getLocation());
+			}
 		}
 	}
 	
@@ -195,9 +187,17 @@ public class L2FortCommanderInstance extends L2DefenderInstance
 		return _canTalk;
 	}
 	
-	@Override
-	public boolean hasRandomAnimation()
+	private class ScheduleTalkTask implements Runnable
 	{
-		return false;
+		
+		public ScheduleTalkTask()
+		{
+		}
+		
+		@Override
+		public void run()
+		{
+			setCanTalk(true);
+		}
 	}
 }

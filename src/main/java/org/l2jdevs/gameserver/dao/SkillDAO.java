@@ -29,11 +29,9 @@ import org.l2jdevs.gameserver.model.skills.Skill;
  */
 public interface SkillDAO
 {
-	void insert(L2PcInstance player, int classIndex, Skill skill);
-	
-	void update(L2PcInstance player, int classIndex, Skill newSkill, Skill oldSkill);
-	
 	void delete(L2PcInstance player, Skill skill);
+	
+	void deleteAll(L2PcInstance player, int classIndex);
 	
 	/**
 	 * Adds or updates player's skills in the database.
@@ -43,11 +41,13 @@ public interface SkillDAO
 	 */
 	void insert(L2PcInstance player, int newClassIndex, List<Skill> newSkills);
 	
+	void insert(L2PcInstance player, int classIndex, Skill skill);
+	
 	/**
 	 * Retrieves all skills from the database.
 	 * @param player the player
 	 */
 	void load(L2PcInstance player);
 	
-	void deleteAll(L2PcInstance player, int classIndex);
+	void update(L2PcInstance player, int classIndex, Skill newSkill, Skill oldSkill);
 }

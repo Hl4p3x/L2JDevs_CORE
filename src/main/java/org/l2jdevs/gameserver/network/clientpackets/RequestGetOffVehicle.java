@@ -34,6 +34,12 @@ public final class RequestGetOffVehicle extends L2GameClientPacket
 	private int _boatId, _x, _y, _z;
 	
 	@Override
+	public String getType()
+	{
+		return _C__54_GETOFFVEHICLE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_boatId = readD();
@@ -64,11 +70,5 @@ public final class RequestGetOffVehicle extends L2GameClientPacket
 		activeChar.setXYZ(_x, _y, _z);
 		activeChar.setInsideZone(ZoneId.PEACE, false);
 		activeChar.revalidateZone(true);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__54_GETOFFVEHICLE;
 	}
 }

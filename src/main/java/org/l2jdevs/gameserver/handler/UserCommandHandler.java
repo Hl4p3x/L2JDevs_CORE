@@ -33,6 +33,17 @@ public class UserCommandHandler implements IHandler<IUserCommandHandler, Integer
 		_datatable = new HashMap<>();
 	}
 	
+	public static UserCommandHandler getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	@Override
+	public IUserCommandHandler getHandler(Integer userCommand)
+	{
+		return _datatable.get(userCommand);
+	}
+	
 	@Override
 	public void registerHandler(IUserCommandHandler handler)
 	{
@@ -54,20 +65,9 @@ public class UserCommandHandler implements IHandler<IUserCommandHandler, Integer
 	}
 	
 	@Override
-	public IUserCommandHandler getHandler(Integer userCommand)
-	{
-		return _datatable.get(userCommand);
-	}
-	
-	@Override
 	public int size()
 	{
 		return _datatable.size();
-	}
-	
-	public static UserCommandHandler getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

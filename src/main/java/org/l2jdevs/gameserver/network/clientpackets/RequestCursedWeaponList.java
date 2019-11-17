@@ -34,6 +34,12 @@ public class RequestCursedWeaponList extends L2GameClientPacket
 	private static final String _C__D0_2A_REQUESTCURSEDWEAPONLIST = "[C] D0:2A RequestCursedWeaponList";
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_2A_REQUESTCURSEDWEAPONLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// nothing to read it's just a trigger
@@ -56,12 +62,6 @@ public class RequestCursedWeaponList extends L2GameClientPacket
 		}
 		
 		activeChar.sendPacket(new ExCursedWeaponList(list));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_2A_REQUESTCURSEDWEAPONLIST;
 	}
 	
 	@Override

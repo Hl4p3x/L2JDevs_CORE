@@ -52,6 +52,12 @@ public final class RequestExEnchantSkillUntrain extends L2GameClientPacket
 	private int _skillLvl;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_33_REQUESTEXENCHANTSKILLUNTRAIN;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_skillId = readD();
@@ -193,11 +199,5 @@ public final class RequestExEnchantSkillUntrain extends L2GameClientPacket
 		player.sendPacket(new ExEnchantSkillInfo(_skillId, afterUntrainSkillLevel));
 		player.sendPacket(new ExEnchantSkillInfoDetail(2, _skillId, afterUntrainSkillLevel - 1, player));
 		player.updateShortCuts(_skillId, afterUntrainSkillLevel);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_33_REQUESTEXENCHANTSKILLUNTRAIN;
 	}
 }

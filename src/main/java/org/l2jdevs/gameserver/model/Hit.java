@@ -58,11 +58,6 @@ public class Hit
 		}
 	}
 	
-	public int getTargetId()
-	{
-		return _targetId;
-	}
-	
 	public int getDamage()
 	{
 		return _damage;
@@ -71,5 +66,10 @@ public class Hit
 	public int getFlags()
 	{
 		return _flags;
+	}
+	
+	public int getTargetId()
+	{
+		return _targetId;
 	}
 }

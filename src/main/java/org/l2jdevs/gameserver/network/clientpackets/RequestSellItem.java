@@ -52,34 +52,9 @@ public final class RequestSellItem extends L2GameClientPacket
 	private List<UniqueItemHolder> _items = null;
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		_listId = readD();
-		int size = readD();
-		if ((size <= 0) || (size > Config.MAX_ITEM_IN_PACKET) || ((size * BATCH_LENGTH) != _buf.remaining()))
-		{
-			return;
-		}
-		
-		_items = new ArrayList<>(size);
-		for (int i = 0; i < size; i++)
-		{
-			int objectId = readD();
-			int itemId = readD();
-			long count = readQ();
-			if ((objectId < 1) || (itemId < 1) || (count < 1))
-			{
-				_items = null;
-				return;
-			}
-			_items.add(new UniqueItemHolder(itemId, objectId, count));
-		}
-	}
-	
-	@Override
-	protected void runImpl()
-	{
-		processSell();
+		return _C__37_REQUESTSELLITEM;
 	}
 	
 	protected void processSell()
@@ -189,8 +164,33 @@ public final class RequestSellItem extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__37_REQUESTSELLITEM;
+		_listId = readD();
+		int size = readD();
+		if ((size <= 0) || (size > Config.MAX_ITEM_IN_PACKET) || ((size * BATCH_LENGTH) != _buf.remaining()))
+		{
+			return;
+		}
+		
+		_items = new ArrayList<>(size);
+		for (int i = 0; i < size; i++)
+		{
+			int objectId = readD();
+			int itemId = readD();
+			long count = readQ();
+			if ((objectId < 1) || (itemId < 1) || (count < 1))
+			{
+				_items = null;
+				return;
+			}
+			_items.add(new UniqueItemHolder(itemId, objectId, count));
+		}
+	}
+	
+	@Override
+	protected void runImpl()
+	{
+		processSell();
 	}
 }

@@ -49,13 +49,12 @@ public class TerritoryTable
 	}
 	
 	/**
-	 * Gets the random point.
-	 * @param terr the territory Id?
-	 * @return the random point
+	 * Gets the single instance of Territory.
+	 * @return single instance of Territory
 	 */
-	public Location getRandomPoint(int terr)
+	public static TerritoryTable getInstance()
 	{
-		return _territory.get(terr).getRandomPoint();
+		return SingletonHolder._instance;
 	}
 	
 	/**
@@ -66,6 +65,16 @@ public class TerritoryTable
 	public int getProcMax(int terr)
 	{
 		return _territory.get(terr).getProcMax();
+	}
+	
+	/**
+	 * Gets the random point.
+	 * @param terr the territory Id?
+	 * @return the random point
+	 */
+	public Location getRandomPoint(int terr)
+	{
+		return _territory.get(terr).getRandomPoint();
 	}
 	
 	/**
@@ -95,15 +104,6 @@ public class TerritoryTable
 		{
 			LOGGER.log(Level.SEVERE, "TerritoryTable: Failed to load territories from database!", e);
 		}
-	}
-	
-	/**
-	 * Gets the single instance of Territory.
-	 * @return single instance of Territory
-	 */
-	public static TerritoryTable getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

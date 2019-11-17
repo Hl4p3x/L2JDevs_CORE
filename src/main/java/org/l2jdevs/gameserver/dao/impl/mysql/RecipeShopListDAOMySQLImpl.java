@@ -43,29 +43,6 @@ public class RecipeShopListDAOMySQLImpl implements RecipeShopListDAO
 	private static final String SELECT = "SELECT * FROM character_recipeshoplist WHERE charId=? ORDER BY `index`";
 	
 	@Override
-	public void load(L2PcInstance player)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(SELECT))
-		{
-			player.getManufactureItems().clear();
-			
-			ps.setInt(1, player.getObjectId());
-			try (ResultSet rs = ps.executeQuery())
-			{
-				while (rs.next())
-				{
-					player.getManufactureItems().put(rs.getInt("recipeId"), new L2ManufactureItem(rs.getInt("recipeId"), rs.getLong("price")));
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			LOG.error("Could not restore recipe shop list data for {}, {}", player, e);
-		}
-	}
-	
-	@Override
 	public void delete(L2PcInstance player)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -105,6 +82,29 @@ public class RecipeShopListDAOMySQLImpl implements RecipeShopListDAO
 		catch (Exception e)
 		{
 			LOG.error("Could not store recipe shop for {}, {}", player, e);
+		}
+	}
+	
+	@Override
+	public void load(L2PcInstance player)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(SELECT))
+		{
+			player.getManufactureItems().clear();
+			
+			ps.setInt(1, player.getObjectId());
+			try (ResultSet rs = ps.executeQuery())
+			{
+				while (rs.next())
+				{
+					player.getManufactureItems().put(rs.getInt("recipeId"), new L2ManufactureItem(rs.getInt("recipeId"), rs.getLong("price")));
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			LOG.error("Could not restore recipe shop list data for {}, {}", player, e);
 		}
 	}
 }

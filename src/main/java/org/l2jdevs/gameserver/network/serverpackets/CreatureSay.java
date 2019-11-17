@@ -35,6 +35,30 @@ public final class CreatureSay extends L2GameServerPacket
 	private int _npcString = -1;
 	private List<String> _parameters;
 	
+	public CreatureSay(int objectId, int messageType, int charId, NpcStringId npcString)
+	{
+		_objectId = objectId;
+		_textType = messageType;
+		_charId = charId;
+		_npcString = npcString.getId();
+	}
+	
+	public CreatureSay(int objectId, int messageType, int charId, SystemMessageId sysString)
+	{
+		_objectId = objectId;
+		_textType = messageType;
+		_charId = charId;
+		_npcString = sysString.getId();
+	}
+	
+	public CreatureSay(int objectId, int messageType, String charName, NpcStringId npcString)
+	{
+		_objectId = objectId;
+		_textType = messageType;
+		_charName = charName;
+		_npcString = npcString.getId();
+	}
+	
 	/**
 	 * @param objectId
 	 * @param messageType
@@ -49,30 +73,6 @@ public final class CreatureSay extends L2GameServerPacket
 		_text = text;
 	}
 	
-	public CreatureSay(int objectId, int messageType, int charId, NpcStringId npcString)
-	{
-		_objectId = objectId;
-		_textType = messageType;
-		_charId = charId;
-		_npcString = npcString.getId();
-	}
-	
-	public CreatureSay(int objectId, int messageType, String charName, NpcStringId npcString)
-	{
-		_objectId = objectId;
-		_textType = messageType;
-		_charName = charName;
-		_npcString = npcString.getId();
-	}
-	
-	public CreatureSay(int objectId, int messageType, int charId, SystemMessageId sysString)
-	{
-		_objectId = objectId;
-		_textType = messageType;
-		_charId = charId;
-		_npcString = sysString.getId();
-	}
-	
 	/**
 	 * String parameter for argument S1,S2,.. in npcstring-e.dat
 	 * @param text
@@ -84,6 +84,16 @@ public final class CreatureSay extends L2GameServerPacket
 			_parameters = new ArrayList<>();
 		}
 		_parameters.add(text);
+	}
+	
+	@Override
+	public final void runImpl()
+	{
+		L2PcInstance _pci = getClient().getActiveChar();
+		if (_pci != null)
+		{
+			_pci.broadcastSnoop(_textType, _charName, _text);
+		}
 	}
 	
 	@Override
@@ -111,16 +121,6 @@ public final class CreatureSay extends L2GameServerPacket
 			{
 				writeS(s);
 			}
-		}
-	}
-	
-	@Override
-	public final void runImpl()
-	{
-		L2PcInstance _pci = getClient().getActiveChar();
-		if (_pci != null)
-		{
-			_pci.broadcastSnoop(_textType, _charName, _text);
 		}
 	}
 }

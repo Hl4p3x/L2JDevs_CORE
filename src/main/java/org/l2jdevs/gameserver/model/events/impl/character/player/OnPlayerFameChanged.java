@@ -43,14 +43,14 @@ public class OnPlayerFameChanged implements IBaseEvent
 		return _activeChar;
 	}
 	
-	public int getOldFame()
-	{
-		return _oldFame;
-	}
-	
 	public int getNewFame()
 	{
 		return _newFame;
+	}
+	
+	public int getOldFame()
+	{
+		return _oldFame;
 	}
 	
 	@Override

@@ -42,15 +42,15 @@ public class OnCreatureZoneEnter implements IBaseEvent
 		return _creature;
 	}
 	
-	public L2ZoneType getZone()
-	{
-		return _zone;
-	}
-	
 	@Override
 	public EventType getType()
 	{
 		return EventType.ON_CREATURE_ZONE_ENTER;
+	}
+	
+	public L2ZoneType getZone()
+	{
+		return _zone;
 	}
 	
 }

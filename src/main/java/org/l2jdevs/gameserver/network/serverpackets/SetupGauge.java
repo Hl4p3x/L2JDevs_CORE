@@ -44,6 +44,12 @@ public final class SetupGauge extends L2GameServerPacket
 	}
 	
 	@Override
+	public void runImpl()
+	{
+		_charObjId = getClient().getActiveChar().getObjectId();
+	}
+	
+	@Override
 	protected final void writeImpl()
 	{
 		writeC(0x6b);
@@ -51,11 +57,5 @@ public final class SetupGauge extends L2GameServerPacket
 		writeD(_dat1);
 		writeD(_time);
 		writeD(_time2);
-	}
-	
-	@Override
-	public void runImpl()
-	{
-		_charObjId = getClient().getActiveChar().getObjectId();
 	}
 }

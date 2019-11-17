@@ -31,14 +31,14 @@ public class FuncPAtkSpeed extends AbstractFunction
 {
 	private static final FuncPAtkSpeed _fas_instance = new FuncPAtkSpeed();
 	
-	public static AbstractFunction getInstance()
-	{
-		return _fas_instance;
-	}
-	
 	private FuncPAtkSpeed()
 	{
 		super(Stats.POWER_ATTACK_SPEED, 1, null, 0, null);
+	}
+	
+	public static AbstractFunction getInstance()
+	{
+		return _fas_instance;
 	}
 	
 	@Override

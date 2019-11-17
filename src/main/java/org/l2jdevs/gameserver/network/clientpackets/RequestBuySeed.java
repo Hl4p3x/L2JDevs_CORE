@@ -51,6 +51,12 @@ public class RequestBuySeed extends L2GameClientPacket
 	private List<ItemHolder> _items = null;
 	
 	@Override
+	public String getType()
+	{
+		return "[C] C5 RequestBuySeed";
+	}
+	
+	@Override
 	protected final void readImpl()
 	{
 		_manorId = readD();
@@ -201,11 +207,5 @@ public class RequestBuySeed extends L2GameClientPacket
 				manor.updateCurrentProduction(_manorId, _productInfo.values());
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return "[C] C5 RequestBuySeed";
 	}
 }

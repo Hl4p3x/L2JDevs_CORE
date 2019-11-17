@@ -28,6 +28,12 @@ public final class RequestPCCafeCouponUse extends L2GameClientPacket
 	private String _str;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_19_REQUESTPCCAFECOUPONUSE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_str = readS();
@@ -37,11 +43,5 @@ public final class RequestPCCafeCouponUse extends L2GameClientPacket
 	protected void runImpl()
 	{
 		_log.info("C5: RequestPCCafeCouponUse: S: " + _str);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_19_REQUESTPCCAFECOUPONUSE;
 	}
 }

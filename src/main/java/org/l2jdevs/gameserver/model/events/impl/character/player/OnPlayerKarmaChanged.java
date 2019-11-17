@@ -43,14 +43,14 @@ public class OnPlayerKarmaChanged implements IBaseEvent
 		return _activeChar;
 	}
 	
-	public int getOldKarma()
-	{
-		return _oldKarma;
-	}
-	
 	public int getNewKarma()
 	{
 		return _newKarma;
+	}
+	
+	public int getOldKarma()
+	{
+		return _oldKarma;
 	}
 	
 	@Override

@@ -39,15 +39,15 @@ public class FaenorInterface implements EngineInterface
 		return SingletonHolder._instance;
 	}
 	
-	public List<?> getAllPlayers()
-	{
-		return null;
-	}
-	
 	@Override
 	public void addEventDrop(int[] items, int[] count, double chance, DateRange range)
 	{
 		EventDroplist.getInstance().addGlobalDrop(items, count, (int) (chance * 1000000), range);
+	}
+	
+	public List<?> getAllPlayers()
+	{
+		return null;
 	}
 	
 	@Override

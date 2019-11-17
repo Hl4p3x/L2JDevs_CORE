@@ -28,18 +28,18 @@ public class GMViewWarehouseWithdrawList extends AbstractItemPacket
 	private final String _playerName;
 	private final long _money;
 	
-	public GMViewWarehouseWithdrawList(L2PcInstance cha)
-	{
-		_items = cha.getWarehouse().getItems();
-		_playerName = cha.getName();
-		_money = cha.getWarehouse().getAdena();
-	}
-	
 	public GMViewWarehouseWithdrawList(L2Clan clan)
 	{
 		_playerName = clan.getLeaderName();
 		_items = clan.getWarehouse().getItems();
 		_money = clan.getWarehouse().getAdena();
+	}
+	
+	public GMViewWarehouseWithdrawList(L2PcInstance cha)
+	{
+		_items = cha.getWarehouse().getItems();
+		_playerName = cha.getName();
+		_money = cha.getWarehouse().getAdena();
 	}
 	
 	@Override

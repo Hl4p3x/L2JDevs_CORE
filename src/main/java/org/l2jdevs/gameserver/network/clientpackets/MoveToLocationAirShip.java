@@ -40,6 +40,12 @@ public class MoveToLocationAirShip extends L2GameClientPacket
 	private int _param2 = 0;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_38_MOVETOLOCATIONAIRSHIP;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_command = readD();
@@ -140,11 +146,5 @@ public class MoveToLocationAirShip extends L2GameClientPacket
 				ship.executePath(dst);
 				break;
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_38_MOVETOLOCATIONAIRSHIP;
 	}
 }

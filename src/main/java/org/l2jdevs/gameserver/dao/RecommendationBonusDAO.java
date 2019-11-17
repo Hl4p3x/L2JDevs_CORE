@@ -26,7 +26,7 @@ import org.l2jdevs.gameserver.model.actor.instance.L2PcInstance;
  */
 public interface RecommendationBonusDAO
 {
-	long load(L2PcInstance player);
-	
 	void insert(L2PcInstance player, long recoTaskEnd);
+	
+	long load(L2PcInstance player);
 }

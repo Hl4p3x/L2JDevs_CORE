@@ -36,6 +36,12 @@ public final class SetPrivateStoreMsgBuy extends L2GameClientPacket
 	private String _storeMsg;
 	
 	@Override
+	public String getType()
+	{
+		return _C__9D_SETPRIVATESTOREMSGBUY;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_storeMsg = readS();
@@ -58,11 +64,5 @@ public final class SetPrivateStoreMsgBuy extends L2GameClientPacket
 		
 		player.getBuyList().setTitle(_storeMsg);
 		player.sendPacket(new PrivateStoreMsgBuy(player));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__9D_SETPRIVATESTOREMSGBUY;
 	}
 }

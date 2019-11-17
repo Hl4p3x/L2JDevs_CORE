@@ -40,6 +40,30 @@ public class ItemHandler implements IHandler<IItemHandler, L2EtcItem>
 	}
 	
 	/**
+	 * Create ItemHandler if doesn't exist and returns ItemHandler
+	 * @return ItemHandler
+	 */
+	public static ItemHandler getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Returns the handler of the item
+	 * @param item
+	 * @return IItemHandler
+	 */
+	@Override
+	public IItemHandler getHandler(L2EtcItem item)
+	{
+		if ((item == null) || (item.getHandlerName() == null))
+		{
+			return null;
+		}
+		return _datatable.get(item.getHandlerName());
+	}
+	
+	/**
 	 * Adds handler of item type in <I>datatable</I>.<BR>
 	 * <BR>
 	 * <B><I>Concept :</I></U><BR>
@@ -59,21 +83,6 @@ public class ItemHandler implements IHandler<IItemHandler, L2EtcItem>
 	}
 	
 	/**
-	 * Returns the handler of the item
-	 * @param item
-	 * @return IItemHandler
-	 */
-	@Override
-	public IItemHandler getHandler(L2EtcItem item)
-	{
-		if ((item == null) || (item.getHandlerName() == null))
-		{
-			return null;
-		}
-		return _datatable.get(item.getHandlerName());
-	}
-	
-	/**
 	 * Returns the number of elements contained in datatable
 	 * @return int : Size of the datatable
 	 */
@@ -81,15 +90,6 @@ public class ItemHandler implements IHandler<IItemHandler, L2EtcItem>
 	public int size()
 	{
 		return _datatable.size();
-	}
-	
-	/**
-	 * Create ItemHandler if doesn't exist and returns ItemHandler
-	 * @return ItemHandler
-	 */
-	public static ItemHandler getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

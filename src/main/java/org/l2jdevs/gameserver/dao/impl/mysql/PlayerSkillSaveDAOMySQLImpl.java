@@ -52,6 +52,12 @@ public class PlayerSkillSaveDAOMySQLImpl implements PlayerSkillSaveDAO
 	private static final String DELETE = "DELETE FROM character_skills_save WHERE charId=? AND class_index=?";
 	
 	@Override
+	public void delete(L2PcInstance player)
+	{
+		delete(player, player.getClassIndex());
+	}
+	
+	@Override
 	public void delete(L2PcInstance player, int classIndex)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -65,12 +71,6 @@ public class PlayerSkillSaveDAOMySQLImpl implements PlayerSkillSaveDAO
 		{
 			LOG.error("Could not delete all effect data!", player, e);
 		}
-	}
-	
-	@Override
-	public void delete(L2PcInstance player)
-	{
-		delete(player, player.getClassIndex());
 	}
 	
 	@Override

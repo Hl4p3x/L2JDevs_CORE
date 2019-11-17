@@ -34,6 +34,12 @@ public final class RequestSiegeDefenderList extends L2GameClientPacket
 	private int _castleId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__AC_REQUESTSIEGEDEFENDERLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_castleId = readD();
@@ -49,11 +55,5 @@ public final class RequestSiegeDefenderList extends L2GameClientPacket
 		}
 		SiegeDefenderList sdl = new SiegeDefenderList(castle);
 		sendPacket(sdl);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__AC_REQUESTSIEGEDEFENDERLIST;
 	}
 }

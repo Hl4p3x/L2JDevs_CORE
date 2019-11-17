@@ -60,6 +60,12 @@ public class PetStat extends SummonStat
 	}
 	
 	@Override
+	public L2PetInstance getActiveChar()
+	{
+		return (L2PetInstance) super.getActiveChar();
+	}
+	
+	@Override
 	public final long getExpForLevel(int level)
 	{
 		try
@@ -74,6 +80,91 @@ public class PetStat extends SummonStat
 			}
 			throw e;
 		}
+	}
+	
+	public final int getFeedBattle()
+	{
+		return getActiveChar().getPetLevelData().getPetFeedBattle();
+	}
+	
+	public final int getFeedNormal()
+	{
+		return getActiveChar().getPetLevelData().getPetFeedNormal();
+	}
+	
+	@Override
+	public double getMAtk(L2Character target, Skill skill)
+	{
+		return calcStat(Stats.MAGIC_ATTACK, getActiveChar().getPetLevelData().getPetMAtk(), target, skill);
+	}
+	
+	@Override
+	public int getMAtkSpd()
+	{
+		int val = super.getMAtkSpd();
+		if (getActiveChar().isHungry())
+		{
+			val = val / 2;
+		}
+		return val;
+	}
+	
+	@Override
+	public int getMaxExpLevel()
+	{
+		return Config.MAX_PET_LEVEL + 1;
+	}
+	
+	public final int getMaxFeed()
+	{
+		return getActiveChar().getPetLevelData().getPetMaxFeed();
+	}
+	
+	@Override
+	public int getMaxHp()
+	{
+		return (int) calcStat(Stats.MAX_HP, getActiveChar().getPetLevelData().getPetMaxHP(), null, null);
+	}
+	
+	@Override
+	public int getMaxLevel()
+	{
+		return Config.MAX_PET_LEVEL;
+	}
+	
+	@Override
+	public int getMaxMp()
+	{
+		return (int) calcStat(Stats.MAX_MP, getActiveChar().getPetLevelData().getPetMaxMP(), null, null);
+	}
+	
+	@Override
+	public double getMDef(L2Character target, Skill skill)
+	{
+		return calcStat(Stats.MAGIC_DEFENCE, getActiveChar().getPetLevelData().getPetMDef(), target, skill);
+	}
+	
+	@Override
+	public double getPAtk(L2Character target)
+	{
+		return calcStat(Stats.POWER_ATTACK, getActiveChar().getPetLevelData().getPetPAtk(), target, null);
+	}
+	
+	@Override
+	public double getPAtkSpd()
+	{
+		double val = super.getPAtkSpd();
+		if (getActiveChar().isHungry())
+		{
+			val = val / 2;
+		}
+		return val;
+	}
+	
+	@Override
+	public double getPDef(L2Character target)
+	{
+		return calcStat(Stats.POWER_DEFENCE, getActiveChar().getPetLevelData().getPetPDef(), target, null);
 	}
 	
 	@Override
@@ -93,96 +184,5 @@ public class PetStat extends SummonStat
 		{
 			getActiveChar().getControlItem().setEnchantLevel(getLevel());
 		}
-	}
-	
-	@Override
-	public int getMaxLevel()
-	{
-		return Config.MAX_PET_LEVEL;
-	}
-	
-	@Override
-	public int getMaxExpLevel()
-	{
-		return Config.MAX_PET_LEVEL + 1;
-	}
-	
-	@Override
-	public L2PetInstance getActiveChar()
-	{
-		return (L2PetInstance) super.getActiveChar();
-	}
-	
-	public final int getFeedBattle()
-	{
-		return getActiveChar().getPetLevelData().getPetFeedBattle();
-	}
-	
-	public final int getFeedNormal()
-	{
-		return getActiveChar().getPetLevelData().getPetFeedNormal();
-	}
-	
-	public final int getMaxFeed()
-	{
-		return getActiveChar().getPetLevelData().getPetMaxFeed();
-	}
-	
-	@Override
-	public int getMaxHp()
-	{
-		return (int) calcStat(Stats.MAX_HP, getActiveChar().getPetLevelData().getPetMaxHP(), null, null);
-	}
-	
-	@Override
-	public int getMaxMp()
-	{
-		return (int) calcStat(Stats.MAX_MP, getActiveChar().getPetLevelData().getPetMaxMP(), null, null);
-	}
-	
-	@Override
-	public double getMAtk(L2Character target, Skill skill)
-	{
-		return calcStat(Stats.MAGIC_ATTACK, getActiveChar().getPetLevelData().getPetMAtk(), target, skill);
-	}
-	
-	@Override
-	public double getMDef(L2Character target, Skill skill)
-	{
-		return calcStat(Stats.MAGIC_DEFENCE, getActiveChar().getPetLevelData().getPetMDef(), target, skill);
-	}
-	
-	@Override
-	public double getPAtk(L2Character target)
-	{
-		return calcStat(Stats.POWER_ATTACK, getActiveChar().getPetLevelData().getPetPAtk(), target, null);
-	}
-	
-	@Override
-	public double getPDef(L2Character target)
-	{
-		return calcStat(Stats.POWER_DEFENCE, getActiveChar().getPetLevelData().getPetPDef(), target, null);
-	}
-	
-	@Override
-	public double getPAtkSpd()
-	{
-		double val = super.getPAtkSpd();
-		if (getActiveChar().isHungry())
-		{
-			val = val / 2;
-		}
-		return val;
-	}
-	
-	@Override
-	public int getMAtkSpd()
-	{
-		int val = super.getMAtkSpd();
-		if (getActiveChar().isHungry())
-		{
-			val = val / 2;
-		}
-		return val;
 	}
 }

@@ -139,26 +139,6 @@ public final class FloodProtectorAction
 	}
 	
 	/**
-	 * Kick player from game (close network connection).
-	 */
-	private void kickPlayer()
-	{
-		if (_client.getActiveChar() != null)
-		{
-			_client.getActiveChar().logout(false);
-		}
-		else
-		{
-			_client.closeNow();
-		}
-		
-		if (_log.isLoggable(Level.WARNING))
-		{
-			log("kicked for flooding");
-		}
-	}
-	
-	/**
 	 * Bans char account and logs out the char.
 	 */
 	private void banAccount()
@@ -187,6 +167,26 @@ public final class FloodProtectorAction
 			{
 				log(" jailed for flooding ", _config.PUNISHMENT_TIME <= 0 ? "forever" : "for " + (_config.PUNISHMENT_TIME / 60000) + " mins");
 			}
+		}
+	}
+	
+	/**
+	 * Kick player from game (close network connection).
+	 */
+	private void kickPlayer()
+	{
+		if (_client.getActiveChar() != null)
+		{
+			_client.getActiveChar().logout(false);
+		}
+		else
+		{
+			_client.closeNow();
+		}
+		
+		if (_log.isLoggable(Level.WARNING))
+		{
+			log("kicked for flooding");
 		}
 	}
 	

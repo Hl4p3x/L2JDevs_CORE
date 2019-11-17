@@ -37,20 +37,20 @@ public class ItemHolder implements IIdentifiable
 	}
 	
 	/**
+	 * @return the count of items contained in this object
+	 */
+	public long getCount()
+	{
+		return _count;
+	}
+	
+	/**
 	 * @return the ID of the item contained in this object
 	 */
 	@Override
 	public int getId()
 	{
 		return _id;
-	}
-	
-	/**
-	 * @return the count of items contained in this object
-	 */
-	public long getCount()
-	{
-		return _count;
 	}
 	
 	@Override

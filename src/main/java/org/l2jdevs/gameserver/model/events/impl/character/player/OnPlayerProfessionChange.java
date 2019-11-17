@@ -49,14 +49,14 @@ public class OnPlayerProfessionChange implements IBaseEvent
 		return _template;
 	}
 	
-	public boolean isSubClass()
-	{
-		return _isSubClass;
-	}
-	
 	@Override
 	public EventType getType()
 	{
 		return EventType.ON_PLAYER_PROFESSION_CHANGE;
+	}
+	
+	public boolean isSubClass()
+	{
+		return _isSubClass;
 	}
 }

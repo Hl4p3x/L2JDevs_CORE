@@ -46,13 +46,14 @@ public enum CrystalType
 		_crystalEnchantBonusWeapon = crystalEnchantBonusWeapon;
 	}
 	
-	/**
-	 * Gets the crystal type ID.
-	 * @return the crystal type ID
-	 */
-	public int getId()
+	public int getCrystalEnchantBonusArmor()
 	{
-		return _id;
+		return _crystalEnchantBonusArmor;
+	}
+	
+	public int getCrystalEnchantBonusWeapon()
+	{
+		return _crystalEnchantBonusWeapon;
 	}
 	
 	/**
@@ -64,14 +65,13 @@ public enum CrystalType
 		return _crystalId;
 	}
 	
-	public int getCrystalEnchantBonusArmor()
+	/**
+	 * Gets the crystal type ID.
+	 * @return the crystal type ID
+	 */
+	public int getId()
 	{
-		return _crystalEnchantBonusArmor;
-	}
-	
-	public int getCrystalEnchantBonusWeapon()
-	{
-		return _crystalEnchantBonusWeapon;
+		return _id;
 	}
 	
 	public boolean isGreater(CrystalType crystalType)

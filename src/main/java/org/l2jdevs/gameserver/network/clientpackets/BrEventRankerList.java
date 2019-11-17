@@ -33,6 +33,12 @@ public class BrEventRankerList extends L2GameClientPacket
 	private int _ranking;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_7B_BREVENTRANKERLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_eventId = readD();
@@ -48,11 +54,5 @@ public class BrEventRankerList extends L2GameClientPacket
 		int bestScore = 0;
 		int myScore = 0;
 		getClient().sendPacket(new ExBrLoadEventTopRankers(_eventId, _day, count, bestScore, myScore));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_7B_BREVENTRANKERLIST;
 	}
 }

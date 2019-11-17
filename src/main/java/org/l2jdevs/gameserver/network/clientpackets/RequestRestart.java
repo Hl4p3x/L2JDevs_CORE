@@ -46,6 +46,12 @@ public final class RequestRestart extends L2GameClientPacket
 	protected static final Logger _logAccounting = Logger.getLogger("accounting");
 	
 	@Override
+	public String getType()
+	{
+		return _C__57_REQUESTRESTART;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -148,11 +154,5 @@ public final class RequestRestart extends L2GameClientPacket
 		final CharSelectionInfo cl = new CharSelectionInfo(client.getAccountName(), client.getSessionId().playOkID1);
 		sendPacket(cl);
 		client.setCharSelection(cl.getCharInfo());
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__57_REQUESTRESTART;
 	}
 }

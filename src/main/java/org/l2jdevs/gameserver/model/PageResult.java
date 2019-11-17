@@ -34,9 +34,9 @@ public class PageResult
 		_bodyTemplate = bodyTemplate;
 	}
 	
-	public int getPages()
+	public StringBuilder getBodyTemplate()
 	{
-		return _pages;
+		return _bodyTemplate;
 	}
 	
 	public StringBuilder getPagerTemplate()
@@ -44,8 +44,8 @@ public class PageResult
 		return _pagerTemplate;
 	}
 	
-	public StringBuilder getBodyTemplate()
+	public int getPages()
 	{
-		return _bodyTemplate;
+		return _pages;
 	}
 }

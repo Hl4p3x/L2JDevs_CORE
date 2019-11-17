@@ -60,27 +60,6 @@ public final class ClassInfo
 	}
 	
 	/**
-	 * @return the class client ID
-	 */
-	private int getClassClientId()
-	{
-		int classClientId = _classId.getId();
-		if ((classClientId >= 0) && (classClientId <= 57))
-		{
-			classClientId += 247;
-		}
-		else if ((classClientId >= 88) && (classClientId <= 118))
-		{
-			classClientId += 1071;
-		}
-		else if ((classClientId >= 123) && (classClientId <= 136))
-		{
-			classClientId += 1438;
-		}
-		return classClientId;
-	}
-	
-	/**
 	 * @return the class client ID formatted to be displayed on a HTML.
 	 */
 	public String getClientCode()
@@ -102,5 +81,26 @@ public final class ClassInfo
 	public ClassId getParentClassId()
 	{
 		return _parentClassId;
+	}
+	
+	/**
+	 * @return the class client ID
+	 */
+	private int getClassClientId()
+	{
+		int classClientId = _classId.getId();
+		if ((classClientId >= 0) && (classClientId <= 57))
+		{
+			classClientId += 247;
+		}
+		else if ((classClientId >= 88) && (classClientId <= 118))
+		{
+			classClientId += 1071;
+		}
+		else if ((classClientId >= 123) && (classClientId <= 136))
+		{
+			classClientId += 1438;
+		}
+		return classClientId;
 	}
 }

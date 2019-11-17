@@ -29,6 +29,12 @@ public class RequestTutorialClientEvent extends L2GameClientPacket
 	int eventId = 0;
 	
 	@Override
+	public String getType()
+	{
+		return _C__88_REQUESTTUTORIALCLIENTEVENT;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		eventId = readD();
@@ -43,11 +49,5 @@ public class RequestTutorialClientEvent extends L2GameClientPacket
 			return;
 		}
 		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerTutorialClientEvent(player, eventId), player);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__88_REQUESTTUTORIALCLIENTEVENT;
 	}
 }

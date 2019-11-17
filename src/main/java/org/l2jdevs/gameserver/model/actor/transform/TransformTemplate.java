@@ -96,97 +96,13 @@ public final class TransformTemplate
 		addDefense(Inventory.PAPERDOLL_NECK, set.getInt("neck", 0));
 	}
 	
-	private void addSpeed(MoveType type, double val)
+	public void addAdditionalItem(AdditionalItemHolder holder)
 	{
-		if (_baseSpeed == null)
+		if (_additionalItems == null)
 		{
-			_baseSpeed = new HashMap<>();
+			_additionalItems = new ArrayList<>();
 		}
-		_baseSpeed.put(type.ordinal(), val);
-	}
-	
-	public double getBaseMoveSpeed(MoveType type)
-	{
-		if ((_baseSpeed == null) || !_baseSpeed.containsKey(type.ordinal()))
-		{
-			return 0;
-		}
-		return _baseSpeed.get(type.ordinal());
-	}
-	
-	private void addDefense(int type, int val)
-	{
-		if (_baseDefense == null)
-		{
-			_baseDefense = new HashMap<>();
-		}
-		_baseDefense.put(type, val);
-	}
-	
-	public int getDefense(int type)
-	{
-		if ((_baseDefense == null) || !_baseDefense.containsKey(type))
-		{
-			return 0;
-		}
-		return _baseDefense.get(type);
-	}
-	
-	private void addStats(Stats stats, double val)
-	{
-		if (_baseStats == null)
-		{
-			_baseStats = new HashMap<>();
-		}
-		_baseStats.put(stats.ordinal(), val);
-	}
-	
-	public double getStats(Stats stats)
-	{
-		if ((_baseStats == null) || !_baseStats.containsKey(stats.ordinal()))
-		{
-			return 0;
-		}
-		return _baseStats.get(stats.ordinal());
-	}
-	
-	public double getCollisionRadius()
-	{
-		return _collisionRadius;
-	}
-	
-	public double getCollisionHeight()
-	{
-		return _collisionHeight;
-	}
-	
-	public WeaponType getBaseAttackType()
-	{
-		return _baseAttackType;
-	}
-	
-	public int getBaseAttackRange()
-	{
-		return _baseAttackRange;
-	}
-	
-	public double getBaseRandomDamage()
-	{
-		return _baseRandomDamage;
-	}
-	
-	public void addSkill(SkillHolder holder)
-	{
-		if (_skills == null)
-		{
-			_skills = new ArrayList<>();
-		}
-		_skills.add(holder);
-	}
-	
-	public List<SkillHolder> getSkills()
-	{
-		return _skills != null ? _skills : Collections.<SkillHolder> emptyList();
+		_additionalItems.add(holder);
 	}
 	
 	public void addAdditionalSkill(AdditionalSkillHolder holder)
@@ -198,18 +114,18 @@ public final class TransformTemplate
 		_additionalSkills.add(holder);
 	}
 	
-	public List<AdditionalSkillHolder> getAdditionalSkills()
+	public void addLevelData(TransformLevelData data)
 	{
-		return _additionalSkills != null ? _additionalSkills : Collections.<AdditionalSkillHolder> emptyList();
+		_data.put(data.getLevel(), data);
 	}
 	
-	public void addAdditionalItem(AdditionalItemHolder holder)
+	public void addSkill(SkillHolder holder)
 	{
-		if (_additionalItems == null)
+		if (_skills == null)
 		{
-			_additionalItems = new ArrayList<>();
+			_skills = new ArrayList<>();
 		}
-		_additionalItems.add(holder);
+		_skills.add(holder);
 	}
 	
 	public List<AdditionalItemHolder> getAdditionalItems()
@@ -217,9 +133,33 @@ public final class TransformTemplate
 		return _additionalItems != null ? _additionalItems : Collections.<AdditionalItemHolder> emptyList();
 	}
 	
-	public void setBasicActionList(ExBasicActionList list)
+	public List<AdditionalSkillHolder> getAdditionalSkills()
 	{
-		_list = list;
+		return _additionalSkills != null ? _additionalSkills : Collections.<AdditionalSkillHolder> emptyList();
+	}
+	
+	public int getBaseAttackRange()
+	{
+		return _baseAttackRange;
+	}
+	
+	public WeaponType getBaseAttackType()
+	{
+		return _baseAttackType;
+	}
+	
+	public double getBaseMoveSpeed(MoveType type)
+	{
+		if ((_baseSpeed == null) || !_baseSpeed.containsKey(type.ordinal()))
+		{
+			return 0;
+		}
+		return _baseSpeed.get(type.ordinal());
+	}
+	
+	public double getBaseRandomDamage()
+	{
+		return _baseRandomDamage;
 	}
 	
 	public ExBasicActionList getBasicActionList()
@@ -227,18 +167,78 @@ public final class TransformTemplate
 		return _list;
 	}
 	
-	public boolean hasBasicActionList()
+	public double getCollisionHeight()
 	{
-		return _list != null;
+		return _collisionHeight;
 	}
 	
-	public void addLevelData(TransformLevelData data)
+	public double getCollisionRadius()
 	{
-		_data.put(data.getLevel(), data);
+		return _collisionRadius;
 	}
 	
 	public TransformLevelData getData(int level)
 	{
 		return _data.get(level);
+	}
+	
+	public int getDefense(int type)
+	{
+		if ((_baseDefense == null) || !_baseDefense.containsKey(type))
+		{
+			return 0;
+		}
+		return _baseDefense.get(type);
+	}
+	
+	public List<SkillHolder> getSkills()
+	{
+		return _skills != null ? _skills : Collections.<SkillHolder> emptyList();
+	}
+	
+	public double getStats(Stats stats)
+	{
+		if ((_baseStats == null) || !_baseStats.containsKey(stats.ordinal()))
+		{
+			return 0;
+		}
+		return _baseStats.get(stats.ordinal());
+	}
+	
+	public boolean hasBasicActionList()
+	{
+		return _list != null;
+	}
+	
+	public void setBasicActionList(ExBasicActionList list)
+	{
+		_list = list;
+	}
+	
+	private void addDefense(int type, int val)
+	{
+		if (_baseDefense == null)
+		{
+			_baseDefense = new HashMap<>();
+		}
+		_baseDefense.put(type, val);
+	}
+	
+	private void addSpeed(MoveType type, double val)
+	{
+		if (_baseSpeed == null)
+		{
+			_baseSpeed = new HashMap<>();
+		}
+		_baseSpeed.put(type.ordinal(), val);
+	}
+	
+	private void addStats(Stats stats, double val)
+	{
+		if (_baseStats == null)
+		{
+			_baseStats = new HashMap<>();
+		}
+		_baseStats.put(stats.ordinal(), val);
 	}
 }

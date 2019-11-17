@@ -45,6 +45,22 @@ public class TradeItem
 	};
 	private final int[] _enchantOptions;
 	
+	public TradeItem(L2Item item, long count, long price)
+	{
+		_objectId = 0;
+		_item = item;
+		_location = 0;
+		_enchant = 0;
+		_type1 = 0;
+		_type2 = 0;
+		_count = count;
+		_storeCount = count;
+		_price = price;
+		_elemAtkType = Elementals.NONE;
+		_elemAtkPower = 0;
+		_enchantOptions = L2ItemInstance.DEFAULT_ENCHANT_OPTIONS;
+	}
+	
 	public TradeItem(L2ItemInstance item, long count, long price)
 	{
 		_objectId = item.getObjectId();
@@ -62,22 +78,6 @@ public class TradeItem
 			_elemDefAttr[i] = item.getElementDefAttr(i);
 		}
 		_enchantOptions = item.getEnchantOptions();
-	}
-	
-	public TradeItem(L2Item item, long count, long price)
-	{
-		_objectId = 0;
-		_item = item;
-		_location = 0;
-		_enchant = 0;
-		_type1 = 0;
-		_type2 = 0;
-		_count = count;
-		_storeCount = count;
-		_price = price;
-		_elemAtkType = Elementals.NONE;
-		_elemAtkPower = 0;
-		_enchantOptions = L2ItemInstance.DEFAULT_ENCHANT_OPTIONS;
 	}
 	
 	public TradeItem(TradeItem item, long count, long price)
@@ -100,34 +100,19 @@ public class TradeItem
 		_enchantOptions = item.getEnchantOptions();
 	}
 	
-	public void setObjectId(int objectId)
+	public int getAttackElementPower()
 	{
-		_objectId = objectId;
+		return _elemAtkPower;
 	}
 	
-	public int getObjectId()
+	public byte getAttackElementType()
 	{
-		return _objectId;
+		return _elemAtkType;
 	}
 	
-	public L2Item getItem()
+	public long getCount()
 	{
-		return _item;
-	}
-	
-	public int getLocationSlot()
-	{
-		return _location;
-	}
-	
-	public void setEnchant(int enchant)
-	{
-		_enchant = enchant;
-	}
-	
-	public int getEnchant()
-	{
-		return _enchant;
+		return _count;
 	}
 	
 	public int getCustomType1()
@@ -140,24 +125,34 @@ public class TradeItem
 		return _type2;
 	}
 	
-	public void setCount(long count)
+	public int getElementDefAttr(byte i)
 	{
-		_count = count;
+		return _elemDefAttr[i];
 	}
 	
-	public long getCount()
+	public int getEnchant()
 	{
-		return _count;
+		return _enchant;
 	}
 	
-	public long getStoreCount()
+	public int[] getEnchantOptions()
 	{
-		return _storeCount;
+		return _enchantOptions;
 	}
 	
-	public void setPrice(long price)
+	public L2Item getItem()
 	{
-		_price = price;
+		return _item;
+	}
+	
+	public int getLocationSlot()
+	{
+		return _location;
+	}
+	
+	public int getObjectId()
+	{
+		return _objectId;
 	}
 	
 	public long getPrice()
@@ -165,23 +160,28 @@ public class TradeItem
 		return _price;
 	}
 	
-	public byte getAttackElementType()
+	public long getStoreCount()
 	{
-		return _elemAtkType;
+		return _storeCount;
 	}
 	
-	public int getAttackElementPower()
+	public void setCount(long count)
 	{
-		return _elemAtkPower;
+		_count = count;
 	}
 	
-	public int getElementDefAttr(byte i)
+	public void setEnchant(int enchant)
 	{
-		return _elemDefAttr[i];
+		_enchant = enchant;
 	}
 	
-	public int[] getEnchantOptions()
+	public void setObjectId(int objectId)
 	{
-		return _enchantOptions;
+		_objectId = objectId;
+	}
+	
+	public void setPrice(long price)
+	{
+		_price = price;
 	}
 }

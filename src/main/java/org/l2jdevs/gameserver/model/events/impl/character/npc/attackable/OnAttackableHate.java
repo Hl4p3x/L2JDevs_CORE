@@ -39,24 +39,24 @@ public class OnAttackableHate implements IBaseEvent
 		_isSummon = isSummon;
 	}
 	
-	public final L2Attackable getNpc()
-	{
-		return _npc;
-	}
-	
 	public final L2PcInstance getActiveChar()
 	{
 		return _activeChar;
 	}
 	
-	public boolean isSummon()
+	public final L2Attackable getNpc()
 	{
-		return _isSummon;
+		return _npc;
 	}
 	
 	@Override
 	public EventType getType()
 	{
 		return EventType.ON_NPC_HATE;
+	}
+	
+	public boolean isSummon()
+	{
+		return _isSummon;
 	}
 }

@@ -43,6 +43,12 @@ public final class RequestPrivateStoreSell extends L2GameClientPacket
 	private ItemRequest[] _items = null;
 	
 	@Override
+	public String getType()
+	{
+		return _C__9F_REQUESTPRIVATESTORESELL;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_storePlayerId = readD();
@@ -144,12 +150,6 @@ public final class RequestPrivateStoreSell extends L2GameClientPacket
 			storePlayer.setPrivateStoreType(PrivateStoreType.NONE);
 			storePlayer.broadcastUserInfo();
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__9F_REQUESTPRIVATESTORESELL;
 	}
 	
 	@Override

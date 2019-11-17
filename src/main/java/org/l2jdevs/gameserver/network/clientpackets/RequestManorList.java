@@ -26,6 +26,12 @@ import org.l2jdevs.gameserver.network.serverpackets.ExSendManorList;
 public class RequestManorList extends L2GameClientPacket
 {
 	@Override
+	public String getType()
+	{
+		return "[C] D0:01 RequestManorList";
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 	}
@@ -34,12 +40,6 @@ public class RequestManorList extends L2GameClientPacket
 	protected void runImpl()
 	{
 		sendPacket(new ExSendManorList());
-	}
-	
-	@Override
-	public String getType()
-	{
-		return "[C] D0:01 RequestManorList";
 	}
 	
 	@Override

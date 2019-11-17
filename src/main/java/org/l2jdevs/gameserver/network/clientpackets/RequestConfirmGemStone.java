@@ -36,6 +36,12 @@ public final class RequestConfirmGemStone extends AbstractRefinePacket
 	private long _gemStoneCount;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_28_REQUESTCONFIRMGEMSTONE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_targetItemObjId = readD();
@@ -89,11 +95,5 @@ public final class RequestConfirmGemStone extends AbstractRefinePacket
 		}
 		
 		activeChar.sendPacket(new ExPutCommissionResultForVariationMake(_gemstoneItemObjId, _gemStoneCount, gemStoneItem.getId()));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_28_REQUESTCONFIRMGEMSTONE;
 	}
 }

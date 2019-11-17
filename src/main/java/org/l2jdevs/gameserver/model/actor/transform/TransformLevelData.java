@@ -45,13 +45,14 @@ public final class TransformLevelData
 		addStats(Stats.REGENERATE_CP_RATE, set.getDouble("cpRegen"));
 	}
 	
-	private void addStats(Stats stat, double val)
+	public int getLevel()
 	{
-		if (_stats == null)
-		{
-			_stats = new HashMap<>();
-		}
-		_stats.put(stat.ordinal(), val);
+		return _level;
+	}
+	
+	public double getLevelMod()
+	{
+		return _levelMod;
 	}
 	
 	public double getStats(Stats stats)
@@ -63,13 +64,12 @@ public final class TransformLevelData
 		return _stats.get(stats.ordinal());
 	}
 	
-	public int getLevel()
+	private void addStats(Stats stat, double val)
 	{
-		return _level;
-	}
-	
-	public double getLevelMod()
-	{
-		return _levelMod;
+		if (_stats == null)
+		{
+			_stats = new HashMap<>();
+		}
+		_stats.put(stat.ordinal(), val);
 	}
 }

@@ -35,6 +35,12 @@ public final class CharacterRestore extends L2GameClientPacket
 	private int _charSlot;
 	
 	@Override
+	public String getType()
+	{
+		return _C__7B_CHARACTERRESTORE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_charSlot = readD();
@@ -54,11 +60,5 @@ public final class CharacterRestore extends L2GameClientPacket
 		getClient().setCharSelection(cl.getCharInfo());
 		final CharSelectInfoPackage charInfo = getClient().getCharSelection(_charSlot);
 		EventDispatcher.getInstance().notifyEvent(new OnPlayerRestore(charInfo.getObjectId(), charInfo.getName(), getClient()));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__7B_CHARACTERRESTORE;
 	}
 }

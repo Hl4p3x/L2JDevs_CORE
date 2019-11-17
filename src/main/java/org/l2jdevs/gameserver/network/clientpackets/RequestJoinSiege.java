@@ -41,6 +41,12 @@ public final class RequestJoinSiege extends L2GameClientPacket
 	private int _isJoining;
 	
 	@Override
+	public String getType()
+	{
+		return _C__AD_RequestJoinSiege;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_castleId = readD();
@@ -113,11 +119,5 @@ public final class RequestJoinSiege extends L2GameClientPacket
 			}
 			activeChar.sendPacket(new SiegeInfo(hall));
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__AD_RequestJoinSiege;
 	}
 }

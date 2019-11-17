@@ -46,11 +46,6 @@ public class OnNpcEventReceived implements IBaseEvent
 		return _eventName;
 	}
 	
-	public L2Npc getSender()
-	{
-		return _sender;
-	}
-	
 	public L2Npc getReceiver()
 	{
 		return _receiver;
@@ -59,6 +54,11 @@ public class OnNpcEventReceived implements IBaseEvent
 	public L2Object getReference()
 	{
 		return _reference;
+	}
+	
+	public L2Npc getSender()
+	{
+		return _sender;
 	}
 	
 	@Override

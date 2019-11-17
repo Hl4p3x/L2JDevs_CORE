@@ -35,6 +35,11 @@ public class PartyMatchWaitingList
 		_members = new CopyOnWriteArrayList<>();
 	}
 	
+	public static PartyMatchWaitingList getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	public void addPlayer(L2PcInstance player)
 	{
 		// player.setPartyWait(1);
@@ -44,6 +49,11 @@ public class PartyMatchWaitingList
 		}
 	}
 	
+	public List<L2PcInstance> getPlayers()
+	{
+		return _members;
+	}
+	
 	public void removePlayer(L2PcInstance player)
 	{
 		// player.setPartyWait(0);
@@ -51,16 +61,6 @@ public class PartyMatchWaitingList
 		{
 			_members.remove(player);
 		}
-	}
-	
-	public List<L2PcInstance> getPlayers()
-	{
-		return _members;
-	}
-	
-	public static PartyMatchWaitingList getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

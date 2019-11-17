@@ -54,53 +54,12 @@ public abstract class AbstractMessagePacket<T extends AbstractMessagePacket<?>> 
 {
 	private static final SMParam[] EMPTY_PARAM_ARRAY = new SMParam[0];
 	
-	private static final class SMParam
-	{
-		private final byte _type;
-		private final Object _value;
-		
-		public SMParam(final byte type, final Object value)
-		{
-			_type = type;
-			_value = value;
-		}
-		
-		public final byte getType()
-		{
-			return _type;
-		}
-		
-		public final Object getValue()
-		{
-			return _value;
-		}
-		
-		public final String getStringValue()
-		{
-			return (String) _value;
-		}
-		
-		public final int getIntValue()
-		{
-			return ((Integer) _value).intValue();
-		}
-		
-		public final long getLongValue()
-		{
-			return ((Long) _value).longValue();
-		}
-		
-		public final int[] getIntArrayValue()
-		{
-			return (int[]) _value;
-		}
-	}
-	
 	// TODO: UnAfraid: Check/Implement id's: 14,15.
 	// 15 exists in goddess of destruction but also may works in h5 needs to be verified!
 	// private static final byte TYPE_CLASS_ID = 15;
 	// id 14 unknown
 	private static final byte TYPE_SYSTEM_STRING = 13;
+	
 	private static final byte TYPE_PLAYER_NAME = 12;
 	private static final byte TYPE_DOOR_NAME = 11;
 	private static final byte TYPE_INSTANCE_NAME = 10;
@@ -114,11 +73,10 @@ public abstract class AbstractMessagePacket<T extends AbstractMessagePacket<?>> 
 	private static final byte TYPE_NPC_NAME = 2;
 	private static final byte TYPE_INT_NUMBER = 1;
 	private static final byte TYPE_TEXT = 0;
-	
 	private SMParam[] _params;
+	
 	private final SystemMessageId _smId;
 	private int _paramIndex;
-	
 	public AbstractMessagePacket(SystemMessageId smId)
 	{
 		if (smId == null)
@@ -127,34 +85,6 @@ public abstract class AbstractMessagePacket<T extends AbstractMessagePacket<?>> 
 		}
 		_smId = smId;
 		_params = smId.getParamCount() > 0 ? new SMParam[smId.getParamCount()] : EMPTY_PARAM_ARRAY;
-	}
-	
-	public final int getId()
-	{
-		return _smId.getId();
-	}
-	
-	public final SystemMessageId getSystemMessageId()
-	{
-		return _smId;
-	}
-	
-	private final void append(SMParam param)
-	{
-		if (_paramIndex >= _params.length)
-		{
-			_params = Arrays.copyOf(_params, _paramIndex + 1);
-			_smId.setParamCount(_paramIndex + 1);
-			_log.log(Level.INFO, "Wrong parameter count '" + (_paramIndex + 1) + "' for SystemMessageId: " + _smId);
-		}
-		
-		_params[_paramIndex++] = param;
-	}
-	
-	public final T addString(final String text)
-	{
-		append(new SMParam(TYPE_TEXT, text));
-		return (T) this;
 	}
 	
 	/**
@@ -179,18 +109,6 @@ public abstract class AbstractMessagePacket<T extends AbstractMessagePacket<?>> 
 	public final T addCastleId(final int number)
 	{
 		append(new SMParam(TYPE_CASTLE_NAME, number));
-		return (T) this;
-	}
-	
-	public final T addInt(final int number)
-	{
-		append(new SMParam(TYPE_INT_NUMBER, number));
-		return (T) this;
-	}
-	
-	public final T addLong(final long number)
-	{
-		append(new SMParam(TYPE_LONG_NUMBER, number));
 		return (T) this;
 	}
 	
@@ -226,12 +144,6 @@ public abstract class AbstractMessagePacket<T extends AbstractMessagePacket<?>> 
 		return addString(cha.getName());
 	}
 	
-	public final T addPcName(final L2PcInstance pc)
-	{
-		append(new SMParam(TYPE_PLAYER_NAME, pc.getAppearance().getVisibleName()));
-		return (T) this;
-	}
-	
 	/**
 	 * ID from doorData.xml
 	 * @param doorId
@@ -243,39 +155,32 @@ public abstract class AbstractMessagePacket<T extends AbstractMessagePacket<?>> 
 		return (T) this;
 	}
 	
-	public final T addNpcName(L2Npc npc)
+	/**
+	 * Elemental name - 0(Fire) ...
+	 * @param type
+	 * @return
+	 */
+	public final T addElemental(final int type)
 	{
-		return addNpcName(npc.getTemplate());
-	}
-	
-	public final T addNpcName(final L2Summon npc)
-	{
-		return addNpcName(npc.getId());
-	}
-	
-	public final T addNpcName(final L2NpcTemplate template)
-	{
-		if (template.isUsingServerSideName())
-		{
-			return addString(template.getName());
-		}
-		return addNpcName(template.getId());
-	}
-	
-	public final T addNpcName(final int id)
-	{
-		append(new SMParam(TYPE_NPC_NAME, 1000000 + id));
+		append(new SMParam(TYPE_ELEMENT_NAME, type));
 		return (T) this;
 	}
 	
-	public T addItemName(final L2ItemInstance item)
+	/**
+	 * Instance name from instantzonedata-e.dat
+	 * @param type id of instance
+	 * @return
+	 */
+	public final T addInstanceName(final int type)
 	{
-		return addItemName(item.getId());
+		append(new SMParam(TYPE_INSTANCE_NAME, type));
+		return (T) this;
 	}
 	
-	public T addItemName(final L2Item item)
+	public final T addInt(final int number)
 	{
-		return addItemName(item.getId());
+		append(new SMParam(TYPE_INT_NUMBER, number));
+		return (T) this;
 	}
 	
 	public final T addItemName(final int id)
@@ -290,24 +195,51 @@ public abstract class AbstractMessagePacket<T extends AbstractMessagePacket<?>> 
 		return (T) this;
 	}
 	
-	public final T addZoneName(final int x, final int y, final int z)
+	public T addItemName(final L2Item item)
 	{
-		append(new SMParam(TYPE_ZONE_NAME, new int[]
-		{
-			x,
-			y,
-			z
-		}));
+		return addItemName(item.getId());
+	}
+	
+	public T addItemName(final L2ItemInstance item)
+	{
+		return addItemName(item.getId());
+	}
+	
+	public final T addLong(final long number)
+	{
+		append(new SMParam(TYPE_LONG_NUMBER, number));
 		return (T) this;
 	}
 	
-	public final T addSkillName(final Skill skill)
+	public final T addNpcName(final int id)
 	{
-		if (skill.getId() != skill.getDisplayId())
+		append(new SMParam(TYPE_NPC_NAME, 1000000 + id));
+		return (T) this;
+	}
+	
+	public final T addNpcName(L2Npc npc)
+	{
+		return addNpcName(npc.getTemplate());
+	}
+	
+	public final T addNpcName(final L2NpcTemplate template)
+	{
+		if (template.isUsingServerSideName())
 		{
-			return addString(skill.getName());
+			return addString(template.getName());
 		}
-		return addSkillName(skill.getId(), skill.getLevel());
+		return addNpcName(template.getId());
+	}
+	
+	public final T addNpcName(final L2Summon npc)
+	{
+		return addNpcName(npc.getId());
+	}
+	
+	public final T addPcName(final L2PcInstance pc)
+	{
+		append(new SMParam(TYPE_PLAYER_NAME, pc.getAppearance().getVisibleName()));
+		return (T) this;
 	}
 	
 	public final T addSkillName(final int id)
@@ -325,14 +257,18 @@ public abstract class AbstractMessagePacket<T extends AbstractMessagePacket<?>> 
 		return (T) this;
 	}
 	
-	/**
-	 * Elemental name - 0(Fire) ...
-	 * @param type
-	 * @return
-	 */
-	public final T addElemental(final int type)
+	public final T addSkillName(final Skill skill)
 	{
-		append(new SMParam(TYPE_ELEMENT_NAME, type));
+		if (skill.getId() != skill.getDisplayId())
+		{
+			return addString(skill.getName());
+		}
+		return addSkillName(skill.getId(), skill.getLevel());
+	}
+	
+	public final T addString(final String text)
+	{
+		append(new SMParam(TYPE_TEXT, text));
 		return (T) this;
 	}
 	
@@ -347,130 +283,20 @@ public abstract class AbstractMessagePacket<T extends AbstractMessagePacket<?>> 
 		return (T) this;
 	}
 	
-	/**
-	 * Instance name from instantzonedata-e.dat
-	 * @param type id of instance
-	 * @return
-	 */
-	public final T addInstanceName(final int type)
+	public final T addZoneName(final int x, final int y, final int z)
 	{
-		append(new SMParam(TYPE_INSTANCE_NAME, type));
+		append(new SMParam(TYPE_ZONE_NAME, new int[]
+		{
+			x,
+			y,
+			z
+		}));
 		return (T) this;
 	}
 	
-	protected final void writeMe()
+	public final int getId()
 	{
-		writeD(getId());
-		writeD(_params.length);
-		SMParam param;
-		for (int i = 0; i < _paramIndex; i++)
-		{
-			param = _params[i];
-			
-			writeD(param.getType());
-			switch (param.getType())
-			{
-				case TYPE_TEXT:
-				case TYPE_PLAYER_NAME:
-				{
-					writeS(param.getStringValue());
-					break;
-				}
-				
-				case TYPE_LONG_NUMBER:
-				{
-					writeQ(param.getLongValue());
-					break;
-				}
-				
-				case TYPE_ITEM_NAME:
-				case TYPE_CASTLE_NAME:
-				case TYPE_INT_NUMBER:
-				case TYPE_NPC_NAME:
-				case TYPE_ELEMENT_NAME:
-				case TYPE_SYSTEM_STRING:
-				case TYPE_INSTANCE_NAME:
-				case TYPE_DOOR_NAME:
-				{
-					writeD(param.getIntValue());
-					break;
-				}
-				
-				case TYPE_SKILL_NAME:
-				{
-					final int[] array = param.getIntArrayValue();
-					writeD(array[0]); // SkillId
-					writeD(array[1]); // SkillLevel
-					break;
-				}
-				
-				case TYPE_ZONE_NAME:
-				{
-					final int[] array = param.getIntArrayValue();
-					writeD(array[0]); // x
-					writeD(array[1]); // y
-					writeD(array[2]); // z
-					break;
-				}
-			}
-		}
-	}
-	
-	public final void printMe(PrintStream out)
-	{
-		out.println(0x62);
-		
-		out.println(getId());
-		out.println(_params.length);
-		
-		for (SMParam param : _params)
-		{
-			switch (param.getType())
-			{
-				case TYPE_TEXT:
-				case TYPE_PLAYER_NAME:
-				{
-					out.println(param.getStringValue());
-					break;
-				}
-				
-				case TYPE_LONG_NUMBER:
-				{
-					out.println(param.getLongValue());
-					break;
-				}
-				
-				case TYPE_ITEM_NAME:
-				case TYPE_CASTLE_NAME:
-				case TYPE_INT_NUMBER:
-				case TYPE_NPC_NAME:
-				case TYPE_ELEMENT_NAME:
-				case TYPE_SYSTEM_STRING:
-				case TYPE_INSTANCE_NAME:
-				case TYPE_DOOR_NAME:
-				{
-					out.println(param.getIntValue());
-					break;
-				}
-				
-				case TYPE_SKILL_NAME:
-				{
-					final int[] array = param.getIntArrayValue();
-					out.println(array[0]); // SkillId
-					out.println(array[1]); // SkillLevel
-					break;
-				}
-				
-				case TYPE_ZONE_NAME:
-				{
-					final int[] array = param.getIntArrayValue();
-					out.println(array[0]); // x
-					out.println(array[1]); // y
-					out.println(array[2]); // z
-					break;
-				}
-			}
-		}
+		return _smId.getId();
 	}
 	
 	public final T getLocalizedMessage(final String lang)
@@ -581,5 +407,179 @@ public abstract class AbstractMessagePacket<T extends AbstractMessagePacket<?>> 
 		
 		addString(sml.getLocalisation(params));
 		return (T) this;
+	}
+	
+	public final SystemMessageId getSystemMessageId()
+	{
+		return _smId;
+	}
+	
+	public final void printMe(PrintStream out)
+	{
+		out.println(0x62);
+		
+		out.println(getId());
+		out.println(_params.length);
+		
+		for (SMParam param : _params)
+		{
+			switch (param.getType())
+			{
+				case TYPE_TEXT:
+				case TYPE_PLAYER_NAME:
+				{
+					out.println(param.getStringValue());
+					break;
+				}
+				
+				case TYPE_LONG_NUMBER:
+				{
+					out.println(param.getLongValue());
+					break;
+				}
+				
+				case TYPE_ITEM_NAME:
+				case TYPE_CASTLE_NAME:
+				case TYPE_INT_NUMBER:
+				case TYPE_NPC_NAME:
+				case TYPE_ELEMENT_NAME:
+				case TYPE_SYSTEM_STRING:
+				case TYPE_INSTANCE_NAME:
+				case TYPE_DOOR_NAME:
+				{
+					out.println(param.getIntValue());
+					break;
+				}
+				
+				case TYPE_SKILL_NAME:
+				{
+					final int[] array = param.getIntArrayValue();
+					out.println(array[0]); // SkillId
+					out.println(array[1]); // SkillLevel
+					break;
+				}
+				
+				case TYPE_ZONE_NAME:
+				{
+					final int[] array = param.getIntArrayValue();
+					out.println(array[0]); // x
+					out.println(array[1]); // y
+					out.println(array[2]); // z
+					break;
+				}
+			}
+		}
+	}
+	
+	protected final void writeMe()
+	{
+		writeD(getId());
+		writeD(_params.length);
+		SMParam param;
+		for (int i = 0; i < _paramIndex; i++)
+		{
+			param = _params[i];
+			
+			writeD(param.getType());
+			switch (param.getType())
+			{
+				case TYPE_TEXT:
+				case TYPE_PLAYER_NAME:
+				{
+					writeS(param.getStringValue());
+					break;
+				}
+				
+				case TYPE_LONG_NUMBER:
+				{
+					writeQ(param.getLongValue());
+					break;
+				}
+				
+				case TYPE_ITEM_NAME:
+				case TYPE_CASTLE_NAME:
+				case TYPE_INT_NUMBER:
+				case TYPE_NPC_NAME:
+				case TYPE_ELEMENT_NAME:
+				case TYPE_SYSTEM_STRING:
+				case TYPE_INSTANCE_NAME:
+				case TYPE_DOOR_NAME:
+				{
+					writeD(param.getIntValue());
+					break;
+				}
+				
+				case TYPE_SKILL_NAME:
+				{
+					final int[] array = param.getIntArrayValue();
+					writeD(array[0]); // SkillId
+					writeD(array[1]); // SkillLevel
+					break;
+				}
+				
+				case TYPE_ZONE_NAME:
+				{
+					final int[] array = param.getIntArrayValue();
+					writeD(array[0]); // x
+					writeD(array[1]); // y
+					writeD(array[2]); // z
+					break;
+				}
+			}
+		}
+	}
+	
+	private final void append(SMParam param)
+	{
+		if (_paramIndex >= _params.length)
+		{
+			_params = Arrays.copyOf(_params, _paramIndex + 1);
+			_smId.setParamCount(_paramIndex + 1);
+			_log.log(Level.INFO, "Wrong parameter count '" + (_paramIndex + 1) + "' for SystemMessageId: " + _smId);
+		}
+		
+		_params[_paramIndex++] = param;
+	}
+	
+	private static final class SMParam
+	{
+		private final byte _type;
+		private final Object _value;
+		
+		public SMParam(final byte type, final Object value)
+		{
+			_type = type;
+			_value = value;
+		}
+		
+		public final int[] getIntArrayValue()
+		{
+			return (int[]) _value;
+		}
+		
+		public final int getIntValue()
+		{
+			return ((Integer) _value).intValue();
+		}
+		
+		public final long getLongValue()
+		{
+			return ((Long) _value).longValue();
+		}
+		
+		public final String getStringValue()
+		{
+			return (String) _value;
+		}
+		
+		public final byte getType()
+		{
+			return _type;
+		}
+		
+		public final Object getValue()
+		{
+			return _value;
+		}
 	}
 }

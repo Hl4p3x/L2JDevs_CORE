@@ -38,17 +38,17 @@ public class HackingException extends Exception
 		_connects = connects;
 	}
 	
+	public int getConnects()
+	{
+		return _connects;
+	}
+	
 	/**
 	 * @return
 	 */
 	public String getIP()
 	{
 		return _ip;
-	}
-	
-	public int getConnects()
-	{
-		return _connects;
 	}
 	
 }

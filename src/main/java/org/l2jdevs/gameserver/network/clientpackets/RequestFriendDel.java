@@ -42,6 +42,12 @@ public final class RequestFriendDel extends L2GameClientPacket
 	private String _name;
 	
 	@Override
+	public String getType()
+	{
+		return _C__7A_REQUESTFRIENDDEL;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -104,11 +110,5 @@ public final class RequestFriendDel extends L2GameClientPacket
 		{
 			_log.log(Level.WARNING, "could not del friend objectid: ", e);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__7A_REQUESTFRIENDDEL;
 	}
 }

@@ -29,6 +29,12 @@ public final class RequestQuestList extends L2GameClientPacket
 	private static final String _C__62_REQUESTQUESTLIST = "[C] 62 RequestQuestList";
 	
 	@Override
+	public String getType()
+	{
+		return _C__62_REQUESTQUESTLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -39,11 +45,5 @@ public final class RequestQuestList extends L2GameClientPacket
 	{
 		QuestList ql = new QuestList();
 		sendPacket(ql);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__62_REQUESTQUESTLIST;
 	}
 }

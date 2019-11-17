@@ -33,67 +33,19 @@ public class L2TeleportLocation
 	private int _itemId;
 	
 	/**
-	 * @param id
+	 * @return
 	 */
-	public void setTeleId(int id)
+	public boolean getIsForNoble()
 	{
-		_teleId = id;
-	}
-	
-	/**
-	 * @param locX
-	 */
-	public void setLocX(int locX)
-	{
-		_locX = locX;
-	}
-	
-	/**
-	 * @param locY
-	 */
-	public void setLocY(int locY)
-	{
-		_locY = locY;
-	}
-	
-	/**
-	 * @param locZ
-	 */
-	public void setLocZ(int locZ)
-	{
-		_locZ = locZ;
-	}
-	
-	/**
-	 * @param price
-	 */
-	public void setPrice(int price)
-	{
-		_price = price;
-	}
-	
-	/**
-	 * @param val
-	 */
-	public void setIsForNoble(boolean val)
-	{
-		_forNoble = val;
-	}
-	
-	/**
-	 * @param val
-	 */
-	public void setItemId(int val)
-	{
-		_itemId = val;
+		return _forNoble;
 	}
 	
 	/**
 	 * @return
 	 */
-	public int getTeleId()
+	public int getItemId()
 	{
-		return _teleId;
+		return _itemId;
 	}
 	
 	/**
@@ -131,16 +83,64 @@ public class L2TeleportLocation
 	/**
 	 * @return
 	 */
-	public boolean getIsForNoble()
+	public int getTeleId()
 	{
-		return _forNoble;
+		return _teleId;
 	}
 	
 	/**
-	 * @return
+	 * @param val
 	 */
-	public int getItemId()
+	public void setIsForNoble(boolean val)
 	{
-		return _itemId;
+		_forNoble = val;
+	}
+	
+	/**
+	 * @param val
+	 */
+	public void setItemId(int val)
+	{
+		_itemId = val;
+	}
+	
+	/**
+	 * @param locX
+	 */
+	public void setLocX(int locX)
+	{
+		_locX = locX;
+	}
+	
+	/**
+	 * @param locY
+	 */
+	public void setLocY(int locY)
+	{
+		_locY = locY;
+	}
+	
+	/**
+	 * @param locZ
+	 */
+	public void setLocZ(int locZ)
+	{
+		_locZ = locZ;
+	}
+	
+	/**
+	 * @param price
+	 */
+	public void setPrice(int price)
+	{
+		_price = price;
+	}
+	
+	/**
+	 * @param id
+	 */
+	public void setTeleId(int id)
+	{
+		_teleId = id;
 	}
 }

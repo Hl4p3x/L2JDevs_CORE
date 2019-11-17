@@ -49,6 +49,11 @@ public final class DocumentItem extends DocumentBase
 		super(file);
 	}
 	
+	public List<L2Item> getItemList()
+	{
+		return _itemsInFile;
+	}
+	
 	@Override
 	protected StatsSet getStatsSet()
 	{
@@ -174,10 +179,5 @@ public final class DocumentItem extends DocumentBase
 		{
 			throw new InvocationTargetException(e);
 		}
-	}
-	
-	public List<L2Item> getItemList()
-	{
-		return _itemsInFile;
 	}
 }

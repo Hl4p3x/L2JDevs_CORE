@@ -43,35 +43,9 @@ public class SummonSkillsTable
 		load();
 	}
 	
-	public void load()
+	public static SummonSkillsTable getInstance()
 	{
-		_skillTrees.clear();
-		int count = 0;
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement s = con.createStatement();
-			ResultSet rs = s.executeQuery("SELECT templateId, minLvl, skillId, skillLvl FROM pets_skills"))
-		{
-			while (rs.next())
-			{
-				final int npcId = rs.getInt("templateId");
-				Map<Integer, L2PetSkillLearn> skillTree = _skillTrees.get(npcId);
-				if (skillTree == null)
-				{
-					skillTree = new HashMap<>();
-					_skillTrees.put(npcId, skillTree);
-				}
-				
-				int id = rs.getInt("skillId");
-				int lvl = rs.getInt("skillLvl");
-				skillTree.put(SkillData.getSkillHashCode(id, lvl + 1), new L2PetSkillLearn(id, lvl, rs.getInt("minLvl")));
-				count++;
-			}
-		}
-		catch (Exception e)
-		{
-			LOGGER.log(Level.SEVERE, getClass().getSimpleName() + ": Error while loading pet skill tree:", e);
-		}
-		LOGGER.info(getClass().getSimpleName() + ": Loaded " + count + " skills.");
+		return SingletonHolder._instance;
 	}
 	
 	public int getAvailableLevel(L2Summon cha, int skillId)
@@ -143,6 +117,37 @@ public class SummonSkillsTable
 		return skillIds;
 	}
 	
+	public void load()
+	{
+		_skillTrees.clear();
+		int count = 0;
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement s = con.createStatement();
+			ResultSet rs = s.executeQuery("SELECT templateId, minLvl, skillId, skillLvl FROM pets_skills"))
+		{
+			while (rs.next())
+			{
+				final int npcId = rs.getInt("templateId");
+				Map<Integer, L2PetSkillLearn> skillTree = _skillTrees.get(npcId);
+				if (skillTree == null)
+				{
+					skillTree = new HashMap<>();
+					_skillTrees.put(npcId, skillTree);
+				}
+				
+				int id = rs.getInt("skillId");
+				int lvl = rs.getInt("skillLvl");
+				skillTree.put(SkillData.getSkillHashCode(id, lvl + 1), new L2PetSkillLearn(id, lvl, rs.getInt("minLvl")));
+				count++;
+			}
+		}
+		catch (Exception e)
+		{
+			LOGGER.log(Level.SEVERE, getClass().getSimpleName() + ": Error while loading pet skill tree:", e);
+		}
+		LOGGER.info(getClass().getSimpleName() + ": Loaded " + count + " skills.");
+	}
+	
 	public static final class L2PetSkillLearn
 	{
 		private final int _id;
@@ -170,11 +175,6 @@ public class SummonSkillsTable
 		{
 			return _minLevel;
 		}
-	}
-	
-	public static SummonSkillsTable getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

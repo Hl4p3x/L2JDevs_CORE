@@ -51,6 +51,43 @@ public final class HennaData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of HennaData.
+	 * @return single instance of HennaData
+	 */
+	public static HennaData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the henna.
+	 * @param id of the dye.
+	 * @return the dye with that id.
+	 */
+	public L2Henna getHenna(int id)
+	{
+		return _hennaList.get(id);
+	}
+	
+	/**
+	 * Gets the henna list.
+	 * @param classId the player's class Id.
+	 * @return the list with all the allowed dyes.
+	 */
+	public List<L2Henna> getHennaList(ClassId classId)
+	{
+		final List<L2Henna> list = new ArrayList<>();
+		for (L2Henna henna : _hennaList.values())
+		{
+			if (henna.isAllowedClass(classId))
+			{
+				list.add(henna);
+			}
+		}
+		return list;
+	}
+	
 	@Override
 	public void load()
 	{
@@ -134,43 +171,6 @@ public final class HennaData implements IXmlReader
 		final L2Henna henna = new L2Henna(set);
 		henna.setWearClassIds(wearClassIds);
 		_hennaList.put(henna.getDyeId(), henna);
-	}
-	
-	/**
-	 * Gets the henna.
-	 * @param id of the dye.
-	 * @return the dye with that id.
-	 */
-	public L2Henna getHenna(int id)
-	{
-		return _hennaList.get(id);
-	}
-	
-	/**
-	 * Gets the henna list.
-	 * @param classId the player's class Id.
-	 * @return the list with all the allowed dyes.
-	 */
-	public List<L2Henna> getHennaList(ClassId classId)
-	{
-		final List<L2Henna> list = new ArrayList<>();
-		for (L2Henna henna : _hennaList.values())
-		{
-			if (henna.isAllowedClass(classId))
-			{
-				list.add(henna);
-			}
-		}
-		return list;
-	}
-	
-	/**
-	 * Gets the single instance of HennaData.
-	 * @return single instance of HennaData
-	 */
-	public static HennaData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

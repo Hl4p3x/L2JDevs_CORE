@@ -29,6 +29,12 @@ public class RequestTutorialQuestionMark extends L2GameClientPacket
 	private int _number = 0;
 	
 	@Override
+	public String getType()
+	{
+		return _C__87_REQUESTTUTORIALQUESTIONMARK;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_number = readD();
@@ -43,11 +49,5 @@ public class RequestTutorialQuestionMark extends L2GameClientPacket
 			return;
 		}
 		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerTutorialQuestionMark(player, _number), player);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__87_REQUESTTUTORIALQUESTIONMARK;
 	}
 }

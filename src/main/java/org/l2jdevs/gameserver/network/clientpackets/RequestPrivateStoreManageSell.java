@@ -30,6 +30,12 @@ public final class RequestPrivateStoreManageSell extends L2GameClientPacket
 	private static final String _C__30_REQUESTPRIVATESTOREMANAGESELL = "[C] 30 RequestPrivateStoreManageSell";
 	
 	@Override
+	public String getType()
+	{
+		return _C__30_REQUESTPRIVATESTOREMANAGESELL;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// TODO: implement me properly
@@ -52,12 +58,6 @@ public final class RequestPrivateStoreManageSell extends L2GameClientPacket
 			sendPacket(ActionFailed.STATIC_PACKET);
 			return;
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__30_REQUESTPRIVATESTOREMANAGESELL;
 	}
 	
 	@Override

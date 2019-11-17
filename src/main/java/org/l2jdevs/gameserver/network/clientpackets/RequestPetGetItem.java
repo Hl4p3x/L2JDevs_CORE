@@ -34,6 +34,12 @@ public final class RequestPetGetItem extends L2GameClientPacket
 	private int _objectId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__98_REQUESTPETGETITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -77,11 +83,5 @@ public final class RequestPetGetItem extends L2GameClientPacket
 		}
 		
 		pet.getAI().setIntention(CtrlIntention.AI_INTENTION_PICK_UP, item);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__98_REQUESTPETGETITEM;
 	}
 }

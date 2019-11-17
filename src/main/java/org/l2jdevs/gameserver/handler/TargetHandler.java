@@ -35,6 +35,17 @@ public class TargetHandler implements IHandler<ITargetTypeHandler, Enum<L2Target
 		_datatable = new HashMap<>();
 	}
 	
+	public static TargetHandler getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	@Override
+	public ITargetTypeHandler getHandler(Enum<L2TargetType> targetType)
+	{
+		return _datatable.get(targetType);
+	}
+	
 	@Override
 	public void registerHandler(ITargetTypeHandler handler)
 	{
@@ -48,20 +59,9 @@ public class TargetHandler implements IHandler<ITargetTypeHandler, Enum<L2Target
 	}
 	
 	@Override
-	public ITargetTypeHandler getHandler(Enum<L2TargetType> targetType)
-	{
-		return _datatable.get(targetType);
-	}
-	
-	@Override
 	public int size()
 	{
 		return _datatable.size();
-	}
-	
-	public static TargetHandler getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

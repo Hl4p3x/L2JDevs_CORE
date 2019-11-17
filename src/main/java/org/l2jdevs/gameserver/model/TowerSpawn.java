@@ -60,6 +60,11 @@ public class TowerSpawn implements IIdentifiable
 		return _location;
 	}
 	
+	public int getUpgradeLevel()
+	{
+		return _upgradeLevel;
+	}
+	
 	public List<Integer> getZoneList()
 	{
 		return _zoneList;
@@ -68,10 +73,5 @@ public class TowerSpawn implements IIdentifiable
 	public void setUpgradeLevel(int level)
 	{
 		_upgradeLevel = level;
-	}
-	
-	public int getUpgradeLevel()
-	{
-		return _upgradeLevel;
 	}
 }

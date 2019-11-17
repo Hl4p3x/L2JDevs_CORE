@@ -32,17 +32,12 @@ import org.l2jdevs.gameserver.network.serverpackets.L2GameServerPacket;
 
 public class BoatManager
 {
-	private final Map<Integer, L2BoatInstance> _boats = new ConcurrentHashMap<>();
-	private final boolean[] _docksBusy = new boolean[3];
-	
 	public static final int TALKING_ISLAND = 1;
 	public static final int GLUDIN_HARBOR = 2;
-	public static final int RUNE_HARBOR = 3;
 	
-	public static final BoatManager getInstance()
-	{
-		return SingletonHolder._instance;
-	}
+	public static final int RUNE_HARBOR = 3;
+	private final Map<Integer, L2BoatInstance> _boats = new ConcurrentHashMap<>();
+	private final boolean[] _docksBusy = new boolean[3];
 	
 	protected BoatManager()
 	{
@@ -50,6 +45,75 @@ public class BoatManager
 		{
 			_docksBusy[i] = false;
 		}
+	}
+	
+	public static final BoatManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Broadcast one packet in both path points
+	 * @param point1
+	 * @param point2
+	 * @param packet
+	 */
+	public void broadcastPacket(VehiclePathPoint point1, VehiclePathPoint point2, L2GameServerPacket packet)
+	{
+		broadcastPacketsToPlayers(point1, point2, packet);
+	}
+	
+	/**
+	 * Broadcast several packets in both path points
+	 * @param point1
+	 * @param point2
+	 * @param packets
+	 */
+	public void broadcastPackets(VehiclePathPoint point1, VehiclePathPoint point2, L2GameServerPacket... packets)
+	{
+		broadcastPacketsToPlayers(point1, point2, packets);
+	}
+	
+	/**
+	 * Check if dock is busy
+	 * @param h Dock Id
+	 * @return Trye if dock is locked
+	 */
+	public boolean dockBusy(int h)
+	{
+		try
+		{
+			return _docksBusy[h];
+		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+			return false;
+		}
+	}
+	
+	/**
+	 * Lock/unlock dock so only one ship can be docked
+	 * @param h Dock Id
+	 * @param value True if dock is locked
+	 */
+	public void dockShip(int h, boolean value)
+	{
+		try
+		{
+			_docksBusy[h] = value;
+		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+		}
+	}
+	
+	/**
+	 * @param boatId
+	 * @return
+	 */
+	public L2BoatInstance getBoat(int boatId)
+	{
+		return _boats.get(boatId);
 	}
 	
 	public L2BoatInstance getNewBoat(int boatId, int x, int y, int z, int heading)
@@ -110,70 +174,6 @@ public class BoatManager
 		
 		_boats.put(boat.getObjectId(), boat);
 		return boat;
-	}
-	
-	/**
-	 * @param boatId
-	 * @return
-	 */
-	public L2BoatInstance getBoat(int boatId)
-	{
-		return _boats.get(boatId);
-	}
-	
-	/**
-	 * Lock/unlock dock so only one ship can be docked
-	 * @param h Dock Id
-	 * @param value True if dock is locked
-	 */
-	public void dockShip(int h, boolean value)
-	{
-		try
-		{
-			_docksBusy[h] = value;
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-		}
-	}
-	
-	/**
-	 * Check if dock is busy
-	 * @param h Dock Id
-	 * @return Trye if dock is locked
-	 */
-	public boolean dockBusy(int h)
-	{
-		try
-		{
-			return _docksBusy[h];
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			return false;
-		}
-	}
-	
-	/**
-	 * Broadcast one packet in both path points
-	 * @param point1
-	 * @param point2
-	 * @param packet
-	 */
-	public void broadcastPacket(VehiclePathPoint point1, VehiclePathPoint point2, L2GameServerPacket packet)
-	{
-		broadcastPacketsToPlayers(point1, point2, packet);
-	}
-	
-	/**
-	 * Broadcast several packets in both path points
-	 * @param point1
-	 * @param point2
-	 * @param packets
-	 */
-	public void broadcastPackets(VehiclePathPoint point1, VehiclePathPoint point2, L2GameServerPacket... packets)
-	{
-		broadcastPacketsToPlayers(point1, point2, packets);
 	}
 	
 	private void broadcastPacketsToPlayers(VehiclePathPoint point1, VehiclePathPoint point2, L2GameServerPacket... packets)

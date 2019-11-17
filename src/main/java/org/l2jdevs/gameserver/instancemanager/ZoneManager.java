@@ -71,50 +71,369 @@ public final class ZoneManager implements IXmlReader
 	}
 	
 	/**
-	 * Reload.
+	 * Gets the single instance of ZoneManager.
+	 * @return single instance of ZoneManager
 	 */
-	public void reload()
+	public static final ZoneManager getInstance()
 	{
-		// Get the world regions
-		int count = 0;
-		final L2WorldRegion[][] worldRegions = L2World.getInstance().getWorldRegions();
-		
-		// Backup old zone settings
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the settings.
+	 * @param name the name
+	 * @return the settings
+	 */
+	public static AbstractZoneSettings getSettings(String name)
+	{
+		return _settings.get(name);
+	}
+	
+	/**
+	 * Add new zone.
+	 * @param <T> the generic type
+	 * @param id the id
+	 * @param zone the zone
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends L2ZoneType> void addZone(Integer id, T zone)
+	{
+		Map<Integer, T> map = (Map<Integer, T>) _classZones.get(zone.getClass());
+		if (map == null)
+		{
+			map = new HashMap<>();
+			map.put(id, zone);
+			_classZones.put(zone.getClass(), map);
+		}
+		else
+		{
+			map.put(id, zone);
+		}
+	}
+	
+	/**
+	 * Check id.
+	 * @param id the id
+	 * @return true, if successful
+	 */
+	public boolean checkId(int id)
+	{
 		for (Map<Integer, ? extends L2ZoneType> map : _classZones.values())
 		{
-			for (L2ZoneType zone : map.values())
+			if (map.containsKey(id))
 			{
-				if (zone.getSettings() != null)
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Remove all debug items from l2world.
+	 */
+	public void clearDebugItems()
+	{
+		if (_debugItems != null)
+		{
+			final Iterator<L2ItemInstance> it = _debugItems.iterator();
+			while (it.hasNext())
+			{
+				final L2ItemInstance item = it.next();
+				if (item != null)
 				{
-					_settings.put(zone.getName(), zone.getSettings());
+					item.decayMe();
+				}
+				it.remove();
+			}
+		}
+	}
+	
+	/**
+	 * Returns all zones registered with the ZoneManager. To minimize iteration processing retrieve zones from L2WorldRegion for a specific location instead.
+	 * @return zones
+	 * @see #getAllZones(Class)
+	 */
+	@Deprecated
+	public Collection<L2ZoneType> getAllZones()
+	{
+		final List<L2ZoneType> zones = new ArrayList<>();
+		for (Map<Integer, ? extends L2ZoneType> map : _classZones.values())
+		{
+			zones.addAll(map.values());
+		}
+		return zones;
+	}
+	
+	/**
+	 * Return all zones by class type.
+	 * @param <T> the generic type
+	 * @param zoneType Zone class
+	 * @return Collection of zones
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends L2ZoneType> Collection<T> getAllZones(Class<T> zoneType)
+	{
+		return (Collection<T>) _classZones.get(zoneType).values();
+	}
+	
+	/**
+	 * Gets the arena.
+	 * @param character the character
+	 * @return the arena
+	 */
+	public final L2ArenaZone getArena(L2Character character)
+	{
+		if (character == null)
+		{
+			return null;
+		}
+		
+		for (L2ZoneType temp : ZoneManager.getInstance().getZones(character.getX(), character.getY(), character.getZ()))
+		{
+			if ((temp instanceof L2ArenaZone) && temp.isCharacterInZone(character))
+			{
+				return ((L2ArenaZone) temp);
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * For testing purposes only.
+	 * @param <T> the generic type
+	 * @param obj the obj
+	 * @param type the type
+	 * @return the closest zone
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends L2ZoneType> T getClosestZone(L2Object obj, Class<T> type)
+	{
+		T zone = getZone(obj, type);
+		if (zone == null)
+		{
+			double closestdis = Double.MAX_VALUE;
+			for (T temp : (Collection<T>) _classZones.get(type).values())
+			{
+				double distance = temp.getDistanceToZone(obj);
+				if (distance < closestdis)
+				{
+					closestdis = distance;
+					zone = temp;
 				}
 			}
 		}
-		
-		// Clear zones
-		for (L2WorldRegion[] worldRegion : worldRegions)
+		return zone;
+	}
+	
+	/**
+	 * General storage for debug items used for visualizing zones.
+	 * @return list of items
+	 */
+	public List<L2ItemInstance> getDebugItems()
+	{
+		if (_debugItems == null)
 		{
-			for (L2WorldRegion element : worldRegion)
+			_debugItems = new ArrayList<>();
+		}
+		return _debugItems;
+	}
+	
+	/**
+	 * Gets the olympiad stadium.
+	 * @param character the character
+	 * @return the olympiad stadium
+	 */
+	public final L2OlympiadStadiumZone getOlympiadStadium(L2Character character)
+	{
+		if (character == null)
+		{
+			return null;
+		}
+		
+		for (L2ZoneType temp : ZoneManager.getInstance().getZones(character.getX(), character.getY(), character.getZ()))
+		{
+			if ((temp instanceof L2OlympiadStadiumZone) && temp.isCharacterInZone(character))
 			{
-				element.getZones().clear();
-				count++;
+				return ((L2OlympiadStadiumZone) temp);
 			}
 		}
-		GrandBossManager.getInstance().getZones().clear();
-		LOG.info("{}: Removed zones in " + count + " regions.", getClass().getSimpleName());
-		
-		// Load the zones
-		load();
-		
-		// Re-validate all characters in zones
-		for (L2Object obj : L2World.getInstance().getVisibleObjects())
+		return null;
+	}
+	
+	/**
+	 * Gets the size.
+	 * @return the size
+	 */
+	public int getSize()
+	{
+		int i = 0;
+		for (Map<Integer, ? extends L2ZoneType> map : _classZones.values())
 		{
-			if (obj instanceof L2Character)
+			i += map.size();
+		}
+		return i;
+	}
+	
+	/**
+	 * Returns all spawm territories from where the object is located
+	 * @param object
+	 * @return zones
+	 */
+	public List<NpcSpawnTerritory> getSpawnTerritories(L2Object object)
+	{
+		List<NpcSpawnTerritory> temp = new ArrayList<>();
+		for (NpcSpawnTerritory territory : _spawnTerritories.values())
+		{
+			if (territory.isInsideZone(object.getX(), object.getY(), object.getZ()))
 			{
-				((L2Character) obj).revalidateZone(true);
+				temp.add(territory);
 			}
 		}
-		_settings.clear();
+		
+		return temp;
+	}
+	
+	/**
+	 * Get spawm territory by name
+	 * @param name name of territory to search
+	 * @return link to zone form
+	 */
+	public NpcSpawnTerritory getSpawnTerritory(String name)
+	{
+		return _spawnTerritories.containsKey(name) ? _spawnTerritories.get(name) : null;
+	}
+	
+	/**
+	 * Gets the zone.
+	 * @param <T> the generic type
+	 * @param x the x
+	 * @param y the y
+	 * @param z the z
+	 * @param type the type
+	 * @return zone from given coordinates
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends L2ZoneType> T getZone(int x, int y, int z, Class<T> type)
+	{
+		final L2WorldRegion region = L2World.getInstance().getRegion(x, y);
+		for (L2ZoneType zone : region.getZones())
+		{
+			if (zone.isInsideZone(x, y, z) && type.isInstance(zone))
+			{
+				return (T) zone;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the zone.
+	 * @param <T> the generic type
+	 * @param object the object
+	 * @param type the type
+	 * @return zone from where the object is located by type
+	 */
+	public <T extends L2ZoneType> T getZone(L2Object object, Class<T> type)
+	{
+		if (object == null)
+		{
+			return null;
+		}
+		return getZone(object.getX(), object.getY(), object.getZ(), type);
+	}
+	
+	/**
+	 * Get zone by ID.
+	 * @param id the id
+	 * @return the zone by id
+	 * @see #getZoneById(int, Class)
+	 */
+	public L2ZoneType getZoneById(int id)
+	{
+		for (Map<Integer, ? extends L2ZoneType> map : _classZones.values())
+		{
+			if (map.containsKey(id))
+			{
+				return map.get(id);
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Get zone by ID and zone class.
+	 * @param <T> the generic type
+	 * @param id the id
+	 * @param zoneType the zone type
+	 * @return zone
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends L2ZoneType> T getZoneById(int id, Class<T> zoneType)
+	{
+		return (T) _classZones.get(zoneType).get(id);
+	}
+	
+	/**
+	 * Returns all zones from given coordinates (plane).
+	 * @param x the x
+	 * @param y the y
+	 * @return zones
+	 */
+	public List<L2ZoneType> getZones(int x, int y)
+	{
+		final L2WorldRegion region = L2World.getInstance().getRegion(x, y);
+		final List<L2ZoneType> temp = new ArrayList<>();
+		for (L2ZoneType zone : region.getZones())
+		{
+			if (zone.isInsideZone(x, y))
+			{
+				temp.add(zone);
+			}
+		}
+		return temp;
+	}
+	
+	/**
+	 * Returns all zones from given coordinates.
+	 * @param x the x
+	 * @param y the y
+	 * @param z the z
+	 * @return zones
+	 */
+	public List<L2ZoneType> getZones(int x, int y, int z)
+	{
+		final L2WorldRegion region = L2World.getInstance().getRegion(x, y);
+		final List<L2ZoneType> temp = new ArrayList<>();
+		for (L2ZoneType zone : region.getZones())
+		{
+			if (zone.isInsideZone(x, y, z))
+			{
+				temp.add(zone);
+			}
+		}
+		return temp;
+	}
+	
+	/**
+	 * Returns all zones from where the object is located.
+	 * @param object the object
+	 * @return zones
+	 */
+	public List<L2ZoneType> getZones(L2Object object)
+	{
+		return getZones(object.getX(), object.getY(), object.getZ());
+	}
+	
+	@Override
+	public final void load()
+	{
+		_classZones.clear();
+		_spawnTerritories.clear();
+		parseDatapackDirectory("data/zones", false);
+		parseDatapackDirectory("data/zones/npcSpawnTerritories", false);
+		LOG.info("{}: Loaded {} zone classes and {} zones.", getClass().getSimpleName(), _classZones.size(), getSize());
+		LOG.info("{}: Loaded {} NPC spawn territoriers.", getClass().getSimpleName(), _spawnTerritories.size());
 	}
 	
 	@Override
@@ -375,370 +694,51 @@ public final class ZoneManager implements IXmlReader
 		}
 	}
 	
-	@Override
-	public final void load()
-	{
-		_classZones.clear();
-		_spawnTerritories.clear();
-		parseDatapackDirectory("data/zones", false);
-		parseDatapackDirectory("data/zones/npcSpawnTerritories", false);
-		LOG.info("{}: Loaded {} zone classes and {} zones.", getClass().getSimpleName(), _classZones.size(), getSize());
-		LOG.info("{}: Loaded {} NPC spawn territoriers.", getClass().getSimpleName(), _spawnTerritories.size());
-	}
-	
 	/**
-	 * Gets the size.
-	 * @return the size
+	 * Reload.
 	 */
-	public int getSize()
+	public void reload()
 	{
-		int i = 0;
+		// Get the world regions
+		int count = 0;
+		final L2WorldRegion[][] worldRegions = L2World.getInstance().getWorldRegions();
+		
+		// Backup old zone settings
 		for (Map<Integer, ? extends L2ZoneType> map : _classZones.values())
 		{
-			i += map.size();
-		}
-		return i;
-	}
-	
-	/**
-	 * Check id.
-	 * @param id the id
-	 * @return true, if successful
-	 */
-	public boolean checkId(int id)
-	{
-		for (Map<Integer, ? extends L2ZoneType> map : _classZones.values())
-		{
-			if (map.containsKey(id))
+			for (L2ZoneType zone : map.values())
 			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * Add new zone.
-	 * @param <T> the generic type
-	 * @param id the id
-	 * @param zone the zone
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends L2ZoneType> void addZone(Integer id, T zone)
-	{
-		Map<Integer, T> map = (Map<Integer, T>) _classZones.get(zone.getClass());
-		if (map == null)
-		{
-			map = new HashMap<>();
-			map.put(id, zone);
-			_classZones.put(zone.getClass(), map);
-		}
-		else
-		{
-			map.put(id, zone);
-		}
-	}
-	
-	/**
-	 * Returns all zones registered with the ZoneManager. To minimize iteration processing retrieve zones from L2WorldRegion for a specific location instead.
-	 * @return zones
-	 * @see #getAllZones(Class)
-	 */
-	@Deprecated
-	public Collection<L2ZoneType> getAllZones()
-	{
-		final List<L2ZoneType> zones = new ArrayList<>();
-		for (Map<Integer, ? extends L2ZoneType> map : _classZones.values())
-		{
-			zones.addAll(map.values());
-		}
-		return zones;
-	}
-	
-	/**
-	 * Return all zones by class type.
-	 * @param <T> the generic type
-	 * @param zoneType Zone class
-	 * @return Collection of zones
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends L2ZoneType> Collection<T> getAllZones(Class<T> zoneType)
-	{
-		return (Collection<T>) _classZones.get(zoneType).values();
-	}
-	
-	/**
-	 * Get zone by ID.
-	 * @param id the id
-	 * @return the zone by id
-	 * @see #getZoneById(int, Class)
-	 */
-	public L2ZoneType getZoneById(int id)
-	{
-		for (Map<Integer, ? extends L2ZoneType> map : _classZones.values())
-		{
-			if (map.containsKey(id))
-			{
-				return map.get(id);
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * Get zone by ID and zone class.
-	 * @param <T> the generic type
-	 * @param id the id
-	 * @param zoneType the zone type
-	 * @return zone
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends L2ZoneType> T getZoneById(int id, Class<T> zoneType)
-	{
-		return (T) _classZones.get(zoneType).get(id);
-	}
-	
-	/**
-	 * Returns all zones from where the object is located.
-	 * @param object the object
-	 * @return zones
-	 */
-	public List<L2ZoneType> getZones(L2Object object)
-	{
-		return getZones(object.getX(), object.getY(), object.getZ());
-	}
-	
-	/**
-	 * Gets the zone.
-	 * @param <T> the generic type
-	 * @param object the object
-	 * @param type the type
-	 * @return zone from where the object is located by type
-	 */
-	public <T extends L2ZoneType> T getZone(L2Object object, Class<T> type)
-	{
-		if (object == null)
-		{
-			return null;
-		}
-		return getZone(object.getX(), object.getY(), object.getZ(), type);
-	}
-	
-	/**
-	 * Returns all zones from given coordinates (plane).
-	 * @param x the x
-	 * @param y the y
-	 * @return zones
-	 */
-	public List<L2ZoneType> getZones(int x, int y)
-	{
-		final L2WorldRegion region = L2World.getInstance().getRegion(x, y);
-		final List<L2ZoneType> temp = new ArrayList<>();
-		for (L2ZoneType zone : region.getZones())
-		{
-			if (zone.isInsideZone(x, y))
-			{
-				temp.add(zone);
-			}
-		}
-		return temp;
-	}
-	
-	/**
-	 * Returns all zones from given coordinates.
-	 * @param x the x
-	 * @param y the y
-	 * @param z the z
-	 * @return zones
-	 */
-	public List<L2ZoneType> getZones(int x, int y, int z)
-	{
-		final L2WorldRegion region = L2World.getInstance().getRegion(x, y);
-		final List<L2ZoneType> temp = new ArrayList<>();
-		for (L2ZoneType zone : region.getZones())
-		{
-			if (zone.isInsideZone(x, y, z))
-			{
-				temp.add(zone);
-			}
-		}
-		return temp;
-	}
-	
-	/**
-	 * Gets the zone.
-	 * @param <T> the generic type
-	 * @param x the x
-	 * @param y the y
-	 * @param z the z
-	 * @param type the type
-	 * @return zone from given coordinates
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends L2ZoneType> T getZone(int x, int y, int z, Class<T> type)
-	{
-		final L2WorldRegion region = L2World.getInstance().getRegion(x, y);
-		for (L2ZoneType zone : region.getZones())
-		{
-			if (zone.isInsideZone(x, y, z) && type.isInstance(zone))
-			{
-				return (T) zone;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * Get spawm territory by name
-	 * @param name name of territory to search
-	 * @return link to zone form
-	 */
-	public NpcSpawnTerritory getSpawnTerritory(String name)
-	{
-		return _spawnTerritories.containsKey(name) ? _spawnTerritories.get(name) : null;
-	}
-	
-	/**
-	 * Returns all spawm territories from where the object is located
-	 * @param object
-	 * @return zones
-	 */
-	public List<NpcSpawnTerritory> getSpawnTerritories(L2Object object)
-	{
-		List<NpcSpawnTerritory> temp = new ArrayList<>();
-		for (NpcSpawnTerritory territory : _spawnTerritories.values())
-		{
-			if (territory.isInsideZone(object.getX(), object.getY(), object.getZ()))
-			{
-				temp.add(territory);
-			}
-		}
-		
-		return temp;
-	}
-	
-	/**
-	 * Gets the arena.
-	 * @param character the character
-	 * @return the arena
-	 */
-	public final L2ArenaZone getArena(L2Character character)
-	{
-		if (character == null)
-		{
-			return null;
-		}
-		
-		for (L2ZoneType temp : ZoneManager.getInstance().getZones(character.getX(), character.getY(), character.getZ()))
-		{
-			if ((temp instanceof L2ArenaZone) && temp.isCharacterInZone(character))
-			{
-				return ((L2ArenaZone) temp);
-			}
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * Gets the olympiad stadium.
-	 * @param character the character
-	 * @return the olympiad stadium
-	 */
-	public final L2OlympiadStadiumZone getOlympiadStadium(L2Character character)
-	{
-		if (character == null)
-		{
-			return null;
-		}
-		
-		for (L2ZoneType temp : ZoneManager.getInstance().getZones(character.getX(), character.getY(), character.getZ()))
-		{
-			if ((temp instanceof L2OlympiadStadiumZone) && temp.isCharacterInZone(character))
-			{
-				return ((L2OlympiadStadiumZone) temp);
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * For testing purposes only.
-	 * @param <T> the generic type
-	 * @param obj the obj
-	 * @param type the type
-	 * @return the closest zone
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends L2ZoneType> T getClosestZone(L2Object obj, Class<T> type)
-	{
-		T zone = getZone(obj, type);
-		if (zone == null)
-		{
-			double closestdis = Double.MAX_VALUE;
-			for (T temp : (Collection<T>) _classZones.get(type).values())
-			{
-				double distance = temp.getDistanceToZone(obj);
-				if (distance < closestdis)
+				if (zone.getSettings() != null)
 				{
-					closestdis = distance;
-					zone = temp;
+					_settings.put(zone.getName(), zone.getSettings());
 				}
 			}
 		}
-		return zone;
-	}
-	
-	/**
-	 * General storage for debug items used for visualizing zones.
-	 * @return list of items
-	 */
-	public List<L2ItemInstance> getDebugItems()
-	{
-		if (_debugItems == null)
+		
+		// Clear zones
+		for (L2WorldRegion[] worldRegion : worldRegions)
 		{
-			_debugItems = new ArrayList<>();
-		}
-		return _debugItems;
-	}
-	
-	/**
-	 * Remove all debug items from l2world.
-	 */
-	public void clearDebugItems()
-	{
-		if (_debugItems != null)
-		{
-			final Iterator<L2ItemInstance> it = _debugItems.iterator();
-			while (it.hasNext())
+			for (L2WorldRegion element : worldRegion)
 			{
-				final L2ItemInstance item = it.next();
-				if (item != null)
-				{
-					item.decayMe();
-				}
-				it.remove();
+				element.getZones().clear();
+				count++;
 			}
 		}
-	}
-	
-	/**
-	 * Gets the settings.
-	 * @param name the name
-	 * @return the settings
-	 */
-	public static AbstractZoneSettings getSettings(String name)
-	{
-		return _settings.get(name);
-	}
-	
-	/**
-	 * Gets the single instance of ZoneManager.
-	 * @return single instance of ZoneManager
-	 */
-	public static final ZoneManager getInstance()
-	{
-		return SingletonHolder._instance;
+		GrandBossManager.getInstance().getZones().clear();
+		LOG.info("{}: Removed zones in " + count + " regions.", getClass().getSimpleName());
+		
+		// Load the zones
+		load();
+		
+		// Re-validate all characters in zones
+		for (L2Object obj : L2World.getInstance().getVisibleObjects())
+		{
+			if (obj instanceof L2Character)
+			{
+				((L2Character) obj).revalidateZone(true);
+			}
+		}
+		_settings.clear();
 	}
 	
 	private static class SingletonHolder

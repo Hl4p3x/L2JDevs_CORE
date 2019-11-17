@@ -23,6 +23,23 @@ package org.l2jdevs.loginserver.network.serverpackets;
  */
 public final class AccountKicked extends L2LoginServerPacket
 {
+	private final AccountKickedReason _reason;
+	
+	/**
+	 * @param reason
+	 */
+	public AccountKicked(AccountKickedReason reason)
+	{
+		_reason = reason;
+	}
+	
+	@Override
+	protected void write()
+	{
+		writeC(0x02);
+		writeD(_reason.getCode());
+	}
+	
 	public static enum AccountKickedReason
 	{
 		REASON_DATA_STEALER(0x01),
@@ -41,22 +58,5 @@ public final class AccountKicked extends L2LoginServerPacket
 		{
 			return _code;
 		}
-	}
-	
-	private final AccountKickedReason _reason;
-	
-	/**
-	 * @param reason
-	 */
-	public AccountKicked(AccountKickedReason reason)
-	{
-		_reason = reason;
-	}
-	
-	@Override
-	protected void write()
-	{
-		writeC(0x02);
-		writeD(_reason.getCode());
 	}
 }

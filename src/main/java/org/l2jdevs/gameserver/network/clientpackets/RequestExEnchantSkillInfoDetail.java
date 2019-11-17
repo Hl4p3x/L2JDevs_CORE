@@ -36,6 +36,12 @@ public final class RequestExEnchantSkillInfoDetail extends L2GameClientPacket
 	private int _skillLvl;
 	
 	@Override
+	public String getType()
+	{
+		return _C_D0_46_REQUESTEXENCHANTSKILLINFO;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_type = readD();
@@ -111,11 +117,5 @@ public final class RequestExEnchantSkillInfoDetail extends L2GameClientPacket
 		// send skill enchantment detail
 		ExEnchantSkillInfoDetail esd = new ExEnchantSkillInfoDetail(_type, _skillId, _skillLvl, activeChar);
 		activeChar.sendPacket(esd);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C_D0_46_REQUESTEXENCHANTSKILLINFO;
 	}
 }

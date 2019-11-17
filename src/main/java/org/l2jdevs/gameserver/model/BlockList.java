@@ -53,118 +53,6 @@ public class BlockList
 		}
 	}
 	
-	private void addToBlockList(int target)
-	{
-		_blockList.add(target);
-		persistInDB(target);
-	}
-	
-	private void removeFromBlockList(int target)
-	{
-		_blockList.remove(Integer.valueOf(target));
-		removeFromDB(target);
-	}
-	
-	public void playerLogout()
-	{
-		OFFLINE_LIST.put(_owner.getObjectId(), _blockList);
-	}
-	
-	private static List<Integer> loadList(int ObjId)
-	{
-		List<Integer> list = new ArrayList<>();
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT friendId FROM character_friends WHERE charId=? AND relation=1"))
-		{
-			ps.setInt(1, ObjId);
-			try (ResultSet rs = ps.executeQuery())
-			{
-				int friendId;
-				while (rs.next())
-				{
-					friendId = rs.getInt("friendId");
-					if (friendId == ObjId)
-					{
-						continue;
-					}
-					list.add(friendId);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Error found in " + ObjId + " FriendList while loading BlockList: " + e.getMessage(), e);
-		}
-		return list;
-	}
-	
-	private void removeFromDB(int targetId)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM character_friends WHERE charId=? AND friendId=? AND relation=1"))
-		{
-			ps.setInt(1, _owner.getObjectId());
-			ps.setInt(2, targetId);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Could not remove blocked player: " + e.getMessage(), e);
-		}
-	}
-	
-	private void persistInDB(int targetId)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("INSERT INTO character_friends (charId, friendId, relation) VALUES (?, ?, 1)"))
-		{
-			ps.setInt(1, _owner.getObjectId());
-			ps.setInt(2, targetId);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Could not add blocked player: " + e.getMessage(), e);
-		}
-	}
-	
-	public boolean isInBlockList(L2PcInstance target)
-	{
-		return _blockList.contains(target.getObjectId());
-	}
-	
-	public boolean isInBlockList(int targetId)
-	{
-		return _blockList.contains(targetId);
-	}
-	
-	private boolean isBlockAll()
-	{
-		return _owner.getMessageRefusal();
-	}
-	
-	public static boolean isBlocked(L2PcInstance listOwner, L2PcInstance target)
-	{
-		BlockList blockList = listOwner.getBlockList();
-		return blockList.isBlockAll() || blockList.isInBlockList(target);
-	}
-	
-	public static boolean isBlocked(L2PcInstance listOwner, int targetId)
-	{
-		BlockList blockList = listOwner.getBlockList();
-		return blockList.isBlockAll() || blockList.isInBlockList(targetId);
-	}
-	
-	private void setBlockAll(boolean state)
-	{
-		_owner.setMessageRefusal(state);
-	}
-	
-	private List<Integer> getBlockList()
-	{
-		return _blockList;
-	}
-	
 	public static void addToBlockList(L2PcInstance listOwner, int targetId)
 	{
 		if (listOwner == null)
@@ -204,6 +92,42 @@ public class BlockList
 		}
 	}
 	
+	public static boolean isBlocked(L2PcInstance listOwner, int targetId)
+	{
+		BlockList blockList = listOwner.getBlockList();
+		return blockList.isBlockAll() || blockList.isInBlockList(targetId);
+	}
+	
+	public static boolean isBlocked(L2PcInstance listOwner, L2PcInstance target)
+	{
+		BlockList blockList = listOwner.getBlockList();
+		return blockList.isBlockAll() || blockList.isInBlockList(target);
+	}
+	
+	/**
+	 * @param ownerId object id of owner block list
+	 * @param targetId object id of potential blocked player
+	 * @return true if blocked
+	 */
+	public static boolean isInBlockList(int ownerId, int targetId)
+	{
+		L2PcInstance player = L2World.getInstance().getPlayer(ownerId);
+		if (player != null)
+		{
+			return BlockList.isBlocked(player, targetId);
+		}
+		if (!OFFLINE_LIST.containsKey(ownerId))
+		{
+			OFFLINE_LIST.put(ownerId, loadList(ownerId));
+		}
+		return OFFLINE_LIST.get(ownerId).contains(targetId);
+	}
+	
+	public static boolean isInBlockList(L2PcInstance listOwner, L2PcInstance target)
+	{
+		return listOwner.getBlockList().isInBlockList(target);
+	}
+	
 	public static void removeFromBlockList(L2PcInstance listOwner, int targetId)
 	{
 		if (listOwner == null)
@@ -229,21 +153,6 @@ public class BlockList
 		listOwner.sendPacket(sm);
 	}
 	
-	public static boolean isInBlockList(L2PcInstance listOwner, L2PcInstance target)
-	{
-		return listOwner.getBlockList().isInBlockList(target);
-	}
-	
-	public boolean isBlockAll(L2PcInstance listOwner)
-	{
-		return listOwner.getBlockList().isBlockAll();
-	}
-	
-	public static void setBlockAll(L2PcInstance listOwner, boolean newValue)
-	{
-		listOwner.getBlockList().setBlockAll(newValue);
-	}
-	
 	public static void sendListToOwner(L2PcInstance listOwner)
 	{
 		int i = 1;
@@ -255,22 +164,113 @@ public class BlockList
 		listOwner.sendPacket(SystemMessageId.FRIEND_LIST_FOOTER);
 	}
 	
-	/**
-	 * @param ownerId object id of owner block list
-	 * @param targetId object id of potential blocked player
-	 * @return true if blocked
-	 */
-	public static boolean isInBlockList(int ownerId, int targetId)
+	public static void setBlockAll(L2PcInstance listOwner, boolean newValue)
 	{
-		L2PcInstance player = L2World.getInstance().getPlayer(ownerId);
-		if (player != null)
+		listOwner.getBlockList().setBlockAll(newValue);
+	}
+	
+	private static List<Integer> loadList(int ObjId)
+	{
+		List<Integer> list = new ArrayList<>();
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT friendId FROM character_friends WHERE charId=? AND relation=1"))
 		{
-			return BlockList.isBlocked(player, targetId);
+			ps.setInt(1, ObjId);
+			try (ResultSet rs = ps.executeQuery())
+			{
+				int friendId;
+				while (rs.next())
+				{
+					friendId = rs.getInt("friendId");
+					if (friendId == ObjId)
+					{
+						continue;
+					}
+					list.add(friendId);
+				}
+			}
 		}
-		if (!OFFLINE_LIST.containsKey(ownerId))
+		catch (Exception e)
 		{
-			OFFLINE_LIST.put(ownerId, loadList(ownerId));
+			_log.log(Level.WARNING, "Error found in " + ObjId + " FriendList while loading BlockList: " + e.getMessage(), e);
 		}
-		return OFFLINE_LIST.get(ownerId).contains(targetId);
+		return list;
+	}
+	
+	public boolean isBlockAll(L2PcInstance listOwner)
+	{
+		return listOwner.getBlockList().isBlockAll();
+	}
+	
+	public boolean isInBlockList(int targetId)
+	{
+		return _blockList.contains(targetId);
+	}
+	
+	public boolean isInBlockList(L2PcInstance target)
+	{
+		return _blockList.contains(target.getObjectId());
+	}
+	
+	public void playerLogout()
+	{
+		OFFLINE_LIST.put(_owner.getObjectId(), _blockList);
+	}
+	
+	private void addToBlockList(int target)
+	{
+		_blockList.add(target);
+		persistInDB(target);
+	}
+	
+	private List<Integer> getBlockList()
+	{
+		return _blockList;
+	}
+	
+	private boolean isBlockAll()
+	{
+		return _owner.getMessageRefusal();
+	}
+	
+	private void persistInDB(int targetId)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("INSERT INTO character_friends (charId, friendId, relation) VALUES (?, ?, 1)"))
+		{
+			ps.setInt(1, _owner.getObjectId());
+			ps.setInt(2, targetId);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Could not add blocked player: " + e.getMessage(), e);
+		}
+	}
+	
+	private void removeFromBlockList(int target)
+	{
+		_blockList.remove(Integer.valueOf(target));
+		removeFromDB(target);
+	}
+	
+	private void removeFromDB(int targetId)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM character_friends WHERE charId=? AND friendId=? AND relation=1"))
+		{
+			ps.setInt(1, _owner.getObjectId());
+			ps.setInt(2, targetId);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Could not remove blocked player: " + e.getMessage(), e);
+		}
+	}
+	
+	private void setBlockAll(boolean state)
+	{
+		_owner.setMessageRefusal(state);
 	}
 }

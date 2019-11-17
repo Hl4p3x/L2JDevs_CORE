@@ -59,30 +59,6 @@ public class L2NpcBufferInstance extends L2Npc
 	}
 	
 	@Override
-	public void showChatWindow(L2PcInstance player, int val)
-	{
-		if (player == null)
-		{
-			return;
-		}
-		
-		String htmContent = HtmCache.getInstance().getHtm(player.getHtmlPrefix(), "data/html/mods/NpcBuffer.htm");
-		if (val > 0)
-		{
-			htmContent = HtmCache.getInstance().getHtm(player.getHtmlPrefix(), "data/html/mods/NpcBuffer-" + val + ".htm");
-		}
-		
-		if (htmContent != null)
-		{
-			final NpcHtmlMessage npcHtmlMessage = new NpcHtmlMessage(getObjectId());
-			npcHtmlMessage.setHtml(htmContent);
-			npcHtmlMessage.replace("%objectId%", String.valueOf(getObjectId()));
-			player.sendPacket(npcHtmlMessage);
-		}
-		player.sendPacket(ActionFailed.STATIC_PACKET);
-	}
-	
-	@Override
 	public void onBypassFeedback(L2PcInstance player, String command)
 	{
 		// BypassValidation Exploit plug.
@@ -203,5 +179,29 @@ public class L2NpcBufferInstance extends L2Npc
 		{
 			super.onBypassFeedback(player, command);
 		}
+	}
+	
+	@Override
+	public void showChatWindow(L2PcInstance player, int val)
+	{
+		if (player == null)
+		{
+			return;
+		}
+		
+		String htmContent = HtmCache.getInstance().getHtm(player.getHtmlPrefix(), "data/html/mods/NpcBuffer.htm");
+		if (val > 0)
+		{
+			htmContent = HtmCache.getInstance().getHtm(player.getHtmlPrefix(), "data/html/mods/NpcBuffer-" + val + ".htm");
+		}
+		
+		if (htmContent != null)
+		{
+			final NpcHtmlMessage npcHtmlMessage = new NpcHtmlMessage(getObjectId());
+			npcHtmlMessage.setHtml(htmContent);
+			npcHtmlMessage.replace("%objectId%", String.valueOf(getObjectId()));
+			player.sendPacket(npcHtmlMessage);
+		}
+		player.sendPacket(ActionFailed.STATIC_PACKET);
 	}
 }

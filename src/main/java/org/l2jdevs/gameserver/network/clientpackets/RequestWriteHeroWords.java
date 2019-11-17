@@ -32,6 +32,12 @@ public final class RequestWriteHeroWords extends L2GameClientPacket
 	private String _heroWords;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_05_REQUESTWRITEHEROWORDS;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_heroWords = readS();
@@ -52,11 +58,5 @@ public final class RequestWriteHeroWords extends L2GameClientPacket
 		}
 		
 		Hero.getInstance().setHeroMessage(player, _heroWords);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_05_REQUESTWRITEHEROWORDS;
 	}
 }

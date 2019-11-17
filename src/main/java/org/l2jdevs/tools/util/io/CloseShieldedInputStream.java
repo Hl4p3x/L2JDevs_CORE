@@ -48,6 +48,40 @@ public class CloseShieldedInputStream extends InputStream
 	}
 	
 	/**
+	 * Gets the underlying stream.
+	 * @return the underlying stream
+	 */
+	public InputStream getUnderlyingStream()
+	{
+		return _in;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public synchronized void mark(int readlimit)
+	{
+		if (_in != null)
+		{
+			_in.mark(readlimit);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean markSupported()
+	{
+		if (_in == null)
+		{
+			return false;
+		}
+		return _in.markSupported();
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -90,44 +124,6 @@ public class CloseShieldedInputStream extends InputStream
 	 * {@inheritDoc}
 	 */
 	@Override
-	public long skip(long n) throws IOException
-	{
-		if (_in == null)
-		{
-			throw new IOException("Stream is null!");
-		}
-		return _in.skip(n);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public synchronized void mark(int readlimit)
-	{
-		if (_in != null)
-		{
-			_in.mark(readlimit);
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean markSupported()
-	{
-		if (_in == null)
-		{
-			return false;
-		}
-		return _in.markSupported();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public synchronized void reset() throws IOException
 	{
 		if (_in == null)
@@ -138,11 +134,15 @@ public class CloseShieldedInputStream extends InputStream
 	}
 	
 	/**
-	 * Gets the underlying stream.
-	 * @return the underlying stream
+	 * {@inheritDoc}
 	 */
-	public InputStream getUnderlyingStream()
+	@Override
+	public long skip(long n) throws IOException
 	{
-		return _in;
+		if (_in == null)
+		{
+			throw new IOException("Stream is null!");
+		}
+		return _in.skip(n);
 	}
 }

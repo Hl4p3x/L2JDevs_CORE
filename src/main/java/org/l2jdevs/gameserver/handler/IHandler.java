@@ -27,18 +27,18 @@ package org.l2jdevs.gameserver.handler;
  */
 public interface IHandler<K, V>
 {
+	public K getHandler(V val);
+	
+	public void registerHandler(K object);
+	
+	public void removeHandler(K handler);
+	
+	public int size();
+	
 	@SuppressWarnings("unchecked")
 	default void registerByClass(Class<?> clazz) throws Exception
 	{
 		final Object object = clazz.getDeclaredConstructor().newInstance();
 		registerHandler((K) object);
 	}
-	
-	public void registerHandler(K object);
-	
-	public void removeHandler(K handler);
-	
-	public K getHandler(V val);
-	
-	public int size();
 }

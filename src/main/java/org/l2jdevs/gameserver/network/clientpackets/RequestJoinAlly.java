@@ -36,6 +36,12 @@ public final class RequestJoinAlly extends L2GameClientPacket
 	private int _id;
 	
 	@Override
+	public String getType()
+	{
+		return _C__8C_REQUESTJOINALLY;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_id = readD();
@@ -80,11 +86,5 @@ public final class RequestJoinAlly extends L2GameClientPacket
 		sm.addString(activeChar.getName());
 		target.sendPacket(sm);
 		target.sendPacket(new AskJoinAlly(activeChar.getObjectId(), activeChar.getClan().getAllyName()));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__8C_REQUESTJOINALLY;
 	}
 }

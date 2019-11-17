@@ -50,6 +50,11 @@ public class PlayerVariables extends AbstractVariables
 		restoreMe();
 	}
 	
+	public L2PcInstance getPlayer()
+	{
+		return L2World.getInstance().getPlayer(_objectId);
+	}
+	
 	@Override
 	public boolean restoreMe()
 	{
@@ -119,10 +124,5 @@ public class PlayerVariables extends AbstractVariables
 			compareAndSetChanges(true, false);
 		}
 		return true;
-	}
-	
-	public L2PcInstance getPlayer()
-	{
-		return L2World.getInstance().getPlayer(_objectId);
 	}
 }

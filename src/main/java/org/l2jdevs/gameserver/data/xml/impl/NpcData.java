@@ -67,6 +67,107 @@ public class NpcData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of NpcData.
+	 * @return single instance of NpcData
+	 */
+	public static NpcData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the all monsters of level.
+	 * @param lvls of all the monster templates to get.
+	 * @return the template list for the given level.
+	 */
+	public List<L2NpcTemplate> getAllMonstersOfLevel(int... lvls)
+	{
+		return getTemplates(template -> Util.contains(lvls, template.getLevel()) && template.isType("L2Monster"));
+	}
+	
+	/**
+	 * Gets the all npc of class type.
+	 * @param classTypes of all the templates to get.
+	 * @return the template list for the given class type.
+	 */
+	public List<L2NpcTemplate> getAllNpcOfClassType(String... classTypes)
+	{
+		return getTemplates(template -> Util.contains(classTypes, template.getType(), true));
+	}
+	
+	/**
+	 * Gets the all npc starting with.
+	 * @param text of all the NPC templates which its name start with.
+	 * @return the template list for the given letter.
+	 */
+	public List<L2NpcTemplate> getAllNpcStartingWith(String text)
+	{
+		return getTemplates(template -> template.isType("L2Npc") && template.getName().startsWith(text));
+	}
+	
+	/**
+	 * Gets the all of level.
+	 * @param lvls of all the templates to get.
+	 * @return the template list for the given level.
+	 */
+	public List<L2NpcTemplate> getAllOfLevel(int... lvls)
+	{
+		return getTemplates(template -> Util.contains(lvls, template.getLevel()));
+	}
+	
+	/**
+	 * Gets the clan id
+	 * @param clanName the clan name to get its id
+	 * @return the clan id for the given clan name if it exists, -1 otherwise
+	 */
+	public int getClanId(String clanName)
+	{
+		Integer id = _clans.get(clanName.toUpperCase());
+		return id != null ? id : -1;
+	}
+	
+	/**
+	 * Gets the template.
+	 * @param id the template Id to get.
+	 * @return the template for the given id.
+	 */
+	public L2NpcTemplate getTemplate(int id)
+	{
+		return _npcs.get(id);
+	}
+	
+	/**
+	 * Gets the template by name.
+	 * @param name of the template to get.
+	 * @return the template for the given name.
+	 */
+	public L2NpcTemplate getTemplateByName(String name)
+	{
+		for (L2NpcTemplate npcTemplate : _npcs.values())
+		{
+			if (npcTemplate.getName().equalsIgnoreCase(name))
+			{
+				return npcTemplate;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets all templates matching the filter.
+	 * @param filter
+	 * @return the template list for the given filter
+	 */
+	public List<L2NpcTemplate> getTemplates(Predicate<L2NpcTemplate> filter)
+	{
+		//@formatter:off
+			return _npcs.values().stream()
+			.filter(filter)
+			.collect(Collectors.toList());
+		//@formatter:on
+	}
+	
 	@Override
 	public synchronized void load()
 	{
@@ -84,6 +185,18 @@ public class NpcData implements IXmlReader
 		
 		_minionData = null;
 		loadNpcsSkillLearn();
+	}
+	
+	public void loadNpcsSkillLearn()
+	{
+		_npcs.values().forEach(template ->
+		{
+			final List<ClassId> teachInfo = SkillLearnData.getInstance().getSkillLearnData(template.getId());
+			if (teachInfo != null)
+			{
+				template.addTeachInfo(teachInfo);
+			}
+		});
 	}
 	
 	@Override
@@ -624,6 +737,22 @@ public class NpcData implements IXmlReader
 		}
 	}
 	
+	/**
+	 * Gets or creates a clan id if it doesnt exists.
+	 * @param clanName the clan name to get or create its id
+	 * @return the clan id for the given clan name
+	 */
+	private int getOrCreateClanId(String clanName)
+	{
+		Integer id = _clans.get(clanName.toUpperCase());
+		if (id == null)
+		{
+			id = _clans.size();
+			_clans.put(clanName.toUpperCase(), id);
+		}
+		return id;
+	}
+	
 	private void parseDropList(File f, Node dropListNode, DropListScope dropListScope, List<IDropItem> drops)
 	{
 		for (Node dropNode = dropListNode.getFirstChild(); dropNode != null; dropNode = dropNode.getNextSibling())
@@ -684,126 +813,6 @@ public class NpcData implements IXmlReader
 	}
 	
 	/**
-	 * Gets or creates a clan id if it doesnt exists.
-	 * @param clanName the clan name to get or create its id
-	 * @return the clan id for the given clan name
-	 */
-	private int getOrCreateClanId(String clanName)
-	{
-		Integer id = _clans.get(clanName.toUpperCase());
-		if (id == null)
-		{
-			id = _clans.size();
-			_clans.put(clanName.toUpperCase(), id);
-		}
-		return id;
-	}
-	
-	/**
-	 * Gets the clan id
-	 * @param clanName the clan name to get its id
-	 * @return the clan id for the given clan name if it exists, -1 otherwise
-	 */
-	public int getClanId(String clanName)
-	{
-		Integer id = _clans.get(clanName.toUpperCase());
-		return id != null ? id : -1;
-	}
-	
-	/**
-	 * Gets the template.
-	 * @param id the template Id to get.
-	 * @return the template for the given id.
-	 */
-	public L2NpcTemplate getTemplate(int id)
-	{
-		return _npcs.get(id);
-	}
-	
-	/**
-	 * Gets the template by name.
-	 * @param name of the template to get.
-	 * @return the template for the given name.
-	 */
-	public L2NpcTemplate getTemplateByName(String name)
-	{
-		for (L2NpcTemplate npcTemplate : _npcs.values())
-		{
-			if (npcTemplate.getName().equalsIgnoreCase(name))
-			{
-				return npcTemplate;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * Gets all templates matching the filter.
-	 * @param filter
-	 * @return the template list for the given filter
-	 */
-	public List<L2NpcTemplate> getTemplates(Predicate<L2NpcTemplate> filter)
-	{
-		//@formatter:off
-			return _npcs.values().stream()
-			.filter(filter)
-			.collect(Collectors.toList());
-		//@formatter:on
-	}
-	
-	/**
-	 * Gets the all of level.
-	 * @param lvls of all the templates to get.
-	 * @return the template list for the given level.
-	 */
-	public List<L2NpcTemplate> getAllOfLevel(int... lvls)
-	{
-		return getTemplates(template -> Util.contains(lvls, template.getLevel()));
-	}
-	
-	/**
-	 * Gets the all monsters of level.
-	 * @param lvls of all the monster templates to get.
-	 * @return the template list for the given level.
-	 */
-	public List<L2NpcTemplate> getAllMonstersOfLevel(int... lvls)
-	{
-		return getTemplates(template -> Util.contains(lvls, template.getLevel()) && template.isType("L2Monster"));
-	}
-	
-	/**
-	 * Gets the all npc starting with.
-	 * @param text of all the NPC templates which its name start with.
-	 * @return the template list for the given letter.
-	 */
-	public List<L2NpcTemplate> getAllNpcStartingWith(String text)
-	{
-		return getTemplates(template -> template.isType("L2Npc") && template.getName().startsWith(text));
-	}
-	
-	/**
-	 * Gets the all npc of class type.
-	 * @param classTypes of all the templates to get.
-	 * @return the template list for the given class type.
-	 */
-	public List<L2NpcTemplate> getAllNpcOfClassType(String... classTypes)
-	{
-		return getTemplates(template -> Util.contains(classTypes, template.getType(), true));
-	}
-	
-	public void loadNpcsSkillLearn()
-	{
-		_npcs.values().forEach(template ->
-		{
-			final List<ClassId> teachInfo = SkillLearnData.getInstance().getSkillLearnData(template.getId());
-			if (teachInfo != null)
-			{
-				template.addTeachInfo(teachInfo);
-			}
-		});
-	}
-	
-	/**
 	 * This class handles minions from Spawn System<br>
 	 * Once Spawn System gets reworked delete this class<br>
 	 * @author Zealar
@@ -853,15 +862,6 @@ public class NpcData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Gets the single instance of NpcData.
-	 * @return single instance of NpcData
-	 */
-	public static NpcData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

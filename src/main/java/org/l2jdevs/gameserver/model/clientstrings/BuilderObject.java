@@ -35,6 +35,18 @@ final class BuilderObject extends Builder
 	}
 	
 	@Override
+	public final int getIndex()
+	{
+		return _index;
+	}
+	
+	@Override
+	public final String toString()
+	{
+		return "[PARAM-" + (_index + 1) + "]";
+	}
+	
+	@Override
 	public final String toString(final Object param)
 	{
 		return param == null ? "null" : param.toString();
@@ -48,17 +60,5 @@ final class BuilderObject extends Builder
 			return "null";
 		}
 		return params[0].toString();
-	}
-	
-	@Override
-	public final int getIndex()
-	{
-		return _index;
-	}
-	
-	@Override
-	public final String toString()
-	{
-		return "[PARAM-" + (_index + 1) + "]";
 	}
 }

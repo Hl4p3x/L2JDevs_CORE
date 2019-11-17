@@ -25,6 +25,11 @@ import org.l2jdevs.util.network.BaseSendablePacket;
  */
 public class TempBan extends BaseSendablePacket
 {
+	public TempBan(String accountName, String ip, long time)
+	{
+		this(accountName, ip, time, null);
+	}
+	
 	public TempBan(String accountName, String ip, long time, String reason)
 	{
 		writeC(0x0A);
@@ -40,11 +45,6 @@ public class TempBan extends BaseSendablePacket
 		{
 			writeC(0x00);
 		}
-	}
-	
-	public TempBan(String accountName, String ip, long time)
-	{
-		this(accountName, ip, time, null);
 	}
 	
 	@Override

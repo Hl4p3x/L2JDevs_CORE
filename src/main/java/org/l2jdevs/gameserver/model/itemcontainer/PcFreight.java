@@ -45,18 +45,6 @@ public class PcFreight extends ItemContainer
 	}
 	
 	@Override
-	public int getOwnerId()
-	{
-		return _ownerId;
-	}
-	
-	@Override
-	public L2PcInstance getOwner()
-	{
-		return _owner;
-	}
-	
-	@Override
 	public ItemLocation getBaseLocation()
 	{
 		return ItemLocation.FREIGHT;
@@ -69,14 +57,26 @@ public class PcFreight extends ItemContainer
 	}
 	
 	@Override
-	public boolean validateCapacity(long slots)
+	public L2PcInstance getOwner()
 	{
-		int curSlots = _owner == null ? Config.ALT_FREIGHT_SLOTS : Config.ALT_FREIGHT_SLOTS + (int) _owner.getStat().calcStat(Stats.FREIGHT_LIM, 0, null, null);
-		return ((getSize() + slots) <= curSlots);
+		return _owner;
+	}
+	
+	@Override
+	public int getOwnerId()
+	{
+		return _ownerId;
 	}
 	
 	@Override
 	public void refreshWeight()
 	{
+	}
+	
+	@Override
+	public boolean validateCapacity(long slots)
+	{
+		int curSlots = _owner == null ? Config.ALT_FREIGHT_SLOTS : Config.ALT_FREIGHT_SLOTS + (int) _owner.getStat().calcStat(Stats.FREIGHT_LIM, 0, null, null);
+		return ((getSize() + slots) <= curSlots);
 	}
 }

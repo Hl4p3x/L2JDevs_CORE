@@ -28,18 +28,18 @@ public class RecipeItemMakeInfo extends L2GameServerPacket
 	private final L2PcInstance _activeChar;
 	private final boolean _success;
 	
-	public RecipeItemMakeInfo(int id, L2PcInstance player, boolean success)
-	{
-		_id = id;
-		_activeChar = player;
-		_success = success;
-	}
-	
 	public RecipeItemMakeInfo(int id, L2PcInstance player)
 	{
 		_id = id;
 		_activeChar = player;
 		_success = true;
+	}
+	
+	public RecipeItemMakeInfo(int id, L2PcInstance player, boolean success)
+	{
+		_id = id;
+		_activeChar = player;
+		_success = success;
 	}
 	
 	@Override

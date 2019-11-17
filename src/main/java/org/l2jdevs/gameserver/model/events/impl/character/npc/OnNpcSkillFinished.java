@@ -40,11 +40,6 @@ public class OnNpcSkillFinished implements IBaseEvent
 		_skill = skill;
 	}
 	
-	public L2PcInstance getTarget()
-	{
-		return _target;
-	}
-	
 	public L2Npc getCaster()
 	{
 		return _caster;
@@ -53,6 +48,11 @@ public class OnNpcSkillFinished implements IBaseEvent
 	public Skill getSkill()
 	{
 		return _skill;
+	}
+	
+	public L2PcInstance getTarget()
+	{
+		return _target;
 	}
 	
 	@Override

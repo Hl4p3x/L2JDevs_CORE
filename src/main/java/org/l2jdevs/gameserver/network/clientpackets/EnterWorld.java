@@ -109,6 +109,12 @@ public class EnterWorld extends L2GameClientPacket
 	private final int[][] tracert = new int[5][4];
 	
 	@Override
+	public String getType()
+	{
+		return _C__11_ENTERWORLD;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		readB(new byte[32]); // Unknown Byte Array
@@ -602,6 +608,12 @@ public class EnterWorld extends L2GameClientPacket
 		activeChar.sendPacket(ActionFailed.STATIC_PACKET);
 	}
 	
+	@Override
+	protected boolean triggersOnActionRequest()
+	{
+		return false;
+	}
+	
 	private void engage(L2PcInstance cha)
 	{
 		final int chaId = cha.getObjectId();
@@ -629,16 +641,12 @@ public class EnterWorld extends L2GameClientPacket
 	}
 	
 	/**
-	 * @param cha
-	 * @param partnerId
+	 * @param string
+	 * @return
 	 */
-	private void notifyPartner(L2PcInstance cha, int partnerId)
+	private String getText(String string)
 	{
-		final L2PcInstance partner = L2World.getInstance().getPlayer(cha.getPartnerId());
-		if (partner != null)
-		{
-			partner.sendMessage(LanguageData.getInstance().getMsg(partner, "enter_with_partner"));
-		}
+		return new String(Base64.getDecoder().decode(string));
 	}
 	
 	/**
@@ -655,6 +663,19 @@ public class EnterWorld extends L2GameClientPacket
 			msg.addString(activeChar.getName());
 			clan.broadcastToOtherOnlineMembers(msg, activeChar);
 			clan.broadcastToOtherOnlineMembers(new PledgeShowMemberListUpdate(activeChar), activeChar);
+		}
+	}
+	
+	/**
+	 * @param cha
+	 * @param partnerId
+	 */
+	private void notifyPartner(L2PcInstance cha, int partnerId)
+	{
+		final L2PcInstance partner = L2World.getInstance().getPlayer(cha.getPartnerId());
+		if (partner != null)
+		{
+			partner.sendMessage(LanguageData.getInstance().getMsg(partner, "enter_with_partner"));
 		}
 	}
 	
@@ -683,26 +704,5 @@ public class EnterWorld extends L2GameClientPacket
 				apprentice.sendPacket(msg);
 			}
 		}
-	}
-	
-	/**
-	 * @param string
-	 * @return
-	 */
-	private String getText(String string)
-	{
-		return new String(Base64.getDecoder().decode(string));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__11_ENTERWORLD;
-	}
-	
-	@Override
-	protected boolean triggersOnActionRequest()
-	{
-		return false;
 	}
 }

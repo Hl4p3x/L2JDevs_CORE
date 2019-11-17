@@ -55,11 +55,6 @@ public class OnCreatureSkillUse implements IBaseEvent
 		return _skill;
 	}
 	
-	public boolean isSimultaneously()
-	{
-		return _simultaneously;
-	}
-	
 	public final L2Character getTarget()
 	{
 		return _target;
@@ -74,5 +69,10 @@ public class OnCreatureSkillUse implements IBaseEvent
 	public EventType getType()
 	{
 		return EventType.ON_CREATURE_SKILL_USE;
+	}
+	
+	public boolean isSimultaneously()
+	{
+		return _simultaneously;
 	}
 }

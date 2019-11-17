@@ -87,6 +87,18 @@ public final class TerritoryWarManager implements Siegable
 	public static boolean SPAWN_WARDS_WHEN_TW_IS_NOT_IN_PROGRESS;
 	public static boolean RETURN_WARDS_WHEN_TW_STARTS;
 	
+	static
+	{
+		TERRITORY_ITEM_IDS.put(81, 13757);
+		TERRITORY_ITEM_IDS.put(82, 13758);
+		TERRITORY_ITEM_IDS.put(83, 13759);
+		TERRITORY_ITEM_IDS.put(84, 13760);
+		TERRITORY_ITEM_IDS.put(85, 13761);
+		TERRITORY_ITEM_IDS.put(86, 13762);
+		TERRITORY_ITEM_IDS.put(87, 13763);
+		TERRITORY_ITEM_IDS.put(88, 13764);
+		TERRITORY_ITEM_IDS.put(89, 13765);
+	}
 	// Territory War settings
 	private final Map<Integer, List<L2Clan>> _registeredClans = new ConcurrentHashMap<>();
 	private final Map<Integer, List<Integer>> _registeredMercenaries = new ConcurrentHashMap<>();
@@ -101,270 +113,27 @@ public final class TerritoryWarManager implements Siegable
 	private boolean _isTWInProgress = false;
 	protected ScheduledFuture<?> _scheduledStartTWTask = null;
 	protected ScheduledFuture<?> _scheduledEndTWTask = null;
-	protected ScheduledFuture<?> _scheduledRewardOnlineTask = null;
 	
-	static
-	{
-		TERRITORY_ITEM_IDS.put(81, 13757);
-		TERRITORY_ITEM_IDS.put(82, 13758);
-		TERRITORY_ITEM_IDS.put(83, 13759);
-		TERRITORY_ITEM_IDS.put(84, 13760);
-		TERRITORY_ITEM_IDS.put(85, 13761);
-		TERRITORY_ITEM_IDS.put(86, 13762);
-		TERRITORY_ITEM_IDS.put(87, 13763);
-		TERRITORY_ITEM_IDS.put(88, 13764);
-		TERRITORY_ITEM_IDS.put(89, 13765);
-	}
+	protected ScheduledFuture<?> _scheduledRewardOnlineTask = null;
 	
 	protected TerritoryWarManager()
 	{
 		load();
 	}
 	
-	public int getRegisteredTerritoryId(L2PcInstance player)
+	public static final TerritoryWarManager getInstance()
 	{
-		if ((player == null) || !_isTWChannelOpen || (player.getLevel() < PLAYERMINLEVEL))
-		{
-			return 0;
-		}
-		if (player.getClan() != null)
-		{
-			if (player.getClan().getCastleId() > 0)
-			{
-				return player.getClan().getCastleId() + 80;
-			}
-			for (int cId : _registeredClans.keySet())
-			{
-				if (_registeredClans.get(cId).contains(player.getClan()))
-				{
-					return cId + 80;
-				}
-			}
-		}
-		for (int cId : _registeredMercenaries.keySet())
-		{
-			if (_registeredMercenaries.get(cId).contains(player.getObjectId()))
-			{
-				return cId + 80;
-			}
-		}
-		return 0;
+		return SingletonHolder._instance;
 	}
 	
-	public boolean isAllyField(L2PcInstance player, int fieldId)
+	public void addClanFlag(L2Clan clan, L2SiegeFlagInstance flag)
 	{
-		if ((player == null) || (player.getSiegeSide() == 0))
-		{
-			return false;
-		}
-		else if ((player.getSiegeSide() - 80) == fieldId)
-		{
-			return true;
-		}
-		else if ((fieldId > 100) && _territoryList.containsKey((player.getSiegeSide() - 80)) && (_territoryList.get((player.getSiegeSide() - 80)).getFortId() == fieldId))
-		{
-			return true;
-		}
-		return false;
-		
-	}
-	
-	/**
-	 * @param castleId
-	 * @param clan The L2Clan of the player
-	 * @return true if the clan is registered
-	 */
-	public final boolean checkIsRegistered(int castleId, L2Clan clan)
-	{
-		if (clan == null)
-		{
-			return false;
-		}
-		
-		if (clan.getCastleId() > 0)
-		{
-			return (castleId == -1 ? true : (clan.getCastleId() == castleId));
-		}
-		
-		if (castleId == -1)
-		{
-			for (int cId : _registeredClans.keySet())
-			{
-				if (_registeredClans.get(cId).contains(clan))
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-		return _registeredClans.get(castleId).contains(clan);
-	}
-	
-	/**
-	 * @param castleId
-	 * @param objId
-	 * @return true if the player is registered
-	 */
-	public final boolean checkIsRegistered(int castleId, int objId)
-	{
-		if (castleId == -1)
-		{
-			for (int cId : _registeredMercenaries.keySet())
-			{
-				if (_registeredMercenaries.get(cId).contains(objId))
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-		return _registeredMercenaries.get(castleId).contains(objId);
-	}
-	
-	public Territory getTerritory(int castleId)
-	{
-		return _territoryList.get(castleId);
-	}
-	
-	public List<Territory> getAllTerritories()
-	{
-		List<Territory> ret = new LinkedList<>();
-		for (Territory t : _territoryList.values())
-		{
-			if (t.getOwnerClan() != null)
-			{
-				ret.add(t);
-			}
-		}
-		return ret;
-	}
-	
-	public List<L2Clan> getRegisteredClans(int castleId)
-	{
-		return _registeredClans.get(castleId);
+		_clanFlags.put(clan, flag);
 	}
 	
 	public void addDisguisedPlayer(int playerObjId)
 	{
 		_disguisedPlayers.add(playerObjId);
-	}
-	
-	public boolean isDisguised(int playerObjId)
-	{
-		return _disguisedPlayers.contains(playerObjId);
-	}
-	
-	public List<Integer> getRegisteredMercenaries(int castleId)
-	{
-		return _registeredMercenaries.get(castleId);
-	}
-	
-	public long getTWStartTimeInMillis()
-	{
-		return _startTWDate.getTimeInMillis();
-	}
-	
-	public Calendar getTWStart()
-	{
-		return _startTWDate;
-	}
-	
-	public void setTWStartTimeInMillis(long time)
-	{
-		_startTWDate.setTimeInMillis(time);
-		if (_isTWInProgress)
-		{
-			if (_scheduledEndTWTask != null)
-			{
-				_scheduledEndTWTask.cancel(false);
-			}
-			_scheduledEndTWTask = ThreadPoolManager.getInstance().scheduleGeneral(new ScheduleEndTWTask(), 1000);
-		}
-		else
-		{
-			if (_scheduledStartTWTask != null)
-			{
-				_scheduledStartTWTask.cancel(false);
-			}
-			_scheduledStartTWTask = ThreadPoolManager.getInstance().scheduleGeneral(new ScheduleStartTWTask(), 1000);
-		}
-	}
-	
-	public boolean isTWChannelOpen()
-	{
-		return _isTWChannelOpen;
-	}
-	
-	public void registerClan(int castleId, L2Clan clan)
-	{
-		if ((clan == null) || ((_registeredClans.get(castleId) != null) && _registeredClans.get(castleId).contains(clan)))
-		{
-			return;
-		}
-		
-		_registeredClans.putIfAbsent(castleId, new CopyOnWriteArrayList<>());
-		_registeredClans.get(castleId).add(clan);
-		changeRegistration(castleId, clan.getId(), false);
-	}
-	
-	public void registerMerc(int castleId, L2PcInstance player)
-	{
-		if ((player == null) || (player.getLevel() < PLAYERMINLEVEL) || ((_registeredMercenaries.get(castleId) != null) && _registeredMercenaries.get(castleId).contains(player.getObjectId())))
-		{
-			return;
-		}
-		
-		_registeredMercenaries.putIfAbsent(castleId, new CopyOnWriteArrayList<>());
-		_registeredMercenaries.get(castleId).add(player.getObjectId());
-		changeRegistration(castleId, player.getObjectId(), false);
-	}
-	
-	public void removeClan(int castleId, L2Clan clan)
-	{
-		if (clan == null)
-		{
-			return;
-		}
-		else if ((_registeredClans.get(castleId) != null) && _registeredClans.get(castleId).contains(clan))
-		{
-			_registeredClans.get(castleId).remove(clan);
-			changeRegistration(castleId, clan.getId(), true);
-		}
-	}
-	
-	public void removeMerc(int castleId, L2PcInstance player)
-	{
-		if (player == null)
-		{
-			return;
-		}
-		else if ((_registeredMercenaries.get(castleId) != null) && _registeredMercenaries.get(castleId).contains(player.getObjectId()))
-		{
-			_registeredMercenaries.get(castleId).remove(_registeredMercenaries.get(castleId).indexOf(player.getObjectId()));
-			changeRegistration(castleId, player.getObjectId(), true);
-		}
-	}
-	
-	public boolean getIsRegistrationOver()
-	{
-		return _isRegistrationOver;
-	}
-	
-	public boolean isTWInProgress()
-	{
-		return _isTWInProgress;
-	}
-	
-	public void territoryCatapultDestroyed(int castleId)
-	{
-		if (_territoryList.get(castleId) != null)
-		{
-			_territoryList.get(castleId).changeNPCsSpawn(2, false);
-		}
-		for (L2DoorInstance door : CastleManager.getInstance().getCastleById(castleId).getDoors())
-		{
-			door.openMe();
-		}
 	}
 	
 	public L2Npc addTerritoryWard(int territoryId, int newOwnerId, int oldOwnerId, boolean broadcastMessage)
@@ -461,190 +230,52 @@ public final class TerritoryWarManager implements Siegable
 		return ret;
 	}
 	
-	public L2SiegeFlagInstance getHQForClan(L2Clan clan)
+	public void announceToParticipants(L2GameServerPacket sm, int exp, int sp)
 	{
-		if (clan.getCastleId() > 0)
+		// broadcast to clan members
+		for (Territory ter : _territoryList.values())
 		{
-			return _territoryList.get(clan.getCastleId()).getHQ();
-		}
-		return null;
-	}
-	
-	public L2SiegeFlagInstance getHQForTerritory(int territoryId)
-	{
-		return _territoryList.get(territoryId - 80).getHQ();
-	}
-	
-	public void setHQForClan(L2Clan clan, L2SiegeFlagInstance hq)
-	{
-		if (clan.getCastleId() > 0)
-		{
-			_territoryList.get(clan.getCastleId()).setHQ(hq);
-		}
-	}
-	
-	public void addClanFlag(L2Clan clan, L2SiegeFlagInstance flag)
-	{
-		_clanFlags.put(clan, flag);
-	}
-	
-	public boolean isClanHasFlag(L2Clan clan)
-	{
-		return _clanFlags.containsKey(clan);
-	}
-	
-	public L2SiegeFlagInstance getFlagForClan(L2Clan clan)
-	{
-		return _clanFlags.get(clan);
-	}
-	
-	public void removeClanFlag(L2Clan clan)
-	{
-		_clanFlags.remove(clan);
-	}
-	
-	public List<TerritoryWard> getAllTerritoryWards()
-	{
-		return _territoryWards;
-	}
-	
-	public TerritoryWard getTerritoryWardForOwner(int castleId)
-	{
-		for (TerritoryWard twWard : _territoryWards)
-		{
-			if (twWard.getTerritoryId() == castleId)
+			if (ter.getOwnerClan() != null)
 			{
-				return twWard;
-			}
-		}
-		return null;
-	}
-	
-	public TerritoryWard getTerritoryWard(int territoryId)
-	{
-		for (TerritoryWard twWard : _territoryWards)
-		{
-			if (twWard.getTerritoryId() == territoryId)
-			{
-				return twWard;
-			}
-		}
-		return null;
-	}
-	
-	public TerritoryWard getTerritoryWard(L2PcInstance player)
-	{
-		for (TerritoryWard twWard : _territoryWards)
-		{
-			if (twWard.playerId == player.getObjectId())
-			{
-				return twWard;
-			}
-		}
-		return null;
-	}
-	
-	public void dropCombatFlag(L2PcInstance player, boolean isKilled, boolean isSpawnBack)
-	{
-		for (TerritoryWard twWard : _territoryWards)
-		{
-			if (twWard.playerId == player.getObjectId())
-			{
-				twWard.dropIt();
-				if (isTWInProgress())
+				for (L2PcInstance member : ter.getOwnerClan().getOnlineMembers(0))
 				{
-					if (isKilled)
+					member.sendPacket(sm);
+					if ((exp > 0) || (sp > 0))
 					{
-						twWard.spawnMe();
-					}
-					else if (isSpawnBack)
-					{
-						twWard.spawnBack();
-					}
-					else
-					{
-						for (TerritoryNPCSpawn wardSpawn : _territoryList.get(twWard.getOwnerCastleId()).getOwnedWard())
-						{
-							if (wardSpawn.getId() == twWard.getTerritoryId())
-							{
-								wardSpawn.setNPC(wardSpawn.getNpc().getSpawn().doSpawn());
-								twWard.unSpawnMe();
-								twWard.setNpc(wardSpawn.getNpc());
-							}
-						}
+						member.addExpAndSp(exp, sp);
 					}
 				}
-				if (isKilled)
+			}
+		}
+		for (List<L2Clan> list : _registeredClans.values())
+		{
+			for (L2Clan c : list)
+			{
+				for (L2PcInstance member : c.getOnlineMembers(0))
 				{
-					SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.THE_CHAR_THAT_ACQUIRED_S1_WARD_HAS_BEEN_KILLED);
-					sm.addString(twWard.getNpc().getName().replaceAll(" Ward", ""));
-					announceToParticipants(sm, 0, 0);
+					member.sendPacket(sm);
+					if ((exp > 0) || (sp > 0))
+					{
+						member.addExpAndSp(exp, sp);
+					}
 				}
 			}
 		}
-	}
-	
-	public void giveTWQuestPoint(L2PcInstance player)
-	{
-		_participantPoints.putIfAbsent(player.getObjectId(), new Integer[]
+		// broadcast to mercenaries
+		for (List<Integer> list : _registeredMercenaries.values())
 		{
-			player.getSiegeSide(),
-			0,
-			0,
-			0,
-			0,
-			0,
-			0
-		});
-		_participantPoints.get(player.getObjectId())[2]++;
-	}
-	
-	public void giveTWPoint(L2PcInstance killer, int victimSide, int type)
-	{
-		if (victimSide == 0)
-		{
-			return;
-		}
-		if ((killer.getParty() != null) && (type < 5))
-		{
-			for (L2PcInstance pl : killer.getParty().getMembers())
+			for (int objId : list)
 			{
-				if ((pl.getSiegeSide() == victimSide) || (pl.getSiegeSide() == 0) || !Util.checkIfInRange(2000, killer, pl, false))
+				L2PcInstance player = L2World.getInstance().getPlayer(objId);
+				if ((player != null) && ((player.getClan() == null) || !checkIsRegistered(-1, player.getClan())))
 				{
-					continue;
+					player.sendPacket(sm);
+					if ((exp > 0) || (sp > 0))
+					{
+						player.addExpAndSp(exp, sp);
+					}
 				}
-				
-				_participantPoints.putIfAbsent(pl.getObjectId(), new Integer[]
-				{
-					pl.getSiegeSide(),
-					0,
-					0,
-					0,
-					0,
-					0,
-					0
-				});
-				_participantPoints.get(pl.getObjectId())[type]++;
 			}
-		}
-		else
-		{
-			if ((killer.getSiegeSide() == victimSide) || (killer.getSiegeSide() == 0))
-			{
-				return;
-			}
-			
-			_participantPoints.putIfAbsent(killer.getObjectId(), new Integer[]
-			{
-				killer.getSiegeSide(),
-				0,
-				0,
-				0,
-				0,
-				0,
-				0
-			});
-			_participantPoints.get(killer.getObjectId())[type]++;
 		}
 	}
 	
@@ -697,6 +328,70 @@ public final class TerritoryWarManager implements Siegable
 		};
 	}
 	
+	@Override
+	public boolean checkIsAttacker(L2Clan clan)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public boolean checkIsDefender(L2Clan clan)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * @param castleId
+	 * @param objId
+	 * @return true if the player is registered
+	 */
+	public final boolean checkIsRegistered(int castleId, int objId)
+	{
+		if (castleId == -1)
+		{
+			for (int cId : _registeredMercenaries.keySet())
+			{
+				if (_registeredMercenaries.get(cId).contains(objId))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		return _registeredMercenaries.get(castleId).contains(objId);
+	}
+	
+	/**
+	 * @param castleId
+	 * @param clan The L2Clan of the player
+	 * @return true if the clan is registered
+	 */
+	public final boolean checkIsRegistered(int castleId, L2Clan clan)
+	{
+		if (clan == null)
+		{
+			return false;
+		}
+		
+		if (clan.getCastleId() > 0)
+		{
+			return (castleId == -1 ? true : (clan.getCastleId() == castleId));
+		}
+		
+		if (castleId == -1)
+		{
+			for (int cId : _registeredClans.keySet())
+			{
+				if (_registeredClans.get(cId).contains(clan))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		return _registeredClans.get(castleId).contains(clan);
+	}
+	
 	public void debugReward(L2PcInstance player)
 	{
 		player.sendMessage(LanguageData.getInstance().getMsg(player, "tw_register_id").replace("%s%", player.getSiegeSide() + ""));
@@ -723,11 +418,448 @@ public final class TerritoryWarManager implements Siegable
 		}
 	}
 	
+	public void dropCombatFlag(L2PcInstance player, boolean isKilled, boolean isSpawnBack)
+	{
+		for (TerritoryWard twWard : _territoryWards)
+		{
+			if (twWard.playerId == player.getObjectId())
+			{
+				twWard.dropIt();
+				if (isTWInProgress())
+				{
+					if (isKilled)
+					{
+						twWard.spawnMe();
+					}
+					else if (isSpawnBack)
+					{
+						twWard.spawnBack();
+					}
+					else
+					{
+						for (TerritoryNPCSpawn wardSpawn : _territoryList.get(twWard.getOwnerCastleId()).getOwnedWard())
+						{
+							if (wardSpawn.getId() == twWard.getTerritoryId())
+							{
+								wardSpawn.setNPC(wardSpawn.getNpc().getSpawn().doSpawn());
+								twWard.unSpawnMe();
+								twWard.setNpc(wardSpawn.getNpc());
+							}
+						}
+					}
+				}
+				if (isKilled)
+				{
+					SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.THE_CHAR_THAT_ACQUIRED_S1_WARD_HAS_BEEN_KILLED);
+					sm.addString(twWard.getNpc().getName().replaceAll(" Ward", ""));
+					announceToParticipants(sm, 0, 0);
+				}
+			}
+		}
+	}
+	
+	@Override
+	public void endSiege()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	public List<Territory> getAllTerritories()
+	{
+		List<Territory> ret = new LinkedList<>();
+		for (Territory t : _territoryList.values())
+		{
+			if (t.getOwnerClan() != null)
+			{
+				ret.add(t);
+			}
+		}
+		return ret;
+	}
+	
+	public List<TerritoryWard> getAllTerritoryWards()
+	{
+		return _territoryWards;
+	}
+	
+	@Override
+	public L2SiegeClan getAttackerClan(int clanId)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public L2SiegeClan getAttackerClan(L2Clan clan)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public List<L2SiegeClan> getAttackerClans()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public List<L2PcInstance> getAttackersInZone()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public L2SiegeClan getDefenderClan(int clanId)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public L2SiegeClan getDefenderClan(L2Clan clan)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public List<L2SiegeClan> getDefenderClans()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public int getFameAmount()
+	{
+		return Config.CASTLE_ZONE_FAME_AQUIRE_POINTS;
+	}
+	
+	@Override
+	public int getFameFrequency()
+	{
+		return Config.CASTLE_ZONE_FAME_TASK_FREQUENCY;
+	}
+	
+	@Override
+	public List<L2Npc> getFlag(L2Clan clan)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	public L2SiegeFlagInstance getFlagForClan(L2Clan clan)
+	{
+		return _clanFlags.get(clan);
+	}
+	
+	public L2SiegeFlagInstance getHQForClan(L2Clan clan)
+	{
+		if (clan.getCastleId() > 0)
+		{
+			return _territoryList.get(clan.getCastleId()).getHQ();
+		}
+		return null;
+	}
+	
+	public L2SiegeFlagInstance getHQForTerritory(int territoryId)
+	{
+		return _territoryList.get(territoryId - 80).getHQ();
+	}
+	
+	public boolean getIsRegistrationOver()
+	{
+		return _isRegistrationOver;
+	}
+	
+	public List<L2Clan> getRegisteredClans(int castleId)
+	{
+		return _registeredClans.get(castleId);
+	}
+	
+	public List<Integer> getRegisteredMercenaries(int castleId)
+	{
+		return _registeredMercenaries.get(castleId);
+	}
+	
+	public int getRegisteredTerritoryId(L2PcInstance player)
+	{
+		if ((player == null) || !_isTWChannelOpen || (player.getLevel() < PLAYERMINLEVEL))
+		{
+			return 0;
+		}
+		if (player.getClan() != null)
+		{
+			if (player.getClan().getCastleId() > 0)
+			{
+				return player.getClan().getCastleId() + 80;
+			}
+			for (int cId : _registeredClans.keySet())
+			{
+				if (_registeredClans.get(cId).contains(player.getClan()))
+				{
+					return cId + 80;
+				}
+			}
+		}
+		for (int cId : _registeredMercenaries.keySet())
+		{
+			if (_registeredMercenaries.get(cId).contains(player.getObjectId()))
+			{
+				return cId + 80;
+			}
+		}
+		return 0;
+	}
+	
+	@Override
+	public Calendar getSiegeDate()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	public Territory getTerritory(int castleId)
+	{
+		return _territoryList.get(castleId);
+	}
+	
+	public TerritoryWard getTerritoryWard(int territoryId)
+	{
+		for (TerritoryWard twWard : _territoryWards)
+		{
+			if (twWard.getTerritoryId() == territoryId)
+			{
+				return twWard;
+			}
+		}
+		return null;
+	}
+	
+	public TerritoryWard getTerritoryWard(L2PcInstance player)
+	{
+		for (TerritoryWard twWard : _territoryWards)
+		{
+			if (twWard.playerId == player.getObjectId())
+			{
+				return twWard;
+			}
+		}
+		return null;
+	}
+	
+	public TerritoryWard getTerritoryWardForOwner(int castleId)
+	{
+		for (TerritoryWard twWard : _territoryWards)
+		{
+			if (twWard.getTerritoryId() == castleId)
+			{
+				return twWard;
+			}
+		}
+		return null;
+	}
+	
+	public Calendar getTWStart()
+	{
+		return _startTWDate;
+	}
+	
+	public long getTWStartTimeInMillis()
+	{
+		return _startTWDate.getTimeInMillis();
+	}
+	
+	@Override
+	public boolean giveFame()
+	{
+		return true;
+	}
+	
+	public void giveTWPoint(L2PcInstance killer, int victimSide, int type)
+	{
+		if (victimSide == 0)
+		{
+			return;
+		}
+		if ((killer.getParty() != null) && (type < 5))
+		{
+			for (L2PcInstance pl : killer.getParty().getMembers())
+			{
+				if ((pl.getSiegeSide() == victimSide) || (pl.getSiegeSide() == 0) || !Util.checkIfInRange(2000, killer, pl, false))
+				{
+					continue;
+				}
+				
+				_participantPoints.putIfAbsent(pl.getObjectId(), new Integer[]
+				{
+					pl.getSiegeSide(),
+					0,
+					0,
+					0,
+					0,
+					0,
+					0
+				});
+				_participantPoints.get(pl.getObjectId())[type]++;
+			}
+		}
+		else
+		{
+			if ((killer.getSiegeSide() == victimSide) || (killer.getSiegeSide() == 0))
+			{
+				return;
+			}
+			
+			_participantPoints.putIfAbsent(killer.getObjectId(), new Integer[]
+			{
+				killer.getSiegeSide(),
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			});
+			_participantPoints.get(killer.getObjectId())[type]++;
+		}
+	}
+	
+	public void giveTWQuestPoint(L2PcInstance player)
+	{
+		_participantPoints.putIfAbsent(player.getObjectId(), new Integer[]
+		{
+			player.getSiegeSide(),
+			0,
+			0,
+			0,
+			0,
+			0,
+			0
+		});
+		_participantPoints.get(player.getObjectId())[2]++;
+	}
+	
+	public boolean isAllyField(L2PcInstance player, int fieldId)
+	{
+		if ((player == null) || (player.getSiegeSide() == 0))
+		{
+			return false;
+		}
+		else if ((player.getSiegeSide() - 80) == fieldId)
+		{
+			return true;
+		}
+		else if ((fieldId > 100) && _territoryList.containsKey((player.getSiegeSide() - 80)) && (_territoryList.get((player.getSiegeSide() - 80)).getFortId() == fieldId))
+		{
+			return true;
+		}
+		return false;
+		
+	}
+	
+	public boolean isClanHasFlag(L2Clan clan)
+	{
+		return _clanFlags.containsKey(clan);
+	}
+	
+	public boolean isDisguised(int playerObjId)
+	{
+		return _disguisedPlayers.contains(playerObjId);
+	}
+	
+	public boolean isTWChannelOpen()
+	{
+		return _isTWChannelOpen;
+	}
+	
+	public boolean isTWInProgress()
+	{
+		return _isTWInProgress;
+	}
+	
+	public void registerClan(int castleId, L2Clan clan)
+	{
+		if ((clan == null) || ((_registeredClans.get(castleId) != null) && _registeredClans.get(castleId).contains(clan)))
+		{
+			return;
+		}
+		
+		_registeredClans.putIfAbsent(castleId, new CopyOnWriteArrayList<>());
+		_registeredClans.get(castleId).add(clan);
+		changeRegistration(castleId, clan.getId(), false);
+	}
+	
+	public void registerMerc(int castleId, L2PcInstance player)
+	{
+		if ((player == null) || (player.getLevel() < PLAYERMINLEVEL) || ((_registeredMercenaries.get(castleId) != null) && _registeredMercenaries.get(castleId).contains(player.getObjectId())))
+		{
+			return;
+		}
+		
+		_registeredMercenaries.putIfAbsent(castleId, new CopyOnWriteArrayList<>());
+		_registeredMercenaries.get(castleId).add(player.getObjectId());
+		changeRegistration(castleId, player.getObjectId(), false);
+	}
+	
+	public void removeClan(int castleId, L2Clan clan)
+	{
+		if (clan == null)
+		{
+			return;
+		}
+		else if ((_registeredClans.get(castleId) != null) && _registeredClans.get(castleId).contains(clan))
+		{
+			_registeredClans.get(castleId).remove(clan);
+			changeRegistration(castleId, clan.getId(), true);
+		}
+	}
+	
+	public void removeClanFlag(L2Clan clan)
+	{
+		_clanFlags.remove(clan);
+	}
+	
+	public void removeMerc(int castleId, L2PcInstance player)
+	{
+		if (player == null)
+		{
+			return;
+		}
+		else if ((_registeredMercenaries.get(castleId) != null) && _registeredMercenaries.get(castleId).contains(player.getObjectId()))
+		{
+			_registeredMercenaries.get(castleId).remove(_registeredMercenaries.get(castleId).indexOf(player.getObjectId()));
+			changeRegistration(castleId, player.getObjectId(), true);
+		}
+	}
+	
 	public void resetReward(L2PcInstance player)
 	{
 		if (_participantPoints.containsKey(player.getObjectId()))
 		{
 			_participantPoints.get(player.getObjectId())[6] = 0;
+		}
+	}
+	
+	public void setHQForClan(L2Clan clan, L2SiegeFlagInstance hq)
+	{
+		if (clan.getCastleId() > 0)
+		{
+			_territoryList.get(clan.getCastleId()).setHQ(hq);
+		}
+	}
+	
+	public void setTWStartTimeInMillis(long time)
+	{
+		_startTWDate.setTimeInMillis(time);
+		if (_isTWInProgress)
+		{
+			if (_scheduledEndTWTask != null)
+			{
+				_scheduledEndTWTask.cancel(false);
+			}
+			_scheduledEndTWTask = ThreadPoolManager.getInstance().scheduleGeneral(new ScheduleEndTWTask(), 1000);
+		}
+		else
+		{
+			if (_scheduledStartTWTask != null)
+			{
+				_scheduledStartTWTask.cancel(false);
+			}
+			_scheduledStartTWTask = ThreadPoolManager.getInstance().scheduleGeneral(new ScheduleStartTWTask(), 1000);
 		}
 	}
 	
@@ -751,6 +883,349 @@ public final class TerritoryWarManager implements Siegable
 		return null;
 	}
 	
+	@Override
+	public void startSiege()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	public void territoryCatapultDestroyed(int castleId)
+	{
+		if (_territoryList.get(castleId) != null)
+		{
+			_territoryList.get(castleId).changeNPCsSpawn(2, false);
+		}
+		for (L2DoorInstance door : CastleManager.getInstance().getCastleById(castleId).getDoors())
+		{
+			door.openMe();
+		}
+	}
+	
+	@Override
+	public void updateSiege()
+	{
+		
+	}
+	
+	protected void endTerritoryWar()
+	{
+		_isTWInProgress = false;
+		if (_territoryList == null)
+		{
+			_log.warning(getClass().getSimpleName() + ": TerritoryList is NULL!");
+			return;
+		}
+		List<Territory> activeTerritoryList = new LinkedList<>();
+		for (Territory t : _territoryList.values())
+		{
+			Castle castle = CastleManager.getInstance().getCastleById(t.getCastleId());
+			if (castle != null)
+			{
+				if (castle.getOwnerId() > 0)
+				{
+					activeTerritoryList.add(t);
+				}
+			}
+			else
+			{
+				_log.warning(getClass().getSimpleName() + ": Castle missing! CastleId: " + t.getCastleId());
+			}
+		}
+		
+		if (activeTerritoryList.size() < 2)
+		{
+			return;
+		}
+		
+		if (!updatePlayerTWStateFlags(true))
+		{
+			return;
+		}
+		
+		for (TerritoryWard twWard : _territoryWards)
+		{
+			twWard.unSpawnMe();
+		}
+		_territoryWards.clear();
+		
+		// teleportPlayer(Siege.TeleportWhoType.Attacker, MapRegionTable.TeleportWhereType.Town); // Teleport to the closest town
+		for (Territory t : activeTerritoryList)
+		{
+			Castle castle = CastleManager.getInstance().getCastleById(t.getCastleId());
+			Fort fort = FortManager.getInstance().getFortById(t.getFortId());
+			
+			if (castle != null)
+			{
+				castle.spawnDoor();
+				t.changeNPCsSpawn(2, false);
+				castle.getZone().setIsActive(false);
+				castle.getZone().updateZoneStatusForCharactersInside();
+				castle.getZone().setSiegeInstance(null);
+			}
+			else
+			{
+				_log.warning(getClass().getSimpleName() + ": Castle missing! CastleId: " + t.getCastleId());
+			}
+			
+			if (fort != null)
+			{
+				t.changeNPCsSpawn(1, false);
+				fort.getZone().setIsActive(false);
+				fort.getZone().updateZoneStatusForCharactersInside();
+				fort.getZone().setSiegeInstance(null);
+			}
+			else
+			{
+				_log.warning(getClass().getSimpleName() + ": Fort missing! FortId: " + t.getFortId());
+			}
+			
+			if (t.getHQ() != null)
+			{
+				t.getHQ().deleteMe();
+			}
+			
+			for (TerritoryNPCSpawn ward : t.getOwnedWard())
+			{
+				if (ward.getNpc() != null)
+				{
+					if (!ward.getNpc().isVisible() && SPAWN_WARDS_WHEN_TW_IS_NOT_IN_PROGRESS)
+					{
+						ward.setNPC(ward.getNpc().getSpawn().doSpawn());
+					}
+					else if (ward.getNpc().isVisible() && !SPAWN_WARDS_WHEN_TW_IS_NOT_IN_PROGRESS)
+					{
+						ward.getNpc().decayMe();
+					}
+				}
+			}
+		}
+		for (L2SiegeFlagInstance flag : _clanFlags.values())
+		{
+			flag.deleteMe();
+		}
+		_clanFlags.clear();
+		
+		for (Integer castleId : _registeredClans.keySet())
+		{
+			for (L2Clan clan : _registeredClans.get(castleId))
+			{
+				changeRegistration(castleId, clan.getId(), true);
+			}
+		}
+		for (Integer castleId : _registeredMercenaries.keySet())
+		{
+			for (Integer pl_objId : _registeredMercenaries.get(castleId))
+			{
+				changeRegistration(castleId, pl_objId, true);
+			}
+		}
+		// change next TW date
+		SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.TERRITORY_WAR_HAS_ENDED);
+		Broadcast.toAllOnlinePlayers(sm);
+	}
+	
+	protected void startTerritoryWar()
+	{
+		if (_territoryList == null)
+		{
+			_log.warning(getClass().getSimpleName() + ": TerritoryList is NULL!");
+			return;
+		}
+		List<Territory> activeTerritoryList = new LinkedList<>();
+		for (Territory t : _territoryList.values())
+		{
+			Castle castle = CastleManager.getInstance().getCastleById(t.getCastleId());
+			if (castle != null)
+			{
+				if (castle.getOwnerId() > 0)
+				{
+					activeTerritoryList.add(t);
+				}
+			}
+			else
+			{
+				_log.warning(getClass().getSimpleName() + ": Castle missing! CastleId: " + t.getCastleId());
+			}
+		}
+		
+		if (activeTerritoryList.size() < 2)
+		{
+			return;
+		}
+		
+		_isTWInProgress = true;
+		if (!updatePlayerTWStateFlags(false))
+		{
+			return;
+		}
+		
+		// teleportPlayer(Siege.TeleportWhoType.Attacker, MapRegionTable.TeleportWhereType.Town); // Teleport to the closest town
+		for (Territory t : activeTerritoryList)
+		{
+			Castle castle = CastleManager.getInstance().getCastleById(t.getCastleId());
+			Fort fort = FortManager.getInstance().getFortById(t.getFortId());
+			// spawnControlTower(t.getCastleId()); // Spawn control tower
+			if (castle != null)
+			{
+				t.changeNPCsSpawn(2, true);
+				castle.spawnDoor(); // Spawn door
+				castle.getZone().setSiegeInstance(this);
+				castle.getZone().setIsActive(true);
+				castle.getZone().updateZoneStatusForCharactersInside();
+			}
+			else
+			{
+				_log.warning(getClass().getSimpleName() + ": Castle missing! CastleId: " + t.getCastleId());
+			}
+			if (fort != null)
+			{
+				t.changeNPCsSpawn(1, true);
+				fort.resetDoors(); // Spawn door
+				fort.getZone().setSiegeInstance(this);
+				fort.getZone().setIsActive(true);
+				fort.getZone().updateZoneStatusForCharactersInside();
+			}
+			else
+			{
+				_log.warning(getClass().getSimpleName() + ": Fort missing! FortId: " + t.getFortId());
+			}
+			for (TerritoryNPCSpawn ward : t.getOwnedWard())
+			{
+				if ((ward.getNpc() != null) && (t.getOwnerClan() != null))
+				{
+					if (!ward.getNpc().isVisible())
+					{
+						ward.setNPC(ward.getNpc().getSpawn().doSpawn());
+					}
+					_territoryWards.add(new TerritoryWard(ward.getId(), ward.getLocation().getX(), ward.getLocation().getY(), ward.getLocation().getZ(), 0, ward.getId() + 13479, t.getCastleId(), ward.getNpc()));
+				}
+			}
+			t.getQuestDone()[0] = 0; // killed npc
+			t.getQuestDone()[1] = 0; // captured wards
+		}
+		_participantPoints.clear();
+		
+		if (RETURN_WARDS_WHEN_TW_STARTS)
+		{
+			for (TerritoryWard ward : _territoryWards)
+			{
+				if (ward.getOwnerCastleId() != (ward.getTerritoryId() - 80))
+				{
+					ward.unSpawnMe();
+					ward.setNpc(addTerritoryWard(ward.getTerritoryId(), ward.getTerritoryId() - 80, ward.getOwnerCastleId(), false));
+					ward.setOwnerCastleId(ward.getTerritoryId() - 80);
+				}
+			}
+		}
+		
+		SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.TERRITORY_WAR_HAS_BEGUN);
+		Broadcast.toAllOnlinePlayers(sm);
+	}
+	
+	protected boolean updatePlayerTWStateFlags(boolean clear)
+	{
+		Quest twQuest = QuestManager.getInstance().getQuest(qn);
+		if (twQuest == null)
+		{
+			_log.warning(getClass().getSimpleName() + ": missing main Quest!");
+			return false;
+		}
+		for (int castleId : _registeredClans.keySet())
+		{
+			for (L2Clan clan : _registeredClans.get(castleId))
+			{
+				for (L2PcInstance player : clan.getOnlineMembers(0))
+				{
+					if (clear)
+					{
+						player.setSiegeState((byte) 0);
+						if (!_isTWChannelOpen)
+						{
+							player.setSiegeSide(0);
+						}
+					}
+					else
+					{
+						if ((player.getLevel() < PLAYERMINLEVEL) || (player.getClassId().level() < 2))
+						{
+							continue;
+						}
+						if (_isTWInProgress)
+						{
+							player.setSiegeState((byte) 1);
+						}
+						player.setSiegeSide(80 + castleId);
+					}
+					player.broadcastUserInfo();
+				}
+			}
+		}
+		for (int castleId : _registeredMercenaries.keySet())
+		{
+			for (int objId : _registeredMercenaries.get(castleId))
+			{
+				L2PcInstance player = L2World.getInstance().getPlayer(objId);
+				if (player == null)
+				{
+					continue;
+				}
+				if (clear)
+				{
+					player.setSiegeState((byte) 0);
+					if (!_isTWChannelOpen)
+					{
+						player.setSiegeSide(0);
+					}
+				}
+				else
+				{
+					if (_isTWInProgress)
+					{
+						player.setSiegeState((byte) 1);
+					}
+					player.setSiegeSide(80 + castleId);
+				}
+				player.broadcastUserInfo();
+			}
+		}
+		for (Territory terr : _territoryList.values())
+		{
+			if (terr.getOwnerClan() != null)
+			{
+				for (L2PcInstance player : terr.getOwnerClan().getOnlineMembers(0))
+				{
+					if (player == null)
+					{
+						continue;
+					}
+					if (clear)
+					{
+						player.setSiegeState((byte) 0);
+						if (!_isTWChannelOpen)
+						{
+							player.setSiegeSide(0);
+						}
+					}
+					else
+					{
+						if ((player.getLevel() < PLAYERMINLEVEL) || (player.getClassId().level() < 2))
+						{
+							continue;
+						}
+						if (_isTWInProgress)
+						{
+							player.setSiegeState((byte) 1);
+						}
+						player.setSiegeSide(80 + terr.getCastleId());
+					}
+					player.broadcastUserInfo();
+				}
+			}
+		}
+		twQuest.setOnEnterWorld(_isTWInProgress);
+		return true;
+	}
+	
 	private void changeRegistration(int castleId, int objId, boolean delete)
 	{
 		final String query = delete ? DELETE : INSERT;
@@ -764,27 +1239,6 @@ public final class TerritoryWarManager implements Siegable
 		catch (Exception e)
 		{
 			_log.log(Level.WARNING, "Exception: Territory War registration: " + e.getMessage(), e);
-		}
-	}
-	
-	private void updateTerritoryData(Territory ter)
-	{
-		StringBuilder wardList = new StringBuilder();
-		for (int i : ter.getOwnedWardIds())
-		{
-			wardList.append(i + ";");
-		}
-		
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("UPDATE territories SET ownedWardIds=? WHERE territoryId=?"))
-		{
-			ps.setString(1, wardList.toString());
-			ps.setInt(2, ter.getTerritoryId());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Exception: Territory Data update: " + e.getMessage(), e);
 		}
 	}
 	
@@ -909,323 +1363,262 @@ public final class TerritoryWarManager implements Siegable
 		}
 	}
 	
-	protected void startTerritoryWar()
+	private void updateTerritoryData(Territory ter)
 	{
-		if (_territoryList == null)
+		StringBuilder wardList = new StringBuilder();
+		for (int i : ter.getOwnedWardIds())
 		{
-			_log.warning(getClass().getSimpleName() + ": TerritoryList is NULL!");
-			return;
-		}
-		List<Territory> activeTerritoryList = new LinkedList<>();
-		for (Territory t : _territoryList.values())
-		{
-			Castle castle = CastleManager.getInstance().getCastleById(t.getCastleId());
-			if (castle != null)
-			{
-				if (castle.getOwnerId() > 0)
-				{
-					activeTerritoryList.add(t);
-				}
-			}
-			else
-			{
-				_log.warning(getClass().getSimpleName() + ": Castle missing! CastleId: " + t.getCastleId());
-			}
+			wardList.append(i + ";");
 		}
 		
-		if (activeTerritoryList.size() < 2)
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("UPDATE territories SET ownedWardIds=? WHERE territoryId=?"))
 		{
-			return;
+			ps.setString(1, wardList.toString());
+			ps.setInt(2, ter.getTerritoryId());
+			ps.execute();
 		}
-		
-		_isTWInProgress = true;
-		if (!updatePlayerTWStateFlags(false))
+		catch (Exception e)
 		{
-			return;
+			_log.log(Level.WARNING, "Exception: Territory Data update: " + e.getMessage(), e);
 		}
-		
-		// teleportPlayer(Siege.TeleportWhoType.Attacker, MapRegionTable.TeleportWhereType.Town); // Teleport to the closest town
-		for (Territory t : activeTerritoryList)
-		{
-			Castle castle = CastleManager.getInstance().getCastleById(t.getCastleId());
-			Fort fort = FortManager.getInstance().getFortById(t.getFortId());
-			// spawnControlTower(t.getCastleId()); // Spawn control tower
-			if (castle != null)
-			{
-				t.changeNPCsSpawn(2, true);
-				castle.spawnDoor(); // Spawn door
-				castle.getZone().setSiegeInstance(this);
-				castle.getZone().setIsActive(true);
-				castle.getZone().updateZoneStatusForCharactersInside();
-			}
-			else
-			{
-				_log.warning(getClass().getSimpleName() + ": Castle missing! CastleId: " + t.getCastleId());
-			}
-			if (fort != null)
-			{
-				t.changeNPCsSpawn(1, true);
-				fort.resetDoors(); // Spawn door
-				fort.getZone().setSiegeInstance(this);
-				fort.getZone().setIsActive(true);
-				fort.getZone().updateZoneStatusForCharactersInside();
-			}
-			else
-			{
-				_log.warning(getClass().getSimpleName() + ": Fort missing! FortId: " + t.getFortId());
-			}
-			for (TerritoryNPCSpawn ward : t.getOwnedWard())
-			{
-				if ((ward.getNpc() != null) && (t.getOwnerClan() != null))
-				{
-					if (!ward.getNpc().isVisible())
-					{
-						ward.setNPC(ward.getNpc().getSpawn().doSpawn());
-					}
-					_territoryWards.add(new TerritoryWard(ward.getId(), ward.getLocation().getX(), ward.getLocation().getY(), ward.getLocation().getZ(), 0, ward.getId() + 13479, t.getCastleId(), ward.getNpc()));
-				}
-			}
-			t.getQuestDone()[0] = 0; // killed npc
-			t.getQuestDone()[1] = 0; // captured wards
-		}
-		_participantPoints.clear();
-		
-		if (RETURN_WARDS_WHEN_TW_STARTS)
-		{
-			for (TerritoryWard ward : _territoryWards)
-			{
-				if (ward.getOwnerCastleId() != (ward.getTerritoryId() - 80))
-				{
-					ward.unSpawnMe();
-					ward.setNpc(addTerritoryWard(ward.getTerritoryId(), ward.getTerritoryId() - 80, ward.getOwnerCastleId(), false));
-					ward.setOwnerCastleId(ward.getTerritoryId() - 80);
-				}
-			}
-		}
-		
-		SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.TERRITORY_WAR_HAS_BEGUN);
-		Broadcast.toAllOnlinePlayers(sm);
 	}
 	
-	protected void endTerritoryWar()
+	public class Territory
 	{
-		_isTWInProgress = false;
-		if (_territoryList == null)
+		private final Logger _log = Logger.getLogger(Territory.class.getName());
+		
+		private final int _territoryId;
+		private final int _castleId; // territory Castle
+		protected int _fortId; // territory Fortress
+		private L2Clan _ownerClan;
+		private final List<TerritoryNPCSpawn> _spawnList = new LinkedList<>();
+		private final TerritoryNPCSpawn[] _territoryWardSpawnPlaces;
+		private boolean _isInProgress = false;
+		private L2SiegeFlagInstance _territoryHQ = null;
+		private final int[] _questDone;
+		
+		public Territory(int castleId)
 		{
-			_log.warning(getClass().getSimpleName() + ": TerritoryList is NULL!");
-			return;
+			_castleId = castleId;
+			_territoryId = castleId + 80;
+			_territoryWardSpawnPlaces = new TerritoryNPCSpawn[9];
+			_questDone = new int[2];
 		}
-		List<Territory> activeTerritoryList = new LinkedList<>();
-		for (Territory t : _territoryList.values())
+		
+		public int getCastleId()
 		{
-			Castle castle = CastleManager.getInstance().getCastleById(t.getCastleId());
-			if (castle != null)
+			return _castleId;
+		}
+		
+		public int getFortId()
+		{
+			return _fortId;
+		}
+		
+		public L2SiegeFlagInstance getHQ()
+		{
+			return _territoryHQ;
+		}
+		
+		public TerritoryNPCSpawn[] getOwnedWard()
+		{
+			return _territoryWardSpawnPlaces;
+		}
+		
+		public List<Integer> getOwnedWardIds()
+		{
+			List<Integer> ret = new LinkedList<>();
+			for (TerritoryNPCSpawn wardSpawn : _territoryWardSpawnPlaces)
 			{
-				if (castle.getOwnerId() > 0)
+				if (wardSpawn.getId() > 0)
 				{
-					activeTerritoryList.add(t);
+					ret.add(wardSpawn.getId());
 				}
 			}
-			else
-			{
-				_log.warning(getClass().getSimpleName() + ": Castle missing! CastleId: " + t.getCastleId());
-			}
+			return ret;
 		}
 		
-		if (activeTerritoryList.size() < 2)
+		public L2Clan getOwnerClan()
 		{
-			return;
+			return _ownerClan;
 		}
 		
-		if (!updatePlayerTWStateFlags(true))
+		public int[] getQuestDone()
 		{
-			return;
+			return _questDone;
 		}
 		
-		for (TerritoryWard twWard : _territoryWards)
+		public List<TerritoryNPCSpawn> getSpawnList()
 		{
-			twWard.unSpawnMe();
+			return _spawnList;
 		}
-		_territoryWards.clear();
 		
-		// teleportPlayer(Siege.TeleportWhoType.Attacker, MapRegionTable.TeleportWhereType.Town); // Teleport to the closest town
-		for (Territory t : activeTerritoryList)
+		public int getTerritoryId()
 		{
-			Castle castle = CastleManager.getInstance().getCastleById(t.getCastleId());
-			Fort fort = FortManager.getInstance().getFortById(t.getFortId());
-			
-			if (castle != null)
+			return _territoryId;
+		}
+		
+		public boolean isInProgress()
+		{
+			return _isInProgress;
+		}
+		
+		public void setHQ(L2SiegeFlagInstance hq)
+		{
+			_territoryHQ = hq;
+		}
+		
+		public void setIsInProgress(boolean val)
+		{
+			_isInProgress = val;
+		}
+		
+		public void setOwnerClan(L2Clan newOwner)
+		{
+			_ownerClan = newOwner;
+		}
+		
+		protected void addWardSpawnPlace(Location loc)
+		{
+			for (int i = 0; i < _territoryWardSpawnPlaces.length; i++)
 			{
-				castle.spawnDoor();
-				t.changeNPCsSpawn(2, false);
-				castle.getZone().setIsActive(false);
-				castle.getZone().updateZoneStatusForCharactersInside();
-				castle.getZone().setSiegeInstance(null);
-			}
-			else
-			{
-				_log.warning(getClass().getSimpleName() + ": Castle missing! CastleId: " + t.getCastleId());
-			}
-			
-			if (fort != null)
-			{
-				t.changeNPCsSpawn(1, false);
-				fort.getZone().setIsActive(false);
-				fort.getZone().updateZoneStatusForCharactersInside();
-				fort.getZone().setSiegeInstance(null);
-			}
-			else
-			{
-				_log.warning(getClass().getSimpleName() + ": Fort missing! FortId: " + t.getFortId());
-			}
-			
-			if (t.getHQ() != null)
-			{
-				t.getHQ().deleteMe();
-			}
-			
-			for (TerritoryNPCSpawn ward : t.getOwnedWard())
-			{
-				if (ward.getNpc() != null)
+				if (_territoryWardSpawnPlaces[i] == null)
 				{
-					if (!ward.getNpc().isVisible() && SPAWN_WARDS_WHEN_TW_IS_NOT_IN_PROGRESS)
-					{
-						ward.setNPC(ward.getNpc().getSpawn().doSpawn());
-					}
-					else if (ward.getNpc().isVisible() && !SPAWN_WARDS_WHEN_TW_IS_NOT_IN_PROGRESS)
-					{
-						ward.getNpc().decayMe();
-					}
-				}
-			}
-		}
-		for (L2SiegeFlagInstance flag : _clanFlags.values())
-		{
-			flag.deleteMe();
-		}
-		_clanFlags.clear();
-		
-		for (Integer castleId : _registeredClans.keySet())
-		{
-			for (L2Clan clan : _registeredClans.get(castleId))
-			{
-				changeRegistration(castleId, clan.getId(), true);
-			}
-		}
-		for (Integer castleId : _registeredMercenaries.keySet())
-		{
-			for (Integer pl_objId : _registeredMercenaries.get(castleId))
-			{
-				changeRegistration(castleId, pl_objId, true);
-			}
-		}
-		// change next TW date
-		SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.TERRITORY_WAR_HAS_ENDED);
-		Broadcast.toAllOnlinePlayers(sm);
-	}
-	
-	protected boolean updatePlayerTWStateFlags(boolean clear)
-	{
-		Quest twQuest = QuestManager.getInstance().getQuest(qn);
-		if (twQuest == null)
-		{
-			_log.warning(getClass().getSimpleName() + ": missing main Quest!");
-			return false;
-		}
-		for (int castleId : _registeredClans.keySet())
-		{
-			for (L2Clan clan : _registeredClans.get(castleId))
-			{
-				for (L2PcInstance player : clan.getOnlineMembers(0))
-				{
-					if (clear)
-					{
-						player.setSiegeState((byte) 0);
-						if (!_isTWChannelOpen)
-						{
-							player.setSiegeSide(0);
-						}
-					}
-					else
-					{
-						if ((player.getLevel() < PLAYERMINLEVEL) || (player.getClassId().level() < 2))
-						{
-							continue;
-						}
-						if (_isTWInProgress)
-						{
-							player.setSiegeState((byte) 1);
-						}
-						player.setSiegeSide(80 + castleId);
-					}
-					player.broadcastUserInfo();
+					_territoryWardSpawnPlaces[i] = new TerritoryNPCSpawn(_castleId, loc, 0, 4, null);
+					return;
 				}
 			}
 		}
-		for (int castleId : _registeredMercenaries.keySet())
+		
+		protected void changeNPCsSpawn(int type, boolean isSpawn)
 		{
-			for (int objId : _registeredMercenaries.get(castleId))
+			if ((type < 0) || (type > 3))
 			{
-				L2PcInstance player = L2World.getInstance().getPlayer(objId);
-				if (player == null)
+				_log.log(Level.WARNING, getClass().getSimpleName() + ": wrong type(" + type + ") for NPCs spawn change!");
+				return;
+			}
+			for (TerritoryNPCSpawn twSpawn : _spawnList)
+			{
+				if (twSpawn.getType() != type)
 				{
 					continue;
 				}
-				if (clear)
+				if (isSpawn)
 				{
-					player.setSiegeState((byte) 0);
-					if (!_isTWChannelOpen)
-					{
-						player.setSiegeSide(0);
-					}
+					twSpawn.setNPC(spawnNPC(twSpawn.getId(), twSpawn.getLocation()));
 				}
 				else
 				{
-					if (_isTWInProgress)
+					L2Npc npc = twSpawn.getNpc();
+					if ((npc != null) && !npc.isDead())
 					{
-						player.setSiegeState((byte) 1);
+						npc.deleteMe();
 					}
-					player.setSiegeSide(80 + castleId);
+					twSpawn.setNPC(null);
 				}
-				player.broadcastUserInfo();
 			}
 		}
-		for (Territory terr : _territoryList.values())
+		
+		protected TerritoryNPCSpawn getFreeWardSpawnPlace()
 		{
-			if (terr.getOwnerClan() != null)
+			for (TerritoryNPCSpawn _territoryWardSpawnPlace : _territoryWardSpawnPlaces)
 			{
-				for (L2PcInstance player : terr.getOwnerClan().getOnlineMembers(0))
+				if ((_territoryWardSpawnPlace != null) && (_territoryWardSpawnPlace.getNpc() == null))
 				{
-					if (player == null)
-					{
-						continue;
-					}
-					if (clear)
-					{
-						player.setSiegeState((byte) 0);
-						if (!_isTWChannelOpen)
-						{
-							player.setSiegeSide(0);
-						}
-					}
-					else
-					{
-						if ((player.getLevel() < PLAYERMINLEVEL) || (player.getClassId().level() < 2))
-						{
-							continue;
-						}
-						if (_isTWInProgress)
-						{
-							player.setSiegeState((byte) 1);
-						}
-						player.setSiegeSide(80 + terr.getCastleId());
-					}
-					player.broadcastUserInfo();
+					return _territoryWardSpawnPlace;
 				}
 			}
+			_log.log(Level.WARNING, getClass().getSimpleName() + ": no free Ward spawn found for territory: " + _territoryId);
+			for (int i = 0; i < _territoryWardSpawnPlaces.length; i++)
+			{
+				if (_territoryWardSpawnPlaces[i] == null)
+				{
+					_log.log(Level.WARNING, getClass().getSimpleName() + ": territory ward spawn place " + i + " is null!");
+				}
+				else if (_territoryWardSpawnPlaces[i].getNpc() != null)
+				{
+					_log.log(Level.WARNING, getClass().getSimpleName() + ": territory ward spawn place " + i + " has npc name: " + _territoryWardSpawnPlaces[i].getNpc().getName());
+				}
+				else
+				{
+					_log.log(Level.WARNING, getClass().getSimpleName() + ": territory ward spawn place " + i + " is empty!");
+				}
+			}
+			return null;
 		}
-		twQuest.setOnEnterWorld(_isTWInProgress);
-		return true;
+		
+		protected void removeWard(int wardId)
+		{
+			for (TerritoryNPCSpawn wardSpawn : _territoryWardSpawnPlaces)
+			{
+				if (wardSpawn.getId() == wardId)
+				{
+					wardSpawn.getNpc().deleteMe();
+					wardSpawn.setNPC(null);
+					wardSpawn._npcId = 0;
+					return;
+				}
+			}
+			_log.log(Level.WARNING, getClass().getSimpleName() + ": Can't delete wardId: " + wardId + " for territory: " + _territoryId);
+		}
+	}
+	
+	public static class TerritoryNPCSpawn implements IIdentifiable
+	{
+		private final Location _location;
+		protected int _npcId;
+		private final int _castleId;
+		private final int _type;
+		private L2Npc _npc;
+		
+		public TerritoryNPCSpawn(int castle_id, Location loc, int npc_id, int type, L2Npc npc)
+		{
+			_castleId = castle_id;
+			_location = loc;
+			_npcId = npc_id;
+			_type = type;
+			_npc = npc;
+		}
+		
+		public int getCastleId()
+		{
+			return _castleId;
+		}
+		
+		/**
+		 * Gets the NPC ID.
+		 * @return the NPC ID
+		 */
+		@Override
+		public int getId()
+		{
+			return _npcId;
+		}
+		
+		public Location getLocation()
+		{
+			return _location;
+		}
+		
+		public L2Npc getNpc()
+		{
+			return _npc;
+		}
+		
+		public int getType()
+		{
+			return _type;
+		}
+		
+		public void setNPC(L2Npc npc)
+		{
+			if (_npc != null)
+			{
+				_npc.deleteMe();
+			}
+			_npc = npc;
+		}
 	}
 	
 	protected class RewardOnlineParticipants implements Runnable
@@ -1325,6 +1718,21 @@ public final class TerritoryWarManager implements Siegable
 		}
 	}
 	
+	private class closeTerritoryChannelTask implements Runnable
+	{
+		public closeTerritoryChannelTask()
+		{
+		}
+		
+		@Override
+		public void run()
+		{
+			_isTWChannelOpen = false;
+			_disguisedPlayers.clear();
+			updatePlayerTWStateFlags(true);
+		}
+	}
+	
 	private class ScheduleEndTWTask implements Runnable
 	{
 		private final Logger _log = Logger.getLogger(ScheduleEndTWTask.class.getName());
@@ -1387,414 +1795,6 @@ public final class TerritoryWarManager implements Siegable
 				_log.log(Level.SEVERE, "", e);
 			}
 		}
-	}
-	
-	private class closeTerritoryChannelTask implements Runnable
-	{
-		public closeTerritoryChannelTask()
-		{
-		}
-		
-		@Override
-		public void run()
-		{
-			_isTWChannelOpen = false;
-			_disguisedPlayers.clear();
-			updatePlayerTWStateFlags(true);
-		}
-	}
-	
-	public void announceToParticipants(L2GameServerPacket sm, int exp, int sp)
-	{
-		// broadcast to clan members
-		for (Territory ter : _territoryList.values())
-		{
-			if (ter.getOwnerClan() != null)
-			{
-				for (L2PcInstance member : ter.getOwnerClan().getOnlineMembers(0))
-				{
-					member.sendPacket(sm);
-					if ((exp > 0) || (sp > 0))
-					{
-						member.addExpAndSp(exp, sp);
-					}
-				}
-			}
-		}
-		for (List<L2Clan> list : _registeredClans.values())
-		{
-			for (L2Clan c : list)
-			{
-				for (L2PcInstance member : c.getOnlineMembers(0))
-				{
-					member.sendPacket(sm);
-					if ((exp > 0) || (sp > 0))
-					{
-						member.addExpAndSp(exp, sp);
-					}
-				}
-			}
-		}
-		// broadcast to mercenaries
-		for (List<Integer> list : _registeredMercenaries.values())
-		{
-			for (int objId : list)
-			{
-				L2PcInstance player = L2World.getInstance().getPlayer(objId);
-				if ((player != null) && ((player.getClan() == null) || !checkIsRegistered(-1, player.getClan())))
-				{
-					player.sendPacket(sm);
-					if ((exp > 0) || (sp > 0))
-					{
-						player.addExpAndSp(exp, sp);
-					}
-				}
-			}
-		}
-	}
-	
-	public static class TerritoryNPCSpawn implements IIdentifiable
-	{
-		private final Location _location;
-		protected int _npcId;
-		private final int _castleId;
-		private final int _type;
-		private L2Npc _npc;
-		
-		public TerritoryNPCSpawn(int castle_id, Location loc, int npc_id, int type, L2Npc npc)
-		{
-			_castleId = castle_id;
-			_location = loc;
-			_npcId = npc_id;
-			_type = type;
-			_npc = npc;
-		}
-		
-		public int getCastleId()
-		{
-			return _castleId;
-		}
-		
-		/**
-		 * Gets the NPC ID.
-		 * @return the NPC ID
-		 */
-		@Override
-		public int getId()
-		{
-			return _npcId;
-		}
-		
-		public int getType()
-		{
-			return _type;
-		}
-		
-		public void setNPC(L2Npc npc)
-		{
-			if (_npc != null)
-			{
-				_npc.deleteMe();
-			}
-			_npc = npc;
-		}
-		
-		public L2Npc getNpc()
-		{
-			return _npc;
-		}
-		
-		public Location getLocation()
-		{
-			return _location;
-		}
-	}
-	
-	public class Territory
-	{
-		private final Logger _log = Logger.getLogger(Territory.class.getName());
-		
-		private final int _territoryId;
-		private final int _castleId; // territory Castle
-		protected int _fortId; // territory Fortress
-		private L2Clan _ownerClan;
-		private final List<TerritoryNPCSpawn> _spawnList = new LinkedList<>();
-		private final TerritoryNPCSpawn[] _territoryWardSpawnPlaces;
-		private boolean _isInProgress = false;
-		private L2SiegeFlagInstance _territoryHQ = null;
-		private final int[] _questDone;
-		
-		public Territory(int castleId)
-		{
-			_castleId = castleId;
-			_territoryId = castleId + 80;
-			_territoryWardSpawnPlaces = new TerritoryNPCSpawn[9];
-			_questDone = new int[2];
-		}
-		
-		protected void addWardSpawnPlace(Location loc)
-		{
-			for (int i = 0; i < _territoryWardSpawnPlaces.length; i++)
-			{
-				if (_territoryWardSpawnPlaces[i] == null)
-				{
-					_territoryWardSpawnPlaces[i] = new TerritoryNPCSpawn(_castleId, loc, 0, 4, null);
-					return;
-				}
-			}
-		}
-		
-		protected TerritoryNPCSpawn getFreeWardSpawnPlace()
-		{
-			for (TerritoryNPCSpawn _territoryWardSpawnPlace : _territoryWardSpawnPlaces)
-			{
-				if ((_territoryWardSpawnPlace != null) && (_territoryWardSpawnPlace.getNpc() == null))
-				{
-					return _territoryWardSpawnPlace;
-				}
-			}
-			_log.log(Level.WARNING, getClass().getSimpleName() + ": no free Ward spawn found for territory: " + _territoryId);
-			for (int i = 0; i < _territoryWardSpawnPlaces.length; i++)
-			{
-				if (_territoryWardSpawnPlaces[i] == null)
-				{
-					_log.log(Level.WARNING, getClass().getSimpleName() + ": territory ward spawn place " + i + " is null!");
-				}
-				else if (_territoryWardSpawnPlaces[i].getNpc() != null)
-				{
-					_log.log(Level.WARNING, getClass().getSimpleName() + ": territory ward spawn place " + i + " has npc name: " + _territoryWardSpawnPlaces[i].getNpc().getName());
-				}
-				else
-				{
-					_log.log(Level.WARNING, getClass().getSimpleName() + ": territory ward spawn place " + i + " is empty!");
-				}
-			}
-			return null;
-		}
-		
-		public List<TerritoryNPCSpawn> getSpawnList()
-		{
-			return _spawnList;
-		}
-		
-		protected void changeNPCsSpawn(int type, boolean isSpawn)
-		{
-			if ((type < 0) || (type > 3))
-			{
-				_log.log(Level.WARNING, getClass().getSimpleName() + ": wrong type(" + type + ") for NPCs spawn change!");
-				return;
-			}
-			for (TerritoryNPCSpawn twSpawn : _spawnList)
-			{
-				if (twSpawn.getType() != type)
-				{
-					continue;
-				}
-				if (isSpawn)
-				{
-					twSpawn.setNPC(spawnNPC(twSpawn.getId(), twSpawn.getLocation()));
-				}
-				else
-				{
-					L2Npc npc = twSpawn.getNpc();
-					if ((npc != null) && !npc.isDead())
-					{
-						npc.deleteMe();
-					}
-					twSpawn.setNPC(null);
-				}
-			}
-		}
-		
-		protected void removeWard(int wardId)
-		{
-			for (TerritoryNPCSpawn wardSpawn : _territoryWardSpawnPlaces)
-			{
-				if (wardSpawn.getId() == wardId)
-				{
-					wardSpawn.getNpc().deleteMe();
-					wardSpawn.setNPC(null);
-					wardSpawn._npcId = 0;
-					return;
-				}
-			}
-			_log.log(Level.WARNING, getClass().getSimpleName() + ": Can't delete wardId: " + wardId + " for territory: " + _territoryId);
-		}
-		
-		public int getTerritoryId()
-		{
-			return _territoryId;
-		}
-		
-		public int getCastleId()
-		{
-			return _castleId;
-		}
-		
-		public int getFortId()
-		{
-			return _fortId;
-		}
-		
-		public L2Clan getOwnerClan()
-		{
-			return _ownerClan;
-		}
-		
-		public void setOwnerClan(L2Clan newOwner)
-		{
-			_ownerClan = newOwner;
-		}
-		
-		public void setHQ(L2SiegeFlagInstance hq)
-		{
-			_territoryHQ = hq;
-		}
-		
-		public L2SiegeFlagInstance getHQ()
-		{
-			return _territoryHQ;
-		}
-		
-		public TerritoryNPCSpawn[] getOwnedWard()
-		{
-			return _territoryWardSpawnPlaces;
-		}
-		
-		public int[] getQuestDone()
-		{
-			return _questDone;
-		}
-		
-		public List<Integer> getOwnedWardIds()
-		{
-			List<Integer> ret = new LinkedList<>();
-			for (TerritoryNPCSpawn wardSpawn : _territoryWardSpawnPlaces)
-			{
-				if (wardSpawn.getId() > 0)
-				{
-					ret.add(wardSpawn.getId());
-				}
-			}
-			return ret;
-		}
-		
-		public boolean isInProgress()
-		{
-			return _isInProgress;
-		}
-		
-		public void setIsInProgress(boolean val)
-		{
-			_isInProgress = val;
-		}
-	}
-	
-	@Override
-	public void startSiege()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public void endSiege()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public L2SiegeClan getAttackerClan(int clanId)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public L2SiegeClan getAttackerClan(L2Clan clan)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public List<L2SiegeClan> getAttackerClans()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public List<L2PcInstance> getAttackersInZone()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean checkIsAttacker(L2Clan clan)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public L2SiegeClan getDefenderClan(int clanId)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public L2SiegeClan getDefenderClan(L2Clan clan)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public List<L2SiegeClan> getDefenderClans()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean checkIsDefender(L2Clan clan)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public List<L2Npc> getFlag(L2Clan clan)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public Calendar getSiegeDate()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean giveFame()
-	{
-		return true;
-	}
-	
-	@Override
-	public int getFameFrequency()
-	{
-		return Config.CASTLE_ZONE_FAME_TASK_FREQUENCY;
-	}
-	
-	@Override
-	public int getFameAmount()
-	{
-		return Config.CASTLE_ZONE_FAME_AQUIRE_POINTS;
-	}
-	
-	@Override
-	public void updateSiege()
-	{
-		
-	}
-	
-	public static final TerritoryWarManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

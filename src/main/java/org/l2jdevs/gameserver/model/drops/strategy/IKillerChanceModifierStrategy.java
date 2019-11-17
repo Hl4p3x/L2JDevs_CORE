@@ -62,11 +62,11 @@ public interface IKillerChanceModifierStrategy extends INonGroupedKillerChanceMo
 	
 	IKillerChanceModifierStrategy NO_RULES = (item, victim, killer) -> 1;
 	
-	public double getKillerChanceModifier(IDropItem item, L2Character victim, L2Character killer);
-	
 	@Override
 	public default double getKillerChanceModifier(GeneralDropItem item, L2Character victim, L2Character killer)
 	{
 		return getKillerChanceModifier((IDropItem) item, victim, killer);
 	}
+	
+	public double getKillerChanceModifier(IDropItem item, L2Character victim, L2Character killer);
 }

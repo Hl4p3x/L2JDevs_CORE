@@ -30,9 +30,9 @@ public final class RequestSentPostList extends L2GameClientPacket
 	private static final String _C__D0_6C_REQUESTSENTPOSTLIST = "[C] D0:6C RequestSentPostList";
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		// trigger packet
+		return _C__D0_6C_REQUESTSENTPOSTLIST;
 	}
 	
 	@Override
@@ -54,9 +54,9 @@ public final class RequestSentPostList extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__D0_6C_REQUESTSENTPOSTLIST;
+		// trigger packet
 	}
 	
 	@Override

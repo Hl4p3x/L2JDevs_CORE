@@ -47,24 +47,14 @@ import org.l2jdevs.status.Status;
  */
 public final class L2LoginServer
 {
-	private final Logger _log = Logger.getLogger(L2LoginServer.class.getName());
-	
 	public static final int PROTOCOL_REV = 0x0106;
+	
 	private static L2LoginServer _instance;
+	private final Logger _log = Logger.getLogger(L2LoginServer.class.getName());
 	private GameServerListener _gameServerListener;
 	private SelectorThread<L2LoginClient> _selectorThread;
 	private Status _statusServer;
 	private Thread _restartLoginServer;
-	
-	public static void main(String[] args)
-	{
-		new L2LoginServer();
-	}
-	
-	public static L2LoginServer getInstance()
-	{
-		return _instance;
-	}
 	
 	private L2LoginServer()
 	{
@@ -190,14 +180,29 @@ public final class L2LoginServer
 		UPnPService.getInstance();
 	}
 	
-	public Status getStatusServer()
+	public static L2LoginServer getInstance()
 	{
-		return _statusServer;
+		return _instance;
+	}
+	
+	public static void main(String[] args)
+	{
+		new L2LoginServer();
 	}
 	
 	public GameServerListener getGameServerListener()
 	{
 		return _gameServerListener;
+	}
+	
+	public Status getStatusServer()
+	{
+		return _statusServer;
+	}
+	
+	public void shutdown(boolean restart)
+	{
+		Runtime.getRuntime().exit(restart ? 2 : 0);
 	}
 	
 	private void loadBanFile()
@@ -287,10 +292,5 @@ public final class L2LoginServer
 				shutdown(true);
 			}
 		}
-	}
-	
-	public void shutdown(boolean restart)
-	{
-		Runtime.getRuntime().exit(restart ? 2 : 0);
 	}
 }

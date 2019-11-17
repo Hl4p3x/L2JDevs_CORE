@@ -31,6 +31,12 @@ public final class RequestExPledgeCrestLarge extends L2GameClientPacket
 	private int _crestId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_10_REQUESTEXPLEDGECRESTLARGE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_crestId = readD();
@@ -40,12 +46,6 @@ public final class RequestExPledgeCrestLarge extends L2GameClientPacket
 	protected void runImpl()
 	{
 		sendPacket(new ExPledgeCrestLarge(_crestId));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_10_REQUESTEXPLEDGECRESTLARGE;
 	}
 	
 	@Override

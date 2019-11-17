@@ -57,28 +57,10 @@ public final class RequestPreviewItem extends L2GameClientPacket
 	private int _count;
 	private int[] _items;
 	
-	private class RemoveWearItemsTask implements Runnable
+	@Override
+	public String getType()
 	{
-		private final L2PcInstance activeChar;
-		
-		protected RemoveWearItemsTask(L2PcInstance player)
-		{
-			activeChar = player;
-		}
-		
-		@Override
-		public void run()
-		{
-			try
-			{
-				activeChar.sendPacket(SystemMessageId.NO_LONGER_TRYING_ON);
-				activeChar.sendPacket(new UserInfo(activeChar));
-			}
-			catch (Exception e)
-			{
-				_log.log(Level.SEVERE, "", e);
-			}
-		}
+		return _C__C7_REQUESTPREVIEWITEM;
 	}
 	
 	@Override
@@ -246,9 +228,27 @@ public final class RequestPreviewItem extends L2GameClientPacket
 		}
 	}
 	
-	@Override
-	public String getType()
+	private class RemoveWearItemsTask implements Runnable
 	{
-		return _C__C7_REQUESTPREVIEWITEM;
+		private final L2PcInstance activeChar;
+		
+		protected RemoveWearItemsTask(L2PcInstance player)
+		{
+			activeChar = player;
+		}
+		
+		@Override
+		public void run()
+		{
+			try
+			{
+				activeChar.sendPacket(SystemMessageId.NO_LONGER_TRYING_ON);
+				activeChar.sendPacket(new UserInfo(activeChar));
+			}
+			catch (Exception e)
+			{
+				_log.log(Level.SEVERE, "", e);
+			}
+		}
 	}
 }

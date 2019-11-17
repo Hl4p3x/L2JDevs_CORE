@@ -30,14 +30,14 @@ public class FuncAtkEvasion extends AbstractFunction
 {
 	private static final FuncAtkEvasion _fae_instance = new FuncAtkEvasion();
 	
-	public static AbstractFunction getInstance()
-	{
-		return _fae_instance;
-	}
-	
 	private FuncAtkEvasion()
 	{
 		super(Stats.EVASION_RATE, 1, null, 0, null);
+	}
+	
+	public static AbstractFunction getInstance()
+	{
+		return _fae_instance;
 	}
 	
 	@Override

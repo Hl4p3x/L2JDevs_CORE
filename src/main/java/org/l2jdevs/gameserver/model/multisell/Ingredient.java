@@ -37,11 +37,6 @@ public class Ingredient
 	private L2Item _template = null;
 	private ItemInfo _itemInfo = null;
 	
-	public Ingredient(StatsSet set)
-	{
-		this(set.getInt("id"), set.getLong("count"), set.getBoolean("isTaxIngredient", false), set.getBoolean("maintainIngredient", false));
-	}
-	
 	public Ingredient(int itemId, long itemCount, boolean isTaxIngredient, boolean maintainIngredient)
 	{
 		_itemId = itemId;
@@ -54,6 +49,11 @@ public class Ingredient
 		}
 	}
 	
+	public Ingredient(StatsSet set)
+	{
+		this(set.getInt("id"), set.getLong("count"), set.getBoolean("isTaxIngredient", false), set.getBoolean("maintainIngredient", false));
+	}
+	
 	/**
 	 * @return a new Ingredient instance with the same values as this.
 	 */
@@ -62,44 +62,9 @@ public class Ingredient
 		return new Ingredient(_itemId, _itemCount, _isTaxIngredient, _maintainIngredient);
 	}
 	
-	public final L2Item getTemplate()
-	{
-		return _template;
-	}
-	
-	public final void setItemInfo(L2ItemInstance item)
-	{
-		_itemInfo = new ItemInfo(item);
-	}
-	
-	public final void setItemInfo(ItemInfo info)
-	{
-		_itemInfo = info;
-	}
-	
-	public final ItemInfo getItemInfo()
-	{
-		return _itemInfo;
-	}
-	
 	public final int getEnchantLevel()
 	{
 		return _itemInfo != null ? _itemInfo.getEnchantLevel() : 0;
-	}
-	
-	public final void setItemId(int itemId)
-	{
-		_itemId = itemId;
-	}
-	
-	public final int getItemId()
-	{
-		return _itemId;
-	}
-	
-	public final void setItemCount(long itemCount)
-	{
-		_itemCount = itemCount;
 	}
 	
 	public final long getItemCount()
@@ -107,19 +72,14 @@ public class Ingredient
 		return _itemCount;
 	}
 	
-	public final void setIsTaxIngredient(boolean isTaxIngredient)
+	public final int getItemId()
 	{
-		_isTaxIngredient = isTaxIngredient;
+		return _itemId;
 	}
 	
-	public final boolean isTaxIngredient()
+	public final ItemInfo getItemInfo()
 	{
-		return _isTaxIngredient;
-	}
-	
-	public final void setMaintainIngredient(boolean maintainIngredient)
-	{
-		_maintainIngredient = maintainIngredient;
+		return _itemInfo;
 	}
 	
 	public final boolean getMaintainIngredient()
@@ -127,9 +87,14 @@ public class Ingredient
 		return _maintainIngredient;
 	}
 	
-	public final boolean isStackable()
+	public final L2Item getTemplate()
 	{
-		return _template == null ? true : _template.isStackable();
+		return _template;
+	}
+	
+	public final int getWeight()
+	{
+		return _template == null ? 0 : _template.getWeight();
 	}
 	
 	public final boolean isArmorOrWeapon()
@@ -137,8 +102,43 @@ public class Ingredient
 		return _template == null ? false : (_template instanceof L2Armor) || (_template instanceof L2Weapon);
 	}
 	
-	public final int getWeight()
+	public final boolean isStackable()
 	{
-		return _template == null ? 0 : _template.getWeight();
+		return _template == null ? true : _template.isStackable();
+	}
+	
+	public final boolean isTaxIngredient()
+	{
+		return _isTaxIngredient;
+	}
+	
+	public final void setIsTaxIngredient(boolean isTaxIngredient)
+	{
+		_isTaxIngredient = isTaxIngredient;
+	}
+	
+	public final void setItemCount(long itemCount)
+	{
+		_itemCount = itemCount;
+	}
+	
+	public final void setItemId(int itemId)
+	{
+		_itemId = itemId;
+	}
+	
+	public final void setItemInfo(ItemInfo info)
+	{
+		_itemInfo = info;
+	}
+	
+	public final void setItemInfo(L2ItemInstance item)
+	{
+		_itemInfo = new ItemInfo(item);
+	}
+	
+	public final void setMaintainIngredient(boolean maintainIngredient)
+	{
+		_maintainIngredient = maintainIngredient;
 	}
 }

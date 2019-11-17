@@ -43,14 +43,14 @@ public class OnPlayerLevelChanged implements IBaseEvent
 		return _activeChar;
 	}
 	
-	public int getOldLevel()
-	{
-		return _oldLevel;
-	}
-	
 	public int getNewLevel()
 	{
 		return _newLevel;
+	}
+	
+	public int getOldLevel()
+	{
+		return _oldLevel;
 	}
 	
 	@Override

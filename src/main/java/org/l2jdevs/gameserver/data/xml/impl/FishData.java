@@ -49,59 +49,13 @@ public final class FishData implements IXmlReader
 		load();
 	}
 	
-	@Override
-	public void load()
+	/**
+	 * Gets the single instance of FishData.
+	 * @return single instance of FishData
+	 */
+	public static FishData getInstance()
 	{
-		_fishEasy.clear();
-		_fishNormal.clear();
-		_fishHard.clear();
-		parseDatapackFile("data/stats/fishing/fishes.xml");
-		LOG.info("{}: Loaded {} Fish.", getClass().getSimpleName(), (_fishEasy.size() + _fishNormal.size() + _fishHard.size()));
-	}
-	
-	@Override
-	public void parseDocument(Document doc)
-	{
-		for (Node n = doc.getFirstChild(); n != null; n = n.getNextSibling())
-		{
-			if ("list".equalsIgnoreCase(n.getNodeName()))
-			{
-				for (Node d = n.getFirstChild(); d != null; d = d.getNextSibling())
-				{
-					if ("fish".equalsIgnoreCase(d.getNodeName()))
-					{
-						final NamedNodeMap attrs = d.getAttributes();
-						
-						final StatsSet set = new StatsSet();
-						for (int i = 0; i < attrs.getLength(); i++)
-						{
-							final Node att = attrs.item(i);
-							set.set(att.getNodeName(), att.getNodeValue());
-						}
-						
-						final L2Fish fish = new L2Fish(set);
-						switch (fish.getFishGrade())
-						{
-							case 0:
-							{
-								_fishEasy.put(fish.getFishId(), fish);
-								break;
-							}
-							case 1:
-							{
-								_fishNormal.put(fish.getFishId(), fish);
-								break;
-							}
-							case 2:
-							{
-								_fishHard.put(fish.getFishId(), fish);
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
+		return SingletonHolder._instance;
 	}
 	
 	/**
@@ -155,13 +109,59 @@ public final class FishData implements IXmlReader
 		return result;
 	}
 	
-	/**
-	 * Gets the single instance of FishData.
-	 * @return single instance of FishData
-	 */
-	public static FishData getInstance()
+	@Override
+	public void load()
 	{
-		return SingletonHolder._instance;
+		_fishEasy.clear();
+		_fishNormal.clear();
+		_fishHard.clear();
+		parseDatapackFile("data/stats/fishing/fishes.xml");
+		LOG.info("{}: Loaded {} Fish.", getClass().getSimpleName(), (_fishEasy.size() + _fishNormal.size() + _fishHard.size()));
+	}
+	
+	@Override
+	public void parseDocument(Document doc)
+	{
+		for (Node n = doc.getFirstChild(); n != null; n = n.getNextSibling())
+		{
+			if ("list".equalsIgnoreCase(n.getNodeName()))
+			{
+				for (Node d = n.getFirstChild(); d != null; d = d.getNextSibling())
+				{
+					if ("fish".equalsIgnoreCase(d.getNodeName()))
+					{
+						final NamedNodeMap attrs = d.getAttributes();
+						
+						final StatsSet set = new StatsSet();
+						for (int i = 0; i < attrs.getLength(); i++)
+						{
+							final Node att = attrs.item(i);
+							set.set(att.getNodeName(), att.getNodeValue());
+						}
+						
+						final L2Fish fish = new L2Fish(set);
+						switch (fish.getFishGrade())
+						{
+							case 0:
+							{
+								_fishEasy.put(fish.getFishId(), fish);
+								break;
+							}
+							case 1:
+							{
+								_fishNormal.put(fish.getFishId(), fish);
+								break;
+							}
+							case 2:
+							{
+								_fishHard.put(fish.getFishId(), fish);
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	private static class SingletonHolder

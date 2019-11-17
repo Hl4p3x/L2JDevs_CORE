@@ -28,13 +28,6 @@ public class ItemRequest
 	long _count;
 	long _price;
 	
-	public ItemRequest(int objectId, long count, long price)
-	{
-		_objectId = objectId;
-		_count = count;
-		_price = price;
-	}
-	
 	public ItemRequest(int objectId, int itemId, long count, long price)
 	{
 		_objectId = objectId;
@@ -43,35 +36,11 @@ public class ItemRequest
 		_price = price;
 	}
 	
-	public int getObjectId()
+	public ItemRequest(int objectId, long count, long price)
 	{
-		return _objectId;
-	}
-	
-	public int getItemId()
-	{
-		return _itemId;
-	}
-	
-	public void setCount(long count)
-	{
+		_objectId = objectId;
 		_count = count;
-	}
-	
-	public long getCount()
-	{
-		return _count;
-	}
-	
-	public long getPrice()
-	{
-		return _price;
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		return _objectId;
+		_price = price;
 	}
 	
 	@Override
@@ -86,5 +55,36 @@ public class ItemRequest
 			return false;
 		}
 		return (_objectId != ((ItemRequest) obj)._objectId);
+	}
+	
+	public long getCount()
+	{
+		return _count;
+	}
+	
+	public int getItemId()
+	{
+		return _itemId;
+	}
+	
+	public int getObjectId()
+	{
+		return _objectId;
+	}
+	
+	public long getPrice()
+	{
+		return _price;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return _objectId;
+	}
+	
+	public void setCount(long count)
+	{
+		_count = count;
 	}
 }

@@ -29,6 +29,12 @@ public class RequestTutorialPassCmdToServer extends L2GameClientPacket
 	private String _bypass = null;
 	
 	@Override
+	public String getType()
+	{
+		return _C__86_REQUESTTUTORIALPASSCMDTOSERVER;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_bypass = readS();
@@ -43,11 +49,5 @@ public class RequestTutorialPassCmdToServer extends L2GameClientPacket
 			return;
 		}
 		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerTutorialCmd(player, _bypass), player);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__86_REQUESTTUTORIALPASSCMDTOSERVER;
 	}
 }

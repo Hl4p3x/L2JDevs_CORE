@@ -27,6 +27,12 @@ public class RequestSiegeInfo extends L2GameClientPacket
 	private static final String _C__58_REQUESTSIEGEINFO = "[C] 58 RequestSiegeInfo";
 	
 	@Override
+	public String getType()
+	{
+		return _C__58_REQUESTSIEGEINFO;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -36,11 +42,5 @@ public class RequestSiegeInfo extends L2GameClientPacket
 	protected void runImpl()
 	{
 		// TODO this
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__58_REQUESTSIEGEINFO;
 	}
 }

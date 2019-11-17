@@ -50,14 +50,14 @@ public class OnAttackableKill implements IBaseEvent
 		return _target;
 	}
 	
-	public final boolean isSummon()
-	{
-		return _isSummon;
-	}
-	
 	@Override
 	public EventType getType()
 	{
 		return EventType.ON_ATTACKABLE_KILL;
+	}
+	
+	public final boolean isSummon()
+	{
+		return _isSummon;
 	}
 }

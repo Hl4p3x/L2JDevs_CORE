@@ -60,6 +60,12 @@ public class GameGuardReply extends L2GameClientPacket
 	private final byte[] _reply = new byte[8];
 	
 	@Override
+	public String getType()
+	{
+		return _C__CB_GAMEGUARDREPLY;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		readB(_reply, 0, 4);
@@ -84,12 +90,6 @@ public class GameGuardReply extends L2GameClientPacket
 		{
 			_log.log(Level.WARNING, "", e);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__CB_GAMEGUARDREPLY;
 	}
 	
 	@Override

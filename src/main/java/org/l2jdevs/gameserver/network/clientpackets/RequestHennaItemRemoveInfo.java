@@ -33,6 +33,12 @@ public final class RequestHennaItemRemoveInfo extends L2GameClientPacket
 	private int _symbolId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__71_REQUESTHENNAITEMREMOVEINFO;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_symbolId = readD();
@@ -55,11 +61,5 @@ public final class RequestHennaItemRemoveInfo extends L2GameClientPacket
 			return;
 		}
 		activeChar.sendPacket(new HennaItemRemoveInfo(henna, activeChar));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__71_REQUESTHENNAITEMREMOVEINFO;
 	}
 }

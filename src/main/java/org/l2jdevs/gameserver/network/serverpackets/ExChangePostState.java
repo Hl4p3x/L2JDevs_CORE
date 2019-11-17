@@ -27,13 +27,6 @@ public class ExChangePostState extends L2GameServerPacket
 	private final int[] _changedMsgIds;
 	private final int _changeId;
 	
-	public ExChangePostState(boolean receivedBoard, int[] changedMsgIds, int changeId)
-	{
-		_receivedBoard = receivedBoard;
-		_changedMsgIds = changedMsgIds;
-		_changeId = changeId;
-	}
-	
 	public ExChangePostState(boolean receivedBoard, int changedMsgId, int changeId)
 	{
 		_receivedBoard = receivedBoard;
@@ -41,6 +34,13 @@ public class ExChangePostState extends L2GameServerPacket
 		{
 			changedMsgId
 		};
+		_changeId = changeId;
+	}
+	
+	public ExChangePostState(boolean receivedBoard, int[] changedMsgIds, int changeId)
+	{
+		_receivedBoard = receivedBoard;
+		_changedMsgIds = changedMsgIds;
 		_changeId = changeId;
 	}
 	

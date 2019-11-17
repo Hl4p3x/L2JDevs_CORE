@@ -48,6 +48,22 @@ public class L2DungeonGatekeeperInstance extends L2Npc
 	}
 	
 	@Override
+	public String getHtmlPath(int npcId, int val)
+	{
+		String pom = "";
+		if (val == 0)
+		{
+			pom = "" + npcId;
+		}
+		else
+		{
+			pom = npcId + "-" + val;
+		}
+		
+		return "data/html/teleporter/" + pom + ".htm";
+	}
+	
+	@Override
 	public void onBypassFeedback(L2PcInstance player, String command)
 	{
 		player.sendPacket(ActionFailed.STATIC_PACKET);
@@ -185,21 +201,5 @@ public class L2DungeonGatekeeperInstance extends L2Npc
 		}
 		
 		player.sendPacket(ActionFailed.STATIC_PACKET);
-	}
-	
-	@Override
-	public String getHtmlPath(int npcId, int val)
-	{
-		String pom = "";
-		if (val == 0)
-		{
-			pom = "" + npcId;
-		}
-		else
-		{
-			pom = npcId + "-" + val;
-		}
-		
-		return "data/html/teleporter/" + pom + ".htm";
 	}
 }

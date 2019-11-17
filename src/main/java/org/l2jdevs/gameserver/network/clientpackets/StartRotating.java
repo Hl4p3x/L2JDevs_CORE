@@ -33,6 +33,12 @@ public final class StartRotating extends L2GameClientPacket
 	private int _side;
 	
 	@Override
+	public String getType()
+	{
+		return _C__5B_STARTROTATING;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_degree = readD();
@@ -59,11 +65,5 @@ public final class StartRotating extends L2GameClientPacket
 			br = new StartRotation(activeChar.getObjectId(), _degree, _side, 0);
 			activeChar.broadcastPacket(br);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__5B_STARTROTATING;
 	}
 }

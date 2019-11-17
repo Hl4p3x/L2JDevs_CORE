@@ -43,6 +43,38 @@ public final class CategoryData implements IXmlReader
 		load();
 	}
 	
+	public static CategoryData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the category by category type.
+	 * @param type The category type
+	 * @return A {@code Set} containing all the IDs in category if category is found, {@code null} if category was not found
+	 */
+	public Set<Integer> getCategoryByType(CategoryType type)
+	{
+		return _categories.get(type);
+	}
+	
+	/**
+	 * Checks if ID is in category.
+	 * @param type The category type
+	 * @param id The id to be checked
+	 * @return {@code true} if id is in category, {@code false} if id is not in category or category was not found
+	 */
+	public boolean isInCategory(CategoryType type, int id)
+	{
+		final Set<Integer> category = getCategoryByType(type);
+		if (category == null)
+		{
+			LOG.warn("{}: Can't find category type: {}", getClass().getSimpleName(), type);
+			return false;
+		}
+		return category.contains(id);
+	}
+	
 	@Override
 	public void load()
 	{
@@ -83,38 +115,6 @@ public final class CategoryData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Checks if ID is in category.
-	 * @param type The category type
-	 * @param id The id to be checked
-	 * @return {@code true} if id is in category, {@code false} if id is not in category or category was not found
-	 */
-	public boolean isInCategory(CategoryType type, int id)
-	{
-		final Set<Integer> category = getCategoryByType(type);
-		if (category == null)
-		{
-			LOG.warn("{}: Can't find category type: {}", getClass().getSimpleName(), type);
-			return false;
-		}
-		return category.contains(id);
-	}
-	
-	/**
-	 * Gets the category by category type.
-	 * @param type The category type
-	 * @return A {@code Set} containing all the IDs in category if category is found, {@code null} if category was not found
-	 */
-	public Set<Integer> getCategoryByType(CategoryType type)
-	{
-		return _categories.get(type);
-	}
-	
-	public static CategoryData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

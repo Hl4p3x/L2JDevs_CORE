@@ -33,6 +33,12 @@ public final class RequestSSQStatus extends L2GameClientPacket
 	private int _page;
 	
 	@Override
+	public String getType()
+	{
+		return _C__C8_RequestSSQStatus;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_page = readC();
@@ -54,11 +60,5 @@ public final class RequestSSQStatus extends L2GameClientPacket
 		
 		SSQStatus ssqs = new SSQStatus(activeChar.getObjectId(), _page);
 		activeChar.sendPacket(ssqs);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__C8_RequestSSQStatus;
 	}
 }

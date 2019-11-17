@@ -34,6 +34,12 @@ public final class RequestPetUseItem extends L2GameClientPacket
 	private int _objectId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__8A_REQUESTPETUSEITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -140,11 +146,5 @@ public final class RequestPetUseItem extends L2GameClientPacket
 				_log.warning("No item handler registered for itemId: " + item.getId());
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__8A_REQUESTPETUSEITEM;
 	}
 }

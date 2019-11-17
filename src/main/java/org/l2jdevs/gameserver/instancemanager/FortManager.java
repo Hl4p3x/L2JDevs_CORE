@@ -38,6 +38,20 @@ public final class FortManager implements InstanceListManager
 	
 	private final List<Fort> _forts = new ArrayList<>();
 	
+	public static final FortManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	@Override
+	public void activateInstances()
+	{
+		for (final Fort fort : _forts)
+		{
+			fort.activateInstance();
+		}
+	}
+	
 	public final int findNearestFortIndex(L2Object obj)
 	{
 		return findNearestFortIndex(obj, Long.MAX_VALUE);
@@ -68,6 +82,35 @@ public final class FortManager implements InstanceListManager
 		return index;
 	}
 	
+	public final Fort getFort(int x, int y, int z)
+	{
+		for (Fort f : _forts)
+		{
+			if (f.checkIfInZone(x, y, z))
+			{
+				return f;
+			}
+		}
+		return null;
+	}
+	
+	public final Fort getFort(L2Object activeObject)
+	{
+		return getFort(activeObject.getX(), activeObject.getY(), activeObject.getZ());
+	}
+	
+	public final Fort getFort(String name)
+	{
+		for (Fort f : _forts)
+		{
+			if (f.getName().equalsIgnoreCase(name.trim()))
+			{
+				return f;
+			}
+		}
+		return null;
+	}
+	
 	public final Fort getFortById(int fortId)
 	{
 		for (Fort f : _forts)
@@ -92,35 +135,6 @@ public final class FortManager implements InstanceListManager
 		return null;
 	}
 	
-	public final Fort getFort(String name)
-	{
-		for (Fort f : _forts)
-		{
-			if (f.getName().equalsIgnoreCase(name.trim()))
-			{
-				return f;
-			}
-		}
-		return null;
-	}
-	
-	public final Fort getFort(int x, int y, int z)
-	{
-		for (Fort f : _forts)
-		{
-			if (f.checkIfInZone(x, y, z))
-			{
-				return f;
-			}
-		}
-		return null;
-	}
-	
-	public final Fort getFort(L2Object activeObject)
-	{
-		return getFort(activeObject.getX(), activeObject.getY(), activeObject.getZ());
-	}
-	
 	public final int getFortIndex(int fortId)
 	{
 		Fort fort;
@@ -135,11 +149,6 @@ public final class FortManager implements InstanceListManager
 		return -1;
 	}
 	
-	public final int getFortIndex(L2Object activeObject)
-	{
-		return getFortIndex(activeObject.getX(), activeObject.getY(), activeObject.getZ());
-	}
-	
 	public final int getFortIndex(int x, int y, int z)
 	{
 		Fort fort;
@@ -152,6 +161,11 @@ public final class FortManager implements InstanceListManager
 			}
 		}
 		return -1;
+	}
+	
+	public final int getFortIndex(L2Object activeObject)
+	{
+		return getFortIndex(activeObject.getX(), activeObject.getY(), activeObject.getZ());
 	}
 	
 	public final List<Fort> getForts()
@@ -186,20 +200,6 @@ public final class FortManager implements InstanceListManager
 	@Override
 	public void updateReferences()
 	{
-	}
-	
-	@Override
-	public void activateInstances()
-	{
-		for (final Fort fort : _forts)
-		{
-			fort.activateInstance();
-		}
-	}
-	
-	public static final FortManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

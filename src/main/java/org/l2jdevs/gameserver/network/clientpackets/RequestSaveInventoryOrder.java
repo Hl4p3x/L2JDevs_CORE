@@ -34,10 +34,16 @@ public final class RequestSaveInventoryOrder extends L2GameClientPacket
 {
 	private static final String _C__D0_24_REQUESTSAVEINVENTORYORDER = "[C] D0:24 RequestSaveInventoryOrder";
 	
-	private List<InventoryOrder> _order;
-	
 	/** client limit */
 	private static final int LIMIT = 125;
+	
+	private List<InventoryOrder> _order;
+	
+	@Override
+	public String getType()
+	{
+		return _C__D0_24_REQUESTSAVEINVENTORYORDER;
+	}
 	
 	@Override
 	protected void readImpl()
@@ -71,6 +77,12 @@ public final class RequestSaveInventoryOrder extends L2GameClientPacket
 		}
 	}
 	
+	@Override
+	protected boolean triggersOnActionRequest()
+	{
+		return false;
+	}
+	
 	private static class InventoryOrder
 	{
 		int order;
@@ -82,17 +94,5 @@ public final class RequestSaveInventoryOrder extends L2GameClientPacket
 			objectID = id;
 			order = ord;
 		}
-	}
-	
-	@Override
-	protected boolean triggersOnActionRequest()
-	{
-		return false;
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_24_REQUESTSAVEINVENTORYORDER;
 	}
 }

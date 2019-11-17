@@ -59,6 +59,11 @@ public class CharSummonTable
 	private static final String REMOVE_SUMMON = "DELETE FROM character_summons WHERE ownerId = ?";
 	private static final String SAVE_SUMMON = "REPLACE INTO character_summons (ownerId,summonSkillId,curHp,curMp,time) VALUES (?,?,?,?,?)";
 	
+	public static CharSummonTable getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	public Map<Integer, Integer> getPets()
 	{
 		return _pets;
@@ -241,11 +246,6 @@ public class CharSummonTable
 		{
 			LOG.warn("Failed to store summon {} from {}!", summon, summon.getOwner(), e);
 		}
-	}
-	
-	public static CharSummonTable getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

@@ -45,14 +45,14 @@ public class OnPlayerFish implements IBaseEvent
 		return _activeChar;
 	}
 	
-	public L2FishingMonster getTarget()
-	{
-		return _target;
-	}
-	
 	public boolean getSuccess()
 	{
 		return _success;
+	}
+	
+	public L2FishingMonster getTarget()
+	{
+		return _target;
 	}
 	
 	@Override

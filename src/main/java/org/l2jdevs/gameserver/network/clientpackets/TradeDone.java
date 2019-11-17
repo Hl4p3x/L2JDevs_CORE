@@ -33,6 +33,12 @@ public final class TradeDone extends L2GameClientPacket
 	private int _response;
 	
 	@Override
+	public String getType()
+	{
+		return "[C] 1C TradeDone";
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_response = readD();
@@ -107,11 +113,5 @@ public final class TradeDone extends L2GameClientPacket
 		{
 			player.cancelActiveTrade();
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return "[C] 1C TradeDone";
 	}
 }

@@ -49,6 +49,12 @@ public final class RequestRefundItem extends L2GameClientPacket
 	private int[] _items = null;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_75_REQUESTREFUNDITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_listId = readD();
@@ -218,11 +224,5 @@ public final class RequestRefundItem extends L2GameClientPacket
 		su.addAttribute(StatusUpdate.CUR_LOAD, player.getCurrentLoad());
 		player.sendPacket(su);
 		player.sendPacket(new ExBuySellList(player, true));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_75_REQUESTREFUNDITEM;
 	}
 }

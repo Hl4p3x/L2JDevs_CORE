@@ -35,6 +35,11 @@ public class L2WaterZone extends L2ZoneType
 		super(id);
 	}
 	
+	public int getWaterZ()
+	{
+		return getZone().getHighZ();
+	}
+	
 	@Override
 	protected void onEnter(L2Character character)
 	{
@@ -96,10 +101,5 @@ public class L2WaterZone extends L2ZoneType
 				}
 			}
 		}
-	}
-	
-	public int getWaterZ()
-	{
-		return getZone().getHighZ();
 	}
 }

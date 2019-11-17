@@ -36,14 +36,9 @@ public class TeleportBookmark extends Location
 		_tag = tag;
 	}
 	
-	public String getName()
+	public int getIcon()
 	{
-		return _name;
-	}
-	
-	public void setName(String name)
-	{
-		_name = name;
+		return _icon;
 	}
 	
 	public int getId()
@@ -51,9 +46,14 @@ public class TeleportBookmark extends Location
 		return _id;
 	}
 	
-	public int getIcon()
+	public String getName()
 	{
-		return _icon;
+		return _name;
+	}
+	
+	public String getTag()
+	{
+		return _tag;
 	}
 	
 	public void setIcon(int icon)
@@ -61,9 +61,9 @@ public class TeleportBookmark extends Location
 		_icon = icon;
 	}
 	
-	public String getTag()
+	public void setName(String name)
 	{
-		return _tag;
+		_name = name;
 	}
 	
 	public void setTag(String tag)

@@ -66,6 +66,32 @@ public class L2ClanHallManagerInstance extends L2MerchantInstance
 		setInstanceType(InstanceType.L2ClanHallManagerInstance);
 	}
 	
+	/**
+	 * @return the L2ClanHall this L2NpcInstance belongs to.
+	 */
+	public final ClanHall getClanHall()
+	{
+		if (_clanHallId < 0)
+		{
+			ClanHall temp = ClanHallManager.getInstance().getNearbyClanHall(getX(), getY(), 500);
+			if (temp == null)
+			{
+				temp = CHSiegeManager.getInstance().getNearbyClanHall(this);
+			}
+			
+			if (temp != null)
+			{
+				_clanHallId = temp.getId();
+			}
+			
+			if (_clanHallId < 0)
+			{
+				return null;
+			}
+		}
+		return ClanHallManager.getInstance().getClanHallById(_clanHallId);
+	}
+	
 	@Override
 	public boolean isWarehouse()
 	{
@@ -1474,13 +1500,6 @@ public class L2ClanHallManagerInstance extends L2MerchantInstance
 		super.onBypassFeedback(player, command);
 	}
 	
-	private void sendHtmlMessage(L2PcInstance player, NpcHtmlMessage html)
-	{
-		html.replace("%objectId%", String.valueOf(getObjectId()));
-		html.replace("%npcId%", String.valueOf(getId()));
-		player.sendPacket(html);
-	}
-	
 	@Override
 	public void showChatWindow(L2PcInstance player)
 	{
@@ -1528,32 +1547,6 @@ public class L2ClanHallManagerInstance extends L2MerchantInstance
 		return COND_ALL_FALSE;
 	}
 	
-	/**
-	 * @return the L2ClanHall this L2NpcInstance belongs to.
-	 */
-	public final ClanHall getClanHall()
-	{
-		if (_clanHallId < 0)
-		{
-			ClanHall temp = ClanHallManager.getInstance().getNearbyClanHall(getX(), getY(), 500);
-			if (temp == null)
-			{
-				temp = CHSiegeManager.getInstance().getNearbyClanHall(this);
-			}
-			
-			if (temp != null)
-			{
-				_clanHallId = temp.getId();
-			}
-			
-			if (_clanHallId < 0)
-			{
-				return null;
-			}
-		}
-		return ClanHallManager.getInstance().getClanHallById(_clanHallId);
-	}
-	
 	private void doTeleport(L2PcInstance player, int val)
 	{
 		if (Config.DEBUG)
@@ -1593,5 +1586,12 @@ public class L2ClanHallManagerInstance extends L2MerchantInstance
 		}
 		AgitDecoInfo bl = new AgitDecoInfo(ch);
 		player.sendPacket(bl);
+	}
+	
+	private void sendHtmlMessage(L2PcInstance player, NpcHtmlMessage html)
+	{
+		html.replace("%objectId%", String.valueOf(getObjectId()));
+		html.replace("%npcId%", String.valueOf(getId()));
+		player.sendPacket(html);
 	}
 }

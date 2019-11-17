@@ -48,6 +48,15 @@ public final class GlobalVariablesManager extends AbstractVariables
 		restoreMe();
 	}
 	
+	/**
+	 * Gets the single instance of {@code GlobalVariablesManager}.
+	 * @return single instance of {@code GlobalVariablesManager}
+	 */
+	public static final GlobalVariablesManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	@Override
 	public boolean restoreMe()
 	{
@@ -110,15 +119,6 @@ public final class GlobalVariablesManager extends AbstractVariables
 		}
 		_log.log(Level.INFO, getClass().getSimpleName() + ": Stored " + getSet().size() + " variables.");
 		return true;
-	}
-	
-	/**
-	 * Gets the single instance of {@code GlobalVariablesManager}.
-	 * @return single instance of {@code GlobalVariablesManager}
-	 */
-	public static final GlobalVariablesManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

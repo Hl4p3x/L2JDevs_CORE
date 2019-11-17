@@ -29,6 +29,12 @@ public final class RequestItemList extends L2GameClientPacket
 	private static final String _C__14_REQUESTITEMLIST = "[C] 14 RequestItemList";
 	
 	@Override
+	public String getType()
+	{
+		return _C__14_REQUESTITEMLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -42,12 +48,6 @@ public final class RequestItemList extends L2GameClientPacket
 			ItemList il = new ItemList(getClient().getActiveChar(), true);
 			sendPacket(il);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__14_REQUESTITEMLIST;
 	}
 	
 	@Override

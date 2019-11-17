@@ -48,67 +48,6 @@ public class ShortCuts implements IRestorable
 		_owner = owner;
 	}
 	
-	public Shortcut[] getAllShortCuts()
-	{
-		return _shortCuts.values().toArray(new Shortcut[_shortCuts.values().size()]);
-	}
-	
-	public Shortcut getShortCut(int slot, int page)
-	{
-		Shortcut sc = _shortCuts.get(slot + (page * MAX_SHORTCUTS_PER_BAR));
-		// Verify shortcut
-		if ((sc != null) && (sc.getType() == ShortcutType.ITEM))
-		{
-			if (_owner.getInventory().getItemByObjectId(sc.getId()) == null)
-			{
-				deleteShortCut(sc.getSlot(), sc.getPage());
-				sc = null;
-			}
-		}
-		return sc;
-	}
-	
-	public synchronized void registerShortCut(Shortcut shortcut)
-	{
-		// Verify shortcut
-		if (shortcut.getType() == ShortcutType.ITEM)
-		{
-			final L2ItemInstance item = _owner.getInventory().getItemByObjectId(shortcut.getId());
-			if (item == null)
-			{
-				return;
-			}
-			shortcut.setSharedReuseGroup(item.getSharedReuseGroup());
-		}
-		final Shortcut oldShortCut = _shortCuts.put(shortcut.getSlot() + (shortcut.getPage() * MAX_SHORTCUTS_PER_BAR), shortcut);
-		registerShortCutInDb(shortcut, oldShortCut);
-	}
-	
-	private void registerShortCutInDb(Shortcut shortcut, Shortcut oldShortCut)
-	{
-		if (oldShortCut != null)
-		{
-			deleteShortCutFromDb(oldShortCut);
-		}
-		
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("REPLACE INTO character_shortcuts (charId,slot,page,type,shortcut_id,level,class_index) values(?,?,?,?,?,?,?)"))
-		{
-			ps.setInt(1, _owner.getObjectId());
-			ps.setInt(2, shortcut.getSlot());
-			ps.setInt(3, shortcut.getPage());
-			ps.setInt(4, shortcut.getType().ordinal());
-			ps.setInt(5, shortcut.getId());
-			ps.setInt(6, shortcut.getLevel());
-			ps.setInt(7, _owner.getClassIndex());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Could not store character shortcut: " + e.getMessage(), e);
-		}
-	}
-	
 	/**
 	 * @param slot
 	 * @param page
@@ -154,24 +93,40 @@ public class ShortCuts implements IRestorable
 		}
 	}
 	
-	/**
-	 * @param shortcut
-	 */
-	private void deleteShortCutFromDb(Shortcut shortcut)
+	public Shortcut[] getAllShortCuts()
 	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM character_shortcuts WHERE charId=? AND slot=? AND page=? AND class_index=?"))
+		return _shortCuts.values().toArray(new Shortcut[_shortCuts.values().size()]);
+	}
+	
+	public Shortcut getShortCut(int slot, int page)
+	{
+		Shortcut sc = _shortCuts.get(slot + (page * MAX_SHORTCUTS_PER_BAR));
+		// Verify shortcut
+		if ((sc != null) && (sc.getType() == ShortcutType.ITEM))
 		{
-			ps.setInt(1, _owner.getObjectId());
-			ps.setInt(2, shortcut.getSlot());
-			ps.setInt(3, shortcut.getPage());
-			ps.setInt(4, _owner.getClassIndex());
-			ps.execute();
+			if (_owner.getInventory().getItemByObjectId(sc.getId()) == null)
+			{
+				deleteShortCut(sc.getSlot(), sc.getPage());
+				sc = null;
+			}
 		}
-		catch (Exception e)
+		return sc;
+	}
+	
+	public synchronized void registerShortCut(Shortcut shortcut)
+	{
+		// Verify shortcut
+		if (shortcut.getType() == ShortcutType.ITEM)
 		{
-			_log.log(Level.WARNING, "Could not delete character shortcut: " + e.getMessage(), e);
+			final L2ItemInstance item = _owner.getInventory().getItemByObjectId(shortcut.getId());
+			if (item == null)
+			{
+				return;
+			}
+			shortcut.setSharedReuseGroup(item.getSharedReuseGroup());
 		}
+		final Shortcut oldShortCut = _shortCuts.put(shortcut.getSlot() + (shortcut.getPage() * MAX_SHORTCUTS_PER_BAR), shortcut);
+		registerShortCutInDb(shortcut, oldShortCut);
 	}
 	
 	@Override
@@ -240,6 +195,51 @@ public class ShortCuts implements IRestorable
 				_owner.sendPacket(new ShortCutRegister(newsc));
 				_owner.registerShortCut(newsc);
 			}
+		}
+	}
+	
+	/**
+	 * @param shortcut
+	 */
+	private void deleteShortCutFromDb(Shortcut shortcut)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM character_shortcuts WHERE charId=? AND slot=? AND page=? AND class_index=?"))
+		{
+			ps.setInt(1, _owner.getObjectId());
+			ps.setInt(2, shortcut.getSlot());
+			ps.setInt(3, shortcut.getPage());
+			ps.setInt(4, _owner.getClassIndex());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Could not delete character shortcut: " + e.getMessage(), e);
+		}
+	}
+	
+	private void registerShortCutInDb(Shortcut shortcut, Shortcut oldShortCut)
+	{
+		if (oldShortCut != null)
+		{
+			deleteShortCutFromDb(oldShortCut);
+		}
+		
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("REPLACE INTO character_shortcuts (charId,slot,page,type,shortcut_id,level,class_index) values(?,?,?,?,?,?,?)"))
+		{
+			ps.setInt(1, _owner.getObjectId());
+			ps.setInt(2, shortcut.getSlot());
+			ps.setInt(3, shortcut.getPage());
+			ps.setInt(4, shortcut.getType().ordinal());
+			ps.setInt(5, shortcut.getId());
+			ps.setInt(6, shortcut.getLevel());
+			ps.setInt(7, _owner.getClassIndex());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Could not store character shortcut: " + e.getMessage(), e);
 		}
 	}
 }

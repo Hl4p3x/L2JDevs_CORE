@@ -44,85 +44,6 @@ public class L2AirShipInstance extends L2Vehicle
 	}
 	
 	@Override
-	public boolean isAirShip()
-	{
-		return true;
-	}
-	
-	public boolean isOwner(L2PcInstance player)
-	{
-		return false;
-	}
-	
-	public int getOwnerId()
-	{
-		return 0;
-	}
-	
-	public boolean isCaptain(L2PcInstance player)
-	{
-		return false;
-	}
-	
-	public int getCaptainId()
-	{
-		return 0;
-	}
-	
-	public int getHelmObjectId()
-	{
-		return 0;
-	}
-	
-	public int getHelmItemId()
-	{
-		return 0;
-	}
-	
-	public boolean setCaptain(L2PcInstance player)
-	{
-		return false;
-	}
-	
-	public int getFuel()
-	{
-		return 0;
-	}
-	
-	public void setFuel(int f)
-	{
-		
-	}
-	
-	public int getMaxFuel()
-	{
-		return 0;
-	}
-	
-	public void setMaxFuel(int mf)
-	{
-		
-	}
-	
-	@Override
-	public int getId()
-	{
-		return 0;
-	}
-	
-	@Override
-	public boolean moveToNextRoutePoint()
-	{
-		final boolean result = super.moveToNextRoutePoint();
-		if (result)
-		{
-			broadcastPacket(new ExMoveToLocationAirShip(this));
-		}
-		
-		return result;
-	}
-	
-	@Override
 	public boolean addPassenger(L2PcInstance player)
 	{
 		if (!super.addPassenger(player))
@@ -137,6 +58,82 @@ public class L2AirShipInstance extends L2Vehicle
 		player.setXYZ(getX(), getY(), getZ());
 		player.revalidateZone(true);
 		return true;
+	}
+	
+	@Override
+	public boolean deleteMe()
+	{
+		if (!super.deleteMe())
+		{
+			return false;
+		}
+		
+		AirShipManager.getInstance().removeAirShip(this);
+		return true;
+	}
+	
+	public int getCaptainId()
+	{
+		return 0;
+	}
+	
+	public int getFuel()
+	{
+		return 0;
+	}
+	
+	public int getHelmItemId()
+	{
+		return 0;
+	}
+	
+	public int getHelmObjectId()
+	{
+		return 0;
+	}
+	
+	@Override
+	public int getId()
+	{
+		return 0;
+	}
+	
+	public int getMaxFuel()
+	{
+		return 0;
+	}
+	
+	public int getOwnerId()
+	{
+		return 0;
+	}
+	
+	@Override
+	public boolean isAirShip()
+	{
+		return true;
+	}
+	
+	public boolean isCaptain(L2PcInstance player)
+	{
+		return false;
+	}
+	
+	public boolean isOwner(L2PcInstance player)
+	{
+		return false;
+	}
+	
+	@Override
+	public boolean moveToNextRoutePoint()
+	{
+		final boolean result = super.moveToNextRoutePoint();
+		if (result)
+		{
+			broadcastPacket(new ExMoveToLocationAirShip(this));
+		}
+		
+		return result;
 	}
 	
 	@Override
@@ -158,15 +155,27 @@ public class L2AirShipInstance extends L2Vehicle
 	}
 	
 	@Override
-	public boolean deleteMe()
+	public void sendInfo(L2PcInstance activeChar)
 	{
-		if (!super.deleteMe())
+		if (isVisibleFor(activeChar))
 		{
-			return false;
+			activeChar.sendPacket(new ExAirShipInfo(this));
 		}
+	}
+	
+	public boolean setCaptain(L2PcInstance player)
+	{
+		return false;
+	}
+	
+	public void setFuel(int f)
+	{
 		
-		AirShipManager.getInstance().removeAirShip(this);
-		return true;
+	}
+	
+	public void setMaxFuel(int mf)
+	{
+		
 	}
 	
 	@Override
@@ -181,14 +190,5 @@ public class L2AirShipInstance extends L2Vehicle
 	public void updateAbnormalEffect()
 	{
 		broadcastPacket(new ExAirShipInfo(this));
-	}
-	
-	@Override
-	public void sendInfo(L2PcInstance activeChar)
-	{
-		if (isVisibleFor(activeChar))
-		{
-			activeChar.sendPacket(new ExAirShipInfo(this));
-		}
 	}
 }

@@ -24,14 +24,14 @@ public final class DeleteObject extends L2GameServerPacket
 {
 	private final int _objectId;
 	
-	public DeleteObject(L2Object obj)
-	{
-		_objectId = obj.getObjectId();
-	}
-	
 	public DeleteObject(int objectId)
 	{
 		_objectId = objectId;
+	}
+	
+	public DeleteObject(L2Object obj)
+	{
+		_objectId = obj.getObjectId();
 	}
 	
 	@Override

@@ -146,10 +146,49 @@ public class GUserInterface extends BaseGameServerRegister implements ActionList
 		refreshAsync();
 	}
 	
-	public void refreshAsync()
+	@Override
+	public void actionPerformed(ActionEvent e)
 	{
-		Thread t = new Thread(() -> GUserInterface.this.refreshServers(), "LoaderThread");
-		t.start();
+		String cmd = e.getActionCommand();
+		
+		if (cmd.equals("register"))
+		{
+			RegisterDialog rd = new RegisterDialog(this);
+			rd.setVisible(true);
+		}
+		else if (cmd.equals("exit"))
+		{
+			System.exit(0);
+		}
+		else if (cmd.equals("about"))
+		{
+			JOptionPane.showMessageDialog(getFrame(), getBundle().getString("credits") + Config.EOL + "http://www.l2jdevs.org" + Config.EOL + Config.EOL + getBundle().getString("icons") + Config.EOL + Config.EOL + getBundle().getString("langText") + Config.EOL
+				+ getBundle().getString("translation"), getBundle().getString("aboutItem"), JOptionPane.INFORMATION_MESSAGE, ImagesTable.getImage("l2jdevslogo.png"));
+		}
+		else if (cmd.equals("removeAll"))
+		{
+			int choice = JOptionPane.showConfirmDialog(getFrame(), getBundle().getString("confirmRemoveAllText"), getBundle().getString("confirmRemoveTitle"), JOptionPane.YES_NO_OPTION);
+			if (choice == JOptionPane.YES_OPTION)
+			{
+				try
+				{
+					BaseGameServerRegister.unregisterAllGameServers();
+					refreshAsync();
+				}
+				catch (SQLException e1)
+				{
+					GUserInterface.this.showError(getBundle().getString("errorUnregister"), e1);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * @return Returns the frame.
+	 */
+	public JFrame getFrame()
+	{
+		return _frame;
 	}
 	
 	@Override
@@ -160,6 +199,12 @@ public class GUserInterface extends BaseGameServerRegister implements ActionList
 		super.load();
 		
 		SwingUtilities.invokeLater(() -> _progressBar.setVisible(false));
+	}
+	
+	public void refreshAsync()
+	{
+		Thread t = new Thread(() -> GUserInterface.this.refreshServers(), "LoaderThread");
+		t.start();
 	}
 	
 	@Override
@@ -236,51 +281,6 @@ public class GUserInterface extends BaseGameServerRegister implements ActionList
 		}
 	}
 	
-	@Override
-	public void actionPerformed(ActionEvent e)
-	{
-		String cmd = e.getActionCommand();
-		
-		if (cmd.equals("register"))
-		{
-			RegisterDialog rd = new RegisterDialog(this);
-			rd.setVisible(true);
-		}
-		else if (cmd.equals("exit"))
-		{
-			System.exit(0);
-		}
-		else if (cmd.equals("about"))
-		{
-			JOptionPane.showMessageDialog(getFrame(), getBundle().getString("credits") + Config.EOL + "http://www.l2jdevs.org" + Config.EOL + Config.EOL + getBundle().getString("icons") + Config.EOL + Config.EOL + getBundle().getString("langText") + Config.EOL
-				+ getBundle().getString("translation"), getBundle().getString("aboutItem"), JOptionPane.INFORMATION_MESSAGE, ImagesTable.getImage("l2jdevslogo.png"));
-		}
-		else if (cmd.equals("removeAll"))
-		{
-			int choice = JOptionPane.showConfirmDialog(getFrame(), getBundle().getString("confirmRemoveAllText"), getBundle().getString("confirmRemoveTitle"), JOptionPane.YES_NO_OPTION);
-			if (choice == JOptionPane.YES_OPTION)
-			{
-				try
-				{
-					BaseGameServerRegister.unregisterAllGameServers();
-					refreshAsync();
-				}
-				catch (SQLException e1)
-				{
-					GUserInterface.this.showError(getBundle().getString("errorUnregister"), e1);
-				}
-			}
-		}
-	}
-	
-	/**
-	 * @return Returns the frame.
-	 */
-	public JFrame getFrame()
-	{
-		return _frame;
-	}
-	
 	protected class ButtonCellRenderer implements TableCellRenderer
 	{
 		@Override
@@ -302,6 +302,36 @@ public class GUserInterface extends BaseGameServerRegister implements ActionList
 		public JTableButtonMouseListener(JTable table)
 		{
 			_table = table;
+		}
+		
+		@Override
+		public void mouseClicked(MouseEvent e)
+		{
+			forwardEvent(e);
+		}
+		
+		@Override
+		public void mouseEntered(MouseEvent e)
+		{
+			forwardEvent(e);
+		}
+		
+		@Override
+		public void mouseExited(MouseEvent e)
+		{
+			forwardEvent(e);
+		}
+		
+		@Override
+		public void mousePressed(MouseEvent e)
+		{
+			forwardEvent(e);
+		}
+		
+		@Override
+		public void mouseReleased(MouseEvent e)
+		{
+			forwardEvent(e);
 		}
 		
 		private void forwardEvent(MouseEvent e)
@@ -333,36 +363,6 @@ public class GUserInterface extends BaseGameServerRegister implements ActionList
 				}
 			}
 		}
-		
-		@Override
-		public void mouseEntered(MouseEvent e)
-		{
-			forwardEvent(e);
-		}
-		
-		@Override
-		public void mouseExited(MouseEvent e)
-		{
-			forwardEvent(e);
-		}
-		
-		@Override
-		public void mousePressed(MouseEvent e)
-		{
-			forwardEvent(e);
-		}
-		
-		@Override
-		public void mouseClicked(MouseEvent e)
-		{
-			forwardEvent(e);
-		}
-		
-		@Override
-		public void mouseReleased(MouseEvent e)
-		{
-			forwardEvent(e);
-		}
 	}
 	
 	private class JTableModel extends DefaultTableModel
@@ -375,15 +375,15 @@ public class GUserInterface extends BaseGameServerRegister implements ActionList
 		}
 		
 		@Override
-		public boolean isCellEditable(int row, int column)
-		{
-			return false;
-		}
-		
-		@Override
 		public Class<?> getColumnClass(int column)
 		{
 			return getValueAt(0, column).getClass();
+		}
+		
+		@Override
+		public boolean isCellEditable(int row, int column)
+		{
+			return false;
 		}
 	}
 }

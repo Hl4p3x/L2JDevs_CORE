@@ -32,14 +32,14 @@ public class FuncGatesMDefMod extends AbstractFunction
 {
 	private static final FuncGatesMDefMod _fmm_instance = new FuncGatesMDefMod();
 	
-	public static AbstractFunction getInstance()
-	{
-		return _fmm_instance;
-	}
-	
 	private FuncGatesMDefMod()
 	{
 		super(Stats.MAGIC_DEFENCE, 1, null, 0, null);
+	}
+	
+	public static AbstractFunction getInstance()
+	{
+		return _fmm_instance;
 	}
 	
 	@Override

@@ -25,6 +25,12 @@ public final class RequestDeleteMacro extends L2GameClientPacket
 	private int _id;
 	
 	@Override
+	public String getType()
+	{
+		return _C__CE_REQUESTDELETEMACRO;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_id = readD();
@@ -38,11 +44,5 @@ public final class RequestDeleteMacro extends L2GameClientPacket
 			return;
 		}
 		getClient().getActiveChar().deleteMacro(_id);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__CE_REQUESTDELETEMACRO;
 	}
 }

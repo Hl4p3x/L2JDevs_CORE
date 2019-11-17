@@ -37,14 +37,14 @@ public class OnItemTalk implements IBaseEvent
 		_activeChar = activeChar;
 	}
 	
-	public L2ItemInstance getItem()
-	{
-		return _item;
-	}
-	
 	public L2PcInstance getActiveChar()
 	{
 		return _activeChar;
+	}
+	
+	public L2ItemInstance getItem()
+	{
+		return _item;
 	}
 	
 	@Override

@@ -30,6 +30,12 @@ public class RequestPledgeExtendedInfo extends L2GameClientPacket
 	private String _name;
 	
 	@Override
+	public String getType()
+	{
+		return _C__67_REQUESTPLEDGECREST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -39,11 +45,5 @@ public class RequestPledgeExtendedInfo extends L2GameClientPacket
 	protected void runImpl()
 	{
 		// TODO: Implement
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__67_REQUESTPLEDGECREST;
 	}
 }

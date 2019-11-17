@@ -50,9 +50,9 @@ public final class RequestPostAttachment extends L2GameClientPacket
 	private int _msgId;
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		_msgId = readD();
+		return _C__D0_6A_REQUESTPOSTATTACHMENT;
 	}
 	
 	@Override
@@ -277,9 +277,9 @@ public final class RequestPostAttachment extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__D0_6A_REQUESTPOSTATTACHMENT;
+		_msgId = readD();
 	}
 	
 	@Override

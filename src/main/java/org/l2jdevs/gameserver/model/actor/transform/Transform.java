@@ -61,24 +61,9 @@ public final class Transform implements IIdentifiable
 		_title = set.getString("setTitle", null);
 	}
 	
-	/**
-	 * Gets the transformation ID.
-	 * @return the transformation ID
-	 */
-	@Override
-	public int getId()
+	public boolean canAttack()
 	{
-		return _id;
-	}
-	
-	public int getDisplayId()
-	{
-		return _displayId;
-	}
-	
-	public TransformType getType()
-	{
-		return _type;
+		return _canAttack;
 	}
 	
 	public boolean canSwim()
@@ -86,103 +71,25 @@ public final class Transform implements IIdentifiable
 		return _canSwim;
 	}
 	
-	public boolean canAttack()
+	public int getBaseAttackRange(L2PcInstance player)
 	{
-		return _canAttack;
-	}
-	
-	public int getSpawnHeight()
-	{
-		return _spawnHeight;
+		final TransformTemplate template = getTemplate(player);
+		return template != null ? template.getBaseAttackRange() : player.getTemplate().getBaseAttackRange();
 	}
 	
 	/**
-	 * @return name that's going to be set to the player while is transformed with current transformation
+	 * @param player
+	 * @param slot
+	 * @return
 	 */
-	public String getName()
+	public int getBaseDefBySlot(L2PcInstance player, int slot)
 	{
-		return _name;
-	}
-	
-	/**
-	 * @return title that's going to be set to the player while is transformed with current transformation
-	 */
-	public String getTitle()
-	{
-		return _title;
-	}
-	
-	public TransformTemplate getTemplate(L2PcInstance player)
-	{
-		return player != null ? (player.getAppearance().getSex() ? _femaleTemplate : _maleTemplate) : null;
-	}
-	
-	public void setTemplate(boolean male, TransformTemplate template)
-	{
-		if (male)
+		final TransformTemplate template = getTemplate(player);
+		if (template != null)
 		{
-			_maleTemplate = template;
+			return template.getDefense(slot);
 		}
-		else
-		{
-			_femaleTemplate = template;
-		}
-	}
-	
-	/**
-	 * @return {@code true} if transform type is mode change, {@code false} otherwise
-	 */
-	public boolean isStance()
-	{
-		return _type == TransformType.MODE_CHANGE;
-	}
-	
-	/**
-	 * @return {@code true} if transform type is combat, {@code false} otherwise
-	 */
-	public boolean isCombat()
-	{
-		return _type == TransformType.COMBAT;
-	}
-	
-	/**
-	 * @return {@code true} if transform type is non combat, {@code false} otherwise
-	 */
-	public boolean isNonCombat()
-	{
-		return _type == TransformType.NON_COMBAT;
-	}
-	
-	/**
-	 * @return {@code true} if transform type is flying, {@code false} otherwise
-	 */
-	public boolean isFlying()
-	{
-		return _type == TransformType.FLYING;
-	}
-	
-	/**
-	 * @return {@code true} if transform type is cursed, {@code false} otherwise
-	 */
-	public boolean isCursed()
-	{
-		return _type == TransformType.CURSED;
-	}
-	
-	/**
-	 * @return {@code true} if transform type is raiding, {@code false} otherwise
-	 */
-	public boolean isRiding()
-	{
-		return _type == TransformType.RIDING_MODE;
-	}
-	
-	/**
-	 * @return {@code true} if transform type is pure stat, {@code false} otherwise
-	 */
-	public boolean isPureStats()
-	{
-		return _type == TransformType.PURE_STAT;
+		return player.getTemplate().getBaseDefBySlot(slot);
 	}
 	
 	public double getCollisionHeight(L2PcInstance player)
@@ -197,10 +104,164 @@ public final class Transform implements IIdentifiable
 		return template != null ? template.getCollisionRadius() : player.getCollisionRadius();
 	}
 	
-	public int getBaseAttackRange(L2PcInstance player)
+	public int getDisplayId()
+	{
+		return _displayId;
+	}
+	
+	/**
+	 * Gets the transformation ID.
+	 * @return the transformation ID
+	 */
+	@Override
+	public int getId()
+	{
+		return _id;
+	}
+	
+	/**
+	 * @param player
+	 * @return
+	 */
+	public double getLevelMod(L2PcInstance player)
+	{
+		double val = -1;
+		final TransformTemplate template = getTemplate(player);
+		if (template != null)
+		{
+			final TransformLevelData data = template.getData(player.getLevel());
+			if (data != null)
+			{
+				val = data.getLevelMod();
+			}
+		}
+		return val;
+	}
+	
+	/**
+	 * @return name that's going to be set to the player while is transformed with current transformation
+	 */
+	public String getName()
+	{
+		return _name;
+	}
+	
+	public int getSpawnHeight()
+	{
+		return _spawnHeight;
+	}
+	
+	public double getStat(L2PcInstance player, Stats stats)
+	{
+		double val = 0;
+		final TransformTemplate template = getTemplate(player);
+		if (template != null)
+		{
+			val = template.getStats(stats);
+			final TransformLevelData data = template.getData(player.getLevel());
+			if (data != null)
+			{
+				val = data.getStats(stats);
+			}
+		}
+		return val;
+	}
+	
+	public TransformTemplate getTemplate(L2PcInstance player)
+	{
+		return player != null ? (player.getAppearance().getSex() ? _femaleTemplate : _maleTemplate) : null;
+	}
+	
+	/**
+	 * @return title that's going to be set to the player while is transformed with current transformation
+	 */
+	public String getTitle()
+	{
+		return _title;
+	}
+	
+	public TransformType getType()
+	{
+		return _type;
+	}
+	
+	/**
+	 * @return {@code true} if transform type is combat, {@code false} otherwise
+	 */
+	public boolean isCombat()
+	{
+		return _type == TransformType.COMBAT;
+	}
+	
+	/**
+	 * @return {@code true} if transform type is cursed, {@code false} otherwise
+	 */
+	public boolean isCursed()
+	{
+		return _type == TransformType.CURSED;
+	}
+	
+	/**
+	 * @return {@code true} if transform type is flying, {@code false} otherwise
+	 */
+	public boolean isFlying()
+	{
+		return _type == TransformType.FLYING;
+	}
+	
+	/**
+	 * @return {@code true} if transform type is non combat, {@code false} otherwise
+	 */
+	public boolean isNonCombat()
+	{
+		return _type == TransformType.NON_COMBAT;
+	}
+	
+	/**
+	 * @return {@code true} if transform type is pure stat, {@code false} otherwise
+	 */
+	public boolean isPureStats()
+	{
+		return _type == TransformType.PURE_STAT;
+	}
+	
+	/**
+	 * @return {@code true} if transform type is raiding, {@code false} otherwise
+	 */
+	public boolean isRiding()
+	{
+		return _type == TransformType.RIDING_MODE;
+	}
+	
+	/**
+	 * @return {@code true} if transform type is mode change, {@code false} otherwise
+	 */
+	public boolean isStance()
+	{
+		return _type == TransformType.MODE_CHANGE;
+	}
+	
+	public void onLevelUp(L2PcInstance player)
 	{
 		final TransformTemplate template = getTemplate(player);
-		return template != null ? template.getBaseAttackRange() : player.getTemplate().getBaseAttackRange();
+		if (template != null)
+		{
+			// Add skills depending on level.
+			if (!template.getAdditionalSkills().isEmpty())
+			{
+				for (AdditionalSkillHolder holder : template.getAdditionalSkills())
+				{
+					if (player.getLevel() >= holder.getMinLevel())
+					{
+						if (player.getSkillLevel(holder.getSkillId()) < holder.getSkillLvl())
+						{
+							player.addSkill(holder.getSkill(), false);
+							player.addTransformSkill(holder.getSkill());
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	public void onTransform(L2PcInstance player)
@@ -328,76 +389,15 @@ public final class Transform implements IIdentifiable
 		}
 	}
 	
-	public void onLevelUp(L2PcInstance player)
+	public void setTemplate(boolean male, TransformTemplate template)
 	{
-		final TransformTemplate template = getTemplate(player);
-		if (template != null)
+		if (male)
 		{
-			// Add skills depending on level.
-			if (!template.getAdditionalSkills().isEmpty())
-			{
-				for (AdditionalSkillHolder holder : template.getAdditionalSkills())
-				{
-					if (player.getLevel() >= holder.getMinLevel())
-					{
-						if (player.getSkillLevel(holder.getSkillId()) < holder.getSkillLvl())
-						{
-							player.addSkill(holder.getSkill(), false);
-							player.addTransformSkill(holder.getSkill());
-						}
-					}
-				}
-			}
+			_maleTemplate = template;
 		}
-	}
-	
-	public double getStat(L2PcInstance player, Stats stats)
-	{
-		double val = 0;
-		final TransformTemplate template = getTemplate(player);
-		if (template != null)
+		else
 		{
-			val = template.getStats(stats);
-			final TransformLevelData data = template.getData(player.getLevel());
-			if (data != null)
-			{
-				val = data.getStats(stats);
-			}
+			_femaleTemplate = template;
 		}
-		return val;
-	}
-	
-	/**
-	 * @param player
-	 * @param slot
-	 * @return
-	 */
-	public int getBaseDefBySlot(L2PcInstance player, int slot)
-	{
-		final TransformTemplate template = getTemplate(player);
-		if (template != null)
-		{
-			return template.getDefense(slot);
-		}
-		return player.getTemplate().getBaseDefBySlot(slot);
-	}
-	
-	/**
-	 * @param player
-	 * @return
-	 */
-	public double getLevelMod(L2PcInstance player)
-	{
-		double val = -1;
-		final TransformTemplate template = getTemplate(player);
-		if (template != null)
-		{
-			final TransformLevelData data = template.getData(player.getLevel());
-			if (data != null)
-			{
-				val = data.getLevelMod();
-			}
-		}
-		return val;
 	}
 }

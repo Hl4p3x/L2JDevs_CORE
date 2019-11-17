@@ -65,6 +65,12 @@ public class CharacterSelect extends L2GameClientPacket
 	private int _unk4; // new in C4
 	
 	@Override
+	public String getType()
+	{
+		return _C__12_CHARACTERSELECT;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_charSlot = readD();
@@ -174,11 +180,5 @@ public class CharacterSelect extends L2GameClientPacket
 			});
 			_logAccounting.log(record);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__12_CHARACTERSELECT;
 	}
 }

@@ -38,6 +38,12 @@ public final class RequestWithDrawPremiumItem extends L2GameClientPacket
 	private long _itemCount;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_52_REQUESTWITHDRAWPREMIUMITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_itemNum = readD();
@@ -112,11 +118,5 @@ public final class RequestWithDrawPremiumItem extends L2GameClientPacket
 		{
 			activeChar.sendPacket(new ExGetPremiumItemList(activeChar));
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_52_REQUESTWITHDRAWPREMIUMITEM;
 	}
 }

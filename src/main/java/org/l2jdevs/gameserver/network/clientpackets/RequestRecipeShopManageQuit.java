@@ -30,6 +30,12 @@ public final class RequestRecipeShopManageQuit extends L2GameClientPacket
 	private static final String _C__BC_RequestRecipeShopManageQuit = "[C] BC2 RequestRecipeShopManageQuit";
 	
 	@Override
+	public String getType()
+	{
+		return _C__BC_RequestRecipeShopManageQuit;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -47,11 +53,5 @@ public final class RequestRecipeShopManageQuit extends L2GameClientPacket
 		player.setPrivateStoreType(PrivateStoreType.NONE);
 		player.broadcastUserInfo();
 		player.standUp();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__BC_RequestRecipeShopManageQuit;
 	}
 }

@@ -69,10 +69,78 @@ public final class FortSiegeManager
 		load();
 	}
 	
+	public static final FortSiegeManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public boolean activateCombatFlag(L2PcInstance player, L2ItemInstance item)
+	{
+		if (!checkIfCanPickup(player))
+		{
+			return false;
+		}
+		
+		final Fort fort = FortManager.getInstance().getFort(player);
+		
+		final List<CombatFlag> fcf = _flagList.get(fort.getResidenceId());
+		for (CombatFlag cf : fcf)
+		{
+			if (cf.getCombatFlagInstance() == item)
+			{
+				cf.activate(player, item);
+			}
+		}
+		return true;
+	}
+	
+	public final void addSiege(FortSiege fortSiege)
+	{
+		_sieges.add(fortSiege);
+	}
+	
 	public final void addSiegeSkills(L2PcInstance character)
 	{
 		character.addSkill(CommonSkill.SEAL_OF_RULER.getSkill(), false);
 		character.addSkill(CommonSkill.BUILD_HEADQUARTERS.getSkill(), false);
+	}
+	
+	public final boolean canRegisterJustTerritory()
+	{
+		return _justToTerritory;
+	}
+	
+	public boolean checkIfCanPickup(L2PcInstance player)
+	{
+		final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.THE_FORTRESS_BATTLE_OF_S1_HAS_FINISHED);
+		sm.addItemName(9819);
+		// Cannot own 2 combat flag
+		if (player.isCombatFlagEquipped())
+		{
+			player.sendPacket(sm);
+			return false;
+		}
+		
+		// here check if is siege is in progress
+		// here check if is siege is attacker
+		final Fort fort = FortManager.getInstance().getFort(player);
+		
+		if ((fort == null) || (fort.getResidenceId() <= 0))
+		{
+			player.sendPacket(sm);
+			return false;
+		}
+		else if (!fort.getSiege().isInProgress())
+		{
+			player.sendPacket(sm);
+			return false;
+		}
+		else if (fort.getSiege().getAttackerClan(player.getClan()) == null)
+		{
+			player.sendPacket(sm);
+			return false;
+		}
+		return true;
 	}
 	
 	/**
@@ -107,6 +175,90 @@ public final class FortSiegeManager
 			_log.log(Level.WARNING, "Exception: checkIsRegistered(): " + e.getMessage(), e);
 		}
 		return register;
+	}
+	
+	public void dropCombatFlag(L2PcInstance player, int fortId)
+	{
+		final Fort fort = FortManager.getInstance().getFortById(fortId);
+		final List<CombatFlag> fcf = _flagList.get(fort.getResidenceId());
+		for (CombatFlag cf : fcf)
+		{
+			if (cf.getPlayerObjectId() == player.getObjectId())
+			{
+				cf.dropIt();
+				if (fort.getSiege().isInProgress())
+				{
+					cf.spawnMe();
+				}
+			}
+		}
+	}
+	
+	public final int getAttackerMaxClans()
+	{
+		return _attackerMaxClans;
+	}
+	
+	public final List<FortSiegeSpawn> getCommanderSpawnList(int _fortId)
+	{
+		return _commanderSpawnList.get(_fortId);
+	}
+	
+	public final int getCountDownLength()
+	{
+		return _countDownLength;
+	}
+	
+	public final List<CombatFlag> getFlagList(int _fortId)
+	{
+		return _flagList.get(_fortId);
+	}
+	
+	public final int getFlagMaxCount()
+	{
+		return _flagMaxCount;
+	}
+	
+	public final FortSiege getSiege(int x, int y, int z)
+	{
+		for (Fort fort : FortManager.getInstance().getForts())
+		{
+			if (fort.getSiege().checkIfInZone(x, y, z))
+			{
+				return fort.getSiege();
+			}
+		}
+		return null;
+	}
+	
+	public final FortSiege getSiege(L2Object activeObject)
+	{
+		return getSiege(activeObject.getX(), activeObject.getY(), activeObject.getZ());
+	}
+	
+	public final int getSiegeClanMinLevel()
+	{
+		return _siegeClanMinLevel;
+	}
+	
+	public final int getSiegeLength()
+	{
+		return _siegeLength;
+	}
+	
+	public final List<FortSiege> getSieges()
+	{
+		return _sieges;
+	}
+	
+	public final int getSuspiciousMerchantRespawnDelay()
+	{
+		return _suspiciousMerchantRespawnDelay;
+	}
+	
+	public boolean isCombat(int itemId)
+	{
+		return (itemId == 9819);
 	}
 	
 	public final void removeSiegeSkills(L2PcInstance character)
@@ -197,158 +349,6 @@ public final class FortSiegeManager
 			}
 			_flagList.put(fort.getResidenceId(), flagSpawns);
 		}
-	}
-	
-	public final List<FortSiegeSpawn> getCommanderSpawnList(int _fortId)
-	{
-		return _commanderSpawnList.get(_fortId);
-	}
-	
-	public final List<CombatFlag> getFlagList(int _fortId)
-	{
-		return _flagList.get(_fortId);
-	}
-	
-	public final int getAttackerMaxClans()
-	{
-		return _attackerMaxClans;
-	}
-	
-	public final int getFlagMaxCount()
-	{
-		return _flagMaxCount;
-	}
-	
-	public final boolean canRegisterJustTerritory()
-	{
-		return _justToTerritory;
-	}
-	
-	public final int getSuspiciousMerchantRespawnDelay()
-	{
-		return _suspiciousMerchantRespawnDelay;
-	}
-	
-	public final FortSiege getSiege(L2Object activeObject)
-	{
-		return getSiege(activeObject.getX(), activeObject.getY(), activeObject.getZ());
-	}
-	
-	public final FortSiege getSiege(int x, int y, int z)
-	{
-		for (Fort fort : FortManager.getInstance().getForts())
-		{
-			if (fort.getSiege().checkIfInZone(x, y, z))
-			{
-				return fort.getSiege();
-			}
-		}
-		return null;
-	}
-	
-	public final int getSiegeClanMinLevel()
-	{
-		return _siegeClanMinLevel;
-	}
-	
-	public final int getSiegeLength()
-	{
-		return _siegeLength;
-	}
-	
-	public final int getCountDownLength()
-	{
-		return _countDownLength;
-	}
-	
-	public final List<FortSiege> getSieges()
-	{
-		return _sieges;
-	}
-	
-	public final void addSiege(FortSiege fortSiege)
-	{
-		_sieges.add(fortSiege);
-	}
-	
-	public boolean isCombat(int itemId)
-	{
-		return (itemId == 9819);
-	}
-	
-	public boolean activateCombatFlag(L2PcInstance player, L2ItemInstance item)
-	{
-		if (!checkIfCanPickup(player))
-		{
-			return false;
-		}
-		
-		final Fort fort = FortManager.getInstance().getFort(player);
-		
-		final List<CombatFlag> fcf = _flagList.get(fort.getResidenceId());
-		for (CombatFlag cf : fcf)
-		{
-			if (cf.getCombatFlagInstance() == item)
-			{
-				cf.activate(player, item);
-			}
-		}
-		return true;
-	}
-	
-	public boolean checkIfCanPickup(L2PcInstance player)
-	{
-		final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.THE_FORTRESS_BATTLE_OF_S1_HAS_FINISHED);
-		sm.addItemName(9819);
-		// Cannot own 2 combat flag
-		if (player.isCombatFlagEquipped())
-		{
-			player.sendPacket(sm);
-			return false;
-		}
-		
-		// here check if is siege is in progress
-		// here check if is siege is attacker
-		final Fort fort = FortManager.getInstance().getFort(player);
-		
-		if ((fort == null) || (fort.getResidenceId() <= 0))
-		{
-			player.sendPacket(sm);
-			return false;
-		}
-		else if (!fort.getSiege().isInProgress())
-		{
-			player.sendPacket(sm);
-			return false;
-		}
-		else if (fort.getSiege().getAttackerClan(player.getClan()) == null)
-		{
-			player.sendPacket(sm);
-			return false;
-		}
-		return true;
-	}
-	
-	public void dropCombatFlag(L2PcInstance player, int fortId)
-	{
-		final Fort fort = FortManager.getInstance().getFortById(fortId);
-		final List<CombatFlag> fcf = _flagList.get(fort.getResidenceId());
-		for (CombatFlag cf : fcf)
-		{
-			if (cf.getPlayerObjectId() == player.getObjectId())
-			{
-				cf.dropIt();
-				if (fort.getSiege().isInProgress())
-				{
-					cf.spawnMe();
-				}
-			}
-		}
-	}
-	
-	public static final FortSiegeManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

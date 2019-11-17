@@ -28,35 +28,6 @@ public abstract class AbstractNode<Loc extends AbstractNodeLoc>
 		_loc = loc;
 	}
 	
-	public void setParent(AbstractNode<Loc> p)
-	{
-		_parent = p;
-	}
-	
-	public AbstractNode<Loc> getParent()
-	{
-		return _parent;
-	}
-	
-	public Loc getLoc()
-	{
-		return _loc;
-	}
-	
-	public void setLoc(Loc l)
-	{
-		_loc = l;
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + ((_loc == null) ? 0 : _loc.hashCode());
-		return result;
-	}
-	
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -85,5 +56,34 @@ public abstract class AbstractNode<Loc extends AbstractNodeLoc>
 			return false;
 		}
 		return true;
+	}
+	
+	public Loc getLoc()
+	{
+		return _loc;
+	}
+	
+	public AbstractNode<Loc> getParent()
+	{
+		return _parent;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + ((_loc == null) ? 0 : _loc.hashCode());
+		return result;
+	}
+	
+	public void setLoc(Loc l)
+	{
+		_loc = l;
+	}
+	
+	public void setParent(AbstractNode<Loc> p)
+	{
+		_parent = p;
 	}
 }

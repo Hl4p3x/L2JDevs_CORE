@@ -29,6 +29,12 @@ public final class RequestRecipeBookDestroy extends L2GameClientPacket
 	
 	private int _recipeID;
 	
+	@Override
+	public String getType()
+	{
+		return _C__B6_REQUESTRECIPEBOOKDESTROY;
+	}
+	
 	/**
 	 * Unknown Packet:ad 0000: ad 02 00 00 00
 	 */
@@ -70,11 +76,5 @@ public final class RequestRecipeBookDestroy extends L2GameClientPacket
 		}
 		
 		activeChar.sendPacket(response);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__B6_REQUESTRECIPEBOOKDESTROY;
 	}
 }

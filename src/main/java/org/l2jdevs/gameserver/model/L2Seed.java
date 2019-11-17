@@ -61,14 +61,34 @@ public final class L2Seed
 		return _castleId;
 	}
 	
-	public final int getSeedId()
-	{
-		return _seedId;
-	}
-	
 	public final int getCropId()
 	{
 		return _cropId;
+	}
+	
+	public final int getCropLimit()
+	{
+		return _limitCrops * Config.RATE_DROP_MANOR;
+	}
+	
+	public final int getCropMaxPrice()
+	{
+		return _cropReferencePrice * 10;
+	}
+	
+	public final int getCropMinPrice()
+	{
+		return (int) (_cropReferencePrice * 0.6);
+	}
+	
+	public final int getCropReferencePrice()
+	{
+		return _cropReferencePrice;
+	}
+	
+	public final int getLevel()
+	{
+		return _level;
 	}
 	
 	public final int getMatureId()
@@ -81,29 +101,14 @@ public final class L2Seed
 		return (type == 1) ? _reward1 : _reward2;
 	}
 	
-	public final int getLevel()
+	public final int getSeedId()
 	{
-		return _level;
-	}
-	
-	public final boolean isAlternative()
-	{
-		return _isAlternative;
+		return _seedId;
 	}
 	
 	public final int getSeedLimit()
 	{
 		return _limitSeeds * Config.RATE_DROP_MANOR;
-	}
-	
-	public final int getCropLimit()
-	{
-		return _limitCrops * Config.RATE_DROP_MANOR;
-	}
-	
-	public final int getSeedReferencePrice()
-	{
-		return _seedReferencePrice;
 	}
 	
 	public final int getSeedMaxPrice()
@@ -116,19 +121,14 @@ public final class L2Seed
 		return (int) (_seedReferencePrice * 0.6);
 	}
 	
-	public final int getCropReferencePrice()
+	public final int getSeedReferencePrice()
 	{
-		return _cropReferencePrice;
+		return _seedReferencePrice;
 	}
 	
-	public final int getCropMaxPrice()
+	public final boolean isAlternative()
 	{
-		return _cropReferencePrice * 10;
-	}
-	
-	public final int getCropMinPrice()
-	{
-		return (int) (_cropReferencePrice * 0.6);
+		return _isAlternative;
 	}
 	
 	@Override

@@ -36,6 +36,22 @@ public class L2ResidenceTeleportZone extends L2ZoneRespawn
 		super(id);
 	}
 	
+	public int getResidenceId()
+	{
+		return _residenceId;
+	}
+	
+	public void oustAllPlayers()
+	{
+		for (L2PcInstance player : getPlayersInside())
+		{
+			if ((player != null) && player.isOnline())
+			{
+				player.teleToLocation(getSpawnLoc(), 200);
+			}
+		}
+	}
+	
 	@Override
 	public void setParameter(String name, String value)
 	{
@@ -59,21 +75,5 @@ public class L2ResidenceTeleportZone extends L2ZoneRespawn
 	protected void onExit(L2Character character)
 	{
 		character.setInsideZone(ZoneId.NO_SUMMON_FRIEND, false); // FIXME: Custom ?
-	}
-	
-	public void oustAllPlayers()
-	{
-		for (L2PcInstance player : getPlayersInside())
-		{
-			if ((player != null) && player.isOnline())
-			{
-				player.teleToLocation(getSpawnLoc(), 200);
-			}
-		}
-	}
-	
-	public int getResidenceId()
-	{
-		return _residenceId;
 	}
 }

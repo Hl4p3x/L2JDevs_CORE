@@ -33,6 +33,22 @@ public class TelnetHandler implements IHandler<ITelnetHandler, String>
 		_telnetHandlers = new HashMap<>();
 	}
 	
+	public static TelnetHandler getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	@Override
+	public ITelnetHandler getHandler(String command)
+	{
+		if (command.contains(" "))
+		{
+			command = command.substring(0, command.indexOf(" "));
+		}
+		
+		return _telnetHandlers.get(command.toLowerCase());
+	}
+	
 	@Override
 	public void registerHandler(ITelnetHandler handler)
 	{
@@ -52,25 +68,9 @@ public class TelnetHandler implements IHandler<ITelnetHandler, String>
 	}
 	
 	@Override
-	public ITelnetHandler getHandler(String command)
-	{
-		if (command.contains(" "))
-		{
-			command = command.substring(0, command.indexOf(" "));
-		}
-		
-		return _telnetHandlers.get(command.toLowerCase());
-	}
-	
-	@Override
 	public int size()
 	{
 		return _telnetHandlers.size();
-	}
-	
-	public static TelnetHandler getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

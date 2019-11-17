@@ -118,66 +118,12 @@ public final class FloodProtectors
 	}
 	
 	/**
-	 * Returns {@link #_useItem}.
-	 * @return {@link #_useItem}
+	 * Returns {@link #_characterSelect}.
+	 * @return {@link #_characterSelect}
 	 */
-	public FloodProtectorAction getUseItem()
+	public FloodProtectorAction getCharacterSelect()
 	{
-		return _useItem;
-	}
-	
-	/**
-	 * Returns {@link #_rollDice}.
-	 * @return {@link #_rollDice}
-	 */
-	public FloodProtectorAction getRollDice()
-	{
-		return _rollDice;
-	}
-	
-	/**
-	 * Returns {@link #_firework}.
-	 * @return {@link #_firework}
-	 */
-	public FloodProtectorAction getFirework()
-	{
-		return _firework;
-	}
-	
-	/**
-	 * Returns {@link #_itemPetSummon}.
-	 * @return {@link #_itemPetSummon}
-	 */
-	public FloodProtectorAction getItemPetSummon()
-	{
-		return _itemPetSummon;
-	}
-	
-	/**
-	 * Returns {@link #_heroVoice}.
-	 * @return {@link #_heroVoice}
-	 */
-	public FloodProtectorAction getHeroVoice()
-	{
-		return _heroVoice;
-	}
-	
-	/**
-	 * Returns {@link #_globalChat}.
-	 * @return {@link #_globalChat}
-	 */
-	public FloodProtectorAction getGlobalChat()
-	{
-		return _globalChat;
-	}
-	
-	/**
-	 * Returns {@link #_subclass}.
-	 * @return {@link #_subclass}
-	 */
-	public FloodProtectorAction getSubclass()
-	{
-		return _subclass;
+		return _characterSelect;
 	}
 	
 	/**
@@ -190,38 +136,48 @@ public final class FloodProtectors
 	}
 	
 	/**
-	 * Returns {@link #_serverBypass}.
-	 * @return {@link #_serverBypass}
+	 * Returns {@link #_firework}.
+	 * @return {@link #_firework}
 	 */
-	public FloodProtectorAction getServerBypass()
+	public FloodProtectorAction getFirework()
 	{
-		return _serverBypass;
+		return _firework;
 	}
 	
 	/**
-	 * @return {@link #_multiSell}
+	 * Returns {@link #_globalChat}.
+	 * @return {@link #_globalChat}
 	 */
-	public FloodProtectorAction getMultiSell()
+	public FloodProtectorAction getGlobalChat()
 	{
-		return _multiSell;
+		return _globalChat;
 	}
 	
 	/**
-	 * Returns {@link #_transaction}.
-	 * @return {@link #_transaction}
+	 * Returns {@link #_heroVoice}.
+	 * @return {@link #_heroVoice}
 	 */
-	public FloodProtectorAction getTransaction()
+	public FloodProtectorAction getHeroVoice()
 	{
-		return _transaction;
+		return _heroVoice;
 	}
 	
 	/**
-	 * Returns {@link #_manufacture}.
-	 * @return {@link #_manufacture}
+	 * Returns {@link #_itemAuction}.
+	 * @return {@link #_itemAuction}
 	 */
-	public FloodProtectorAction getManufacture()
+	public FloodProtectorAction getItemAuction()
 	{
-		return _manufacture;
+		return _itemAuction;
+	}
+	
+	/**
+	 * Returns {@link #_itemPetSummon}.
+	 * @return {@link #_itemPetSummon}
+	 */
+	public FloodProtectorAction getItemPetSummon()
+	{
+		return _itemPetSummon;
 	}
 	
 	/**
@@ -234,6 +190,32 @@ public final class FloodProtectors
 	}
 	
 	/**
+	 * Returns {@link #_manufacture}.
+	 * @return {@link #_manufacture}
+	 */
+	public FloodProtectorAction getManufacture()
+	{
+		return _manufacture;
+	}
+	
+	/**
+	 * @return {@link #_multiSell}
+	 */
+	public FloodProtectorAction getMultiSell()
+	{
+		return _multiSell;
+	}
+	
+	/**
+	 * Returns {@link #_rollDice}.
+	 * @return {@link #_rollDice}
+	 */
+	public FloodProtectorAction getRollDice()
+	{
+		return _rollDice;
+	}
+	
+	/**
 	 * Returns {@link #_sendMail}.
 	 * @return {@link #_sendMail}
 	 */
@@ -243,20 +225,38 @@ public final class FloodProtectors
 	}
 	
 	/**
-	 * Returns {@link #_characterSelect}.
-	 * @return {@link #_characterSelect}
+	 * Returns {@link #_serverBypass}.
+	 * @return {@link #_serverBypass}
 	 */
-	public FloodProtectorAction getCharacterSelect()
+	public FloodProtectorAction getServerBypass()
 	{
-		return _characterSelect;
+		return _serverBypass;
 	}
 	
 	/**
-	 * Returns {@link #_itemAuction}.
-	 * @return {@link #_itemAuction}
+	 * Returns {@link #_subclass}.
+	 * @return {@link #_subclass}
 	 */
-	public FloodProtectorAction getItemAuction()
+	public FloodProtectorAction getSubclass()
 	{
-		return _itemAuction;
+		return _subclass;
+	}
+	
+	/**
+	 * Returns {@link #_transaction}.
+	 * @return {@link #_transaction}
+	 */
+	public FloodProtectorAction getTransaction()
+	{
+		return _transaction;
+	}
+	
+	/**
+	 * Returns {@link #_useItem}.
+	 * @return {@link #_useItem}
+	 */
+	public FloodProtectorAction getUseItem()
+	{
+		return _useItem;
 	}
 }

@@ -31,6 +31,12 @@ public final class RequestPledgePower extends L2GameClientPacket
 	private int _privs;
 	
 	@Override
+	public String getType()
+	{
+		return _C__CC_REQUESTPLEDGEPOWER;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_rank = readD();
@@ -76,11 +82,5 @@ public final class RequestPledgePower extends L2GameClientPacket
 		{
 			player.sendPacket(new ManagePledgePower(getClient().getActiveChar().getClan(), _action, _rank));
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__CC_REQUESTPLEDGEPOWER;
 	}
 }

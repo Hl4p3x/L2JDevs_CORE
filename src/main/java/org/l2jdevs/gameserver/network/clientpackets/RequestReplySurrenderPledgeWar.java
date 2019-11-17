@@ -29,6 +29,12 @@ public final class RequestReplySurrenderPledgeWar extends L2GameClientPacket
 	private int _answer;
 	
 	@Override
+	public String getType()
+	{
+		return _C__08_REQUESTREPLYSURRENDERPLEDGEWAR;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_reqName = readS();
@@ -58,11 +64,5 @@ public final class RequestReplySurrenderPledgeWar extends L2GameClientPacket
 			_log.info(getClass().getSimpleName() + ": Missing implementation for answer: " + _answer + " and name: " + _reqName + "!");
 		}
 		activeChar.onTransactionRequest(requestor);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__08_REQUESTREPLYSURRENDERPLEDGEWAR;
 	}
 }

@@ -32,6 +32,12 @@ public class RequestExAddContactToContactList extends L2GameClientPacket
 	private String _name;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_84_REQUESTEXADDCONTACTTOCONTACTLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -58,11 +64,5 @@ public class RequestExAddContactToContactList extends L2GameClientPacket
 		
 		boolean charAdded = activeChar.getContactList().add(_name);
 		activeChar.sendPacket(new ExConfirmAddingContact(_name, charAdded));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_84_REQUESTEXADDCONTACTTOCONTACTLIST;
 	}
 }

@@ -42,11 +42,6 @@ public class DocumentEngine
 	private final List<File> _itemFiles = new ArrayList<>();
 	private final List<File> _skillFiles = new ArrayList<>();
 	
-	public static DocumentEngine getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
 	protected DocumentEngine()
 	{
 		hashFiles("data/stats/items", _itemFiles);
@@ -61,35 +56,9 @@ public class DocumentEngine
 		}
 	}
 	
-	private void hashFiles(String dirname, List<File> hash)
+	public static DocumentEngine getInstance()
 	{
-		File dir = new File(Config.DATAPACK_ROOT, dirname);
-		if (!dir.exists())
-		{
-			_log.warning("Dir " + dir.getAbsolutePath() + " not exists");
-			return;
-		}
-		
-		final File[] files = dir.listFiles(new XMLFilter());
-		if (files != null)
-		{
-			for (File f : files)
-			{
-				hash.add(f);
-			}
-		}
-	}
-	
-	public List<Skill> loadSkills(File file)
-	{
-		if (file == null)
-		{
-			_log.warning("Skill file not found.");
-			return null;
-		}
-		DocumentSkill doc = new DocumentSkill(file);
-		doc.parse();
-		return doc.getSkills();
+		return SingletonHolder._instance;
 	}
 	
 	public void loadAllSkills(final Map<Integer, Skill> allSkills)
@@ -125,6 +94,37 @@ public class DocumentEngine
 			list.addAll(document.getItemList());
 		}
 		return list;
+	}
+	
+	public List<Skill> loadSkills(File file)
+	{
+		if (file == null)
+		{
+			_log.warning("Skill file not found.");
+			return null;
+		}
+		DocumentSkill doc = new DocumentSkill(file);
+		doc.parse();
+		return doc.getSkills();
+	}
+	
+	private void hashFiles(String dirname, List<File> hash)
+	{
+		File dir = new File(Config.DATAPACK_ROOT, dirname);
+		if (!dir.exists())
+		{
+			_log.warning("Dir " + dir.getAbsolutePath() + " not exists");
+			return;
+		}
+		
+		final File[] files = dir.listFiles(new XMLFilter());
+		if (files != null)
+		{
+			for (File f : files)
+			{
+				hash.add(f);
+			}
+		}
 	}
 	
 	private static class SingletonHolder

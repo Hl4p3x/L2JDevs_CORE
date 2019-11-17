@@ -28,14 +28,14 @@ public class NpcStat extends CharStat
 	}
 	
 	@Override
-	public int getLevel()
-	{
-		return getActiveChar().getTemplate().getLevel();
-	}
-	
-	@Override
 	public L2Npc getActiveChar()
 	{
 		return (L2Npc) super.getActiveChar();
+	}
+	
+	@Override
+	public int getLevel()
+	{
+		return getActiveChar().getTemplate().getLevel();
 	}
 }

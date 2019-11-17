@@ -56,6 +56,27 @@ public class BinaryNodeHeap
 		}
 	}
 	
+	public boolean contains(GeoNode n)
+	{
+		if (_size == 0)
+		{
+			return false;
+		}
+		for (int i = 1; i <= _size; i++)
+		{
+			if (_list[i].equals(n))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean isEmpty()
+	{
+		return _size == 0;
+	}
+	
 	public GeoNode removeFirst()
 	{
 		GeoNode first = _list[1];
@@ -101,26 +122,5 @@ public class BinaryNodeHeap
 			}
 		}
 		return first;
-	}
-	
-	public boolean contains(GeoNode n)
-	{
-		if (_size == 0)
-		{
-			return false;
-		}
-		for (int i = 1; i <= _size; i++)
-		{
-			if (_list[i].equals(n))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public boolean isEmpty()
-	{
-		return _size == 0;
 	}
 }

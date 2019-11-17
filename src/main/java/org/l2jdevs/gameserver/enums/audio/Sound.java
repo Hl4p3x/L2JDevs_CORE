@@ -113,9 +113,10 @@ public enum Sound implements IAudio
 		_playSound = PlaySound.createSound(soundName);
 	}
 	
-	public PlaySound withObject(L2Object obj)
+	@Override
+	public PlaySound getPacket()
 	{
-		return PlaySound.createSound(getSoundName(), obj);
+		return _playSound;
 	}
 	
 	@Override
@@ -124,9 +125,8 @@ public enum Sound implements IAudio
 		return _playSound.getSoundName();
 	}
 	
-	@Override
-	public PlaySound getPacket()
+	public PlaySound withObject(L2Object obj)
 	{
-		return _playSound;
+		return PlaySound.createSound(getSoundName(), obj);
 	}
 }

@@ -34,9 +34,9 @@ public final class RequestLinkHtml extends L2GameClientPacket
 	private String _link;
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		_link = readS();
+		return _C__22_REQUESTLINKHTML;
 	}
 	
 	@Override
@@ -80,8 +80,8 @@ public final class RequestLinkHtml extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__22_REQUESTLINKHTML;
+		_link = readS();
 	}
 }

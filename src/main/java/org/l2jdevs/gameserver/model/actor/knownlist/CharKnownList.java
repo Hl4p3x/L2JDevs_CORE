@@ -61,65 +61,6 @@ public class CharKnownList extends ObjectKnownList
 		return true;
 	}
 	
-	/**
-	 * @param player The L2PcInstance to search in _knownPlayer
-	 * @return {@code true} if the player is in _knownPlayer of the character, {@code false} otherwise
-	 */
-	public final boolean knowsThePlayer(L2PcInstance player)
-	{
-		return (getActiveChar() == player) || getKnownPlayers().containsKey(player.getObjectId());
-	}
-	
-	/** Remove all L2Object from _knownObjects and _knownPlayer of the L2Character then cancel Attack or Cast and notify AI. */
-	@Override
-	public final void removeAllKnownObjects()
-	{
-		super.removeAllKnownObjects();
-		getKnownPlayers().clear();
-		getKnownRelations().clear();
-		getKnownSummons().clear();
-		
-		// Set _target of the L2Character to null
-		// Cancel Attack or Cast
-		getActiveChar().setTarget(null);
-		
-		// Cancel AI Task
-		if (getActiveChar().hasAI())
-		{
-			getActiveChar().setAI(null);
-		}
-	}
-	
-	@Override
-	protected boolean removeKnownObject(L2Object object, boolean forget)
-	{
-		if (!super.removeKnownObject(object, forget))
-		{
-			return false;
-		}
-		
-		if (!forget) // on forget objects removed by iterator
-		{
-			if (object.isPlayer())
-			{
-				getKnownPlayers().remove(object.getObjectId());
-				getKnownRelations().remove(object.getObjectId());
-			}
-			else if (object.isSummon())
-			{
-				getKnownSummons().remove(object.getObjectId());
-			}
-		}
-		
-		// If object is targeted by the L2Character, cancel Attack or Cast
-		if (object == getActiveChar().getTarget())
-		{
-			getActiveChar().setTarget(null);
-		}
-		
-		return true;
-	}
-	
 	@Override
 	public void forgetObjects(boolean fullCheck)
 	{
@@ -225,19 +166,6 @@ public class CharKnownList extends ObjectKnownList
 		return result;
 	}
 	
-	public final List<L2PcInstance> getKnownPlayersInRadius(long radius)
-	{
-		List<L2PcInstance> result = new LinkedList<>();
-		for (L2PcInstance player : getKnownPlayers().values())
-		{
-			if (Util.checkIfInRange((int) radius, getActiveChar(), player, true))
-			{
-				result.add(player);
-			}
-		}
-		return result;
-	}
-	
 	public final Map<Integer, L2PcInstance> getKnownPlayers()
 	{
 		if (_knownPlayers == null)
@@ -251,6 +179,19 @@ public class CharKnownList extends ObjectKnownList
 			}
 		}
 		return _knownPlayers;
+	}
+	
+	public final List<L2PcInstance> getKnownPlayersInRadius(long radius)
+	{
+		List<L2PcInstance> result = new LinkedList<>();
+		for (L2PcInstance player : getKnownPlayers().values())
+		{
+			if (Util.checkIfInRange((int) radius, getActiveChar(), player, true))
+			{
+				result.add(player);
+			}
+		}
+		return result;
 	}
 	
 	public final Map<Integer, Integer> getKnownRelations()
@@ -283,9 +224,68 @@ public class CharKnownList extends ObjectKnownList
 		return _knownSummons;
 	}
 	
+	/**
+	 * @param player The L2PcInstance to search in _knownPlayer
+	 * @return {@code true} if the player is in _knownPlayer of the character, {@code false} otherwise
+	 */
+	public final boolean knowsThePlayer(L2PcInstance player)
+	{
+		return (getActiveChar() == player) || getKnownPlayers().containsKey(player.getObjectId());
+	}
+	
+	/** Remove all L2Object from _knownObjects and _knownPlayer of the L2Character then cancel Attack or Cast and notify AI. */
+	@Override
+	public final void removeAllKnownObjects()
+	{
+		super.removeAllKnownObjects();
+		getKnownPlayers().clear();
+		getKnownRelations().clear();
+		getKnownSummons().clear();
+		
+		// Set _target of the L2Character to null
+		// Cancel Attack or Cast
+		getActiveChar().setTarget(null);
+		
+		// Cancel AI Task
+		if (getActiveChar().hasAI())
+		{
+			getActiveChar().setAI(null);
+		}
+	}
+	
 	@Override
 	public final String toString()
 	{
 		return getActiveChar() + " Known Objects " + getKnownObjects();
+	}
+	
+	@Override
+	protected boolean removeKnownObject(L2Object object, boolean forget)
+	{
+		if (!super.removeKnownObject(object, forget))
+		{
+			return false;
+		}
+		
+		if (!forget) // on forget objects removed by iterator
+		{
+			if (object.isPlayer())
+			{
+				getKnownPlayers().remove(object.getObjectId());
+				getKnownRelations().remove(object.getObjectId());
+			}
+			else if (object.isSummon())
+			{
+				getKnownSummons().remove(object.getObjectId());
+			}
+		}
+		
+		// If object is targeted by the L2Character, cancel Attack or Cast
+		if (object == getActiveChar().getTarget())
+		{
+			getActiveChar().setTarget(null);
+		}
+		
+		return true;
 	}
 }

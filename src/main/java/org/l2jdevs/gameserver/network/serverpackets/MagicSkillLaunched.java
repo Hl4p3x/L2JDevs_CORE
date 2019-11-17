@@ -35,6 +35,11 @@ public class MagicSkillLaunched extends L2GameServerPacket
 	private final int _skillLevel;
 	private final List<L2Object> _targets;
 	
+	public MagicSkillLaunched(L2Character cha, int skillId, int skillLevel)
+	{
+		this(cha, skillId, skillId, cha);
+	}
+	
 	public MagicSkillLaunched(L2Character cha, int skillId, int skillLevel, L2Object... targets)
 	{
 		_charObjId = cha.getObjectId();
@@ -48,11 +53,6 @@ public class MagicSkillLaunched extends L2GameServerPacket
 		}
 		//@formatter:on
 		_targets = Arrays.asList(targets);
-	}
-	
-	public MagicSkillLaunched(L2Character cha, int skillId, int skillLevel)
-	{
-		this(cha, skillId, skillId, cha);
 	}
 	
 	@Override

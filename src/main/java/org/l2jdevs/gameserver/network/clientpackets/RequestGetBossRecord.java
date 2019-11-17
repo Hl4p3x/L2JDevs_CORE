@@ -34,6 +34,12 @@ public class RequestGetBossRecord extends L2GameClientPacket
 	private int _bossId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_40_REQUESTGETBOSSRECORD;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_bossId = readD();
@@ -60,12 +66,6 @@ public class RequestGetBossRecord extends L2GameClientPacket
 		
 		// trigger packet
 		activeChar.sendPacket(new ExGetBossRecord(ranking, points, list));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_40_REQUESTGETBOSSRECORD;
 	}
 	
 	@Override

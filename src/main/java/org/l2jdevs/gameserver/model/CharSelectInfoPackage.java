@@ -72,19 +72,6 @@ public class CharSelectInfoPackage
 	}
 	
 	/**
-	 * @return the character object Id.
-	 */
-	public int getObjectId()
-	{
-		return _objectId;
-	}
-	
-	public void setObjectId(int objectId)
-	{
-		_objectId = objectId;
-	}
-	
-	/**
 	 * @return the character's access level.
 	 */
 	public int getAccessLevel()
@@ -92,27 +79,9 @@ public class CharSelectInfoPackage
 		return _accessLevel;
 	}
 	
-	/**
-	 * @param level the character's access level to be set.
-	 */
-	public void setAccessLevel(int level)
+	public int getAugmentationId()
 	{
-		_accessLevel = level;
-	}
-	
-	public int getClanId()
-	{
-		return _clanId;
-	}
-	
-	public void setClanId(int clanId)
-	{
-		_clanId = clanId;
-	}
-	
-	public int getClassId()
-	{
-		return _classId;
+		return _augmentationId;
 	}
 	
 	public int getBaseClassId()
@@ -120,14 +89,14 @@ public class CharSelectInfoPackage
 		return _baseClassId;
 	}
 	
-	public void setClassId(int classId)
+	public int getClanId()
 	{
-		_classId = classId;
+		return _clanId;
 	}
 	
-	public void setBaseClassId(int baseClassId)
+	public int getClassId()
 	{
-		_baseClassId = baseClassId;
+		return _classId;
 	}
 	
 	public double getCurrentHp()
@@ -135,159 +104,14 @@ public class CharSelectInfoPackage
 		return _currentHp;
 	}
 	
-	public void setCurrentHp(double currentHp)
-	{
-		_currentHp = currentHp;
-	}
-	
 	public double getCurrentMp()
 	{
 		return _currentMp;
 	}
 	
-	public void setCurrentMp(double currentMp)
-	{
-		_currentMp = currentMp;
-	}
-	
 	public long getDeleteTimer()
 	{
 		return _deleteTimer;
-	}
-	
-	public void setDeleteTimer(long deleteTimer)
-	{
-		_deleteTimer = deleteTimer;
-	}
-	
-	public long getLastAccess()
-	{
-		return _lastAccess;
-	}
-	
-	public void setLastAccess(long lastAccess)
-	{
-		_lastAccess = lastAccess;
-	}
-	
-	public long getExp()
-	{
-		return _exp;
-	}
-	
-	public void setExp(long exp)
-	{
-		_exp = exp;
-	}
-	
-	public int getFace()
-	{
-		return _face;
-	}
-	
-	public void setFace(int face)
-	{
-		_face = face;
-	}
-	
-	public int getHairColor()
-	{
-		return _hairColor;
-	}
-	
-	public void setHairColor(int hairColor)
-	{
-		_hairColor = hairColor;
-	}
-	
-	public int getHairStyle()
-	{
-		return _hairStyle;
-	}
-	
-	public void setHairStyle(int hairStyle)
-	{
-		_hairStyle = hairStyle;
-	}
-	
-	public int getPaperdollObjectId(int slot)
-	{
-		return _paperdoll[slot][0];
-	}
-	
-	public int getPaperdollItemId(int slot)
-	{
-		return _paperdoll[slot][1];
-	}
-	
-	public int getLevel()
-	{
-		return _level;
-	}
-	
-	public void setLevel(int level)
-	{
-		_level = level;
-	}
-	
-	public int getMaxHp()
-	{
-		return _maxHp;
-	}
-	
-	public void setMaxHp(int maxHp)
-	{
-		_maxHp = maxHp;
-	}
-	
-	public int getMaxMp()
-	{
-		return _maxMp;
-	}
-	
-	public void setMaxMp(int maxMp)
-	{
-		_maxMp = maxMp;
-	}
-	
-	public String getName()
-	{
-		return _name;
-	}
-	
-	public void setName(String name)
-	{
-		_name = name;
-	}
-	
-	public int getRace()
-	{
-		return _race;
-	}
-	
-	public void setRace(int race)
-	{
-		_race = race;
-	}
-	
-	public int getSex()
-	{
-		return _sex;
-	}
-	
-	public void setSex(int sex)
-	{
-		_sex = sex;
-	}
-	
-	public int getSp()
-	{
-		return _sp;
-	}
-	
-	public void setSp(int sp)
-	{
-		_sp = sp;
 	}
 	
 	public int getEnchantEffect()
@@ -299,9 +123,29 @@ public class CharSelectInfoPackage
 		return _paperdoll[Inventory.PAPERDOLL_RHAND][2];
 	}
 	
-	public void setKarma(int k)
+	public long getExp()
 	{
-		_karma = k;
+		return _exp;
+	}
+	
+	public int getFace()
+	{
+		return _face;
+	}
+	
+	public int getHairColor()
+	{
+		return _hairColor;
+	}
+	
+	public int getHairStyle()
+	{
+		return _hairStyle;
+	}
+	
+	public String getHtmlPrefix()
+	{
+		return _htmlPrefix;
 	}
 	
 	public int getKarma()
@@ -309,19 +153,47 @@ public class CharSelectInfoPackage
 		return _karma;
 	}
 	
-	public void setAugmentationId(int augmentationId)
+	public long getLastAccess()
 	{
-		_augmentationId = augmentationId;
+		return _lastAccess;
 	}
 	
-	public int getAugmentationId()
+	public int getLevel()
 	{
-		return _augmentationId;
+		return _level;
 	}
 	
-	public void setPkKills(int PkKills)
+	public int getMaxHp()
 	{
-		_pkKills = PkKills;
+		return _maxHp;
+	}
+	
+	public int getMaxMp()
+	{
+		return _maxMp;
+	}
+	
+	public String getName()
+	{
+		return _name;
+	}
+	
+	/**
+	 * @return the character object Id.
+	 */
+	public int getObjectId()
+	{
+		return _objectId;
+	}
+	
+	public int getPaperdollItemId(int slot)
+	{
+		return _paperdoll[slot][1];
+	}
+	
+	public int getPaperdollObjectId(int slot)
+	{
+		return _paperdoll[slot][0];
 	}
 	
 	public int getPkKills()
@@ -329,14 +201,29 @@ public class CharSelectInfoPackage
 		return _pkKills;
 	}
 	
-	public void setPvPKills(int PvPKills)
-	{
-		_pvpKills = PvPKills;
-	}
-	
 	public int getPvPKills()
 	{
 		return _pvpKills;
+	}
+	
+	public int getRace()
+	{
+		return _race;
+	}
+	
+	public int getSex()
+	{
+		return _sex;
+	}
+	
+	public int getSp()
+	{
+		return _sp;
+	}
+	
+	public int getVitalityPoints()
+	{
+		return _vitalityPoints;
 	}
 	
 	public int getX()
@@ -354,6 +241,139 @@ public class CharSelectInfoPackage
 		return _z;
 	}
 	
+	/**
+	 * @param level the character's access level to be set.
+	 */
+	public void setAccessLevel(int level)
+	{
+		_accessLevel = level;
+	}
+	
+	public void setAugmentationId(int augmentationId)
+	{
+		_augmentationId = augmentationId;
+	}
+	
+	public void setBaseClassId(int baseClassId)
+	{
+		_baseClassId = baseClassId;
+	}
+	
+	public void setClanId(int clanId)
+	{
+		_clanId = clanId;
+	}
+	
+	public void setClassId(int classId)
+	{
+		_classId = classId;
+	}
+	
+	public void setCurrentHp(double currentHp)
+	{
+		_currentHp = currentHp;
+	}
+	
+	public void setCurrentMp(double currentMp)
+	{
+		_currentMp = currentMp;
+	}
+	
+	public void setDeleteTimer(long deleteTimer)
+	{
+		_deleteTimer = deleteTimer;
+	}
+	
+	public void setExp(long exp)
+	{
+		_exp = exp;
+	}
+	
+	public void setFace(int face)
+	{
+		_face = face;
+	}
+	
+	public void setHairColor(int hairColor)
+	{
+		_hairColor = hairColor;
+	}
+	
+	public void setHairStyle(int hairStyle)
+	{
+		_hairStyle = hairStyle;
+	}
+	
+	public void setHtmlPrefix(String s)
+	{
+		_htmlPrefix = s;
+	}
+	
+	public void setKarma(int k)
+	{
+		_karma = k;
+	}
+	
+	public void setLastAccess(long lastAccess)
+	{
+		_lastAccess = lastAccess;
+	}
+	
+	public void setLevel(int level)
+	{
+		_level = level;
+	}
+	
+	public void setMaxHp(int maxHp)
+	{
+		_maxHp = maxHp;
+	}
+	
+	public void setMaxMp(int maxMp)
+	{
+		_maxMp = maxMp;
+	}
+	
+	public void setName(String name)
+	{
+		_name = name;
+	}
+	
+	public void setObjectId(int objectId)
+	{
+		_objectId = objectId;
+	}
+	
+	public void setPkKills(int PkKills)
+	{
+		_pkKills = PkKills;
+	}
+	
+	public void setPvPKills(int PvPKills)
+	{
+		_pvpKills = PvPKills;
+	}
+	
+	public void setRace(int race)
+	{
+		_race = race;
+	}
+	
+	public void setSex(int sex)
+	{
+		_sex = sex;
+	}
+	
+	public void setSp(int sp)
+	{
+		_sp = sp;
+	}
+	
+	public void setVitalityPoints(int points)
+	{
+		_vitalityPoints = points;
+	}
+	
 	public void setX(int x)
 	{
 		_x = x;
@@ -367,25 +387,5 @@ public class CharSelectInfoPackage
 	public void setZ(int z)
 	{
 		_z = z;
-	}
-	
-	public String getHtmlPrefix()
-	{
-		return _htmlPrefix;
-	}
-	
-	public void setHtmlPrefix(String s)
-	{
-		_htmlPrefix = s;
-	}
-	
-	public void setVitalityPoints(int points)
-	{
-		_vitalityPoints = points;
-	}
-	
-	public int getVitalityPoints()
-	{
-		return _vitalityPoints;
 	}
 }

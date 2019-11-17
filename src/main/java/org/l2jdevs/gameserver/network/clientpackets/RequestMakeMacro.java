@@ -32,10 +32,16 @@ public final class RequestMakeMacro extends L2GameClientPacket
 {
 	private static final String _C__CD_REQUESTMAKEMACRO = "[C] CD RequestMakeMacro";
 	
+	private static final int MAX_MACRO_LENGTH = 12;
 	private Macro _macro;
+	
 	private int _commandsLenght = 0;
 	
-	private static final int MAX_MACRO_LENGTH = 12;
+	@Override
+	public String getType()
+	{
+		return _C__CD_REQUESTMAKEMACRO;
+	}
 	
 	@Override
 	protected void readImpl()
@@ -103,11 +109,5 @@ public final class RequestMakeMacro extends L2GameClientPacket
 			return;
 		}
 		player.registerMacro(_macro);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__CD_REQUESTMAKEMACRO;
 	}
 }

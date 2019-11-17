@@ -120,6 +120,45 @@ public class LongTimeEvent extends Quest
 	}
 	
 	/**
+	 * Maintenance event start - adds global drop, spawns event NPC's, shows start announcement.
+	 */
+	protected void startEvent()
+	{
+		final long currentTime = System.currentTimeMillis();
+		
+		// Add drop
+		if (dropList != null)
+		{
+			if (currentTime < dropEventPeriod.getEndDate().getTime())
+			{
+				for (GeneralDropItem drop : dropList)
+				{
+					EventDroplist.getInstance().addGlobalDrop(drop.getItemId(), drop.getMin(), drop.getMax(), (int) drop.getChance(), dropEventPeriod);
+				}
+			}
+		}
+		
+		// Add spawns
+		final long millisToEventEnd = eventPeriod.getEndDate().getTime() - currentTime;
+		if (spawnList != null)
+		{
+			for (NpcSpawn spawn : spawnList)
+			{
+				addSpawn(spawn.npcId, spawn.loc.getX(), spawn.loc.getY(), spawn.loc.getZ(), spawn.loc.getHeading(), false, millisToEventEnd, false);
+			}
+		}
+		
+		// Send message on begin
+		Broadcast.toAllOnlinePlayers(onEnterMsg);
+		
+		// Add announce for entering players
+		AnnouncementsTable.getInstance().addAnnouncement(new EventAnnouncement(eventPeriod, onEnterMsg));
+		
+		// Schedule event end (now only for message sending)
+		ThreadPoolManager.getInstance().scheduleEvent(new ScheduleEnd(), millisToEventEnd);
+	}
+	
+	/**
 	 * Load event configuration file
 	 */
 	private void loadConfig()
@@ -295,57 +334,6 @@ public class LongTimeEvent extends Quest
 		}
 	}
 	
-	/**
-	 * Maintenance event start - adds global drop, spawns event NPC's, shows start announcement.
-	 */
-	protected void startEvent()
-	{
-		final long currentTime = System.currentTimeMillis();
-		
-		// Add drop
-		if (dropList != null)
-		{
-			if (currentTime < dropEventPeriod.getEndDate().getTime())
-			{
-				for (GeneralDropItem drop : dropList)
-				{
-					EventDroplist.getInstance().addGlobalDrop(drop.getItemId(), drop.getMin(), drop.getMax(), (int) drop.getChance(), dropEventPeriod);
-				}
-			}
-		}
-		
-		// Add spawns
-		final long millisToEventEnd = eventPeriod.getEndDate().getTime() - currentTime;
-		if (spawnList != null)
-		{
-			for (NpcSpawn spawn : spawnList)
-			{
-				addSpawn(spawn.npcId, spawn.loc.getX(), spawn.loc.getY(), spawn.loc.getZ(), spawn.loc.getHeading(), false, millisToEventEnd, false);
-			}
-		}
-		
-		// Send message on begin
-		Broadcast.toAllOnlinePlayers(onEnterMsg);
-		
-		// Add announce for entering players
-		AnnouncementsTable.getInstance().addAnnouncement(new EventAnnouncement(eventPeriod, onEnterMsg));
-		
-		// Schedule event end (now only for message sending)
-		ThreadPoolManager.getInstance().scheduleEvent(new ScheduleEnd(), millisToEventEnd);
-	}
-	
-	private class NpcSpawn
-	{
-		protected final Location loc;
-		protected final int npcId;
-		
-		protected NpcSpawn(int pNpcId, Location spawnLoc)
-		{
-			loc = spawnLoc;
-			npcId = pNpcId;
-		}
-	}
-	
 	protected class ScheduleEnd implements Runnable
 	{
 		@Override
@@ -362,6 +350,18 @@ public class LongTimeEvent extends Quest
 		public void run()
 		{
 			startEvent();
+		}
+	}
+	
+	private class NpcSpawn
+	{
+		protected final Location loc;
+		protected final int npcId;
+		
+		protected NpcSpawn(int pNpcId, Location spawnLoc)
+		{
+			loc = spawnLoc;
+			npcId = pNpcId;
 		}
 	}
 }

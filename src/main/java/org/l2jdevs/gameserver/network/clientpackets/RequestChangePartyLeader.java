@@ -31,6 +31,12 @@ public final class RequestChangePartyLeader extends L2GameClientPacket
 	private String _name;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_0C_REQUESTCHANGEPARTYLEADER;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -50,11 +56,5 @@ public final class RequestChangePartyLeader extends L2GameClientPacket
 		{
 			party.changePartyLeader(_name);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_0C_REQUESTCHANGEPARTYLEADER;
 	}
 }

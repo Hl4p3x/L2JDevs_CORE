@@ -29,6 +29,12 @@ public class RequestSeedPhase extends L2GameClientPacket
 	private static final String _C__D0_63_REQUESTSEEDPHASE = "[C] D0:63 RequestSeedPhase";
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_63_REQUESTSEEDPHASE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -43,11 +49,5 @@ public class RequestSeedPhase extends L2GameClientPacket
 			return;
 		}
 		activeChar.sendPacket(ExShowSeedMapInfo.STATIC_PACKET);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_63_REQUESTSEEDPHASE;
 	}
 }

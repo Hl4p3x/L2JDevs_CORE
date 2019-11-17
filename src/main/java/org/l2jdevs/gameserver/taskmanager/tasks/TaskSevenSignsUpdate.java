@@ -40,6 +40,13 @@ public class TaskSevenSignsUpdate extends Task
 	}
 	
 	@Override
+	public void initializate()
+	{
+		super.initializate();
+		TaskManager.addUniqueTask(NAME, TaskTypes.TYPE_FIXED_SHEDULED, "1800000", "1800000", "");
+	}
+	
+	@Override
 	public void onTimeElapsed(ExecutedTask task)
 	{
 		try
@@ -55,12 +62,5 @@ public class TaskSevenSignsUpdate extends Task
 		{
 			_log.warning(getClass().getSimpleName() + ": SevenSigns: Failed to save Seven Signs configuration: " + e.getMessage());
 		}
-	}
-	
-	@Override
-	public void initializate()
-	{
-		super.initializate();
-		TaskManager.addUniqueTask(NAME, TaskTypes.TYPE_FIXED_SHEDULED, "1800000", "1800000", "");
 	}
 }

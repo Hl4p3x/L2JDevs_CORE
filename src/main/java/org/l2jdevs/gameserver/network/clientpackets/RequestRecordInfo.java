@@ -32,6 +32,12 @@ public class RequestRecordInfo extends L2GameClientPacket
 	private static final String _C__6E_REQUEST_RECORD_INFO = "[C] 6E RequestRecordInfo";
 	
 	@Override
+	public String getType()
+	{
+		return _C__6E_REQUEST_RECORD_INFO;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -77,11 +83,5 @@ public class RequestRecordInfo extends L2GameClientPacket
 				}
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__6E_REQUEST_RECORD_INFO;
 	}
 }

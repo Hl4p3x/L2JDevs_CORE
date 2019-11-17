@@ -27,7 +27,7 @@ import org.l2jdevs.gameserver.model.base.SubClass;
  */
 public interface SubclassDAO
 {
-	void update(L2PcInstance player);
+	void delete(L2PcInstance player, int classIndex);
 	
 	/**
 	 * Store the basic info about this new subclass.
@@ -37,11 +37,11 @@ public interface SubclassDAO
 	 */
 	boolean insert(L2PcInstance player, SubClass newClass);
 	
-	void delete(L2PcInstance player, int classIndex);
-	
 	/**
 	 * Restores the player subclass data.
 	 * @param player the player
 	 */
 	void load(L2PcInstance player);
+	
+	void update(L2PcInstance player);
 }

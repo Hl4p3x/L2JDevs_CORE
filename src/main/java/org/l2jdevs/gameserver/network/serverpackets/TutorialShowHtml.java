@@ -26,11 +26,6 @@ import org.l2jdevs.gameserver.enums.HtmlActionScope;
  */
 public final class TutorialShowHtml extends AbstractHtmlPacket
 {
-	public TutorialShowHtml(String html)
-	{
-		super(html);
-	}
-	
 	/**
 	 * This constructor is just here to be able to show a tutorial html<br>
 	 * window bound to an npc.
@@ -42,16 +37,21 @@ public final class TutorialShowHtml extends AbstractHtmlPacket
 		super(npcObjId, html);
 	}
 	
-	@Override
-	protected void writeImpl()
+	public TutorialShowHtml(String html)
 	{
-		writeC(0xA6);
-		writeS(getHtml());
+		super(html);
 	}
 	
 	@Override
 	public HtmlActionScope getScope()
 	{
 		return HtmlActionScope.TUTORIAL_HTML;
+	}
+	
+	@Override
+	protected void writeImpl()
+	{
+		writeC(0xA6);
+		writeS(getHtml());
 	}
 }

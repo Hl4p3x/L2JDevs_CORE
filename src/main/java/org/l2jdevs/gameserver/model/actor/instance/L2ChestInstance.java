@@ -44,19 +44,6 @@ public final class L2ChestInstance extends L2MonsterInstance
 	}
 	
 	@Override
-	public void onSpawn()
-	{
-		super.onSpawn();
-		_specialDrop = false;
-		setMustRewardExpSp(true);
-	}
-	
-	public synchronized void setSpecialDrop()
-	{
-		_specialDrop = true;
-	}
-	
-	@Override
 	public void doItemDrop(L2NpcTemplate npcTemplate, L2Character lastAttacker)
 	{
 		int id = getTemplate().getId();
@@ -96,14 +83,27 @@ public final class L2ChestInstance extends L2MonsterInstance
 	}
 	
 	@Override
+	public boolean hasRandomAnimation()
+	{
+		return false;
+	}
+	
+	@Override
 	public boolean isMovementDisabled()
 	{
 		return true;
 	}
 	
 	@Override
-	public boolean hasRandomAnimation()
+	public void onSpawn()
 	{
-		return false;
+		super.onSpawn();
+		_specialDrop = false;
+		setMustRewardExpSp(true);
+	}
+	
+	public synchronized void setSpecialDrop()
+	{
+		_specialDrop = true;
 	}
 }

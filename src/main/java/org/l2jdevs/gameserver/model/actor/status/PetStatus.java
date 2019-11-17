@@ -34,6 +34,17 @@ public class PetStatus extends SummonStatus
 	}
 	
 	@Override
+	public L2PetInstance getActiveChar()
+	{
+		return (L2PetInstance) super.getActiveChar();
+	}
+	
+	public int getCurrentFed()
+	{
+		return _currentFed;
+	}
+	
+	@Override
 	public final void reduceHp(double value, L2Character attacker)
 	{
 		reduceHp(value, attacker, true, false, false);
@@ -62,19 +73,8 @@ public class PetStatus extends SummonStatus
 		}
 	}
 	
-	public int getCurrentFed()
-	{
-		return _currentFed;
-	}
-	
 	public void setCurrentFed(int value)
 	{
 		_currentFed = value;
-	}
-	
-	@Override
-	public L2PetInstance getActiveChar()
-	{
-		return (L2PetInstance) super.getActiveChar();
 	}
 }

@@ -39,18 +39,6 @@ public final class NpcHtmlMessage extends AbstractHtmlPacket
 		_itemId = 0;
 	}
 	
-	public NpcHtmlMessage(String html)
-	{
-		super(html);
-		_itemId = 0;
-	}
-	
-	public NpcHtmlMessage(int npcObjId, String html)
-	{
-		super(npcObjId, html);
-		_itemId = 0;
-	}
-	
 	public NpcHtmlMessage(int npcObjId, int itemId)
 	{
 		super(npcObjId);
@@ -75,6 +63,24 @@ public final class NpcHtmlMessage extends AbstractHtmlPacket
 		_itemId = itemId;
 	}
 	
+	public NpcHtmlMessage(int npcObjId, String html)
+	{
+		super(npcObjId, html);
+		_itemId = 0;
+	}
+	
+	public NpcHtmlMessage(String html)
+	{
+		super(html);
+		_itemId = 0;
+	}
+	
+	@Override
+	public HtmlActionScope getScope()
+	{
+		return _itemId == 0 ? HtmlActionScope.NPC_HTML : HtmlActionScope.NPC_ITEM_HTML;
+	}
+	
 	@Override
 	protected final void writeImpl()
 	{
@@ -83,11 +89,5 @@ public final class NpcHtmlMessage extends AbstractHtmlPacket
 		writeD(getNpcObjId());
 		writeS(getHtml());
 		writeD(_itemId);
-	}
-	
-	@Override
-	public HtmlActionScope getScope()
-	{
-		return _itemId == 0 ? HtmlActionScope.NPC_HTML : HtmlActionScope.NPC_ITEM_HTML;
 	}
 }

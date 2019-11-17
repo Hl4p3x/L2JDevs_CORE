@@ -52,15 +52,6 @@ public class LoginCrypt
 	private boolean _static = true;
 	
 	/**
-	 * Method to initialize the the blowfish cipher with dynamic key.
-	 * @param key the blowfish key to initialize the dynamic blowfish cipher with
-	 */
-	public void setKey(byte[] key)
-	{
-		_crypt = new NewCrypt(key);
-	}
-	
-	/**
 	 * Method to decrypt an incoming login client packet.
 	 * @param raw array with encrypted data
 	 * @param offset offset where the encrypted data is located
@@ -124,5 +115,14 @@ public class LoginCrypt
 			_crypt.crypt(raw, offset, size);
 		}
 		return size;
+	}
+	
+	/**
+	 * Method to initialize the the blowfish cipher with dynamic key.
+	 * @param key the blowfish key to initialize the dynamic blowfish cipher with
+	 */
+	public void setKey(byte[] key)
+	{
+		_crypt = new NewCrypt(key);
 	}
 }

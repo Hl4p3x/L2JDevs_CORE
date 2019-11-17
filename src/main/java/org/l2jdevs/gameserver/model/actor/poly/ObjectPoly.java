@@ -31,20 +31,9 @@ public class ObjectPoly
 		_activeObject = activeObject;
 	}
 	
-	public void setPolyInfo(String polyType, String polyId)
-	{
-		setPolyId(Integer.parseInt(polyId));
-		setPolyType(polyType);
-	}
-	
 	public final L2Object getActiveObject()
 	{
 		return _activeObject;
-	}
-	
-	public final boolean isMorphed()
-	{
-		return getPolyType() != null;
 	}
 	
 	public final int getPolyId()
@@ -52,14 +41,25 @@ public class ObjectPoly
 		return _polyId;
 	}
 	
+	public final String getPolyType()
+	{
+		return _polyType;
+	}
+	
+	public final boolean isMorphed()
+	{
+		return getPolyType() != null;
+	}
+	
 	public final void setPolyId(int value)
 	{
 		_polyId = value;
 	}
 	
-	public final String getPolyType()
+	public void setPolyInfo(String polyType, String polyId)
 	{
-		return _polyType;
+		setPolyId(Integer.parseInt(polyId));
+		setPolyType(polyType);
 	}
 	
 	public final void setPolyType(String value)

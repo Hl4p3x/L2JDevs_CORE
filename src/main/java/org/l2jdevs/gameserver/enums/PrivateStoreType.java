@@ -38,11 +38,6 @@ public enum PrivateStoreType
 		_id = id;
 	}
 	
-	public int getId()
-	{
-		return _id;
-	}
-	
 	public static PrivateStoreType findById(int id)
 	{
 		for (PrivateStoreType privateStoreType : values())
@@ -53,5 +48,10 @@ public enum PrivateStoreType
 			}
 		}
 		return null;
+	}
+	
+	public int getId()
+	{
+		return _id;
 	}
 }

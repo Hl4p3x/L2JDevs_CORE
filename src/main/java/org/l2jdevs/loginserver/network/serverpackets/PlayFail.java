@@ -24,6 +24,20 @@ package org.l2jdevs.loginserver.network.serverpackets;
  */
 public final class PlayFail extends L2LoginServerPacket
 {
+	private final PlayFailReason _reason;
+	
+	public PlayFail(PlayFailReason reason)
+	{
+		_reason = reason;
+	}
+	
+	@Override
+	protected void write()
+	{
+		writeC(0x06);
+		writeC(_reason.getCode());
+	}
+	
 	public static enum PlayFailReason
 	{
 		REASON_NO_MESSAGE(0x00),
@@ -77,19 +91,5 @@ public final class PlayFail extends L2LoginServerPacket
 		{
 			return _code;
 		}
-	}
-	
-	private final PlayFailReason _reason;
-	
-	public PlayFail(PlayFailReason reason)
-	{
-		_reason = reason;
-	}
-	
-	@Override
-	protected void write()
-	{
-		writeC(0x06);
-		writeC(_reason.getCode());
 	}
 }

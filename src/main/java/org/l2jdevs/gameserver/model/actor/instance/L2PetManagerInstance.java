@@ -36,6 +36,22 @@ public class L2PetManagerInstance extends L2MerchantInstance
 		setInstanceType(InstanceType.L2PetManagerInstance);
 	}
 	
+	public final void exchange(L2PcInstance player, int itemIdtake, int itemIdgive)
+	{
+		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
+		if (player.destroyItemByItemId("Consume", itemIdtake, 1, this, true))
+		{
+			player.addItem("", itemIdgive, 1, this, true);
+			html.setFile(player.getHtmlPrefix(), "data/html/petmanager/" + getId() + ".htm");
+			player.sendPacket(html);
+		}
+		else
+		{
+			html.setFile(player.getHtmlPrefix(), "data/html/petmanager/exchange_no.htm");
+			player.sendPacket(html);
+		}
+	}
+	
 	@Override
 	public String getHtmlPath(int npcId, int val)
 	{
@@ -51,26 +67,6 @@ public class L2PetManagerInstance extends L2MerchantInstance
 		}
 		
 		return "data/html/petmanager/" + pom + ".htm";
-	}
-	
-	@Override
-	public void showChatWindow(L2PcInstance player)
-	{
-		String filename = "data/html/petmanager/" + getId() + ".htm";
-		if ((getId() == 36478) && player.hasSummon())
-		{
-			filename = "data/html/petmanager/restore-unsummonpet.htm";
-		}
-		
-		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
-		html.setFile(player.getHtmlPrefix(), filename);
-		if (Config.ALLOW_RENTPET && Config.LIST_PET_RENT_NPC.contains(getId()))
-		{
-			html.replace("_Quest", "_RentPet\">Rent Pet</a><br><a action=\"bypass -h npc_%objectId%_Quest");
-		}
-		html.replace("%objectId%", String.valueOf(getObjectId()));
-		html.replace("%npcname%", getName());
-		player.sendPacket(html);
 	}
 	
 	@Override
@@ -165,19 +161,23 @@ public class L2PetManagerInstance extends L2MerchantInstance
 		}
 	}
 	
-	public final void exchange(L2PcInstance player, int itemIdtake, int itemIdgive)
+	@Override
+	public void showChatWindow(L2PcInstance player)
 	{
+		String filename = "data/html/petmanager/" + getId() + ".htm";
+		if ((getId() == 36478) && player.hasSummon())
+		{
+			filename = "data/html/petmanager/restore-unsummonpet.htm";
+		}
+		
 		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
-		if (player.destroyItemByItemId("Consume", itemIdtake, 1, this, true))
+		html.setFile(player.getHtmlPrefix(), filename);
+		if (Config.ALLOW_RENTPET && Config.LIST_PET_RENT_NPC.contains(getId()))
 		{
-			player.addItem("", itemIdgive, 1, this, true);
-			html.setFile(player.getHtmlPrefix(), "data/html/petmanager/" + getId() + ".htm");
-			player.sendPacket(html);
+			html.replace("_Quest", "_RentPet\">Rent Pet</a><br><a action=\"bypass -h npc_%objectId%_Quest");
 		}
-		else
-		{
-			html.setFile(player.getHtmlPrefix(), "data/html/petmanager/exchange_no.htm");
-			player.sendPacket(html);
-		}
+		html.replace("%objectId%", String.valueOf(getObjectId()));
+		html.replace("%npcname%", getName());
+		player.sendPacket(html);
 	}
 }

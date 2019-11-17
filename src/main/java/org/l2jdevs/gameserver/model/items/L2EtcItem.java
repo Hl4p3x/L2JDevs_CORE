@@ -122,12 +122,19 @@ public final class L2EtcItem extends L2Item
 	}
 	
 	/**
-	 * @return the type of Etc Item.
+	 * @return the extractable items list.
 	 */
-	@Override
-	public EtcItemType getItemType()
+	public List<L2ExtractableProduct> getExtractableItems()
 	{
-		return _type;
+		return _extractableItems;
+	}
+	
+	/**
+	 * @return the handler name, null if no handler for item.
+	 */
+	public String getHandlerName()
+	{
+		return _handler;
 	}
 	
 	/**
@@ -140,11 +147,12 @@ public final class L2EtcItem extends L2Item
 	}
 	
 	/**
-	 * @return the handler name, null if no handler for item.
+	 * @return the type of Etc Item.
 	 */
-	public String getHandlerName()
+	@Override
+	public EtcItemType getItemType()
 	{
-		return _handler;
+		return _type;
 	}
 	
 	/**
@@ -153,13 +161,5 @@ public final class L2EtcItem extends L2Item
 	public final boolean isBlessed()
 	{
 		return _isBlessed;
-	}
-	
-	/**
-	 * @return the extractable items list.
-	 */
-	public List<L2ExtractableProduct> getExtractableItems()
-	{
-		return _extractableItems;
 	}
 }

@@ -33,6 +33,12 @@ public final class RequestReplyStopPledgeWar extends L2GameClientPacket
 	private int _answer;
 	
 	@Override
+	public String getType()
+	{
+		return _C__06_REQUESTREPLYSTOPPLEDGEWAR;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		@SuppressWarnings("unused")
@@ -65,11 +71,5 @@ public final class RequestReplyStopPledgeWar extends L2GameClientPacket
 		
 		activeChar.setActiveRequester(null);
 		requestor.onTransactionResponse();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__06_REQUESTREPLYSTOPPLEDGEWAR;
 	}
 }

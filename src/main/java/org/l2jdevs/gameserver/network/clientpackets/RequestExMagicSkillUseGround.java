@@ -43,6 +43,12 @@ public final class RequestExMagicSkillUseGround extends L2GameClientPacket
 	private boolean _shiftPressed;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_44_REQUESTEXMAGICSKILLUSEGROUND;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_x = readD();
@@ -90,11 +96,5 @@ public final class RequestExMagicSkillUseGround extends L2GameClientPacket
 			activeChar.sendPacket(ActionFailed.STATIC_PACKET);
 			_log.warning("No skill found with id " + _skillId + " and level " + level + " !!");
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_44_REQUESTEXMAGICSKILLUSEGROUND;
 	}
 }

@@ -34,6 +34,12 @@ public class RequestDismissPartyRoom extends L2GameClientPacket
 	private int _data2;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_0A_REQUESTDISMISSPARTYROOM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_roomid = readD();
@@ -58,12 +64,6 @@ public class RequestDismissPartyRoom extends L2GameClientPacket
 		}
 		
 		PartyMatchRoomList.getInstance().deleteRoom(_roomid);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_0A_REQUESTDISMISSPARTYROOM;
 	}
 	
 }

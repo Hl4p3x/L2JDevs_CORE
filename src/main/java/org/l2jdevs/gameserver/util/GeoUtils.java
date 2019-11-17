@@ -30,6 +30,65 @@ import org.l2jdevs.geodriver.Cell;
  */
 public final class GeoUtils
 {
+	/**
+	 * difference between x values: never above 1<br>
+	 * difference between y values: never above 1
+	 * @param lastX
+	 * @param lastY
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public static int computeNswe(int lastX, int lastY, int x, int y)
+	{
+		if (x > lastX) // east
+		{
+			if (y > lastY)
+			{
+				return Cell.NSWE_SOUTH_EAST;// Direction.SOUTH_EAST;
+			}
+			else if (y < lastY)
+			{
+				return Cell.NSWE_NORTH_EAST;// Direction.NORTH_EAST;
+			}
+			else
+			{
+				return Cell.NSWE_EAST;// Direction.EAST;
+			}
+		}
+		else if (x < lastX) // west
+		{
+			if (y > lastY)
+			{
+				return Cell.NSWE_SOUTH_WEST;// Direction.SOUTH_WEST;
+			}
+			else if (y < lastY)
+			{
+				return Cell.NSWE_NORTH_WEST;// Direction.NORTH_WEST;
+			}
+			else
+			{
+				return Cell.NSWE_WEST;// Direction.WEST;
+			}
+		}
+		else
+		// unchanged x
+		{
+			if (y > lastY)
+			{
+				return Cell.NSWE_SOUTH;// Direction.SOUTH;
+			}
+			else if (y < lastY)
+			{
+				return Cell.NSWE_NORTH;// Direction.NORTH;
+			}
+			else
+			{
+				throw new RuntimeException();
+			}
+		}
+	}
+	
 	public static void debug2DLine(L2PcInstance player, int x, int y, int tx, int ty, int z)
 	{
 		int gx = GeoData.getInstance().getGeoX(x);
@@ -91,15 +150,6 @@ public final class GeoUtils
 			}
 		}
 		player.sendPacket(prim);
-	}
-	
-	private static Color getDirectionColor(int x, int y, int z, int nswe)
-	{
-		if (GeoData.getInstance().checkNearestNswe(x, y, z, nswe))
-		{
-			return Color.GREEN;
-		}
-		return Color.RED;
 	}
 	
 	public static void debugGrid(L2PcInstance player)
@@ -179,62 +229,12 @@ public final class GeoUtils
 		player.sendPacket(exsp);
 	}
 	
-	/**
-	 * difference between x values: never above 1<br>
-	 * difference between y values: never above 1
-	 * @param lastX
-	 * @param lastY
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	public static int computeNswe(int lastX, int lastY, int x, int y)
+	private static Color getDirectionColor(int x, int y, int z, int nswe)
 	{
-		if (x > lastX) // east
+		if (GeoData.getInstance().checkNearestNswe(x, y, z, nswe))
 		{
-			if (y > lastY)
-			{
-				return Cell.NSWE_SOUTH_EAST;// Direction.SOUTH_EAST;
-			}
-			else if (y < lastY)
-			{
-				return Cell.NSWE_NORTH_EAST;// Direction.NORTH_EAST;
-			}
-			else
-			{
-				return Cell.NSWE_EAST;// Direction.EAST;
-			}
+			return Color.GREEN;
 		}
-		else if (x < lastX) // west
-		{
-			if (y > lastY)
-			{
-				return Cell.NSWE_SOUTH_WEST;// Direction.SOUTH_WEST;
-			}
-			else if (y < lastY)
-			{
-				return Cell.NSWE_NORTH_WEST;// Direction.NORTH_WEST;
-			}
-			else
-			{
-				return Cell.NSWE_WEST;// Direction.WEST;
-			}
-		}
-		else
-		// unchanged x
-		{
-			if (y > lastY)
-			{
-				return Cell.NSWE_SOUTH;// Direction.SOUTH;
-			}
-			else if (y < lastY)
-			{
-				return Cell.NSWE_NORTH;// Direction.NORTH;
-			}
-			else
-			{
-				throw new RuntimeException();
-			}
-		}
+		return Color.RED;
 	}
 }

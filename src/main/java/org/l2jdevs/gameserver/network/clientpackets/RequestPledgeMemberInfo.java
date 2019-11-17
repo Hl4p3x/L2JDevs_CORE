@@ -35,6 +35,12 @@ public final class RequestPledgeMemberInfo extends L2GameClientPacket
 	private String _player;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_16_REQUESTPLEDGEMEMBERINFO;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_unk1 = readD();
@@ -63,11 +69,5 @@ public final class RequestPledgeMemberInfo extends L2GameClientPacket
 			return;
 		}
 		activeChar.sendPacket(new PledgeReceiveMemberInfo(member));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_16_REQUESTPLEDGEMEMBERINFO;
 	}
 }

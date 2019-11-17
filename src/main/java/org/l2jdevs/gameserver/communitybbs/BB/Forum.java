@@ -92,6 +92,115 @@ public final class Forum
 		_loaded = true;
 	}
 	
+	public void addTopic(Topic t)
+	{
+		vload();
+		_topic.put(t.getID(), t);
+	}
+	
+	/**
+	 * @param name the forum name
+	 * @return the forum for the given name
+	 */
+	public Forum getChildByName(String name)
+	{
+		vload();
+		return _children.stream().filter(f -> f.getName().equals(name)).findFirst().orElse(null);
+	}
+	
+	/**
+	 * @return the forum Id
+	 */
+	public int getID()
+	{
+		return _forumId;
+	}
+	
+	public String getName()
+	{
+		vload();
+		return _forumName;
+	}
+	
+	public Topic getTopic(int j)
+	{
+		vload();
+		return _topic.get(j);
+	}
+	
+	public int getTopicSize()
+	{
+		vload();
+		return _topic.size();
+	}
+	
+	public int getType()
+	{
+		vload();
+		return _forumType;
+	}
+	
+	public void insertIntoDb()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("INSERT INTO forums (forum_id,forum_name,forum_parent,forum_post,forum_type,forum_perm,forum_owner_id) VALUES (?,?,?,?,?,?,?)"))
+		{
+			ps.setInt(1, _forumId);
+			ps.setString(2, _forumName);
+			ps.setInt(3, _fParent.getID());
+			ps.setInt(4, _forumPost);
+			ps.setInt(5, _forumType);
+			ps.setInt(6, _forumPerm);
+			ps.setInt(7, _ownerID);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.error("Could not save forum ID {} in database!", _forumId, e);
+		}
+	}
+	
+	/**
+	 * @param id
+	 */
+	public void rmTopicByID(int id)
+	{
+		_topic.remove(id);
+		
+	}
+	
+	public void vload()
+	{
+		if (!_loaded)
+		{
+			load();
+			getChildren();
+			_loaded = true;
+		}
+	}
+	
+	private void getChildren()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT forum_id FROM forums WHERE forum_parent=?"))
+		{
+			ps.setInt(1, _forumId);
+			try (ResultSet rs = ps.executeQuery())
+			{
+				while (rs.next())
+				{
+					final Forum f = new Forum(rs.getInt("forum_id"), this);
+					_children.add(f);
+					ForumsBBSManager.getInstance().addForum(f);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			LOG.warn("Could not get from database child forums for forum ID {}", _forumId, e);
+		}
+	}
+	
 	private void load()
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -135,115 +244,6 @@ public final class Forum
 		catch (Exception e)
 		{
 			LOG.warn("Could not get from database topics for forum ID {}", _forumId, e);
-		}
-	}
-	
-	private void getChildren()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT forum_id FROM forums WHERE forum_parent=?"))
-		{
-			ps.setInt(1, _forumId);
-			try (ResultSet rs = ps.executeQuery())
-			{
-				while (rs.next())
-				{
-					final Forum f = new Forum(rs.getInt("forum_id"), this);
-					_children.add(f);
-					ForumsBBSManager.getInstance().addForum(f);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			LOG.warn("Could not get from database child forums for forum ID {}", _forumId, e);
-		}
-	}
-	
-	public int getTopicSize()
-	{
-		vload();
-		return _topic.size();
-	}
-	
-	public Topic getTopic(int j)
-	{
-		vload();
-		return _topic.get(j);
-	}
-	
-	public void addTopic(Topic t)
-	{
-		vload();
-		_topic.put(t.getID(), t);
-	}
-	
-	/**
-	 * @return the forum Id
-	 */
-	public int getID()
-	{
-		return _forumId;
-	}
-	
-	public String getName()
-	{
-		vload();
-		return _forumName;
-	}
-	
-	public int getType()
-	{
-		vload();
-		return _forumType;
-	}
-	
-	/**
-	 * @param name the forum name
-	 * @return the forum for the given name
-	 */
-	public Forum getChildByName(String name)
-	{
-		vload();
-		return _children.stream().filter(f -> f.getName().equals(name)).findFirst().orElse(null);
-	}
-	
-	/**
-	 * @param id
-	 */
-	public void rmTopicByID(int id)
-	{
-		_topic.remove(id);
-		
-	}
-	
-	public void insertIntoDb()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("INSERT INTO forums (forum_id,forum_name,forum_parent,forum_post,forum_type,forum_perm,forum_owner_id) VALUES (?,?,?,?,?,?,?)"))
-		{
-			ps.setInt(1, _forumId);
-			ps.setString(2, _forumName);
-			ps.setInt(3, _fParent.getID());
-			ps.setInt(4, _forumPost);
-			ps.setInt(5, _forumType);
-			ps.setInt(6, _forumPerm);
-			ps.setInt(7, _ownerID);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.error("Could not save forum ID {} in database!", _forumId, e);
-		}
-	}
-	
-	public void vload()
-	{
-		if (!_loaded)
-		{
-			load();
-			getChildren();
-			_loaded = true;
 		}
 	}
 }

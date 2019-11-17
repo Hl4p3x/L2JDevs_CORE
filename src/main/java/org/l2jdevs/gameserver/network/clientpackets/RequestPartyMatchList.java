@@ -41,6 +41,12 @@ public class RequestPartyMatchList extends L2GameClientPacket
 	private String _roomtitle;
 	
 	@Override
+	public String getType()
+	{
+		return _C__80_REQUESTPARTYMATCHLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_roomid = readD();
@@ -125,11 +131,5 @@ public class RequestPartyMatchList extends L2GameClientPacket
 			// _activeChar.setPartyMatching(1);
 			_activeChar.broadcastUserInfo();
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__80_REQUESTPARTYMATCHLIST;
 	}
 }

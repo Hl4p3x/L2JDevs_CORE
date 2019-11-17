@@ -35,14 +35,14 @@ public class GeoNode extends AbstractNode<GeoNodeLoc>
 		_neighborsIdx = Neighbors_idx;
 	}
 	
+	public void attachNeighbors(GeoNode[] neighbors)
+	{
+		_neighbors = neighbors;
+	}
+	
 	public short getCost()
 	{
 		return _cost;
-	}
-	
-	public void setCost(int cost)
-	{
-		_cost = (short) cost;
 	}
 	
 	public GeoNode[] getNeighbors()
@@ -50,13 +50,13 @@ public class GeoNode extends AbstractNode<GeoNodeLoc>
 		return _neighbors;
 	}
 	
-	public void attachNeighbors(GeoNode[] neighbors)
-	{
-		_neighbors = neighbors;
-	}
-	
 	public int getNeighborsIdx()
 	{
 		return _neighborsIdx;
+	}
+	
+	public void setCost(int cost)
+	{
+		_cost = (short) cost;
 	}
 }

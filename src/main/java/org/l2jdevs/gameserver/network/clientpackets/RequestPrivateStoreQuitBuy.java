@@ -30,6 +30,12 @@ public class RequestPrivateStoreQuitBuy extends L2GameClientPacket
 	private static final String _C__9C_REQUESTPRIVATESTOREQUITBUY = "[C] 9C RequestPrivateStoreQuitBuy";
 	
 	@Override
+	public String getType()
+	{
+		return _C__9C_REQUESTPRIVATESTOREQUITBUY;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -47,12 +53,6 @@ public class RequestPrivateStoreQuitBuy extends L2GameClientPacket
 		player.setPrivateStoreType(PrivateStoreType.NONE);
 		player.standUp();
 		player.broadcastUserInfo();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__9C_REQUESTPRIVATESTOREQUITBUY;
 	}
 	
 	@Override

@@ -33,6 +33,12 @@ public final class RequestOustPartyMember extends L2GameClientPacket
 	private String _name;
 	
 	@Override
+	public String getType()
+	{
+		return _C__45_REQUESTOUSTPARTYMEMBER;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -58,11 +64,5 @@ public final class RequestOustPartyMember extends L2GameClientPacket
 				activeChar.getParty().removePartyMember(_name, messageType.Expelled);
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__45_REQUESTOUSTPARTYMEMBER;
 	}
 }

@@ -58,6 +58,71 @@ public class L2ControllableAirShipInstance extends L2AirShipInstance
 	}
 	
 	@Override
+	public boolean canBeControlled()
+	{
+		return super.canBeControlled() && !isInDock();
+	}
+	
+	@Override
+	public boolean deleteMe()
+	{
+		if (!super.deleteMe())
+		{
+			return false;
+		}
+		
+		if (_checkTask != null)
+		{
+			_checkTask.cancel(false);
+			_checkTask = null;
+		}
+		if (_consumeFuelTask != null)
+		{
+			_consumeFuelTask.cancel(false);
+			_consumeFuelTask = null;
+		}
+		
+		broadcastPacket(new DeleteObject(_helmId));
+		return true;
+	}
+	
+	@Override
+	public int getCaptainId()
+	{
+		return _captain != null ? _captain.getObjectId() : 0;
+	}
+	
+	@Override
+	public int getFuel()
+	{
+		return _fuel;
+	}
+	
+	@Override
+	public int getHelmItemId()
+	{
+		return HELM;
+	}
+	
+	@Override
+	public int getHelmObjectId()
+	{
+		return _helmId;
+	}
+	
+	@Override
+	public int getMaxFuel()
+	{
+		return _maxFuel;
+	}
+	
+	@Override
+	public int getOwnerId()
+	{
+		return _ownerId;
+	}
+	
+	@Override
 	public ControllableAirShipStat getStat()
 	{
 		return (ControllableAirShipStat) super.getStat();
@@ -70,9 +135,9 @@ public class L2ControllableAirShipInstance extends L2AirShipInstance
 	}
 	
 	@Override
-	public boolean canBeControlled()
+	public boolean isCaptain(L2PcInstance player)
 	{
-		return super.canBeControlled() && !isInDock();
+		return (_captain != null) && (player == _captain);
 	}
 	
 	@Override
@@ -87,33 +152,40 @@ public class L2ControllableAirShipInstance extends L2AirShipInstance
 	}
 	
 	@Override
-	public int getOwnerId()
+	public void onSpawn()
 	{
-		return _ownerId;
+		super.onSpawn();
+		_checkTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new CheckTask(), 60000, 10000);
+		_consumeFuelTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new ConsumeFuelTask(), 60000, 60000);
 	}
 	
 	@Override
-	public boolean isCaptain(L2PcInstance player)
+	public void oustPlayer(L2PcInstance player)
 	{
-		return (_captain != null) && (player == _captain);
+		if (player == _captain)
+		{
+			setCaptain(null); // no need to broadcast userinfo here
+		}
+		
+		super.oustPlayer(player);
 	}
 	
 	@Override
-	public int getCaptainId()
+	public void refreshID()
 	{
-		return _captain != null ? _captain.getObjectId() : 0;
+		super.refreshID();
+		IdFactory.getInstance().releaseId(_helmId);
+		_helmId = IdFactory.getInstance().getNextId();
 	}
 	
 	@Override
-	public int getHelmObjectId()
+	public void sendInfo(L2PcInstance activeChar)
 	{
-		return _helmId;
-	}
-	
-	@Override
-	public int getHelmItemId()
-	{
-		return HELM;
+		super.sendInfo(activeChar);
+		if (_captain != null)
+		{
+			_captain.sendInfo(activeChar);
+		}
 	}
 	
 	@Override
@@ -199,12 +271,6 @@ public class L2ControllableAirShipInstance extends L2AirShipInstance
 	}
 	
 	@Override
-	public int getFuel()
-	{
-		return _fuel;
-	}
-	
-	@Override
 	public void setFuel(int f)
 	{
 		
@@ -233,74 +299,21 @@ public class L2ControllableAirShipInstance extends L2AirShipInstance
 	}
 	
 	@Override
-	public int getMaxFuel()
-	{
-		return _maxFuel;
-	}
-	
-	@Override
 	public void setMaxFuel(int mf)
 	{
 		_maxFuel = mf;
 	}
 	
-	@Override
-	public void oustPlayer(L2PcInstance player)
+	protected final class CheckTask implements Runnable
 	{
-		if (player == _captain)
+		@Override
+		public void run()
 		{
-			setCaptain(null); // no need to broadcast userinfo here
-		}
-		
-		super.oustPlayer(player);
-	}
-	
-	@Override
-	public void onSpawn()
-	{
-		super.onSpawn();
-		_checkTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new CheckTask(), 60000, 10000);
-		_consumeFuelTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new ConsumeFuelTask(), 60000, 60000);
-	}
-	
-	@Override
-	public boolean deleteMe()
-	{
-		if (!super.deleteMe())
-		{
-			return false;
-		}
-		
-		if (_checkTask != null)
-		{
-			_checkTask.cancel(false);
-			_checkTask = null;
-		}
-		if (_consumeFuelTask != null)
-		{
-			_consumeFuelTask.cancel(false);
-			_consumeFuelTask = null;
-		}
-		
-		broadcastPacket(new DeleteObject(_helmId));
-		return true;
-	}
-	
-	@Override
-	public void refreshID()
-	{
-		super.refreshID();
-		IdFactory.getInstance().releaseId(_helmId);
-		_helmId = IdFactory.getInstance().getNextId();
-	}
-	
-	@Override
-	public void sendInfo(L2PcInstance activeChar)
-	{
-		super.sendInfo(activeChar);
-		if (_captain != null)
-		{
-			_captain.sendInfo(activeChar);
+			if (isVisible() && isEmpty() && !isInDock())
+			{
+				// deleteMe() can't be called from CheckTask because task should not cancel itself
+				ThreadPoolManager.getInstance().executeGeneral(new DecayTask());
+			}
 		}
 	}
 	
@@ -320,19 +333,6 @@ public class L2ControllableAirShipInstance extends L2AirShipInstance
 				
 				setFuel(fuel);
 				updateAbnormalEffect();
-			}
-		}
-	}
-	
-	protected final class CheckTask implements Runnable
-	{
-		@Override
-		public void run()
-		{
-			if (isVisible() && isEmpty() && !isInDock())
-			{
-				// deleteMe() can't be called from CheckTask because task should not cancel itself
-				ThreadPoolManager.getInstance().executeGeneral(new DecayTask());
 			}
 		}
 	}

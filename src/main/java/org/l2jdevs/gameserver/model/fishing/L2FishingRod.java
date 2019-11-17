@@ -42,6 +42,14 @@ public class L2FishingRod
 	}
 	
 	/**
+	 * @return the fishing rod Damage.
+	 */
+	public double getFishingRodDamage()
+	{
+		return _fishingRodDamage;
+	}
+	
+	/**
 	 * @return the fishing rod Id.
 	 */
 	public int getFishingRodId()
@@ -58,14 +66,6 @@ public class L2FishingRod
 	}
 	
 	/**
-	 * @return the fishing rod Level.
-	 */
-	public int getFishingRodLevel()
-	{
-		return _fishingRodLevel;
-	}
-	
-	/**
 	 * @return the fishing rod Item Name.
 	 */
 	public String getFishingRodItemName()
@@ -74,10 +74,10 @@ public class L2FishingRod
 	}
 	
 	/**
-	 * @return the fishing rod Damage.
+	 * @return the fishing rod Level.
 	 */
-	public double getFishingRodDamage()
+	public int getFishingRodLevel()
 	{
-		return _fishingRodDamage;
+		return _fishingRodLevel;
 	}
 }

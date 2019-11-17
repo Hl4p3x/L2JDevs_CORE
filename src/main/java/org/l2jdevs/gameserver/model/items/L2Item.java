@@ -268,423 +268,16 @@ public abstract class L2Item extends ListenersContainer implements IIdentifiable
 			|| ((_itemId >= 16134) && (_itemId <= 16147)) || (_itemId == 16149) || (_itemId == 16151) || (_itemId == 16153) || (_itemId == 16155) || (_itemId == 16157) || (_itemId == 16159) || ((_itemId >= 16168) && (_itemId <= 16176)) || ((_itemId >= 16179) && (_itemId <= 16220));
 	}
 	
-	/**
-	 * Returns the itemType.
-	 * @return Enum
-	 */
-	public abstract ItemType getItemType();
-	
-	/**
-	 * Verifies if the item is a magic weapon.
-	 * @return {@code true} if the weapon is magic, {@code false} otherwise
-	 */
-	public boolean isMagicWeapon()
+	public final void attach(Condition c)
 	{
-		return false;
-	}
-	
-	/**
-	 * @return the _equipReuseDelay
-	 */
-	public int getEquipReuseDelay()
-	{
-		return _equipReuseDelay;
-	}
-	
-	/**
-	 * Returns the duration of the item
-	 * @return int
-	 */
-	public final int getDuration()
-	{
-		return _duration;
-	}
-	
-	/**
-	 * Returns the time of the item
-	 * @return int
-	 */
-	public final int getTime()
-	{
-		return _time;
-	}
-	
-	/**
-	 * @return the auto destroy time of the item in seconds: 0 or less - default
-	 */
-	public final int getAutoDestroyTime()
-	{
-		return _autoDestroyTime;
-	}
-	
-	/**
-	 * Returns the ID of the item
-	 * @return int
-	 */
-	@Override
-	public final int getId()
-	{
-		return _itemId;
-	}
-	
-	/**
-	 * Returns the ID of the item
-	 * @return int
-	 */
-	public final int getDisplayId()
-	{
-		return _displayId;
-	}
-	
-	public abstract int getItemMask();
-	
-	/**
-	 * Return the type of material of the item
-	 * @return MaterialType
-	 */
-	public final MaterialType getMaterialType()
-	{
-		return _materialType;
-	}
-	
-	/**
-	 * Returns the type 2 of the item
-	 * @return ItemType2
-	 */
-	public final ItemType2 getType2()
-	{
-		return _type2;
-	}
-	
-	/**
-	 * Returns the weight of the item
-	 * @return int
-	 */
-	public final int getWeight()
-	{
-		return _weight;
-	}
-	
-	/**
-	 * Returns if the item is crystallizable
-	 * @return boolean
-	 */
-	public final boolean isCrystallizable()
-	{
-		return (_crystalType != CrystalType.NONE) && (_crystalCount > 0);
-	}
-	
-	/**
-	 * Return the type of crystal if item is crystallizable
-	 * @return CrystalType
-	 */
-	public final CrystalType getCrystalType()
-	{
-		return _crystalType;
-	}
-	
-	/**
-	 * Return the ID of crystal if item is crystallizable
-	 * @return int
-	 */
-	public final int getCrystalItemId()
-	{
-		return _crystalType.getCrystalId();
-	}
-	
-	/**
-	 * Returns the grade of the item.<BR>
-	 * <BR>
-	 * <U><I>Concept :</I></U><BR>
-	 * In fact, this function returns the type of crystal of the item.
-	 * @return CrystalType
-	 */
-	public final CrystalType getItemGrade()
-	{
-		return getCrystalType();
-	}
-	
-	/**
-	 * For grades S80 and S84 return S
-	 * @return the grade of the item.
-	 */
-	public final CrystalType getItemGradeSPlus()
-	{
-		switch (getItemGrade())
+		if (_preConditions == null)
 		{
-			case S80:
-			case S84:
-				return CrystalType.S;
-			default:
-				return getItemGrade();
+			_preConditions = new ArrayList<>(1);
 		}
-	}
-	
-	/**
-	 * @return the quantity of crystals for crystallization.
-	 */
-	public final int getCrystalCount()
-	{
-		return _crystalCount;
-	}
-	
-	/**
-	 * @param enchantLevel
-	 * @return the quantity of crystals for crystallization on specific enchant level
-	 */
-	public final int getCrystalCount(int enchantLevel)
-	{
-		if (enchantLevel > 3)
+		if (!_preConditions.contains(c))
 		{
-			switch (_type2)
-			{
-				case SHIELD_ARMOR:
-				case ACCESSORY:
-					return _crystalCount + (getCrystalType().getCrystalEnchantBonusArmor() * ((3 * enchantLevel) - 6));
-				case WEAPON:
-					return _crystalCount + (getCrystalType().getCrystalEnchantBonusWeapon() * ((2 * enchantLevel) - 3));
-				default:
-					return _crystalCount;
-			}
+			_preConditions.add(c);
 		}
-		else if (enchantLevel > 0)
-		{
-			switch (_type2)
-			{
-				case SHIELD_ARMOR:
-				case ACCESSORY:
-					return _crystalCount + (getCrystalType().getCrystalEnchantBonusArmor() * enchantLevel);
-				case WEAPON:
-					return _crystalCount + (getCrystalType().getCrystalEnchantBonusWeapon() * enchantLevel);
-				default:
-					return _crystalCount;
-			}
-		}
-		else
-		{
-			return _crystalCount;
-		}
-	}
-	
-	/**
-	 * @return the name of the item.
-	 */
-	public final String getName()
-	{
-		return _name;
-	}
-	
-	/**
-	 * @return the base elemental of the item.
-	 */
-	public final Elementals[] getElementals()
-	{
-		return _elementals;
-	}
-	
-	public Elementals getElemental(byte attribute)
-	{
-		for (Elementals elm : _elementals)
-		{
-			if (elm.getElement() == attribute)
-			{
-				return elm;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * Sets the base elemental of the item.
-	 * @param element the element to set.
-	 */
-	public void setElementals(Elementals element)
-	{
-		if (_elementals == null)
-		{
-			_elementals = new Elementals[1];
-			_elementals[0] = element;
-		}
-		else
-		{
-			Elementals elm = getElemental(element.getElement());
-			if (elm != null)
-			{
-				elm.setValue(element.getValue());
-			}
-			else
-			{
-				elm = element;
-				Elementals[] array = new Elementals[_elementals.length + 1];
-				System.arraycopy(_elementals, 0, array, 0, _elementals.length);
-				array[_elementals.length] = elm;
-				_elementals = array;
-			}
-		}
-	}
-	
-	/**
-	 * @return the part of the body used with the item.
-	 */
-	public final int getBodyPart()
-	{
-		return _bodyPart;
-	}
-	
-	/**
-	 * @return the type 1 of the item.
-	 */
-	public final ItemType1 getType1()
-	{
-		return _type1;
-	}
-	
-	/**
-	 * @return {@code true} if the item is stackable, {@code false} otherwise.
-	 */
-	public final boolean isStackable()
-	{
-		return _stackable;
-	}
-	
-	/**
-	 * @return {@code true} if the item can be equipped, {@code false} otherwise.
-	 */
-	public boolean isEquipable()
-	{
-		return (getBodyPart() != 0) && !(getItemType() instanceof EtcItemType);
-	}
-	
-	/**
-	 * @return the price of reference of the item.
-	 */
-	public final int getReferencePrice()
-	{
-		return _referencePrice;
-	}
-	
-	/**
-	 * @return {@code true} if the item can be sold, {@code false} otherwise.
-	 */
-	public final boolean isSellable()
-	{
-		return _sellable;
-	}
-	
-	/**
-	 * @return {@code true} if the item can be dropped, {@code false} otherwise.
-	 */
-	public final boolean isDropable()
-	{
-		return _dropable;
-	}
-	
-	/**
-	 * @return {@code true} if the item can be destroyed, {@code false} otherwise.
-	 */
-	public final boolean isDestroyable()
-	{
-		return _destroyable;
-	}
-	
-	/**
-	 * @return {@code true} if the item can be traded, {@code false} otherwise.
-	 */
-	public final boolean isTradeable()
-	{
-		return _tradeable;
-	}
-	
-	/**
-	 * @return {@code true} if the item can be put into warehouse, {@code false} otherwise.
-	 */
-	public final boolean isDepositable()
-	{
-		return _depositable;
-	}
-	
-	/**
-	 * This method also check the enchant blacklist.
-	 * @return {@code true} if the item can be enchanted, {@code false} otherwise.
-	 */
-	public final int isEnchantable()
-	{
-		return Arrays.binarySearch(Config.ENCHANT_BLACKLIST, getId()) < 0 ? _enchantable : 0;
-	}
-	
-	/**
-	 * @return {@code true} if the item can be elemented, {@code false} otherwise.
-	 */
-	public final boolean isElementable()
-	{
-		return _elementable;
-	}
-	
-	/**
-	 * Returns if item is common
-	 * @return boolean
-	 */
-	public final boolean isCommon()
-	{
-		return _common;
-	}
-	
-	/**
-	 * Returns if item is hero-only
-	 * @return
-	 */
-	public final boolean isHeroItem()
-	{
-		return _heroItem;
-	}
-	
-	/**
-	 * Returns if item is pvp
-	 * @return
-	 */
-	public final boolean isPvpItem()
-	{
-		return _pvpItem;
-	}
-	
-	public boolean isPotion()
-	{
-		return (getItemType() == EtcItemType.POTION);
-	}
-	
-	public boolean isElixir()
-	{
-		return (getItemType() == EtcItemType.ELIXIR);
-	}
-	
-	public boolean isScroll()
-	{
-		return (getItemType() == EtcItemType.SCROLL);
-	}
-	
-	/**
-	 * Get the functions used by this item.
-	 * @param item : L2ItemInstance pointing out the item
-	 * @param player : L2Character pointing out the player
-	 * @return the list of functions
-	 */
-	public final List<AbstractFunction> getStatFuncs(L2ItemInstance item, L2Character player)
-	{
-		if ((_funcTemplates == null) || _funcTemplates.isEmpty())
-		{
-			return Collections.<AbstractFunction> emptyList();
-		}
-		
-		final List<AbstractFunction> funcs = new ArrayList<>(_funcTemplates.size());
-		for (FuncTemplate t : _funcTemplates)
-		{
-			AbstractFunction f = t.getFunc(player, player, item, item);
-			if (f != null)
-			{
-				funcs.add(f);
-			}
-		}
-		return funcs;
 	}
 	
 	/**
@@ -726,40 +319,6 @@ public abstract class L2Item extends ListenersContainer implements IIdentifiable
 			_funcTemplates = new ArrayList<>(1);
 		}
 		_funcTemplates.add(f);
-	}
-	
-	public final void attach(Condition c)
-	{
-		if (_preConditions == null)
-		{
-			_preConditions = new ArrayList<>(1);
-		}
-		if (!_preConditions.contains(c))
-		{
-			_preConditions.add(c);
-		}
-	}
-	
-	public boolean hasSkills()
-	{
-		return _skillHolder != null;
-	}
-	
-	/**
-	 * Method to retrieve skills linked to this item armor and weapon: passive skills etcitem: skills used on item use <-- ???
-	 * @return Skills linked to this item as SkillHolder[]
-	 */
-	public final SkillHolder[] getSkills()
-	{
-		return _skillHolder;
-	}
-	
-	/**
-	 * @return skill that activates, when player unequip this weapon or armor
-	 */
-	public final Skill getUnequipSkill()
-	{
-		return _unequipSkill == null ? null : _unequipSkill.getSkill();
 	}
 	
 	public boolean checkCondition(L2Character activeChar, L2Object object, boolean sendMessage)
@@ -828,63 +387,84 @@ public abstract class L2Item extends ListenersContainer implements IIdentifiable
 		return true;
 	}
 	
-	public boolean isConditionAttached()
+	/**
+	 * @return the auto destroy time of the item in seconds: 0 or less - default
+	 */
+	public final int getAutoDestroyTime()
 	{
-		return (_preConditions != null) && !_preConditions.isEmpty();
-	}
-	
-	public boolean isQuestItem()
-	{
-		return _questItem;
-	}
-	
-	public boolean isFreightable()
-	{
-		return _freightable;
-	}
-	
-	public boolean isAllowSelfResurrection()
-	{
-		return _allow_self_resurrection;
-	}
-	
-	public boolean isOlyRestrictedItem()
-	{
-		return _is_oly_restricted || Config.LIST_OLY_RESTRICTED_ITEMS.contains(_itemId);
-	}
-	
-	public boolean isForNpc()
-	{
-		return _for_npc;
+		return _autoDestroyTime;
 	}
 	
 	/**
-	 * Returns the name of the item followed by the item ID.
-	 * @return the name and the ID of the item
+	 * @return the part of the body used with the item.
 	 */
-	@Override
-	public String toString()
+	public final int getBodyPart()
 	{
-		return _name + "(" + _itemId + ")";
+		return _bodyPart;
 	}
 	
 	/**
-	 * Verifies if the item has effects immediately.<br>
-	 * <i>Used for herbs mostly.</i>
-	 * @return {@code true} if the item applies effects immediately, {@code false} otherwise
+	 * @return the quantity of crystals for crystallization.
 	 */
-	public boolean hasExImmediateEffect()
+	public final int getCrystalCount()
 	{
-		return _ex_immediate_effect;
+		return _crystalCount;
 	}
 	
 	/**
-	 * Verifies if the item has effects immediately.
-	 * @return {@code true} if the item applies effects immediately, {@code false} otherwise
+	 * @param enchantLevel
+	 * @return the quantity of crystals for crystallization on specific enchant level
 	 */
-	public boolean hasImmediateEffect()
+	public final int getCrystalCount(int enchantLevel)
 	{
-		return _immediate_effect;
+		if (enchantLevel > 3)
+		{
+			switch (_type2)
+			{
+				case SHIELD_ARMOR:
+				case ACCESSORY:
+					return _crystalCount + (getCrystalType().getCrystalEnchantBonusArmor() * ((3 * enchantLevel) - 6));
+				case WEAPON:
+					return _crystalCount + (getCrystalType().getCrystalEnchantBonusWeapon() * ((2 * enchantLevel) - 3));
+				default:
+					return _crystalCount;
+			}
+		}
+		else if (enchantLevel > 0)
+		{
+			switch (_type2)
+			{
+				case SHIELD_ARMOR:
+				case ACCESSORY:
+					return _crystalCount + (getCrystalType().getCrystalEnchantBonusArmor() * enchantLevel);
+				case WEAPON:
+					return _crystalCount + (getCrystalType().getCrystalEnchantBonusWeapon() * enchantLevel);
+				default:
+					return _crystalCount;
+			}
+		}
+		else
+		{
+			return _crystalCount;
+		}
+	}
+	
+	/**
+	 * Return the ID of crystal if item is crystallizable
+	 * @return int
+	 */
+	public final int getCrystalItemId()
+	{
+		return _crystalType.getCrystalId();
+	}
+	
+	/**
+	 * Return the type of crystal if item is crystallizable
+	 * @return CrystalType
+	 */
+	public final CrystalType getCrystalType()
+	{
+		return _crystalType;
 	}
 	
 	/**
@@ -895,9 +475,140 @@ public abstract class L2Item extends ListenersContainer implements IIdentifiable
 		return _defaultAction;
 	}
 	
-	public int useSkillDisTime()
+	public int getDefaultEnchantLevel()
 	{
-		return _useSkillDisTime;
+		return _defaultEnchantLevel;
+	}
+	
+	/**
+	 * Returns the ID of the item
+	 * @return int
+	 */
+	public final int getDisplayId()
+	{
+		return _displayId;
+	}
+	
+	/**
+	 * Returns the duration of the item
+	 * @return int
+	 */
+	public final int getDuration()
+	{
+		return _duration;
+	}
+	
+	public Elementals getElemental(byte attribute)
+	{
+		for (Elementals elm : _elementals)
+		{
+			if (elm.getElement() == attribute)
+			{
+				return elm;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * @return the base elemental of the item.
+	 */
+	public final Elementals[] getElementals()
+	{
+		return _elementals;
+	}
+	
+	public Skill getEnchant4Skill()
+	{
+		return null;
+	}
+	
+	/**
+	 * @return the _equipReuseDelay
+	 */
+	public int getEquipReuseDelay()
+	{
+		return _equipReuseDelay;
+	}
+	
+	/**
+	 * Usable in HTML windows.
+	 * @return the icon link in client files
+	 */
+	public String getIcon()
+	{
+		return _icon;
+	}
+	
+	/**
+	 * Returns the ID of the item
+	 * @return int
+	 */
+	@Override
+	public final int getId()
+	{
+		return _itemId;
+	}
+	
+	/**
+	 * Returns the grade of the item.<BR>
+	 * <BR>
+	 * <U><I>Concept :</I></U><BR>
+	 * In fact, this function returns the type of crystal of the item.
+	 * @return CrystalType
+	 */
+	public final CrystalType getItemGrade()
+	{
+		return getCrystalType();
+	}
+	
+	/**
+	 * For grades S80 and S84 return S
+	 * @return the grade of the item.
+	 */
+	public final CrystalType getItemGradeSPlus()
+	{
+		switch (getItemGrade())
+		{
+			case S80:
+			case S84:
+				return CrystalType.S;
+			default:
+				return getItemGrade();
+		}
+	}
+	
+	public abstract int getItemMask();
+	
+	/**
+	 * Returns the itemType.
+	 * @return Enum
+	 */
+	public abstract ItemType getItemType();
+	
+	/**
+	 * Return the type of material of the item
+	 * @return MaterialType
+	 */
+	public final MaterialType getMaterialType()
+	{
+		return _materialType;
+	}
+	
+	/**
+	 * @return the name of the item.
+	 */
+	public final String getName()
+	{
+		return _name;
+	}
+	
+	/**
+	 * @return the price of reference of the item.
+	 */
+	public final int getReferencePrice()
+	{
+		return _referencePrice;
 	}
 	
 	/**
@@ -920,17 +631,219 @@ public abstract class L2Item extends ListenersContainer implements IIdentifiable
 	}
 	
 	/**
-	 * Usable in HTML windows.
-	 * @return the icon link in client files
+	 * Method to retrieve skills linked to this item armor and weapon: passive skills etcitem: skills used on item use <-- ???
+	 * @return Skills linked to this item as SkillHolder[]
 	 */
-	public String getIcon()
+	public final SkillHolder[] getSkills()
 	{
-		return _icon;
+		return _skillHolder;
 	}
 	
-	public int getDefaultEnchantLevel()
+	/**
+	 * Get the functions used by this item.
+	 * @param item : L2ItemInstance pointing out the item
+	 * @param player : L2Character pointing out the player
+	 * @return the list of functions
+	 */
+	public final List<AbstractFunction> getStatFuncs(L2ItemInstance item, L2Character player)
 	{
-		return _defaultEnchantLevel;
+		if ((_funcTemplates == null) || _funcTemplates.isEmpty())
+		{
+			return Collections.<AbstractFunction> emptyList();
+		}
+		
+		final List<AbstractFunction> funcs = new ArrayList<>(_funcTemplates.size());
+		for (FuncTemplate t : _funcTemplates)
+		{
+			AbstractFunction f = t.getFunc(player, player, item, item);
+			if (f != null)
+			{
+				funcs.add(f);
+			}
+		}
+		return funcs;
+	}
+	
+	/**
+	 * Returns the time of the item
+	 * @return int
+	 */
+	public final int getTime()
+	{
+		return _time;
+	}
+	
+	/**
+	 * @return the type 1 of the item.
+	 */
+	public final ItemType1 getType1()
+	{
+		return _type1;
+	}
+	
+	/**
+	 * Returns the type 2 of the item
+	 * @return ItemType2
+	 */
+	public final ItemType2 getType2()
+	{
+		return _type2;
+	}
+	
+	/**
+	 * @return skill that activates, when player unequip this weapon or armor
+	 */
+	public final Skill getUnequipSkill()
+	{
+		return _unequipSkill == null ? null : _unequipSkill.getSkill();
+	}
+	
+	/**
+	 * Returns the weight of the item
+	 * @return int
+	 */
+	public final int getWeight()
+	{
+		return _weight;
+	}
+	
+	/**
+	 * Verifies if the item has effects immediately.<br>
+	 * <i>Used for herbs mostly.</i>
+	 * @return {@code true} if the item applies effects immediately, {@code false} otherwise
+	 */
+	public boolean hasExImmediateEffect()
+	{
+		return _ex_immediate_effect;
+	}
+	
+	/**
+	 * Verifies if the item has effects immediately.
+	 * @return {@code true} if the item applies effects immediately, {@code false} otherwise
+	 */
+	public boolean hasImmediateEffect()
+	{
+		return _immediate_effect;
+	}
+	
+	public boolean hasSkills()
+	{
+		return _skillHolder != null;
+	}
+	
+	public boolean isAllowSelfResurrection()
+	{
+		return _allow_self_resurrection;
+	}
+	
+	/**
+	 * Returns if item is common
+	 * @return boolean
+	 */
+	public final boolean isCommon()
+	{
+		return _common;
+	}
+	
+	public boolean isConditionAttached()
+	{
+		return (_preConditions != null) && !_preConditions.isEmpty();
+	}
+	
+	/**
+	 * Returns if the item is crystallizable
+	 * @return boolean
+	 */
+	public final boolean isCrystallizable()
+	{
+		return (_crystalType != CrystalType.NONE) && (_crystalCount > 0);
+	}
+	
+	/**
+	 * @return {@code true} if the item can be put into warehouse, {@code false} otherwise.
+	 */
+	public final boolean isDepositable()
+	{
+		return _depositable;
+	}
+	
+	/**
+	 * @return {@code true} if the item can be destroyed, {@code false} otherwise.
+	 */
+	public final boolean isDestroyable()
+	{
+		return _destroyable;
+	}
+	
+	/**
+	 * @return {@code true} if the item can be dropped, {@code false} otherwise.
+	 */
+	public final boolean isDropable()
+	{
+		return _dropable;
+	}
+	
+	/**
+	 * @return {@code true} if the item can be elemented, {@code false} otherwise.
+	 */
+	public final boolean isElementable()
+	{
+		return _elementable;
+	}
+	
+	public boolean isElixir()
+	{
+		return (getItemType() == EtcItemType.ELIXIR);
+	}
+	
+	/**
+	 * This method also check the enchant blacklist.
+	 * @return {@code true} if the item can be enchanted, {@code false} otherwise.
+	 */
+	public final int isEnchantable()
+	{
+		return Arrays.binarySearch(Config.ENCHANT_BLACKLIST, getId()) < 0 ? _enchantable : 0;
+	}
+	
+	/**
+	 * @return {@code true} if the item can be equipped, {@code false} otherwise.
+	 */
+	public boolean isEquipable()
+	{
+		return (getBodyPart() != 0) && !(getItemType() instanceof EtcItemType);
+	}
+	
+	public boolean isForNpc()
+	{
+		return _for_npc;
+	}
+	
+	public boolean isFreightable()
+	{
+		return _freightable;
+	}
+	
+	/**
+	 * Returns if item is hero-only
+	 * @return
+	 */
+	public final boolean isHeroItem()
+	{
+		return _heroItem;
+	}
+	
+	/**
+	 * Verifies if the item is a magic weapon.
+	 * @return {@code true} if the weapon is magic, {@code false} otherwise
+	 */
+	public boolean isMagicWeapon()
+	{
+		return false;
+	}
+	
+	public boolean isOlyRestrictedItem()
+	{
+		return _is_oly_restricted || Config.LIST_OLY_RESTRICTED_ITEMS.contains(_itemId);
 	}
 	
 	public boolean isPetItem()
@@ -938,8 +851,95 @@ public abstract class L2Item extends ListenersContainer implements IIdentifiable
 		return getItemType() == EtcItemType.PET_COLLAR;
 	}
 	
-	public Skill getEnchant4Skill()
+	public boolean isPotion()
 	{
-		return null;
+		return (getItemType() == EtcItemType.POTION);
+	}
+	
+	/**
+	 * Returns if item is pvp
+	 * @return
+	 */
+	public final boolean isPvpItem()
+	{
+		return _pvpItem;
+	}
+	
+	public boolean isQuestItem()
+	{
+		return _questItem;
+	}
+	
+	public boolean isScroll()
+	{
+		return (getItemType() == EtcItemType.SCROLL);
+	}
+	
+	/**
+	 * @return {@code true} if the item can be sold, {@code false} otherwise.
+	 */
+	public final boolean isSellable()
+	{
+		return _sellable;
+	}
+	
+	/**
+	 * @return {@code true} if the item is stackable, {@code false} otherwise.
+	 */
+	public final boolean isStackable()
+	{
+		return _stackable;
+	}
+	
+	/**
+	 * @return {@code true} if the item can be traded, {@code false} otherwise.
+	 */
+	public final boolean isTradeable()
+	{
+		return _tradeable;
+	}
+	
+	/**
+	 * Sets the base elemental of the item.
+	 * @param element the element to set.
+	 */
+	public void setElementals(Elementals element)
+	{
+		if (_elementals == null)
+		{
+			_elementals = new Elementals[1];
+			_elementals[0] = element;
+		}
+		else
+		{
+			Elementals elm = getElemental(element.getElement());
+			if (elm != null)
+			{
+				elm.setValue(element.getValue());
+			}
+			else
+			{
+				elm = element;
+				Elementals[] array = new Elementals[_elementals.length + 1];
+				System.arraycopy(_elementals, 0, array, 0, _elementals.length);
+				array[_elementals.length] = elm;
+				_elementals = array;
+			}
+		}
+	}
+	
+	/**
+	 * Returns the name of the item followed by the item ID.
+	 * @return the name and the ID of the item
+	 */
+	@Override
+	public String toString()
+	{
+		return _name + "(" + _itemId + ")";
+	}
+	
+	public int useSkillDisTime()
+	{
+		return _useSkillDisTime;
 	}
 }

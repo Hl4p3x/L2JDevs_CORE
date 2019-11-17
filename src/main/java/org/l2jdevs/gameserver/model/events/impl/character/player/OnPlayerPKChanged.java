@@ -43,14 +43,14 @@ public class OnPlayerPKChanged implements IBaseEvent
 		return _activeChar;
 	}
 	
-	public int getOldPoints()
-	{
-		return _oldPoints;
-	}
-	
 	public int getNewPoints()
 	{
 		return _newPoints;
+	}
+	
+	public int getOldPoints()
+	{
+		return _oldPoints;
 	}
 	
 	@Override

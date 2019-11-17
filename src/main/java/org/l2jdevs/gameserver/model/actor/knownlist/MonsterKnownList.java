@@ -53,6 +53,12 @@ public class MonsterKnownList extends AttackableKnownList
 	}
 	
 	@Override
+	public final L2MonsterInstance getActiveChar()
+	{
+		return (L2MonsterInstance) super.getActiveChar();
+	}
+	
+	@Override
 	protected boolean removeKnownObject(L2Object object, boolean forget)
 	{
 		if (!super.removeKnownObject(object, forget))
@@ -78,11 +84,5 @@ public class MonsterKnownList extends AttackableKnownList
 		}
 		
 		return true;
-	}
-	
-	@Override
-	public final L2MonsterInstance getActiveChar()
-	{
-		return (L2MonsterInstance) super.getActiveChar();
 	}
 }

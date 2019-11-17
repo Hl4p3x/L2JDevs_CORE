@@ -46,93 +46,6 @@ public final class LoginStatusThread extends Thread
 	
 	private boolean _redirectLogger;
 	
-	private void telnetOutput(int type, String text)
-	{
-		if (type == 1)
-		{
-			System.out.println("TELNET | " + text);
-		}
-		else if (type == 2)
-		{
-			System.out.print("TELNET | " + text);
-		}
-		else if (type == 3)
-		{
-			System.out.print(text);
-		}
-		else if (type == 4)
-		{
-			System.out.println(text);
-		}
-		else
-		{
-			System.out.println("TELNET | " + text);
-		}
-	}
-	
-	private boolean isValidIP(Socket client)
-	{
-		boolean result = false;
-		InetAddress ClientIP = client.getInetAddress();
-		
-		// convert IP to String, and compare with list
-		String clientStringIP = ClientIP.getHostAddress();
-		
-		telnetOutput(1, "Connection from: " + clientStringIP);
-		
-		// read and loop thru list of IPs, compare with newIP
-		if (Config.DEVELOPER)
-		{
-			telnetOutput(2, "");
-		}
-		
-		final File file = new File(Config.TELNET_FILE);
-		try (InputStream telnetIS = new FileInputStream(file))
-		{
-			Properties telnetSettings = new Properties();
-			telnetSettings.load(telnetIS);
-			
-			String HostList = telnetSettings.getProperty("ListOfHosts", "127.0.0.1,localhost,::1");
-			
-			if (Config.DEVELOPER)
-			{
-				telnetOutput(3, "Comparing ip to list...");
-			}
-			
-			// compare
-			String ipToCompare = null;
-			for (String ip : HostList.split(","))
-			{
-				if (!result)
-				{
-					ipToCompare = InetAddress.getByName(ip).getHostAddress();
-					if (clientStringIP.equals(ipToCompare))
-					{
-						result = true;
-					}
-					if (Config.DEVELOPER)
-					{
-						telnetOutput(3, clientStringIP + " = " + ipToCompare + "(" + ip + ") = " + result);
-					}
-				}
-			}
-		}
-		catch (IOException e)
-		{
-			if (Config.DEVELOPER)
-			{
-				telnetOutput(4, "");
-			}
-			telnetOutput(1, "Error: " + e);
-		}
-		
-		if (Config.DEVELOPER)
-		{
-			telnetOutput(4, "Allow IP: " + result);
-		}
-		return result;
-	}
-	
 	public LoginStatusThread(Socket client, int uptime, String StatusPW) throws IOException
 	{
 		_cSocket = client;
@@ -178,6 +91,23 @@ public final class LoginStatusThread extends Thread
 		{
 			telnetOutput(5, "Connection attempt from " + client.getInetAddress().getHostAddress() + " rejected.");
 			_cSocket.close();
+		}
+	}
+	
+	/**
+	 * @return Returns the redirectLogger.
+	 */
+	public boolean isRedirectLogger()
+	{
+		return _redirectLogger;
+	}
+	
+	public void printToTelnet(String msg)
+	{
+		synchronized (_print)
+		{
+			_print.println(msg);
+			_print.flush();
 		}
 	}
 	
@@ -277,20 +207,90 @@ public final class LoginStatusThread extends Thread
 		}
 	}
 	
-	public void printToTelnet(String msg)
+	private boolean isValidIP(Socket client)
 	{
-		synchronized (_print)
+		boolean result = false;
+		InetAddress ClientIP = client.getInetAddress();
+		
+		// convert IP to String, and compare with list
+		String clientStringIP = ClientIP.getHostAddress();
+		
+		telnetOutput(1, "Connection from: " + clientStringIP);
+		
+		// read and loop thru list of IPs, compare with newIP
+		if (Config.DEVELOPER)
 		{
-			_print.println(msg);
-			_print.flush();
+			telnetOutput(2, "");
 		}
+		
+		final File file = new File(Config.TELNET_FILE);
+		try (InputStream telnetIS = new FileInputStream(file))
+		{
+			Properties telnetSettings = new Properties();
+			telnetSettings.load(telnetIS);
+			
+			String HostList = telnetSettings.getProperty("ListOfHosts", "127.0.0.1,localhost,::1");
+			
+			if (Config.DEVELOPER)
+			{
+				telnetOutput(3, "Comparing ip to list...");
+			}
+			
+			// compare
+			String ipToCompare = null;
+			for (String ip : HostList.split(","))
+			{
+				if (!result)
+				{
+					ipToCompare = InetAddress.getByName(ip).getHostAddress();
+					if (clientStringIP.equals(ipToCompare))
+					{
+						result = true;
+					}
+					if (Config.DEVELOPER)
+					{
+						telnetOutput(3, clientStringIP + " = " + ipToCompare + "(" + ip + ") = " + result);
+					}
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			if (Config.DEVELOPER)
+			{
+				telnetOutput(4, "");
+			}
+			telnetOutput(1, "Error: " + e);
+		}
+		
+		if (Config.DEVELOPER)
+		{
+			telnetOutput(4, "Allow IP: " + result);
+		}
+		return result;
 	}
 	
-	/**
-	 * @return Returns the redirectLogger.
-	 */
-	public boolean isRedirectLogger()
+	private void telnetOutput(int type, String text)
 	{
-		return _redirectLogger;
+		if (type == 1)
+		{
+			System.out.println("TELNET | " + text);
+		}
+		else if (type == 2)
+		{
+			System.out.print("TELNET | " + text);
+		}
+		else if (type == 3)
+		{
+			System.out.print(text);
+		}
+		else if (type == 4)
+		{
+			System.out.println(text);
+		}
+		else
+		{
+			System.out.println("TELNET | " + text);
+		}
 	}
 }

@@ -54,30 +54,12 @@ public class StatsSet implements IParserAdvUtils
 	}
 	
 	/**
-	 * Returns the set of values
-	 * @return HashMap
-	 */
-	public final Map<String, Object> getSet()
-	{
-		return _set;
-	}
-	
-	/**
 	 * Add a set of couple values in the current set
 	 * @param newSet : StatsSet pointing out the list of couples to add in the current set
 	 */
 	public void add(StatsSet newSet)
 	{
 		_set.putAll(newSet.getSet());
-	}
-	
-	/**
-	 * Verifies if the stat set is empty.
-	 * @return {@code true} if the stat set is empty, {@code false} otherwise
-	 */
-	public boolean isEmpty()
-	{
-		return _set.isEmpty();
 	}
 	
 	public boolean containsKey(String key)
@@ -228,29 +210,29 @@ public class StatsSet implements IParserAdvUtils
 	}
 	
 	@Override
-	public short getShort(String key)
+	public double getDouble(String key)
 	{
 		Object val = _set.get(key);
 		if (val == null)
 		{
-			throw new IllegalArgumentException("Short value required, but not specified");
+			throw new IllegalArgumentException("Double value required, but not specified");
 		}
 		if (val instanceof Number)
 		{
-			return ((Number) val).shortValue();
+			return ((Number) val).doubleValue();
 		}
 		try
 		{
-			return Short.parseShort((String) val);
+			return Double.parseDouble((String) val);
 		}
 		catch (Exception e)
 		{
-			throw new IllegalArgumentException("Short value required, but found: " + val);
+			throw new IllegalArgumentException("Double value required, but found: " + val);
 		}
 	}
 	
 	@Override
-	public short getShort(String key, short defaultValue)
+	public double getDouble(String key, double defaultValue)
 	{
 		Object val = _set.get(key);
 		if (val == null)
@@ -259,15 +241,105 @@ public class StatsSet implements IParserAdvUtils
 		}
 		if (val instanceof Number)
 		{
-			return ((Number) val).shortValue();
+			return ((Number) val).doubleValue();
 		}
 		try
 		{
-			return Short.parseShort((String) val);
+			return Double.parseDouble((String) val);
 		}
 		catch (Exception e)
 		{
-			throw new IllegalArgumentException("Short value required, but found: " + val);
+			throw new IllegalArgumentException("Double value required, but found: " + val);
+		}
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends Enum<T>> T getEnum(String key, Class<T> enumClass)
+	{
+		Object val = _set.get(key);
+		if (val == null)
+		{
+			throw new IllegalArgumentException("Enum value of type " + enumClass.getName() + " required, but not specified");
+		}
+		if (enumClass.isInstance(val))
+		{
+			return (T) val;
+		}
+		try
+		{
+			return Enum.valueOf(enumClass, String.valueOf(val));
+		}
+		catch (Exception e)
+		{
+			throw new IllegalArgumentException("Enum value of type " + enumClass.getName() + " required, but found: " + val);
+		}
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends Enum<T>> T getEnum(String key, Class<T> enumClass, T defaultValue)
+	{
+		Object val = _set.get(key);
+		if (val == null)
+		{
+			return defaultValue;
+		}
+		if (enumClass.isInstance(val))
+		{
+			return (T) val;
+		}
+		try
+		{
+			return Enum.valueOf(enumClass, String.valueOf(val));
+		}
+		catch (Exception e)
+		{
+			throw new IllegalArgumentException("Enum value of type " + enumClass.getName() + " required, but found: " + val);
+		}
+	}
+	
+	@Override
+	public float getFloat(String key)
+	{
+		Object val = _set.get(key);
+		if (val == null)
+		{
+			throw new IllegalArgumentException("Float value required, but not specified");
+		}
+		if (val instanceof Number)
+		{
+			return ((Number) val).floatValue();
+		}
+		try
+		{
+			return Float.parseFloat((String) val);
+		}
+		catch (Exception e)
+		{
+			throw new IllegalArgumentException("Float value required, but found: " + val);
+		}
+	}
+	
+	@Override
+	public float getFloat(String key, float defaultValue)
+	{
+		Object val = _set.get(key);
+		if (val == null)
+		{
+			return defaultValue;
+		}
+		if (val instanceof Number)
+		{
+			return ((Number) val).floatValue();
+		}
+		try
+		{
+			return Float.parseFloat((String) val);
+		}
+		catch (Exception e)
+		{
+			throw new IllegalArgumentException("Float value required, but found: " + val);
 		}
 	}
 	
@@ -403,30 +475,63 @@ public class StatsSet implements IParserAdvUtils
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	public List<MinionHolder> getMinionList(String key)
+	{
+		Object obj = _set.get(key);
+		if ((obj == null) || !(obj instanceof List<?>))
+		{
+			return Collections.emptyList();
+		}
+		
+		return (List<MinionHolder>) obj;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public final <A> A getObject(String name, Class<A> type)
+	{
+		Object obj = _set.get(name);
+		if ((obj == null) || !type.isAssignableFrom(obj.getClass()))
+		{
+			return null;
+		}
+		
+		return (A) obj;
+	}
+	
+	/**
+	 * Returns the set of values
+	 * @return HashMap
+	 */
+	public final Map<String, Object> getSet()
+	{
+		return _set;
+	}
+	
 	@Override
-	public float getFloat(String key)
+	public short getShort(String key)
 	{
 		Object val = _set.get(key);
 		if (val == null)
 		{
-			throw new IllegalArgumentException("Float value required, but not specified");
+			throw new IllegalArgumentException("Short value required, but not specified");
 		}
 		if (val instanceof Number)
 		{
-			return ((Number) val).floatValue();
+			return ((Number) val).shortValue();
 		}
 		try
 		{
-			return Float.parseFloat((String) val);
+			return Short.parseShort((String) val);
 		}
 		catch (Exception e)
 		{
-			throw new IllegalArgumentException("Float value required, but found: " + val);
+			throw new IllegalArgumentException("Short value required, but found: " + val);
 		}
 	}
 	
 	@Override
-	public float getFloat(String key, float defaultValue)
+	public short getShort(String key, short defaultValue)
 	{
 		Object val = _set.get(key);
 		if (val == null)
@@ -435,60 +540,27 @@ public class StatsSet implements IParserAdvUtils
 		}
 		if (val instanceof Number)
 		{
-			return ((Number) val).floatValue();
+			return ((Number) val).shortValue();
 		}
 		try
 		{
-			return Float.parseFloat((String) val);
+			return Short.parseShort((String) val);
 		}
 		catch (Exception e)
 		{
-			throw new IllegalArgumentException("Float value required, but found: " + val);
+			throw new IllegalArgumentException("Short value required, but found: " + val);
 		}
 	}
 	
-	@Override
-	public double getDouble(String key)
+	public SkillHolder getSkillHolder(String key)
 	{
-		Object val = _set.get(key);
-		if (val == null)
+		Object obj = _set.get(key);
+		if ((obj == null) || !(obj instanceof SkillHolder))
 		{
-			throw new IllegalArgumentException("Double value required, but not specified");
+			return null;
 		}
-		if (val instanceof Number)
-		{
-			return ((Number) val).doubleValue();
-		}
-		try
-		{
-			return Double.parseDouble((String) val);
-		}
-		catch (Exception e)
-		{
-			throw new IllegalArgumentException("Double value required, but found: " + val);
-		}
-	}
-	
-	@Override
-	public double getDouble(String key, double defaultValue)
-	{
-		Object val = _set.get(key);
-		if (val == null)
-		{
-			return defaultValue;
-		}
-		if (val instanceof Number)
-		{
-			return ((Number) val).doubleValue();
-		}
-		try
-		{
-			return Double.parseDouble((String) val);
-		}
-		catch (Exception e)
-		{
-			throw new IllegalArgumentException("Double value required, but found: " + val);
-		}
+		
+		return (SkillHolder) obj;
 	}
 	
 	@Override
@@ -513,90 +585,24 @@ public class StatsSet implements IParserAdvUtils
 		return String.valueOf(val);
 	}
 	
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T extends Enum<T>> T getEnum(String key, Class<T> enumClass)
+	/**
+	 * Verifies if the stat set is empty.
+	 * @return {@code true} if the stat set is empty, {@code false} otherwise
+	 */
+	public boolean isEmpty()
 	{
-		Object val = _set.get(key);
-		if (val == null)
-		{
-			throw new IllegalArgumentException("Enum value of type " + enumClass.getName() + " required, but not specified");
-		}
-		if (enumClass.isInstance(val))
-		{
-			return (T) val;
-		}
-		try
-		{
-			return Enum.valueOf(enumClass, String.valueOf(val));
-		}
-		catch (Exception e)
-		{
-			throw new IllegalArgumentException("Enum value of type " + enumClass.getName() + " required, but found: " + val);
-		}
+		return _set.isEmpty();
 	}
 	
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T extends Enum<T>> T getEnum(String key, Class<T> enumClass, T defaultValue)
+	public void safeSet(String key, int value, int min, int max, String reference)
 	{
-		Object val = _set.get(key);
-		if (val == null)
+		assert !(((min <= max) && ((value < min) || (value >= max))));
+		if ((min <= max) && ((value < min) || (value >= max)))
 		{
-			return defaultValue;
-		}
-		if (enumClass.isInstance(val))
-		{
-			return (T) val;
-		}
-		try
-		{
-			return Enum.valueOf(enumClass, String.valueOf(val));
-		}
-		catch (Exception e)
-		{
-			throw new IllegalArgumentException("Enum value of type " + enumClass.getName() + " required, but found: " + val);
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	public final <A> A getObject(String name, Class<A> type)
-	{
-		Object obj = _set.get(name);
-		if ((obj == null) || !type.isAssignableFrom(obj.getClass()))
-		{
-			return null;
+			_log.log(Level.SEVERE, "Incorrect value: " + value + "for: " + key + "Ref: " + reference);
 		}
 		
-		return (A) obj;
-	}
-	
-	public SkillHolder getSkillHolder(String key)
-	{
-		Object obj = _set.get(key);
-		if ((obj == null) || !(obj instanceof SkillHolder))
-		{
-			return null;
-		}
-		
-		return (SkillHolder) obj;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public List<MinionHolder> getMinionList(String key)
-	{
-		Object obj = _set.get(key);
-		if ((obj == null) || !(obj instanceof List<?>))
-		{
-			return Collections.emptyList();
-		}
-		
-		return (List<MinionHolder>) obj;
-	}
-	
-	public void set(String name, Object value)
-	{
-		_set.put(name, value);
+		set(key, value);
 	}
 	
 	public void set(String key, boolean value)
@@ -609,7 +615,17 @@ public class StatsSet implements IParserAdvUtils
 		_set.put(key, value);
 	}
 	
-	public void set(String key, short value)
+	public void set(String key, double value)
+	{
+		_set.put(key, value);
+	}
+	
+	public void set(String key, Enum<?> value)
+	{
+		_set.put(key, value);
+	}
+	
+	public void set(String key, float value)
 	{
 		_set.put(key, value);
 	}
@@ -624,12 +640,12 @@ public class StatsSet implements IParserAdvUtils
 		_set.put(key, value);
 	}
 	
-	public void set(String key, float value)
+	public void set(String name, Object value)
 	{
-		_set.put(key, value);
+		_set.put(name, value);
 	}
 	
-	public void set(String key, double value)
+	public void set(String key, short value)
 	{
 		_set.put(key, value);
 	}
@@ -637,21 +653,5 @@ public class StatsSet implements IParserAdvUtils
 	public void set(String key, String value)
 	{
 		_set.put(key, value);
-	}
-	
-	public void set(String key, Enum<?> value)
-	{
-		_set.put(key, value);
-	}
-	
-	public void safeSet(String key, int value, int min, int max, String reference)
-	{
-		assert !(((min <= max) && ((value < min) || (value >= max))));
-		if ((min <= max) && ((value < min) || (value >= max)))
-		{
-			_log.log(Level.SEVERE, "Incorrect value: " + value + "for: " + key + "Ref: " + reference);
-		}
-		
-		set(key, value);
 	}
 }

@@ -52,109 +52,14 @@ public class Options
 		_id = id;
 	}
 	
-	public final int getId()
+	public void addActivationSkill(OptionsSkillHolder holder)
 	{
-		return _id;
-	}
-	
-	public boolean hasFuncs()
-	{
-		return !_funcs.isEmpty();
-	}
-	
-	public List<AbstractFunction> getStatFuncs(L2ItemInstance item, L2Character player)
-	{
-		if (_funcs.isEmpty())
-		{
-			return Collections.<AbstractFunction> emptyList();
-		}
-		
-		final List<AbstractFunction> funcs = new ArrayList<>(_funcs.size());
-		for (FuncTemplate fuctionTemplate : _funcs)
-		{
-			AbstractFunction fuction = fuctionTemplate.getFunc(player, player, item, this);
-			if (fuction != null)
-			{
-				funcs.add(fuction);
-			}
-			player.sendDebugMessage("Adding stats: " + fuctionTemplate.getStat() + " val: " + fuctionTemplate.getValue());
-		}
-		return funcs;
+		_activationSkills.add(holder);
 	}
 	
 	public void addFunc(FuncTemplate template)
 	{
 		_funcs.add(template);
-	}
-	
-	public boolean hasActiveSkill()
-	{
-		return _activeSkill != null;
-	}
-	
-	public SkillHolder getActiveSkill()
-	{
-		return _activeSkill;
-	}
-	
-	public void setActiveSkill(SkillHolder holder)
-	{
-		_activeSkill = holder;
-	}
-	
-	public boolean hasPassiveSkill()
-	{
-		return _passiveSkill != null;
-	}
-	
-	public SkillHolder getPassiveSkill()
-	{
-		return _passiveSkill;
-	}
-	
-	public void setPassiveSkill(SkillHolder holder)
-	{
-		_passiveSkill = holder;
-	}
-	
-	public boolean hasActivationSkills()
-	{
-		return !_activationSkills.isEmpty();
-	}
-	
-	public boolean hasActivationSkills(OptionsSkillType type)
-	{
-		for (OptionsSkillHolder holder : _activationSkills)
-		{
-			if (holder.getSkillType() == type)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public List<OptionsSkillHolder> getActivationsSkills()
-	{
-		return _activationSkills;
-	}
-	
-	public List<OptionsSkillHolder> getActivationsSkills(OptionsSkillType type)
-	{
-		List<OptionsSkillHolder> temp = new ArrayList<>();
-		for (OptionsSkillHolder holder : _activationSkills)
-		{
-			if (holder.getSkillType() == type)
-			{
-				temp.add(holder);
-			}
-		}
-		return temp;
-	}
-	
-	public void addActivationSkill(OptionsSkillHolder holder)
-	{
-		_activationSkills.add(holder);
 	}
 	
 	public void apply(L2PcInstance player)
@@ -186,6 +91,91 @@ public class Options
 		player.sendSkillList();
 	}
 	
+	public List<OptionsSkillHolder> getActivationsSkills()
+	{
+		return _activationSkills;
+	}
+	
+	public List<OptionsSkillHolder> getActivationsSkills(OptionsSkillType type)
+	{
+		List<OptionsSkillHolder> temp = new ArrayList<>();
+		for (OptionsSkillHolder holder : _activationSkills)
+		{
+			if (holder.getSkillType() == type)
+			{
+				temp.add(holder);
+			}
+		}
+		return temp;
+	}
+	
+	public SkillHolder getActiveSkill()
+	{
+		return _activeSkill;
+	}
+	
+	public final int getId()
+	{
+		return _id;
+	}
+	
+	public SkillHolder getPassiveSkill()
+	{
+		return _passiveSkill;
+	}
+	
+	public List<AbstractFunction> getStatFuncs(L2ItemInstance item, L2Character player)
+	{
+		if (_funcs.isEmpty())
+		{
+			return Collections.<AbstractFunction> emptyList();
+		}
+		
+		final List<AbstractFunction> funcs = new ArrayList<>(_funcs.size());
+		for (FuncTemplate fuctionTemplate : _funcs)
+		{
+			AbstractFunction fuction = fuctionTemplate.getFunc(player, player, item, this);
+			if (fuction != null)
+			{
+				funcs.add(fuction);
+			}
+			player.sendDebugMessage("Adding stats: " + fuctionTemplate.getStat() + " val: " + fuctionTemplate.getValue());
+		}
+		return funcs;
+	}
+	
+	public boolean hasActivationSkills()
+	{
+		return !_activationSkills.isEmpty();
+	}
+	
+	public boolean hasActivationSkills(OptionsSkillType type)
+	{
+		for (OptionsSkillHolder holder : _activationSkills)
+		{
+			if (holder.getSkillType() == type)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean hasActiveSkill()
+	{
+		return _activeSkill != null;
+	}
+	
+	public boolean hasFuncs()
+	{
+		return !_funcs.isEmpty();
+	}
+	
+	public boolean hasPassiveSkill()
+	{
+		return _passiveSkill != null;
+	}
+	
 	public void remove(L2PcInstance player)
 	{
 		player.sendDebugMessage("Deactivating option id: " + _id);
@@ -212,6 +202,16 @@ public class Options
 			}
 		}
 		player.sendSkillList();
+	}
+	
+	public void setActiveSkill(SkillHolder holder)
+	{
+		_activeSkill = holder;
+	}
+	
+	public void setPassiveSkill(SkillHolder holder)
+	{
+		_passiveSkill = holder;
 	}
 	
 	private final void addSkill(L2PcInstance player, Skill skill)

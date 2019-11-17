@@ -33,6 +33,12 @@ public final class RequestFriendInvite extends L2GameClientPacket
 	private String _name;
 	
 	@Override
+	public String getType()
+	{
+		return _C__77_REQUESTFRIENDINVITE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -104,11 +110,5 @@ public final class RequestFriendInvite extends L2GameClientPacket
 		sm = SystemMessage.getSystemMessage(SystemMessageId.YOU_REQUESTED_C1_TO_BE_FRIEND);
 		sm.addString(_name);
 		activeChar.sendPacket(sm);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__77_REQUESTFRIENDINVITE;
 	}
 }

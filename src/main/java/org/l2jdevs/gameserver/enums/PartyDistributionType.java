@@ -44,6 +44,23 @@ public enum PartyDistributionType
 	}
 	
 	/**
+	 * Finds the {@code PartyDistributionType} by its id
+	 * @param id the id
+	 * @return the {@code PartyDistributionType} if its found, {@code null} otherwise.
+	 */
+	public static PartyDistributionType findById(int id)
+	{
+		for (PartyDistributionType partyDistributionType : values())
+		{
+			if (partyDistributionType.getId() == id)
+			{
+				return partyDistributionType;
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * Gets the id used by packets.
 	 * @return the id
 	 */
@@ -59,22 +76,5 @@ public enum PartyDistributionType
 	public int getSysStringId()
 	{
 		return _sysStringId;
-	}
-	
-	/**
-	 * Finds the {@code PartyDistributionType} by its id
-	 * @param id the id
-	 * @return the {@code PartyDistributionType} if its found, {@code null} otherwise.
-	 */
-	public static PartyDistributionType findById(int id)
-	{
-		for (PartyDistributionType partyDistributionType : values())
-		{
-			if (partyDistributionType.getId() == id)
-			{
-				return partyDistributionType;
-			}
-		}
-		return null;
 	}
 }

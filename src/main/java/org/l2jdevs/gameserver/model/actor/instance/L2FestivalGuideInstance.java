@@ -141,14 +141,57 @@ public final class L2FestivalGuideInstance extends L2Npc
 		}
 	}
 	
-	public int getFestivalType()
+	private static final String getBonusTable()
 	{
-		return _festivalType;
+		final StringBuilder tableHtml = new StringBuilder(500);
+		
+		// Get the accumulated scores for each of the festival level ranges (types).
+		for (int i = 0; i < 5; i++)
+		{
+			int accumScore = SevenSignsFestival.getInstance().getAccumulatedBonus(i);
+			String festivalName = SevenSignsFestival.getFestivalName(i);
+			
+			StringUtil.append(tableHtml, "<tr><td align=\"center\" width=\"150\">", festivalName, "</td><td align=\"center\" width=\"150\">", String.valueOf(accumScore), "</td></tr>");
+		}
+		
+		return tableHtml.toString();
+	}
+	
+	private static final String getStatsTable()
+	{
+		final StringBuilder tableHtml = new StringBuilder(1000);
+		
+		// Get the scores for each of the festival level ranges (types).
+		for (int i = 0; i < 5; i++)
+		{
+			int dawnScore = SevenSignsFestival.getInstance().getHighestScore(SevenSigns.CABAL_DAWN, i);
+			int duskScore = SevenSignsFestival.getInstance().getHighestScore(SevenSigns.CABAL_DUSK, i);
+			String festivalName = SevenSignsFestival.getFestivalName(i);
+			String winningCabal = "Children of Dusk";
+			
+			if (dawnScore > duskScore)
+			{
+				winningCabal = "Children of Dawn";
+			}
+			else if (dawnScore == duskScore)
+			{
+				winningCabal = "None";
+			}
+			
+			StringUtil.append(tableHtml, "<tr><td width=\"100\" align=\"center\">", festivalName, "</td><td align=\"center\" width=\"35\">", String.valueOf(duskScore), "</td><td align=\"center\" width=\"35\">", String.valueOf(dawnScore), "</td><td align=\"center\" width=\"130\">", winningCabal, "</td></tr>");
+		}
+		
+		return tableHtml.toString();
 	}
 	
 	public int getFestivalOracle()
 	{
 		return _festivalOracle;
+	}
+	
+	public int getFestivalType()
+	{
+		return _festivalType;
 	}
 	
 	public int getStoneCount(int stoneType)
@@ -205,48 +248,5 @@ public final class L2FestivalGuideInstance extends L2Npc
 		
 		// Send a Server->Client ActionFailed to the L2PcInstance in order to avoid that the client wait another packet
 		player.sendPacket(ActionFailed.STATIC_PACKET);
-	}
-	
-	private static final String getStatsTable()
-	{
-		final StringBuilder tableHtml = new StringBuilder(1000);
-		
-		// Get the scores for each of the festival level ranges (types).
-		for (int i = 0; i < 5; i++)
-		{
-			int dawnScore = SevenSignsFestival.getInstance().getHighestScore(SevenSigns.CABAL_DAWN, i);
-			int duskScore = SevenSignsFestival.getInstance().getHighestScore(SevenSigns.CABAL_DUSK, i);
-			String festivalName = SevenSignsFestival.getFestivalName(i);
-			String winningCabal = "Children of Dusk";
-			
-			if (dawnScore > duskScore)
-			{
-				winningCabal = "Children of Dawn";
-			}
-			else if (dawnScore == duskScore)
-			{
-				winningCabal = "None";
-			}
-			
-			StringUtil.append(tableHtml, "<tr><td width=\"100\" align=\"center\">", festivalName, "</td><td align=\"center\" width=\"35\">", String.valueOf(duskScore), "</td><td align=\"center\" width=\"35\">", String.valueOf(dawnScore), "</td><td align=\"center\" width=\"130\">", winningCabal, "</td></tr>");
-		}
-		
-		return tableHtml.toString();
-	}
-	
-	private static final String getBonusTable()
-	{
-		final StringBuilder tableHtml = new StringBuilder(500);
-		
-		// Get the accumulated scores for each of the festival level ranges (types).
-		for (int i = 0; i < 5; i++)
-		{
-			int accumScore = SevenSignsFestival.getInstance().getAccumulatedBonus(i);
-			String festivalName = SevenSignsFestival.getFestivalName(i);
-			
-			StringUtil.append(tableHtml, "<tr><td align=\"center\" width=\"150\">", festivalName, "</td><td align=\"center\" width=\"150\">", String.valueOf(accumScore), "</td></tr>");
-		}
-		
-		return tableHtml.toString();
 	}
 }

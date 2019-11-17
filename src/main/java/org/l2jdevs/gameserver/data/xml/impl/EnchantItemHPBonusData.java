@@ -42,9 +42,9 @@ import org.l2jdevs.util.data.xml.IXmlReader;
  */
 public class EnchantItemHPBonusData implements IXmlReader
 {
-	private final Map<CrystalType, List<Integer>> _armorHPBonuses = new EnumMap<>(CrystalType.class);
-	
 	private static final float FULL_ARMOR_MODIFIER = 1.5f; // TODO: Move it to config!
+	
+	private final Map<CrystalType, List<Integer>> _armorHPBonuses = new EnumMap<>(CrystalType.class);
 	
 	/**
 	 * Instantiates a new enchant hp bonus data.
@@ -52,6 +52,36 @@ public class EnchantItemHPBonusData implements IXmlReader
 	protected EnchantItemHPBonusData()
 	{
 		load();
+	}
+	
+	/**
+	 * Gets the single instance of EnchantHPBonusData.
+	 * @return single instance of EnchantHPBonusData
+	 */
+	public static final EnchantItemHPBonusData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the HP bonus.
+	 * @param item the item
+	 * @return the HP bonus
+	 */
+	public final int getHPBonus(L2ItemInstance item)
+	{
+		final List<Integer> values = _armorHPBonuses.get(item.getItem().getItemGradeSPlus());
+		if ((values == null) || values.isEmpty() || (item.getOlyEnchantLevel() <= 0))
+		{
+			return 0;
+		}
+		
+		final int bonus = values.get(Math.min(item.getOlyEnchantLevel(), values.size()) - 1);
+		if (item.getItem().getBodyPart() == L2Item.SLOT_FULL_ARMOR)
+		{
+			return (int) (bonus * FULL_ARMOR_MODIFIER);
+		}
+		return bonus;
 	}
 	
 	@Override
@@ -117,36 +147,6 @@ public class EnchantItemHPBonusData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Gets the HP bonus.
-	 * @param item the item
-	 * @return the HP bonus
-	 */
-	public final int getHPBonus(L2ItemInstance item)
-	{
-		final List<Integer> values = _armorHPBonuses.get(item.getItem().getItemGradeSPlus());
-		if ((values == null) || values.isEmpty() || (item.getOlyEnchantLevel() <= 0))
-		{
-			return 0;
-		}
-		
-		final int bonus = values.get(Math.min(item.getOlyEnchantLevel(), values.size()) - 1);
-		if (item.getItem().getBodyPart() == L2Item.SLOT_FULL_ARMOR)
-		{
-			return (int) (bonus * FULL_ARMOR_MODIFIER);
-		}
-		return bonus;
-	}
-	
-	/**
-	 * Gets the single instance of EnchantHPBonusData.
-	 * @return single instance of EnchantHPBonusData
-	 */
-	public static final EnchantItemHPBonusData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

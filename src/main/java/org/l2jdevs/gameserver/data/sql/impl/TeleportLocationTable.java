@@ -41,6 +41,20 @@ public class TeleportLocationTable
 		reloadAll();
 	}
 	
+	public static TeleportLocationTable getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * @param id
+	 * @return
+	 */
+	public L2TeleportLocation getTemplate(int id)
+	{
+		return _teleports.get(id);
+	}
+	
 	public void reloadAll()
 	{
 		_teleports.clear();
@@ -102,20 +116,6 @@ public class TeleportLocationTable
 				LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": Error while creating custom teleport table " + e.getMessage(), e);
 			}
 		}
-	}
-	
-	/**
-	 * @param id
-	 * @return
-	 */
-	public L2TeleportLocation getTemplate(int id)
-	{
-		return _teleports.get(id);
-	}
-	
-	public static TeleportLocationTable getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

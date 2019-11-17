@@ -31,6 +31,12 @@ public class RequestEx2ndPasswordVerify extends L2GameClientPacket
 	private String _password;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_AE_REQUESTEX2NDPASSWORDVERIFY;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_password = readS();
@@ -45,11 +51,5 @@ public class RequestEx2ndPasswordVerify extends L2GameClientPacket
 		}
 		
 		getClient().getSecondaryAuth().checkPassword(_password, false);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_AE_REQUESTEX2NDPASSWORDVERIFY;
 	}
 }

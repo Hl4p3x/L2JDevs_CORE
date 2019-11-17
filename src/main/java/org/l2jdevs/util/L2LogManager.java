@@ -30,14 +30,14 @@ public class L2LogManager extends LogManager
 	{
 	}
 	
+	public void doReset()
+	{
+		super.reset();
+	}
+	
 	@Override
 	public void reset()
 	{
 		// do nothing
-	}
-	
-	public void doReset()
-	{
-		super.reset();
 	}
 }

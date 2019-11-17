@@ -46,6 +46,11 @@ public class L2EventMonsterInstance extends L2MonsterInstance
 		setInstanceType(InstanceType.L2EventMobInstance);
 	}
 	
+	public boolean eventDropOnGround()
+	{
+		return drop_on_ground;
+	}
+	
 	public void eventSetBlockOffensiveSkills(boolean value)
 	{
 		block_skill_attack = value;
@@ -54,11 +59,6 @@ public class L2EventMonsterInstance extends L2MonsterInstance
 	public void eventSetDropOnGround(boolean value)
 	{
 		drop_on_ground = value;
-	}
-	
-	public boolean eventDropOnGround()
-	{
-		return drop_on_ground;
 	}
 	
 	public boolean eventSkillAttackBlocked()

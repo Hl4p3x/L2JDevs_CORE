@@ -54,36 +54,6 @@ public final class EnchantScroll extends AbstractEnchantItem
 		_isSafe = (type == EtcItemType.ANCIENT_CRYSTAL_ENCHANT_AM) || (type == EtcItemType.ANCIENT_CRYSTAL_ENCHANT_WP);
 	}
 	
-	@Override
-	public boolean isWeapon()
-	{
-		return _isWeapon;
-	}
-	
-	/**
-	 * @return {@code true} for blessed scrolls (enchanted item will remain on failure), {@code false} otherwise
-	 */
-	public boolean isBlessed()
-	{
-		return _isBlessed;
-	}
-	
-	/**
-	 * @return {@code true} for safe-enchant scrolls (enchant level will remain on failure), {@code false} otherwise
-	 */
-	public boolean isSafe()
-	{
-		return _isSafe;
-	}
-	
-	/**
-	 * @return id of scroll group that should be used
-	 */
-	public int getScrollGroupId()
-	{
-		return _scrollGroupId;
-	}
-	
 	/**
 	 * Enforces current scroll to use only those items as possible items to enchant
 	 * @param itemId
@@ -95,58 +65,6 @@ public final class EnchantScroll extends AbstractEnchantItem
 			_items = new HashSet<>();
 		}
 		_items.add(itemId);
-	}
-	
-	/**
-	 * @param itemToEnchant the item to be enchanted
-	 * @param supportItem the support item used when enchanting (can be null)
-	 * @return {@code true} if this scroll can be used with the specified support item and the item to be enchanted, {@code false} otherwise
-	 */
-	@Override
-	public boolean isValid(L2ItemInstance itemToEnchant, EnchantSupportItem supportItem)
-	{
-		if ((_items != null) && !_items.contains(itemToEnchant.getId()))
-		{
-			return false;
-		}
-		else if ((supportItem != null))
-		{
-			if (isBlessed())
-			{
-				return false;
-			}
-			else if (!supportItem.isValid(itemToEnchant, supportItem))
-			{
-				return false;
-			}
-			else if (supportItem.isWeapon() != isWeapon())
-			{
-				return false;
-			}
-		}
-		return super.isValid(itemToEnchant, supportItem);
-	}
-	
-	/**
-	 * @param player
-	 * @param enchantItem
-	 * @return the chance of current scroll's group.
-	 */
-	public double getChance(L2PcInstance player, L2ItemInstance enchantItem)
-	{
-		if (EnchantItemGroupsData.getInstance().getScrollGroup(_scrollGroupId) == null)
-		{
-			_log.log(Level.WARNING, getClass().getSimpleName() + ": Unexistent enchant scroll group specified for enchant scroll: " + getId());
-			return -1;
-		}
-		
-		final EnchantItemGroup group = EnchantItemGroupsData.getInstance().getItemGroup(enchantItem.getItem(), _scrollGroupId);
-		if (group == null)
-		{
-			_log.log(Level.WARNING, getClass().getSimpleName() + ": Couldn't find enchant item group for scroll: " + getId() + " requested by: " + player);
-			return -1;
-		}
-		return group.getChance(enchantItem.getEnchantLevel());
 	}
 	
 	/**
@@ -204,5 +122,87 @@ public final class EnchantScroll extends AbstractEnchantItem
 			Debug.sendItemDebug(player, enchantItem, set);
 		}
 		return success ? EnchantResultType.SUCCESS : EnchantResultType.FAILURE;
+	}
+	
+	/**
+	 * @param player
+	 * @param enchantItem
+	 * @return the chance of current scroll's group.
+	 */
+	public double getChance(L2PcInstance player, L2ItemInstance enchantItem)
+	{
+		if (EnchantItemGroupsData.getInstance().getScrollGroup(_scrollGroupId) == null)
+		{
+			_log.log(Level.WARNING, getClass().getSimpleName() + ": Unexistent enchant scroll group specified for enchant scroll: " + getId());
+			return -1;
+		}
+		
+		final EnchantItemGroup group = EnchantItemGroupsData.getInstance().getItemGroup(enchantItem.getItem(), _scrollGroupId);
+		if (group == null)
+		{
+			_log.log(Level.WARNING, getClass().getSimpleName() + ": Couldn't find enchant item group for scroll: " + getId() + " requested by: " + player);
+			return -1;
+		}
+		return group.getChance(enchantItem.getEnchantLevel());
+	}
+	
+	/**
+	 * @return id of scroll group that should be used
+	 */
+	public int getScrollGroupId()
+	{
+		return _scrollGroupId;
+	}
+	
+	/**
+	 * @return {@code true} for blessed scrolls (enchanted item will remain on failure), {@code false} otherwise
+	 */
+	public boolean isBlessed()
+	{
+		return _isBlessed;
+	}
+	
+	/**
+	 * @return {@code true} for safe-enchant scrolls (enchant level will remain on failure), {@code false} otherwise
+	 */
+	public boolean isSafe()
+	{
+		return _isSafe;
+	}
+	
+	/**
+	 * @param itemToEnchant the item to be enchanted
+	 * @param supportItem the support item used when enchanting (can be null)
+	 * @return {@code true} if this scroll can be used with the specified support item and the item to be enchanted, {@code false} otherwise
+	 */
+	@Override
+	public boolean isValid(L2ItemInstance itemToEnchant, EnchantSupportItem supportItem)
+	{
+		if ((_items != null) && !_items.contains(itemToEnchant.getId()))
+		{
+			return false;
+		}
+		else if ((supportItem != null))
+		{
+			if (isBlessed())
+			{
+				return false;
+			}
+			else if (!supportItem.isValid(itemToEnchant, supportItem))
+			{
+				return false;
+			}
+			else if (supportItem.isWeapon() != isWeapon())
+			{
+				return false;
+			}
+		}
+		return super.isValid(itemToEnchant, supportItem);
+	}
+	
+	@Override
+	public boolean isWeapon()
+	{
+		return _isWeapon;
 	}
 }

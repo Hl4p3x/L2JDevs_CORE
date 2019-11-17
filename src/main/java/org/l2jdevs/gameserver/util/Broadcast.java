@@ -41,27 +41,36 @@ public final class Broadcast
 	private static Logger _log = Logger.getLogger(Broadcast.class.getName());
 	
 	/**
-	 * Send a packet to all L2PcInstance in the _KnownPlayers of the L2Character that have the Character targeted.<BR>
+	 * Send a packet to all L2PcInstance present in the world.<BR>
 	 * <B><U> Concept</U> :</B><BR>
-	 * L2PcInstance in the detection area of the L2Character are identified in <B>_knownPlayers</B>.<BR>
-	 * In order to inform other players of state modification on the L2Character, server just need to go through _knownPlayers to send Server->Client Packet<BR>
+	 * In order to inform other players of state modification on the L2Character, server just need to go through _allPlayers to send Server->Client Packet<BR>
 	 * <FONT COLOR=#FF0000><B> <U>Caution</U> : This method DOESN'T SEND Server->Client packet to this L2Character (to do this use method toSelfAndKnownPlayers)</B></FONT><BR>
-	 * @param character
-	 * @param mov
+	 * @param packet
 	 */
-	public static void toPlayersTargettingMyself(L2Character character, L2GameServerPacket mov)
+	public static void toAllOnlinePlayers(L2GameServerPacket packet)
 	{
-		Collection<L2PcInstance> plrs = character.getKnownList().getKnownPlayers().values();
-		for (L2PcInstance player : plrs)
+		for (L2PcInstance player : L2World.getInstance().getPlayers())
 		{
-			if (player.getTarget() != character)
+			if (player.isOnline())
 			{
-				continue;
+				player.sendPacket(packet);
 			}
-			
-			player.sendPacket(mov);
 		}
-		
+	}
+	
+	public static void toAllOnlinePlayers(String text)
+	{
+		toAllOnlinePlayers(text, false);
+	}
+	
+	public static void toAllOnlinePlayers(String text, boolean isCritical)
+	{
+		toAllOnlinePlayers(new CreatureSay(0, isCritical ? Say2.CRITICAL_ANNOUNCE : Say2.ANNOUNCEMENT, "", text));
+	}
+	
+	public static void toAllOnlinePlayersOnScreen(String text)
+	{
+		toAllOnlinePlayers(new ExShowScreenMessage(text, 10000));
 	}
 	
 	/**
@@ -134,6 +143,41 @@ public final class Broadcast
 		}
 	}
 	
+	public static void toPlayersInInstance(L2GameServerPacket packet, int instanceId)
+	{
+		for (L2PcInstance player : L2World.getInstance().getPlayers())
+		{
+			if (player.isOnline() && (player.getInstanceId() == instanceId))
+			{
+				player.sendPacket(packet);
+			}
+		}
+	}
+	
+	/**
+	 * Send a packet to all L2PcInstance in the _KnownPlayers of the L2Character that have the Character targeted.<BR>
+	 * <B><U> Concept</U> :</B><BR>
+	 * L2PcInstance in the detection area of the L2Character are identified in <B>_knownPlayers</B>.<BR>
+	 * In order to inform other players of state modification on the L2Character, server just need to go through _knownPlayers to send Server->Client Packet<BR>
+	 * <FONT COLOR=#FF0000><B> <U>Caution</U> : This method DOESN'T SEND Server->Client packet to this L2Character (to do this use method toSelfAndKnownPlayers)</B></FONT><BR>
+	 * @param character
+	 * @param mov
+	 */
+	public static void toPlayersTargettingMyself(L2Character character, L2GameServerPacket mov)
+	{
+		Collection<L2PcInstance> plrs = character.getKnownList().getKnownPlayers().values();
+		for (L2PcInstance player : plrs)
+		{
+			if (player.getTarget() != character)
+			{
+				continue;
+			}
+			
+			player.sendPacket(mov);
+		}
+		
+	}
+	
 	/**
 	 * Send a packet to all L2PcInstance in the _KnownPlayers of the L2Character and to the specified character.<BR>
 	 * <B><U> Concept</U> :</B><BR>
@@ -173,49 +217,5 @@ public final class Broadcast
 				player.sendPacket(mov);
 			}
 		}
-	}
-	
-	/**
-	 * Send a packet to all L2PcInstance present in the world.<BR>
-	 * <B><U> Concept</U> :</B><BR>
-	 * In order to inform other players of state modification on the L2Character, server just need to go through _allPlayers to send Server->Client Packet<BR>
-	 * <FONT COLOR=#FF0000><B> <U>Caution</U> : This method DOESN'T SEND Server->Client packet to this L2Character (to do this use method toSelfAndKnownPlayers)</B></FONT><BR>
-	 * @param packet
-	 */
-	public static void toAllOnlinePlayers(L2GameServerPacket packet)
-	{
-		for (L2PcInstance player : L2World.getInstance().getPlayers())
-		{
-			if (player.isOnline())
-			{
-				player.sendPacket(packet);
-			}
-		}
-	}
-	
-	public static void toAllOnlinePlayers(String text)
-	{
-		toAllOnlinePlayers(text, false);
-	}
-	
-	public static void toAllOnlinePlayers(String text, boolean isCritical)
-	{
-		toAllOnlinePlayers(new CreatureSay(0, isCritical ? Say2.CRITICAL_ANNOUNCE : Say2.ANNOUNCEMENT, "", text));
-	}
-	
-	public static void toPlayersInInstance(L2GameServerPacket packet, int instanceId)
-	{
-		for (L2PcInstance player : L2World.getInstance().getPlayers())
-		{
-			if (player.isOnline() && (player.getInstanceId() == instanceId))
-			{
-				player.sendPacket(packet);
-			}
-		}
-	}
-	
-	public static void toAllOnlinePlayersOnScreen(String text)
-	{
-		toAllOnlinePlayers(new ExShowScreenMessage(text, 10000));
 	}
 }

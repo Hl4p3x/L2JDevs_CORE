@@ -38,6 +38,12 @@ public final class RequestGetOnVehicle extends L2GameClientPacket
 	private Location _pos;
 	
 	@Override
+	public String getType()
+	{
+		return _C__53_GETONVEHICLE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		int x, y, z;
@@ -84,11 +90,5 @@ public final class RequestGetOnVehicle extends L2GameClientPacket
 		activeChar.setXYZ(boat.getX(), boat.getY(), boat.getZ());
 		activeChar.setInsideZone(ZoneId.PEACE, true);
 		activeChar.revalidateZone(true);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__53_GETONVEHICLE;
 	}
 }

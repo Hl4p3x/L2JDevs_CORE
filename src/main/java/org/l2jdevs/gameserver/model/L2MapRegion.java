@@ -55,29 +55,29 @@ public class L2MapRegion
 		_bbs = bbs;
 	}
 	
-	public final String getName()
+	public final void addBanishSpawn(int x, int y, int z)
 	{
-		return _name;
+		if (_banishSpawnLocs == null)
+		{
+			_banishSpawnLocs = new ArrayList<>();
+		}
+		
+		_banishSpawnLocs.add(new Location(x, y, z));
 	}
 	
-	public final String getTown()
+	public final void addBannedRace(String race, String point)
 	{
-		return _town;
+		_bannedRace.put(Race.valueOf(race), point);
 	}
 	
-	public final int getLocId()
+	public final void addChaoticSpawn(int x, int y, int z)
 	{
-		return _locId;
-	}
-	
-	public final int getCastle()
-	{
-		return _castle;
-	}
-	
-	public final int getBbs()
-	{
-		return _bbs;
+		if (_chaoticSpawnLocs == null)
+		{
+			_chaoticSpawnLocs = new ArrayList<>();
+		}
+		
+		_chaoticSpawnLocs.add(new Location(x, y, z));
 	}
 	
 	public final void addMap(int x, int y)
@@ -94,9 +94,113 @@ public class L2MapRegion
 		});
 	}
 	
+	public final void addOtherSpawn(int x, int y, int z)
+	{
+		if (_otherSpawnLocs == null)
+		{
+			_otherSpawnLocs = new ArrayList<>();
+		}
+		
+		_otherSpawnLocs.add(new Location(x, y, z));
+	}
+	
+	// Respawn
+	public final void addSpawn(int x, int y, int z)
+	{
+		if (_spawnLocs == null)
+		{
+			_spawnLocs = new ArrayList<>();
+		}
+		
+		_spawnLocs.add(new Location(x, y, z));
+	}
+	
+	public final Location getBanishSpawnLoc()
+	{
+		if (_banishSpawnLocs != null)
+		{
+			if (Config.RANDOM_RESPAWN_IN_TOWN_ENABLED)
+			{
+				return _banishSpawnLocs.get(Rnd.get(_banishSpawnLocs.size()));
+			}
+			return _banishSpawnLocs.get(0);
+		}
+		return getSpawnLoc();
+	}
+	
+	public final Map<Race, String> getBannedRace()
+	{
+		return _bannedRace;
+	}
+	
+	public final int getBbs()
+	{
+		return _bbs;
+	}
+	
+	public final int getCastle()
+	{
+		return _castle;
+	}
+	
+	public final Location getChaoticSpawnLoc()
+	{
+		if (_chaoticSpawnLocs != null)
+		{
+			if (Config.RANDOM_RESPAWN_IN_TOWN_ENABLED)
+			{
+				return _chaoticSpawnLocs.get(Rnd.get(_chaoticSpawnLocs.size()));
+			}
+			return _chaoticSpawnLocs.get(0);
+		}
+		return getSpawnLoc();
+	}
+	
+	public final int getLocId()
+	{
+		return _locId;
+	}
+	
 	public final List<int[]> getMaps()
 	{
 		return _maps;
+	}
+	
+	public final String getName()
+	{
+		return _name;
+	}
+	
+	public final Location getOtherSpawnLoc()
+	{
+		if (_otherSpawnLocs != null)
+		{
+			if (Config.RANDOM_RESPAWN_IN_TOWN_ENABLED)
+			{
+				return _otherSpawnLocs.get(Rnd.get(_otherSpawnLocs.size()));
+			}
+			return _otherSpawnLocs.get(0);
+		}
+		return getSpawnLoc();
+	}
+	
+	public final Location getSpawnLoc()
+	{
+		if (Config.RANDOM_RESPAWN_IN_TOWN_ENABLED)
+		{
+			return _spawnLocs.get(Rnd.get(_spawnLocs.size()));
+		}
+		return _spawnLocs.get(0);
+	}
+	
+	public final List<Location> getSpawns()
+	{
+		return _spawnLocs;
+	}
+	
+	public final String getTown()
+	{
+		return _town;
 	}
 	
 	public final boolean isZoneInRegion(int x, int y)
@@ -114,109 +218,5 @@ public class L2MapRegion
 			}
 		}
 		return false;
-	}
-	
-	// Respawn
-	public final void addSpawn(int x, int y, int z)
-	{
-		if (_spawnLocs == null)
-		{
-			_spawnLocs = new ArrayList<>();
-		}
-		
-		_spawnLocs.add(new Location(x, y, z));
-	}
-	
-	public final void addOtherSpawn(int x, int y, int z)
-	{
-		if (_otherSpawnLocs == null)
-		{
-			_otherSpawnLocs = new ArrayList<>();
-		}
-		
-		_otherSpawnLocs.add(new Location(x, y, z));
-	}
-	
-	public final void addChaoticSpawn(int x, int y, int z)
-	{
-		if (_chaoticSpawnLocs == null)
-		{
-			_chaoticSpawnLocs = new ArrayList<>();
-		}
-		
-		_chaoticSpawnLocs.add(new Location(x, y, z));
-	}
-	
-	public final void addBanishSpawn(int x, int y, int z)
-	{
-		if (_banishSpawnLocs == null)
-		{
-			_banishSpawnLocs = new ArrayList<>();
-		}
-		
-		_banishSpawnLocs.add(new Location(x, y, z));
-	}
-	
-	public final List<Location> getSpawns()
-	{
-		return _spawnLocs;
-	}
-	
-	public final Location getSpawnLoc()
-	{
-		if (Config.RANDOM_RESPAWN_IN_TOWN_ENABLED)
-		{
-			return _spawnLocs.get(Rnd.get(_spawnLocs.size()));
-		}
-		return _spawnLocs.get(0);
-	}
-	
-	public final Location getOtherSpawnLoc()
-	{
-		if (_otherSpawnLocs != null)
-		{
-			if (Config.RANDOM_RESPAWN_IN_TOWN_ENABLED)
-			{
-				return _otherSpawnLocs.get(Rnd.get(_otherSpawnLocs.size()));
-			}
-			return _otherSpawnLocs.get(0);
-		}
-		return getSpawnLoc();
-	}
-	
-	public final Location getChaoticSpawnLoc()
-	{
-		if (_chaoticSpawnLocs != null)
-		{
-			if (Config.RANDOM_RESPAWN_IN_TOWN_ENABLED)
-			{
-				return _chaoticSpawnLocs.get(Rnd.get(_chaoticSpawnLocs.size()));
-			}
-			return _chaoticSpawnLocs.get(0);
-		}
-		return getSpawnLoc();
-	}
-	
-	public final Location getBanishSpawnLoc()
-	{
-		if (_banishSpawnLocs != null)
-		{
-			if (Config.RANDOM_RESPAWN_IN_TOWN_ENABLED)
-			{
-				return _banishSpawnLocs.get(Rnd.get(_banishSpawnLocs.size()));
-			}
-			return _banishSpawnLocs.get(0);
-		}
-		return getSpawnLoc();
-	}
-	
-	public final void addBannedRace(String race, String point)
-	{
-		_bannedRace.put(Race.valueOf(race), point);
-	}
-	
-	public final Map<Race, String> getBannedRace()
-	{
-		return _bannedRace;
 	}
 }

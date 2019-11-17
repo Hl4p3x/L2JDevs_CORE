@@ -40,6 +40,12 @@ public final class RequestAnswerJoinPledge extends L2GameClientPacket
 	private int _answer;
 	
 	@Override
+	public String getType()
+	{
+		return _C__27_REQUESTANSWERJOINPLEDGE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_answer = readD();
@@ -123,11 +129,5 @@ public final class RequestAnswerJoinPledge extends L2GameClientPacket
 		}
 		
 		activeChar.getRequest().onRequestResponse();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__27_REQUESTANSWERJOINPLEDGE;
 	}
 }

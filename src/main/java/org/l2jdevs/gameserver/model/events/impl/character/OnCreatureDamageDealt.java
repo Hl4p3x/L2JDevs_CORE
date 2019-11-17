@@ -53,11 +53,6 @@ public class OnCreatureDamageDealt implements IBaseEvent
 		return _attacker;
 	}
 	
-	public final L2Character getTarget()
-	{
-		return _target;
-	}
-	
 	public double getDamage()
 	{
 		return _damage;
@@ -66,6 +61,17 @@ public class OnCreatureDamageDealt implements IBaseEvent
 	public Skill getSkill()
 	{
 		return _skill;
+	}
+	
+	public final L2Character getTarget()
+	{
+		return _target;
+	}
+	
+	@Override
+	public EventType getType()
+	{
+		return EventType.ON_CREATURE_DAMAGE_DEALT;
 	}
 	
 	public boolean isCritical()
@@ -81,11 +87,5 @@ public class OnCreatureDamageDealt implements IBaseEvent
 	public boolean isReflect()
 	{
 		return _isReflect;
-	}
-	
-	@Override
-	public EventType getType()
-	{
-		return EventType.ON_CREATURE_DAMAGE_DEALT;
 	}
 }

@@ -38,6 +38,12 @@ public class AnswerCoupleAction extends L2GameClientPacket
 	private int _answer;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_7A_ANSWERCOUPLEACTION;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_actionId = readD();
@@ -87,11 +93,5 @@ public class AnswerCoupleAction extends L2GameClientPacket
 			target.sendPacket(sm);
 		}
 		target.setMultiSocialAction(0, 0);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_7A_ANSWERCOUPLEACTION;
 	}
 }

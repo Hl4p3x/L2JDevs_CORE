@@ -32,6 +32,12 @@ public final class RequestModifyBookMarkSlot extends L2GameClientPacket
 	private String name, tag;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_51_02_REQUESTMODIFYBOOKMARKSLOT;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		id = readD();
@@ -50,11 +56,5 @@ public final class RequestModifyBookMarkSlot extends L2GameClientPacket
 			return;
 		}
 		activeChar.teleportBookmarkModify(id, icon, tag, name);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_51_02_REQUESTMODIFYBOOKMARKSLOT;
 	}
 }

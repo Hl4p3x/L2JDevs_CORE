@@ -55,9 +55,12 @@ public abstract class AbstractInventoryUpdate extends AbstractItemPacket
 		_items.put(item.getObjectId(), new ItemInfo(item));
 	}
 	
-	public final void addNewItem(L2ItemInstance item)
+	public final void addItems(List<L2ItemInstance> items)
 	{
-		_items.put(item.getObjectId(), new ItemInfo(item, 1));
+		for (L2ItemInstance item : items)
+		{
+			_items.put(item.getObjectId(), new ItemInfo(item));
+		}
 	}
 	
 	public final void addModifiedItem(L2ItemInstance item)
@@ -65,17 +68,14 @@ public abstract class AbstractInventoryUpdate extends AbstractItemPacket
 		_items.put(item.getObjectId(), new ItemInfo(item, 2));
 	}
 	
+	public final void addNewItem(L2ItemInstance item)
+	{
+		_items.put(item.getObjectId(), new ItemInfo(item, 1));
+	}
+	
 	public final void addRemovedItem(L2ItemInstance item)
 	{
 		_items.put(item.getObjectId(), new ItemInfo(item, 3));
-	}
-	
-	public final void addItems(List<L2ItemInstance> items)
-	{
-		for (L2ItemInstance item : items)
-		{
-			_items.put(item.getObjectId(), new ItemInfo(item));
-		}
 	}
 	
 	public final Collection<ItemInfo> getItems()

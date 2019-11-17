@@ -53,6 +53,19 @@ public class ConditionLogicAnd extends Condition
 	}
 	
 	@Override
+	public boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item)
+	{
+		for (Condition c : conditions)
+		{
+			if (!c.test(effector, effected, skill, item))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	@Override
 	void setListener(ConditionListener listener)
 	{
 		if (listener != null)
@@ -70,18 +83,5 @@ public class ConditionLogicAnd extends Condition
 			}
 		}
 		super.setListener(listener);
-	}
-	
-	@Override
-	public boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item)
-	{
-		for (Condition c : conditions)
-		{
-			if (!c.test(effector, effected, skill, item))
-			{
-				return false;
-			}
-		}
-		return true;
 	}
 }

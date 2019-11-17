@@ -202,19 +202,14 @@ public class ItemInfo
 		_option = item.getEnchantOptions();
 	}
 	
-	public int getObjectId()
+	public int getAttackElementPower()
 	{
-		return _objectId;
+		return _elemAtkPower;
 	}
 	
-	public L2Item getItem()
+	public int getAttackElementType()
 	{
-		return _item;
-	}
-	
-	public int getEnchant()
-	{
-		return _enchant;
+		return _elemAtkType;
 	}
 	
 	public int getAugmentationBonus()
@@ -222,14 +217,14 @@ public class ItemInfo
 		return _augmentation;
 	}
 	
+	public int getChange()
+	{
+		return _change;
+	}
+	
 	public long getCount()
 	{
 		return _count;
-	}
-	
-	public int getPrice()
-	{
-		return _price;
 	}
 	
 	public int getCustomType1()
@@ -242,24 +237,29 @@ public class ItemInfo
 		return _type2;
 	}
 	
+	public int getElementDefAttr(byte i)
+	{
+		return _elemDefAttr[i];
+	}
+	
+	public int getEnchant()
+	{
+		return _enchant;
+	}
+	
+	public int[] getEnchantOptions()
+	{
+		return _option;
+	}
+	
 	public int getEquipped()
 	{
 		return _equipped;
 	}
 	
-	public int getChange()
+	public L2Item getItem()
 	{
-		return _change;
-	}
-	
-	public int getMana()
-	{
-		return _mana;
-	}
-	
-	public int getTime()
-	{
-		return _time;
+		return _item;
 	}
 	
 	public int getLocation()
@@ -267,23 +267,23 @@ public class ItemInfo
 		return _location;
 	}
 	
-	public int getAttackElementType()
+	public int getMana()
 	{
-		return _elemAtkType;
+		return _mana;
 	}
 	
-	public int getAttackElementPower()
+	public int getObjectId()
 	{
-		return _elemAtkPower;
+		return _objectId;
 	}
 	
-	public int getElementDefAttr(byte i)
+	public int getPrice()
 	{
-		return _elemDefAttr[i];
+		return _price;
 	}
 	
-	public int[] getEnchantOptions()
+	public int getTime()
 	{
-		return _option;
+		return _time;
 	}
 }

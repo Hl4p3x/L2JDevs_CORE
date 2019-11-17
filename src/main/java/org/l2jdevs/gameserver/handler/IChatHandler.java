@@ -27,6 +27,12 @@ import org.l2jdevs.gameserver.model.actor.instance.L2PcInstance;
 public interface IChatHandler
 {
 	/**
+	 * Returns a list of all chat types registered to this handler
+	 * @return
+	 */
+	public int[] getChatTypeList();
+	
+	/**
 	 * Handles a specific type of chat messages
 	 * @param type
 	 * @param activeChar
@@ -34,10 +40,4 @@ public interface IChatHandler
 	 * @param text
 	 */
 	public void handleChat(int type, L2PcInstance activeChar, String target, String text);
-	
-	/**
-	 * Returns a list of all chat types registered to this handler
-	 * @return
-	 */
-	public int[] getChatTypeList();
 }

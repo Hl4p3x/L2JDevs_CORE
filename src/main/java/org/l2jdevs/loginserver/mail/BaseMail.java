@@ -47,22 +47,6 @@ public class BaseMail implements Runnable
 	
 	private MimeMessage _messageMime = null;
 	
-	private class SmtpAuthenticator extends Authenticator
-	{
-		private final PasswordAuthentication _auth;
-		
-		public SmtpAuthenticator()
-		{
-			_auth = new PasswordAuthentication(Config.EMAIL_SYS_USERNAME, Config.EMAIL_SYS_PASSWORD);
-		}
-		
-		@Override
-		public PasswordAuthentication getPasswordAuthentication()
-		{
-			return _auth;
-		}
-	}
-	
 	public BaseMail(String account, String mailId, String... args)
 	{
 		String mailAddr = getUserMail(account);
@@ -112,6 +96,22 @@ public class BaseMail implements Runnable
 		}
 	}
 	
+	@Override
+	public void run()
+	{
+		try
+		{
+			if (_messageMime != null)
+			{
+				Transport.send(_messageMime);
+			}
+		}
+		catch (MessagingException e)
+		{
+			_log.warning("Error encounterd while sending email");
+		}
+	}
+	
 	private String compileHtml(String account, String html, String[] args)
 	{
 		if (args != null)
@@ -147,19 +147,19 @@ public class BaseMail implements Runnable
 		return null;
 	}
 	
-	@Override
-	public void run()
+	private class SmtpAuthenticator extends Authenticator
 	{
-		try
+		private final PasswordAuthentication _auth;
+		
+		public SmtpAuthenticator()
 		{
-			if (_messageMime != null)
-			{
-				Transport.send(_messageMime);
-			}
+			_auth = new PasswordAuthentication(Config.EMAIL_SYS_USERNAME, Config.EMAIL_SYS_PASSWORD);
 		}
-		catch (MessagingException e)
+		
+		@Override
+		public PasswordAuthentication getPasswordAuthentication()
 		{
-			_log.warning("Error encounterd while sending email");
+			return _auth;
 		}
 	}
 }

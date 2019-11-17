@@ -39,6 +39,12 @@ public final class RequestGiveItemToPet extends L2GameClientPacket
 	private long _amount;
 	
 	@Override
+	public String getType()
+	{
+		return _C__95_REQUESTCIVEITEMTOPET;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -123,11 +129,5 @@ public final class RequestGiveItemToPet extends L2GameClientPacket
 		{
 			_log.warning("Invalid item transfer request: " + pet.getName() + "(pet) --> " + player.getName());
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__95_REQUESTCIVEITEMTOPET;
 	}
 }

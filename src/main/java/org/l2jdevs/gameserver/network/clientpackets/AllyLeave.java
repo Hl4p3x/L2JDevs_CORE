@@ -28,6 +28,12 @@ public final class AllyLeave extends L2GameClientPacket
 	private static final String _C__8E_ALLYLEAVE = "[C] 8E AllyLeave";
 	
 	@Override
+	public String getType()
+	{
+		return _C__8E_ALLYLEAVE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 	}
@@ -70,11 +76,5 @@ public final class AllyLeave extends L2GameClientPacket
 		clan.updateClanInDB();
 		
 		player.sendPacket(SystemMessageId.YOU_HAVE_WITHDRAWN_FROM_ALLIANCE);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__8E_ALLYLEAVE;
 	}
 }

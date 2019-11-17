@@ -32,6 +32,12 @@ public final class RequestOlympiadMatchList extends L2GameClientPacket
 	private static final String COMMAND = "arenalist";
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_2E_REQUESTOLYMPIADMATCHLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger packet
@@ -51,11 +57,5 @@ public final class RequestOlympiadMatchList extends L2GameClientPacket
 		{
 			handler.useBypass(COMMAND, activeChar, null);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_2E_REQUESTOLYMPIADMATCHLIST;
 	}
 }

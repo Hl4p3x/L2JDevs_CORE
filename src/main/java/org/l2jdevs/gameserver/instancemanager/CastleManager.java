@@ -43,10 +43,6 @@ public final class CastleManager implements InstanceListManager
 {
 	private static final Logger _log = Logger.getLogger(CastleManager.class.getName());
 	
-	private final List<Castle> _castles = new ArrayList<>();
-	
-	private final Map<Integer, Long> _castleSiegeDate = new ConcurrentHashMap<>();
-	
 	private static final int _castleCirclets[] =
 	{
 		0,
@@ -60,6 +56,24 @@ public final class CastleManager implements InstanceListManager
 		8182,
 		8183
 	};
+	
+	private final List<Castle> _castles = new ArrayList<>();
+	
+	private final Map<Integer, Long> _castleSiegeDate = new ConcurrentHashMap<>();
+	
+	public static final CastleManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	@Override
+	public void activateInstances()
+	{
+		for (final Castle castle : _castles)
+		{
+			castle.activateInstance();
+		}
+	}
 	
 	public final int findNearestCastleIndex(L2Object obj)
 	{
@@ -91,6 +105,35 @@ public final class CastleManager implements InstanceListManager
 		return index;
 	}
 	
+	public final Castle getCastle(int x, int y, int z)
+	{
+		for (Castle temp : _castles)
+		{
+			if (temp.checkIfInZone(x, y, z))
+			{
+				return temp;
+			}
+		}
+		return null;
+	}
+	
+	public final Castle getCastle(L2Object activeObject)
+	{
+		return getCastle(activeObject.getX(), activeObject.getY(), activeObject.getZ());
+	}
+	
+	public final Castle getCastle(String name)
+	{
+		for (Castle temp : _castles)
+		{
+			if (temp.getName().equalsIgnoreCase(name.trim()))
+			{
+				return temp;
+			}
+		}
+		return null;
+	}
+	
 	public final Castle getCastleById(int castleId)
 	{
 		for (Castle temp : _castles)
@@ -115,35 +158,6 @@ public final class CastleManager implements InstanceListManager
 		return null;
 	}
 	
-	public final Castle getCastle(String name)
-	{
-		for (Castle temp : _castles)
-		{
-			if (temp.getName().equalsIgnoreCase(name.trim()))
-			{
-				return temp;
-			}
-		}
-		return null;
-	}
-	
-	public final Castle getCastle(int x, int y, int z)
-	{
-		for (Castle temp : _castles)
-		{
-			if (temp.checkIfInZone(x, y, z))
-			{
-				return temp;
-			}
-		}
-		return null;
-	}
-	
-	public final Castle getCastle(L2Object activeObject)
-	{
-		return getCastle(activeObject.getX(), activeObject.getY(), activeObject.getZ());
-	}
-	
 	public final int getCastleIndex(int castleId)
 	{
 		Castle castle;
@@ -156,11 +170,6 @@ public final class CastleManager implements InstanceListManager
 			}
 		}
 		return -1;
-	}
-	
-	public final int getCastleIndex(L2Object activeObject)
-	{
-		return getCastleIndex(activeObject.getX(), activeObject.getY(), activeObject.getZ());
 	}
 	
 	public final int getCastleIndex(int x, int y, int z)
@@ -177,9 +186,42 @@ public final class CastleManager implements InstanceListManager
 		return -1;
 	}
 	
+	public final int getCastleIndex(L2Object activeObject)
+	{
+		return getCastleIndex(activeObject.getX(), activeObject.getY(), activeObject.getZ());
+	}
+	
 	public final List<Castle> getCastles()
 	{
 		return _castles;
+	}
+	
+	public int getCirclet()
+	{
+		return getCircletByCastleId(1);
+	}
+	
+	public int getCircletByCastleId(int castleId)
+	{
+		if ((castleId > 0) && (castleId < 10))
+		{
+			return _castleCirclets[castleId];
+		}
+		
+		return 0;
+	}
+	
+	public int getSiegeDates(long siegeDate)
+	{
+		int count = 0;
+		for (long date : _castleSiegeDate.values())
+		{
+			if (Math.abs(date - siegeDate) < 1000)
+			{
+				count++;
+			}
+		}
+		return count;
 	}
 	
 	public boolean hasOwnedCastle()
@@ -196,43 +238,28 @@ public final class CastleManager implements InstanceListManager
 		return hasOwnedCastle;
 	}
 	
-	public final void validateTaxes(int sealStrifeOwner)
+	@Override
+	public void loadInstances()
 	{
-		int maxTax;
-		switch (sealStrifeOwner)
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement s = con.createStatement();
+			ResultSet rs = s.executeQuery("SELECT id FROM castle ORDER BY id"))
 		{
-			case SevenSigns.CABAL_DUSK:
-				maxTax = 5;
-				break;
-			case SevenSigns.CABAL_DAWN:
-				maxTax = 25;
-				break;
-			default: // no owner
-				maxTax = 15;
-				break;
-		}
-		for (Castle castle : _castles)
-		{
-			if (castle.getTaxPercent() > maxTax)
+			while (rs.next())
 			{
-				castle.setTaxPercent(maxTax);
+				_castles.add(new Castle(rs.getInt("id")));
 			}
+			_log.info(getClass().getSimpleName() + ": Loaded: " + _castles.size() + " castles");
 		}
-	}
-	
-	public int getCirclet()
-	{
-		return getCircletByCastleId(1);
-	}
-	
-	public int getCircletByCastleId(int castleId)
-	{
-		if ((castleId > 0) && (castleId < 10))
+		catch (Exception e)
 		{
-			return _castleCirclets[castleId];
+			_log.log(Level.WARNING, "Exception: loadCastleData(): " + e.getMessage(), e);
 		}
-		
-		return 0;
+	}
+	
+	public void registerSiegeDate(int castleId, long siegeDate)
+	{
+		_castleSiegeDate.put(castleId, siegeDate);
 	}
 	
 	// remove this castle's circlets from the clan
@@ -292,59 +319,32 @@ public final class CastleManager implements InstanceListManager
 	}
 	
 	@Override
-	public void loadInstances()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement s = con.createStatement();
-			ResultSet rs = s.executeQuery("SELECT id FROM castle ORDER BY id"))
-		{
-			while (rs.next())
-			{
-				_castles.add(new Castle(rs.getInt("id")));
-			}
-			_log.info(getClass().getSimpleName() + ": Loaded: " + _castles.size() + " castles");
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Exception: loadCastleData(): " + e.getMessage(), e);
-		}
-	}
-	
-	@Override
 	public void updateReferences()
 	{
 	}
 	
-	@Override
-	public void activateInstances()
+	public final void validateTaxes(int sealStrifeOwner)
 	{
-		for (final Castle castle : _castles)
+		int maxTax;
+		switch (sealStrifeOwner)
 		{
-			castle.activateInstance();
+			case SevenSigns.CABAL_DUSK:
+				maxTax = 5;
+				break;
+			case SevenSigns.CABAL_DAWN:
+				maxTax = 25;
+				break;
+			default: // no owner
+				maxTax = 15;
+				break;
 		}
-	}
-	
-	public void registerSiegeDate(int castleId, long siegeDate)
-	{
-		_castleSiegeDate.put(castleId, siegeDate);
-	}
-	
-	public int getSiegeDates(long siegeDate)
-	{
-		int count = 0;
-		for (long date : _castleSiegeDate.values())
+		for (Castle castle : _castles)
 		{
-			if (Math.abs(date - siegeDate) < 1000)
+			if (castle.getTaxPercent() > maxTax)
 			{
-				count++;
+				castle.setTaxPercent(maxTax);
 			}
 		}
-		return count;
-	}
-	
-	public static final CastleManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

@@ -54,17 +54,17 @@ public class OnCreatureAttackAvoid implements IBaseEvent
 		return _target;
 	}
 	
+	@Override
+	public EventType getType()
+	{
+		return EventType.ON_CREATURE_ATTACK_AVOID;
+	}
+	
 	/**
 	 * @return
 	 */
 	public boolean isDamageOverTime()
 	{
 		return _damageOverTime;
-	}
-	
-	@Override
-	public EventType getType()
-	{
-		return EventType.ON_CREATURE_ATTACK_AVOID;
 	}
 }

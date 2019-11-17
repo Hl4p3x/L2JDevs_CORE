@@ -35,14 +35,14 @@ public final class AirShipTeleportList
 		_routes = r;
 	}
 	
-	public int getLocation()
-	{
-		return _location;
-	}
-	
 	public int[] getFuel()
 	{
 		return _fuel;
+	}
+	
+	public int getLocation()
+	{
+		return _location;
 	}
 	
 	public VehiclePathPoint[][] getRoute()

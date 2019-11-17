@@ -44,6 +44,12 @@ public final class RequestPartyMatchDetail extends L2GameClientPacket
 	private int _unk3;
 	
 	@Override
+	public String getType()
+	{
+		return _C__81_REQUESTPARTYMATCHDETAIL;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_roomid = readD();
@@ -101,11 +107,5 @@ public final class RequestPartyMatchDetail extends L2GameClientPacket
 		{
 			_activeChar.sendPacket(SystemMessageId.CANT_ENTER_PARTY_ROOM);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__81_REQUESTPARTYMATCHDETAIL;
 	}
 }

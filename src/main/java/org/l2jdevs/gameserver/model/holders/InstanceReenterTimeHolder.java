@@ -31,14 +31,6 @@ public final class InstanceReenterTimeHolder
 	private final int _minute;
 	private final long _time;
 	
-	public InstanceReenterTimeHolder(long time)
-	{
-		_time = time;
-		_day = null;
-		_hour = -1;
-		_minute = -1;
-	}
-	
 	public InstanceReenterTimeHolder(DayOfWeek day, int hour, int minute)
 	{
 		_time = -1;
@@ -47,9 +39,12 @@ public final class InstanceReenterTimeHolder
 		_minute = minute;
 	}
 	
-	public final Long getTime()
+	public InstanceReenterTimeHolder(long time)
 	{
-		return _time;
+		_time = time;
+		_day = null;
+		_hour = -1;
+		_minute = -1;
 	}
 	
 	public final DayOfWeek getDay()
@@ -65,5 +60,10 @@ public final class InstanceReenterTimeHolder
 	public final int getMinute()
 	{
 		return _minute;
+	}
+	
+	public final Long getTime()
+	{
+		return _time;
 	}
 }

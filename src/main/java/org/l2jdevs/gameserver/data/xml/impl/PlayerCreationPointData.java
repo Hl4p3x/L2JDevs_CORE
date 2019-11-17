@@ -44,12 +44,9 @@ public class PlayerCreationPointData implements IXmlReader
 		load();
 	}
 	
-	@Override
-	public void load()
+	public static final PlayerCreationPointData getInstance()
 	{
-		_creationPointData.clear();
-		parseDatapackFile("data/stats/chars/pcCreationPoints.xml");
-		LOG.info("{}: Loaded {} character creation points.", getClass().getSimpleName(), _creationPointData.values().stream().mapToInt(array -> array.length).sum());
+		return SingletonHolder._instance;
 	}
 	
 	/**
@@ -58,6 +55,14 @@ public class PlayerCreationPointData implements IXmlReader
 	public Location getCreationPoint(ClassId classId)
 	{
 		return Rnd.randomElement(_creationPointData.get(classId));
+	}
+	
+	@Override
+	public void load()
+	{
+		_creationPointData.clear();
+		parseDatapackFile("data/stats/chars/pcCreationPoints.xml");
+		LOG.info("{}: Loaded {} character creation points.", getClass().getSimpleName(), _creationPointData.values().stream().mapToInt(array -> array.length).sum());
 	}
 	
 	@Override
@@ -89,11 +94,6 @@ public class PlayerCreationPointData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	public static final PlayerCreationPointData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

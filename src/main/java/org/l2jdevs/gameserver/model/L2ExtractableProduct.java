@@ -43,14 +43,14 @@ public class L2ExtractableProduct
 		_chance = (int) (chance * 1000);
 	}
 	
+	public int getChance()
+	{
+		return _chance;
+	}
+	
 	public int getId()
 	{
 		return _id;
-	}
-	
-	public int getMin()
-	{
-		return _min;
 	}
 	
 	public int getMax()
@@ -58,8 +58,8 @@ public class L2ExtractableProduct
 		return _max;
 	}
 	
-	public int getChance()
+	public int getMin()
 	{
-		return _chance;
+		return _min;
 	}
 }

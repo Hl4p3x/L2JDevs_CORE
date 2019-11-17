@@ -45,22 +45,31 @@ public final class CommunityBoardHandler implements IHandler<IParseBoardHandler,
 		// Prevent external initialization.
 	}
 	
-	@Override
-	public void registerHandler(IParseBoardHandler handler)
+	public static CommunityBoardHandler getInstance()
 	{
-		for (String cmd : handler.getCommunityBoardCommands())
-		{
-			_datatable.put(cmd.toLowerCase(), handler);
-		}
+		return SingletonHolder._instance;
 	}
 	
-	@Override
-	public synchronized void removeHandler(IParseBoardHandler handler)
+	/**
+	 * Separates and send an HTML into multiple packets, to display into the community board.<br>
+	 * The limit is 16383 characters.
+	 * @param html the HTML to send
+	 * @param player the player
+	 */
+	public static void separateAndSend(String html, L2PcInstance player)
 	{
-		for (String cmd : handler.getCommunityBoardCommands())
-		{
-			_datatable.remove(cmd.toLowerCase());
-		}
+		Util.sendCBHtml(player, html);
+	}
+	
+	/**
+	 * Sets the last bypass used by the player.
+	 * @param player the player
+	 * @param title the title
+	 * @param bypass the bypass
+	 */
+	public void addBypass(L2PcInstance player, String title, String bypass)
+	{
+		_bypasses.put(player.getObjectId(), title + "&" + bypass);
 	}
 	
 	@Override
@@ -77,22 +86,6 @@ public final class CommunityBoardHandler implements IHandler<IParseBoardHandler,
 			}
 		}
 		return null;
-	}
-	
-	@Override
-	public int size()
-	{
-		return _datatable.size();
-	}
-	
-	/**
-	 * Verifies if the string is a registered community board command.
-	 * @param cmd the command to verify
-	 * @return {@code true} if the command has been registered, {@code false} otherwise
-	 */
-	public boolean isCommunityBoardCommand(String cmd)
-	{
-		return getHandler(cmd) != null;
 	}
 	
 	/**
@@ -192,14 +185,22 @@ public final class CommunityBoardHandler implements IHandler<IParseBoardHandler,
 	}
 	
 	/**
-	 * Sets the last bypass used by the player.
-	 * @param player the player
-	 * @param title the title
-	 * @param bypass the bypass
+	 * Verifies if the string is a registered community board command.
+	 * @param cmd the command to verify
+	 * @return {@code true} if the command has been registered, {@code false} otherwise
 	 */
-	public void addBypass(L2PcInstance player, String title, String bypass)
+	public boolean isCommunityBoardCommand(String cmd)
 	{
-		_bypasses.put(player.getObjectId(), title + "&" + bypass);
+		return getHandler(cmd) != null;
+	}
+	
+	@Override
+	public void registerHandler(IParseBoardHandler handler)
+	{
+		for (String cmd : handler.getCommunityBoardCommands())
+		{
+			_datatable.put(cmd.toLowerCase(), handler);
+		}
 	}
 	
 	/**
@@ -212,20 +213,19 @@ public final class CommunityBoardHandler implements IHandler<IParseBoardHandler,
 		return _bypasses.remove(player.getObjectId());
 	}
 	
-	/**
-	 * Separates and send an HTML into multiple packets, to display into the community board.<br>
-	 * The limit is 16383 characters.
-	 * @param html the HTML to send
-	 * @param player the player
-	 */
-	public static void separateAndSend(String html, L2PcInstance player)
+	@Override
+	public synchronized void removeHandler(IParseBoardHandler handler)
 	{
-		Util.sendCBHtml(player, html);
+		for (String cmd : handler.getCommunityBoardCommands())
+		{
+			_datatable.remove(cmd.toLowerCase());
+		}
 	}
 	
-	public static CommunityBoardHandler getInstance()
+	@Override
+	public int size()
 	{
-		return SingletonHolder._instance;
+		return _datatable.size();
 	}
 	
 	private static class SingletonHolder

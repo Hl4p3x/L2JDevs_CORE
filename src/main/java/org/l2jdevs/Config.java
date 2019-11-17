@@ -999,17 +999,11 @@ public final class Config
 	public static int PVP_NORMAL_TIME;
 	public static int PVP_PVP_TIME;
 	
-	public static enum IdFactoryType
-	{
-		Compaction,
-		BitSet,
-		Stack
-	}
-	
 	public static IdFactoryType IDFACTORY_TYPE;
-	public static boolean BAD_ID_CHECKING;
 	
+	public static boolean BAD_ID_CHECKING;
 	public static double ENCHANT_CHANCE_ELEMENT_STONE;
+	
 	public static double ENCHANT_CHANCE_ELEMENT_CRYSTAL;
 	public static double ENCHANT_CHANCE_ELEMENT_JEWEL;
 	public static double ENCHANT_CHANCE_ELEMENT_ENERGY;
@@ -1046,46 +1040,46 @@ public final class Config
 	public static int NORMAL_CONNECTION_TIME;
 	public static int FAST_CONNECTION_TIME;
 	public static int MAX_CONNECTION_PER_IP;
+	// Antharas
+	public static int ANTHARAS_WAIT_TIME;
 	
 	// GrandBoss Settings
 	
-	// Antharas
-	public static int ANTHARAS_WAIT_TIME;
 	public static int ANTHARAS_SPAWN_INTERVAL;
 	public static int ANTHARAS_SPAWN_RANDOM;
-	
 	// Valakas
 	public static int VALAKAS_WAIT_TIME;
+	
 	public static int VALAKAS_SPAWN_INTERVAL;
 	public static int VALAKAS_SPAWN_RANDOM;
-	
 	// Baium
 	public static int BAIUM_SPAWN_INTERVAL;
-	public static int BAIUM_SPAWN_RANDOM;
 	
+	public static int BAIUM_SPAWN_RANDOM;
 	// Core
 	public static int CORE_SPAWN_INTERVAL;
-	public static int CORE_SPAWN_RANDOM;
 	
+	public static int CORE_SPAWN_RANDOM;
 	// Offen
 	public static int ORFEN_SPAWN_INTERVAL;
-	public static int ORFEN_SPAWN_RANDOM;
 	
+	public static int ORFEN_SPAWN_RANDOM;
 	// Queen Ant
 	public static int QUEEN_ANT_SPAWN_INTERVAL;
-	public static int QUEEN_ANT_SPAWN_RANDOM;
 	
+	public static int QUEEN_ANT_SPAWN_RANDOM;
 	// Beleth
 	public static int BELETH_MIN_PLAYERS;
+	
 	public static int BELETH_SPAWN_INTERVAL;
 	public static int BELETH_SPAWN_RANDOM;
-	
 	// Gracia Seeds Settings
 	public static int SOD_TIAT_KILL_COUNT;
-	public static long SOD_STAGE_2_LENGTH;
 	
+	public static long SOD_STAGE_2_LENGTH;
 	// Hunting Bonus Settings
 	public static boolean HUNTING_BONUS_ENGINE;
+	
 	public static int HUNTING_BONUS_MAX_POINTS;
 	public static int HUNTING_BONUS_MAX_TIME;
 	public static int HUNTING_BONUS_REFRESH_RATE;
@@ -1093,12 +1087,12 @@ public final class Config
 	public static int HUNTING_BONUS_EFFECT_TIME;
 	public static boolean HUNTING_BONUS_EXTRA_POINTS;
 	public static boolean HUNTING_BONUS_EXTRA_POINTS_ALL_TIME;
-	
 	// chatfilter
 	public static List<String> FILTER_LIST;
 	
 	// Email
 	public static String EMAIL_SERVERINFO_NAME;
+	
 	public static String EMAIL_SERVERINFO_ADDRESS;
 	public static boolean EMAIL_SYS_ENABLED;
 	public static String EMAIL_SYS_HOST;
@@ -1111,17 +1105,17 @@ public final class Config
 	public static String EMAIL_SYS_ADDRESS;
 	public static String EMAIL_SYS_SELECTQUERY;
 	public static String EMAIL_SYS_DBFIELD;
-	
 	// Conquerable Halls Settings
 	public static int CHS_CLAN_MINLEVEL;
+	
 	public static int CHS_MAX_ATTACKERS;
 	public static int CHS_MAX_FLAGS_PER_CLAN;
 	public static boolean CHS_ENABLE_FAME;
 	public static int CHS_FAME_AMOUNT;
 	public static int CHS_FAME_FREQUENCY;
-	
 	// GeoData Settings
 	public static int PATHFINDING;
+	
 	public static File PATHNODE_DIR;
 	public static String PATHFIND_BUFFERS;
 	public static float LOW_WEIGHT;
@@ -1136,6 +1130,40 @@ public final class Config
 	public static Path GEODATA_PATH;
 	public static boolean TRY_LOAD_UNSPECIFIED_REGIONS;
 	public static Map<String, Boolean> GEODATA_REGIONS;
+	public static int getServerTypeId(String[] serverTypes)
+	{
+		int tType = 0;
+		for (String cType : serverTypes)
+		{
+			switch (cType.trim().toLowerCase())
+			{
+				case "normal":
+					tType |= 0x01;
+					break;
+				case "relax":
+					tType |= 0x02;
+					break;
+				case "test":
+					tType |= 0x04;
+					break;
+				case "nolabel":
+					tType |= 0x08;
+					break;
+				case "restricted":
+					tType |= 0x10;
+					break;
+				case "event":
+					tType |= 0x20;
+					break;
+				case "free":
+					tType |= 0x40;
+					break;
+				default:
+					break;
+			}
+		}
+		return tType;
+	}
 	
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2842,6 +2870,44 @@ public final class Config
 	}
 	
 	/**
+	 * Save hexadecimal ID of the server in the L2Properties file.<br>
+	 * Check {@link #HEXID_FILE}.
+	 * @param serverId the ID of the server whose hexId to save
+	 * @param hexId the hexadecimal ID to store
+	 */
+	public static void saveHexid(int serverId, String hexId)
+	{
+		Config.saveHexid(serverId, hexId, HEXID_FILE);
+	}
+	
+	/**
+	 * Save hexadecimal ID of the server in the L2Properties file.
+	 * @param serverId the ID of the server whose hexId to save
+	 * @param hexId the hexadecimal ID to store
+	 * @param fileName name of the L2Properties file
+	 */
+	public static void saveHexid(int serverId, String hexId, String fileName)
+	{
+		try
+		{
+			Properties hexSetting = new Properties();
+			File file = new File(fileName);
+			// Create a new empty file only if it doesn't exist
+			file.createNewFile();
+			try (OutputStream out = new FileOutputStream(file))
+			{
+				hexSetting.setProperty("ServerID", String.valueOf(serverId));
+				hexSetting.setProperty("HexID", hexId);
+				hexSetting.store(out, "the hexID to auth into login");
+			}
+		}
+		catch (Exception e)
+		{
+			LOG.warn("Failed to save hex id to {} file.", fileName, e);
+		}
+	}
+	
+	/**
 	 * Set a new value to a config parameter.
 	 * @param pName the name of the parameter whose value to change
 	 * @param pValue the new value of the parameter
@@ -3687,41 +3753,19 @@ public final class Config
 	}
 	
 	/**
-	 * Save hexadecimal ID of the server in the L2Properties file.<br>
-	 * Check {@link #HEXID_FILE}.
-	 * @param serverId the ID of the server whose hexId to save
-	 * @param hexId the hexadecimal ID to store
+	 * Loads single flood protector configuration.
+	 * @param properties properties file reader
+	 * @param config flood protector configuration instance
+	 * @param configString flood protector configuration string that determines for which flood protector configuration should be read
+	 * @param defaultInterval default flood protector interval
 	 */
-	public static void saveHexid(int serverId, String hexId)
+	private static void loadFloodProtectorConfig(final PropertiesParser properties, final FloodProtectorConfig config, final String configString, final int defaultInterval)
 	{
-		Config.saveHexid(serverId, hexId, HEXID_FILE);
-	}
-	
-	/**
-	 * Save hexadecimal ID of the server in the L2Properties file.
-	 * @param serverId the ID of the server whose hexId to save
-	 * @param hexId the hexadecimal ID to store
-	 * @param fileName name of the L2Properties file
-	 */
-	public static void saveHexid(int serverId, String hexId, String fileName)
-	{
-		try
-		{
-			Properties hexSetting = new Properties();
-			File file = new File(fileName);
-			// Create a new empty file only if it doesn't exist
-			file.createNewFile();
-			try (OutputStream out = new FileOutputStream(file))
-			{
-				hexSetting.setProperty("ServerID", String.valueOf(serverId));
-				hexSetting.setProperty("HexID", hexId);
-				hexSetting.store(out, "the hexID to auth into login");
-			}
-		}
-		catch (Exception e)
-		{
-			LOG.warn("Failed to save hex id to {} file.", fileName, e);
-		}
+		config.FLOOD_PROTECTION_INTERVAL = properties.getInt(StringUtil.concat("FloodProtector", configString, "Interval"), defaultInterval);
+		config.LOG_FLOODING = properties.getBoolean(StringUtil.concat("FloodProtector", configString, "LogFlooding"), false);
+		config.PUNISHMENT_LIMIT = properties.getInt(StringUtil.concat("FloodProtector", configString, "PunishmentLimit"), 0);
+		config.PUNISHMENT_TYPE = properties.getString(StringUtil.concat("FloodProtector", configString, "PunishmentType"), "none");
+		config.PUNISHMENT_TIME = properties.getInt(StringUtil.concat("FloodProtector", configString, "PunishmentTime"), 0) * 60000;
 	}
 	
 	/**
@@ -3746,140 +3790,6 @@ public final class Config
 		loadFloodProtectorConfig(properties, FLOOD_PROTECTOR_SENDMAIL, "SendMail", 100);
 		loadFloodProtectorConfig(properties, FLOOD_PROTECTOR_CHARACTER_SELECT, "CharacterSelect", 30);
 		loadFloodProtectorConfig(properties, FLOOD_PROTECTOR_ITEM_AUCTION, "ItemAuction", 9);
-	}
-	
-	/**
-	 * Loads single flood protector configuration.
-	 * @param properties properties file reader
-	 * @param config flood protector configuration instance
-	 * @param configString flood protector configuration string that determines for which flood protector configuration should be read
-	 * @param defaultInterval default flood protector interval
-	 */
-	private static void loadFloodProtectorConfig(final PropertiesParser properties, final FloodProtectorConfig config, final String configString, final int defaultInterval)
-	{
-		config.FLOOD_PROTECTION_INTERVAL = properties.getInt(StringUtil.concat("FloodProtector", configString, "Interval"), defaultInterval);
-		config.LOG_FLOODING = properties.getBoolean(StringUtil.concat("FloodProtector", configString, "LogFlooding"), false);
-		config.PUNISHMENT_LIMIT = properties.getInt(StringUtil.concat("FloodProtector", configString, "PunishmentLimit"), 0);
-		config.PUNISHMENT_TYPE = properties.getString(StringUtil.concat("FloodProtector", configString, "PunishmentType"), "none");
-		config.PUNISHMENT_TIME = properties.getInt(StringUtil.concat("FloodProtector", configString, "PunishmentTime"), 0) * 60000;
-	}
-	
-	public static int getServerTypeId(String[] serverTypes)
-	{
-		int tType = 0;
-		for (String cType : serverTypes)
-		{
-			switch (cType.trim().toLowerCase())
-			{
-				case "normal":
-					tType |= 0x01;
-					break;
-				case "relax":
-					tType |= 0x02;
-					break;
-				case "test":
-					tType |= 0x04;
-					break;
-				case "nolabel":
-					tType |= 0x08;
-					break;
-				case "restricted":
-					tType |= 0x10;
-					break;
-				case "event":
-					tType |= 0x20;
-					break;
-				case "free":
-					tType |= 0x40;
-					break;
-				default:
-					break;
-			}
-		}
-		return tType;
-	}
-	
-	public static final class ClassMasterSettings
-	{
-		private final Map<Integer, List<ItemHolder>> _claimItems = new HashMap<>(3);
-		private final Map<Integer, List<ItemHolder>> _rewardItems = new HashMap<>(3);
-		private final Map<Integer, Boolean> _allowedClassChange = new HashMap<>(3);
-		
-		public ClassMasterSettings(String configLine)
-		{
-			parseConfigLine(configLine.trim());
-		}
-		
-		private void parseConfigLine(String configLine)
-		{
-			if (configLine.isEmpty())
-			{
-				return;
-			}
-			
-			final StringTokenizer st = new StringTokenizer(configLine, ";");
-			
-			while (st.hasMoreTokens())
-			{
-				// get allowed class change
-				final int job = Integer.parseInt(st.nextToken());
-				
-				_allowedClassChange.put(job, true);
-				
-				final List<ItemHolder> requiredItems = new ArrayList<>();
-				// parse items needed for class change
-				if (st.hasMoreTokens())
-				{
-					final StringTokenizer st2 = new StringTokenizer(st.nextToken(), "[],");
-					
-					while (st2.hasMoreTokens())
-					{
-						final StringTokenizer st3 = new StringTokenizer(st2.nextToken(), "()");
-						final int itemId = Integer.parseInt(st3.nextToken());
-						final int quantity = Integer.parseInt(st3.nextToken());
-						requiredItems.add(new ItemHolder(itemId, quantity));
-					}
-				}
-				
-				_claimItems.put(job, requiredItems);
-				
-				final List<ItemHolder> rewardItems = new ArrayList<>();
-				// parse gifts after class change
-				if (st.hasMoreTokens())
-				{
-					final StringTokenizer st2 = new StringTokenizer(st.nextToken(), "[],");
-					
-					while (st2.hasMoreTokens())
-					{
-						final StringTokenizer st3 = new StringTokenizer(st2.nextToken(), "()");
-						final int itemId = Integer.parseInt(st3.nextToken());
-						final int quantity = Integer.parseInt(st3.nextToken());
-						rewardItems.add(new ItemHolder(itemId, quantity));
-					}
-				}
-				
-				_rewardItems.put(job, rewardItems);
-			}
-		}
-		
-		public boolean isAllowed(int job)
-		{
-			if ((_allowedClassChange == null) || !_allowedClassChange.containsKey(job))
-			{
-				return false;
-			}
-			return _allowedClassChange.get(job);
-		}
-		
-		public List<ItemHolder> getRewardItems(int job)
-		{
-			return _rewardItems.get(job);
-		}
-		
-		public List<ItemHolder> getRequireItems(int job)
-		{
-			return _claimItems.get(job);
-		}
 	}
 	
 	/**
@@ -3948,6 +3858,96 @@ public final class Config
 			result[i++] = tmp;
 		}
 		return result;
+	}
+	
+	public static final class ClassMasterSettings
+	{
+		private final Map<Integer, List<ItemHolder>> _claimItems = new HashMap<>(3);
+		private final Map<Integer, List<ItemHolder>> _rewardItems = new HashMap<>(3);
+		private final Map<Integer, Boolean> _allowedClassChange = new HashMap<>(3);
+		
+		public ClassMasterSettings(String configLine)
+		{
+			parseConfigLine(configLine.trim());
+		}
+		
+		public List<ItemHolder> getRequireItems(int job)
+		{
+			return _claimItems.get(job);
+		}
+		
+		public List<ItemHolder> getRewardItems(int job)
+		{
+			return _rewardItems.get(job);
+		}
+		
+		public boolean isAllowed(int job)
+		{
+			if ((_allowedClassChange == null) || !_allowedClassChange.containsKey(job))
+			{
+				return false;
+			}
+			return _allowedClassChange.get(job);
+		}
+		
+		private void parseConfigLine(String configLine)
+		{
+			if (configLine.isEmpty())
+			{
+				return;
+			}
+			
+			final StringTokenizer st = new StringTokenizer(configLine, ";");
+			
+			while (st.hasMoreTokens())
+			{
+				// get allowed class change
+				final int job = Integer.parseInt(st.nextToken());
+				
+				_allowedClassChange.put(job, true);
+				
+				final List<ItemHolder> requiredItems = new ArrayList<>();
+				// parse items needed for class change
+				if (st.hasMoreTokens())
+				{
+					final StringTokenizer st2 = new StringTokenizer(st.nextToken(), "[],");
+					
+					while (st2.hasMoreTokens())
+					{
+						final StringTokenizer st3 = new StringTokenizer(st2.nextToken(), "()");
+						final int itemId = Integer.parseInt(st3.nextToken());
+						final int quantity = Integer.parseInt(st3.nextToken());
+						requiredItems.add(new ItemHolder(itemId, quantity));
+					}
+				}
+				
+				_claimItems.put(job, requiredItems);
+				
+				final List<ItemHolder> rewardItems = new ArrayList<>();
+				// parse gifts after class change
+				if (st.hasMoreTokens())
+				{
+					final StringTokenizer st2 = new StringTokenizer(st.nextToken(), "[],");
+					
+					while (st2.hasMoreTokens())
+					{
+						final StringTokenizer st3 = new StringTokenizer(st2.nextToken(), "()");
+						final int itemId = Integer.parseInt(st3.nextToken());
+						final int quantity = Integer.parseInt(st3.nextToken());
+						rewardItems.add(new ItemHolder(itemId, quantity));
+					}
+				}
+				
+				_rewardItems.put(job, rewardItems);
+			}
+		}
+	}
+	
+	public static enum IdFactoryType
+	{
+		Compaction,
+		BitSet,
+		Stack
 	}
 	
 	private static class IPConfigData implements IXmlReader
@@ -4085,15 +4085,6 @@ public final class Config
 			}
 		}
 		
-		protected List<String> getSubnets()
-		{
-			if (_subnets.isEmpty())
-			{
-				return Arrays.asList("0.0.0.0/0");
-			}
-			return _subnets;
-		}
-		
 		protected List<String> getHosts()
 		{
 			if (_hosts.isEmpty())
@@ -4101,6 +4092,15 @@ public final class Config
 				return Arrays.asList("127.0.0.1");
 			}
 			return _hosts;
+		}
+		
+		protected List<String> getSubnets()
+		{
+			if (_subnets.isEmpty())
+			{
+				return Arrays.asList("0.0.0.0/0");
+			}
+			return _subnets;
 		}
 	}
 }

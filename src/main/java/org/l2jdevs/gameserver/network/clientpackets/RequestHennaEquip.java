@@ -36,6 +36,12 @@ public final class RequestHennaEquip extends L2GameClientPacket
 	private int _symbolId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__6F_REQUESTHENNAEQUIP;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_symbolId = readD();
@@ -89,11 +95,5 @@ public final class RequestHennaEquip extends L2GameClientPacket
 			}
 			sendActionFailed();
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__6F_REQUESTHENNAEQUIP;
 	}
 }

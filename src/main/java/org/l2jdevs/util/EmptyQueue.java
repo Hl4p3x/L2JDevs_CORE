@@ -38,15 +38,21 @@ public final class EmptyQueue<E> implements Queue<E>
 	}
 	
 	@Override
-	public int size()
+	public boolean add(E e)
 	{
-		return 0;
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	public boolean isEmpty()
+	public boolean addAll(Collection<? extends E> c)
 	{
-		return true;
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void clear()
+	{
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
@@ -56,37 +62,55 @@ public final class EmptyQueue<E> implements Queue<E>
 	}
 	
 	@Override
-	public Iterator<E> iterator()
-	{
-		return Collections.<E> emptyIterator();
-	}
-	
-	@Override
-	public Object[] toArray()
-	{
-		return new Object[0];
-	}
-	
-	@Override
-	public <T> T[] toArray(T[] a)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean remove(Object o)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
 	public boolean containsAll(Collection<?> c)
 	{
 		return false;
 	}
 	
 	@Override
-	public boolean addAll(Collection<? extends E> c)
+	public E element()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public boolean isEmpty()
+	{
+		return true;
+	}
+	
+	@Override
+	public Iterator<E> iterator()
+	{
+		return Collections.<E> emptyIterator();
+	}
+	
+	@Override
+	public boolean offer(E e)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public E peek()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public E poll()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public E remove()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public boolean remove(Object o)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -104,43 +128,19 @@ public final class EmptyQueue<E> implements Queue<E>
 	}
 	
 	@Override
-	public void clear()
+	public int size()
 	{
-		throw new UnsupportedOperationException();
+		return 0;
 	}
 	
 	@Override
-	public boolean add(E e)
+	public Object[] toArray()
 	{
-		throw new UnsupportedOperationException();
+		return new Object[0];
 	}
 	
 	@Override
-	public boolean offer(E e)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public E remove()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public E poll()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public E element()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public E peek()
+	public <T> T[] toArray(T[] a)
 	{
 		throw new UnsupportedOperationException();
 	}

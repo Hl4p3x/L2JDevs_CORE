@@ -33,18 +33,6 @@ public class NpcVariables extends AbstractVariables
 		return super.getInt(key, 0);
 	}
 	
-	@Override
-	public boolean restoreMe()
-	{
-		return true;
-	}
-	
-	@Override
-	public boolean storeMe()
-	{
-		return true;
-	}
-	
 	/**
 	 * Gets the stored player.
 	 * @param name the name of the variable
@@ -63,5 +51,17 @@ public class NpcVariables extends AbstractVariables
 	public L2Summon getSummon(String name)
 	{
 		return getObject(name, L2Summon.class);
+	}
+	
+	@Override
+	public boolean restoreMe()
+	{
+		return true;
+	}
+	
+	@Override
+	public boolean storeMe()
+	{
+		return true;
 	}
 }

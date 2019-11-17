@@ -39,46 +39,23 @@ import org.l2jdevs.gameserver.model.skills.Skill;
  */
 public class DocumentSkill extends DocumentBase
 {
-	public static class SkillInfo
-	{
-		public int id;
-		public String name;
-		public StatsSet[] sets;
-		public StatsSet[] enchsets1;
-		public StatsSet[] enchsets2;
-		public StatsSet[] enchsets3;
-		public StatsSet[] enchsets4;
-		public StatsSet[] enchsets5;
-		public StatsSet[] enchsets6;
-		public StatsSet[] enchsets7;
-		public StatsSet[] enchsets8;
-		public int currentLevel;
-		public List<Skill> skills = new ArrayList<>();
-		public List<Skill> currentSkills = new ArrayList<>();
-	}
-	
 	private SkillInfo _currentSkill;
-	private final List<Skill> _skillsInFile = new ArrayList<>();
 	
+	private final List<Skill> _skillsInFile = new ArrayList<>();
 	public DocumentSkill(File file)
 	{
 		super(file);
 	}
 	
-	private void setCurrentSkill(SkillInfo skill)
+	public List<Skill> getSkills()
 	{
-		_currentSkill = skill;
+		return _skillsInFile;
 	}
 	
 	@Override
 	protected StatsSet getStatsSet()
 	{
 		return _currentSkill.sets[_currentSkill.currentLevel];
-	}
-	
-	public List<Skill> getSkills()
-	{
-		return _skillsInFile;
 	}
 	
 	@Override
@@ -1619,5 +1596,28 @@ public class DocumentSkill extends DocumentBase
 				_log.log(Level.SEVERE, "Skill id=" + set.getInt("skill_id") + "level" + set.getInt("level"), e);
 			}
 		}
+	}
+	
+	private void setCurrentSkill(SkillInfo skill)
+	{
+		_currentSkill = skill;
+	}
+	
+	public static class SkillInfo
+	{
+		public int id;
+		public String name;
+		public StatsSet[] sets;
+		public StatsSet[] enchsets1;
+		public StatsSet[] enchsets2;
+		public StatsSet[] enchsets3;
+		public StatsSet[] enchsets4;
+		public StatsSet[] enchsets5;
+		public StatsSet[] enchsets6;
+		public StatsSet[] enchsets7;
+		public StatsSet[] enchsets8;
+		public int currentLevel;
+		public List<Skill> skills = new ArrayList<>();
+		public List<Skill> currentSkills = new ArrayList<>();
 	}
 }

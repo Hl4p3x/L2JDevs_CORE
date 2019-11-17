@@ -54,6 +54,111 @@ public final class ItemsOnGroundManager implements Runnable
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of {@code ItemsOnGroundManager}.
+	 * @return single instance of {@code ItemsOnGroundManager}
+	 */
+	public static final ItemsOnGroundManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public void cleanUp()
+	{
+		_items.clear();
+	}
+	
+	public void emptyTable()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement s = con.createStatement())
+		{
+			s.executeUpdate("DELETE FROM itemsonground");
+		}
+		catch (Exception e1)
+		{
+			_log.log(Level.SEVERE, getClass().getSimpleName() + ": Error while cleaning table ItemsOnGround " + e1.getMessage(), e1);
+		}
+	}
+	
+	public void removeObject(L2ItemInstance item)
+	{
+		if (Config.SAVE_DROPPED_ITEM)
+		{
+			_items.remove(item);
+		}
+	}
+	
+	@Override
+	public synchronized void run()
+	{
+		if (!Config.SAVE_DROPPED_ITEM)
+		{
+			return;
+		}
+		
+		emptyTable();
+		
+		if (_items.isEmpty())
+		{
+			return;
+		}
+		
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("INSERT INTO itemsonground(object_id,item_id,count,enchant_level,x,y,z,drop_time,equipable) VALUES(?,?,?,?,?,?,?,?,?)"))
+		{
+			for (L2ItemInstance item : _items)
+			{
+				if (item == null)
+				{
+					continue;
+				}
+				
+				if (CursedWeaponsManager.getInstance().isCursed(item.getId()))
+				{
+					continue; // Cursed Items not saved to ground, prevent double save
+				}
+				
+				try
+				{
+					ps.setInt(1, item.getObjectId());
+					ps.setInt(2, item.getId());
+					ps.setLong(3, item.getCount());
+					ps.setInt(4, item.getEnchantLevel());
+					ps.setInt(5, item.getX());
+					ps.setInt(6, item.getY());
+					ps.setInt(7, item.getZ());
+					ps.setLong(8, (item.isProtected() ? -1 : item.getDropTime())); // item is protected or AutoDestroyed
+					ps.setLong(9, (item.isEquipable() ? 1 : 0)); // set equip-able
+					ps.execute();
+					ps.clearParameters();
+				}
+				catch (Exception e)
+				{
+					_log.log(Level.SEVERE, getClass().getSimpleName() + ": Error while inserting into table ItemsOnGround: " + e.getMessage(), e);
+				}
+			}
+		}
+		catch (SQLException e)
+		{
+			_log.log(Level.SEVERE, getClass().getSimpleName() + ": SQL error while storing items on ground: " + e.getMessage(), e);
+		}
+	}
+	
+	public void save(L2ItemInstance item)
+	{
+		if (!Config.SAVE_DROPPED_ITEM)
+		{
+			return;
+		}
+		_items.add(item);
+	}
+	
+	public void saveInDb()
+	{
+		run();
+	}
+	
 	private void load()
 	{
 		// If SaveDroppedItem is false, may want to delete all items previously stored to avoid add old items on reactivate
@@ -150,111 +255,6 @@ public final class ItemsOnGroundManager implements Runnable
 		{
 			emptyTable();
 		}
-	}
-	
-	public void save(L2ItemInstance item)
-	{
-		if (!Config.SAVE_DROPPED_ITEM)
-		{
-			return;
-		}
-		_items.add(item);
-	}
-	
-	public void removeObject(L2ItemInstance item)
-	{
-		if (Config.SAVE_DROPPED_ITEM)
-		{
-			_items.remove(item);
-		}
-	}
-	
-	public void saveInDb()
-	{
-		run();
-	}
-	
-	public void cleanUp()
-	{
-		_items.clear();
-	}
-	
-	public void emptyTable()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement s = con.createStatement())
-		{
-			s.executeUpdate("DELETE FROM itemsonground");
-		}
-		catch (Exception e1)
-		{
-			_log.log(Level.SEVERE, getClass().getSimpleName() + ": Error while cleaning table ItemsOnGround " + e1.getMessage(), e1);
-		}
-	}
-	
-	@Override
-	public synchronized void run()
-	{
-		if (!Config.SAVE_DROPPED_ITEM)
-		{
-			return;
-		}
-		
-		emptyTable();
-		
-		if (_items.isEmpty())
-		{
-			return;
-		}
-		
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("INSERT INTO itemsonground(object_id,item_id,count,enchant_level,x,y,z,drop_time,equipable) VALUES(?,?,?,?,?,?,?,?,?)"))
-		{
-			for (L2ItemInstance item : _items)
-			{
-				if (item == null)
-				{
-					continue;
-				}
-				
-				if (CursedWeaponsManager.getInstance().isCursed(item.getId()))
-				{
-					continue; // Cursed Items not saved to ground, prevent double save
-				}
-				
-				try
-				{
-					ps.setInt(1, item.getObjectId());
-					ps.setInt(2, item.getId());
-					ps.setLong(3, item.getCount());
-					ps.setInt(4, item.getEnchantLevel());
-					ps.setInt(5, item.getX());
-					ps.setInt(6, item.getY());
-					ps.setInt(7, item.getZ());
-					ps.setLong(8, (item.isProtected() ? -1 : item.getDropTime())); // item is protected or AutoDestroyed
-					ps.setLong(9, (item.isEquipable() ? 1 : 0)); // set equip-able
-					ps.execute();
-					ps.clearParameters();
-				}
-				catch (Exception e)
-				{
-					_log.log(Level.SEVERE, getClass().getSimpleName() + ": Error while inserting into table ItemsOnGround: " + e.getMessage(), e);
-				}
-			}
-		}
-		catch (SQLException e)
-		{
-			_log.log(Level.SEVERE, getClass().getSimpleName() + ": SQL error while storing items on ground: " + e.getMessage(), e);
-		}
-	}
-	
-	/**
-	 * Gets the single instance of {@code ItemsOnGroundManager}.
-	 * @return single instance of {@code ItemsOnGroundManager}
-	 */
-	public static final ItemsOnGroundManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

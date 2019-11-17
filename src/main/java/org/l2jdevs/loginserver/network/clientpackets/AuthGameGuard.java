@@ -34,11 +34,6 @@ public class AuthGameGuard extends L2LoginClientPacket
 	private int _data3;
 	private int _data4;
 	
-	public int getSessionId()
-	{
-		return _sessionId;
-	}
-	
 	public int getData1()
 	{
 		return _data1;
@@ -59,19 +54,9 @@ public class AuthGameGuard extends L2LoginClientPacket
 		return _data4;
 	}
 	
-	@Override
-	protected boolean readImpl()
+	public int getSessionId()
 	{
-		if (super._buf.remaining() >= 20)
-		{
-			_sessionId = readD();
-			_data1 = readD();
-			_data2 = readD();
-			_data3 = readD();
-			_data4 = readD();
-			return true;
-		}
-		return false;
+		return _sessionId;
 	}
 	
 	@Override
@@ -86,5 +71,20 @@ public class AuthGameGuard extends L2LoginClientPacket
 		{
 			getClient().close(LoginFailReason.REASON_ACCESS_FAILED);
 		}
+	}
+	
+	@Override
+	protected boolean readImpl()
+	{
+		if (super._buf.remaining() >= 20)
+		{
+			_sessionId = readD();
+			_data1 = readD();
+			_data2 = readD();
+			_data3 = readD();
+			_data4 = readD();
+			return true;
+		}
+		return false;
 	}
 }

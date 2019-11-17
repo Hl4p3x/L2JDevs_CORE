@@ -59,22 +59,6 @@ import org.l2jdevs.util.Rnd;
 public final class BlockCheckerEngine
 {
 	protected static final Logger _log = Logger.getLogger(BlockCheckerEngine.class.getName());
-	// The object which holds all basic members info
-	protected ArenaParticipantsHolder _holder;
-	// Maps to hold player of each team and his points
-	protected Map<L2PcInstance, Integer> _redTeamPoints = new ConcurrentHashMap<>();
-	protected Map<L2PcInstance, Integer> _blueTeamPoints = new ConcurrentHashMap<>();
-	// The initial points of the event
-	protected int _redPoints = 15;
-	protected int _bluePoints = 15;
-	// Current used arena
-	protected int _arena = -1;
-	// All blocks
-	protected List<L2Spawn> _spawns = new CopyOnWriteArrayList<>();
-	// Sets if the red team won the event at the end of this (used for packets)
-	protected boolean _isRedWinner;
-	// Time when the event starts. Used on packet sending
-	protected long _startedTime;
 	// The needed arena coordinates
 	// Arena X: team1X, team1Y, team2X, team2Y, ArenaCenterX, ArenaCenterY
 	protected static final int[][] _arenaCoordinates =
@@ -118,10 +102,26 @@ public final class BlockCheckerEngine
 	};
 	// Common z coordinate
 	private static final int _zCoord = -2405;
-	// List of dropped items in event (for later deletion)
-	protected List<L2ItemInstance> _drops = new CopyOnWriteArrayList<>();
 	// Default arena
 	private static final byte DEFAULT_ARENA = -1;
+	// The object which holds all basic members info
+	protected ArenaParticipantsHolder _holder;
+	// Maps to hold player of each team and his points
+	protected Map<L2PcInstance, Integer> _redTeamPoints = new ConcurrentHashMap<>();
+	protected Map<L2PcInstance, Integer> _blueTeamPoints = new ConcurrentHashMap<>();
+	// The initial points of the event
+	protected int _redPoints = 15;
+	protected int _bluePoints = 15;
+	// Current used arena
+	protected int _arena = -1;
+	// All blocks
+	protected List<L2Spawn> _spawns = new CopyOnWriteArrayList<>();
+	// Sets if the red team won the event at the end of this (used for packets)
+	protected boolean _isRedWinner;
+	// Time when the event starts. Used on packet sending
+	protected long _startedTime;
+	// List of dropped items in event (for later deletion)
+	protected List<L2ItemInstance> _drops = new CopyOnWriteArrayList<>();
 	// Event is started
 	protected boolean _isStarted = false;
 	// Event end
@@ -148,114 +148,6 @@ public final class BlockCheckerEngine
 	}
 	
 	/**
-	 * Updates the player holder before the event starts to synchronize all info
-	 * @param holder
-	 */
-	public void updatePlayersOnStart(ArenaParticipantsHolder holder)
-	{
-		_holder = holder;
-	}
-	
-	/**
-	 * Returns the current holder object of this object engine
-	 * @return HandysBlockCheckerManager.ArenaParticipantsHolder
-	 */
-	public ArenaParticipantsHolder getHolder()
-	{
-		return _holder;
-	}
-	
-	/**
-	 * Will return the id of the arena used by this event
-	 * @return false;
-	 */
-	public int getArena()
-	{
-		return _arena;
-	}
-	
-	/**
-	 * Returns the time when the event started
-	 * @return long
-	 */
-	public long getStarterTime()
-	{
-		return _startedTime;
-	}
-	
-	/**
-	 * Returns the current red team points
-	 * @return int
-	 */
-	public int getRedPoints()
-	{
-		synchronized (this)
-		{
-			return _redPoints;
-		}
-	}
-	
-	/**
-	 * Returns the current blue team points
-	 * @return int
-	 */
-	public int getBluePoints()
-	{
-		synchronized (this)
-		{
-			return _bluePoints;
-		}
-	}
-	
-	/**
-	 * Returns the player points
-	 * @param player
-	 * @param isRed
-	 * @return int
-	 */
-	public int getPlayerPoints(L2PcInstance player, boolean isRed)
-	{
-		if (!_redTeamPoints.containsKey(player) && !_blueTeamPoints.containsKey(player))
-		{
-			return 0;
-		}
-		
-		if (isRed)
-		{
-			return _redTeamPoints.get(player);
-		}
-		return _blueTeamPoints.get(player);
-	}
-	
-	/**
-	 * Increases player points for his teams
-	 * @param player
-	 * @param team
-	 */
-	public synchronized void increasePlayerPoints(L2PcInstance player, int team)
-	{
-		if (player == null)
-		{
-			return;
-		}
-		
-		if (team == 0)
-		{
-			int points = _redTeamPoints.get(player) + 1;
-			_redTeamPoints.put(player, points);
-			_redPoints++;
-			_bluePoints--;
-		}
-		else
-		{
-			int points = _blueTeamPoints.get(player) + 1;
-			_blueTeamPoints.put(player, points);
-			_bluePoints++;
-			_redPoints--;
-		}
-	}
-	
-	/**
 	 * Will add a new drop into the list of dropped items
 	 * @param item
 	 */
@@ -264,27 +156,6 @@ public final class BlockCheckerEngine
 		if (item != null)
 		{
 			_drops.add(item);
-		}
-	}
-	
-	/**
-	 * Will return true if the event is already started
-	 * @return boolean
-	 */
-	public boolean isStarted()
-	{
-		return _isStarted;
-	}
-	
-	/**
-	 * Will send all packets for the event members with the relation info
-	 * @param plr
-	 */
-	protected void broadcastRelationChanged(L2PcInstance plr)
-	{
-		for (L2PcInstance p : _holder.getAllPlayers())
-		{
-			p.sendPacket(new RelationChanged(plr, plr.getRelation(p), plr.isAutoAttackable(p)));
 		}
 	}
 	
@@ -321,6 +192,135 @@ public final class BlockCheckerEngine
 	}
 	
 	/**
+	 * Will return the id of the arena used by this event
+	 * @return false;
+	 */
+	public int getArena()
+	{
+		return _arena;
+	}
+	
+	/**
+	 * Returns the current blue team points
+	 * @return int
+	 */
+	public int getBluePoints()
+	{
+		synchronized (this)
+		{
+			return _bluePoints;
+		}
+	}
+	
+	/**
+	 * Returns the current holder object of this object engine
+	 * @return HandysBlockCheckerManager.ArenaParticipantsHolder
+	 */
+	public ArenaParticipantsHolder getHolder()
+	{
+		return _holder;
+	}
+	
+	/**
+	 * Returns the player points
+	 * @param player
+	 * @param isRed
+	 * @return int
+	 */
+	public int getPlayerPoints(L2PcInstance player, boolean isRed)
+	{
+		if (!_redTeamPoints.containsKey(player) && !_blueTeamPoints.containsKey(player))
+		{
+			return 0;
+		}
+		
+		if (isRed)
+		{
+			return _redTeamPoints.get(player);
+		}
+		return _blueTeamPoints.get(player);
+	}
+	
+	/**
+	 * Returns the current red team points
+	 * @return int
+	 */
+	public int getRedPoints()
+	{
+		synchronized (this)
+		{
+			return _redPoints;
+		}
+	}
+	
+	/**
+	 * Returns the time when the event started
+	 * @return long
+	 */
+	public long getStarterTime()
+	{
+		return _startedTime;
+	}
+	
+	/**
+	 * Increases player points for his teams
+	 * @param player
+	 * @param team
+	 */
+	public synchronized void increasePlayerPoints(L2PcInstance player, int team)
+	{
+		if (player == null)
+		{
+			return;
+		}
+		
+		if (team == 0)
+		{
+			int points = _redTeamPoints.get(player) + 1;
+			_redTeamPoints.put(player, points);
+			_redPoints++;
+			_bluePoints--;
+		}
+		else
+		{
+			int points = _blueTeamPoints.get(player) + 1;
+			_blueTeamPoints.put(player, points);
+			_bluePoints++;
+			_redPoints--;
+		}
+	}
+	
+	/**
+	 * Will return true if the event is already started
+	 * @return boolean
+	 */
+	public boolean isStarted()
+	{
+		return _isStarted;
+	}
+	
+	/**
+	 * Updates the player holder before the event starts to synchronize all info
+	 * @param holder
+	 */
+	public void updatePlayersOnStart(ArenaParticipantsHolder holder)
+	{
+		_holder = holder;
+	}
+	
+	/**
+	 * Will send all packets for the event members with the relation info
+	 * @param plr
+	 */
+	protected void broadcastRelationChanged(L2PcInstance plr)
+	{
+		for (L2PcInstance p : _holder.getAllPlayers())
+		{
+			p.sendPacket(new RelationChanged(plr, plr.getRelation(p), plr.isAutoAttackable(p)));
+		}
+	}
+	
+	/**
 	 * This inner class set ups all player and arena parameters to start the event
 	 */
 	public class StartEvent implements Runnable
@@ -336,6 +336,24 @@ public final class BlockCheckerEngine
 			_freeze = SkillData.getInstance().getSkill(6034, 1);
 			_transformationRed = SkillData.getInstance().getSkill(6035, 1);
 			_transformationBlue = SkillData.getInstance().getSkill(6036, 1);
+		}
+		
+		@Override
+		public void run()
+		{
+			// Wrong arena passed, stop event
+			if (_arena == -1)
+			{
+				_log.severe("Couldnt set up the arena Id for the Block Checker event, cancelling event...");
+				return;
+			}
+			_isStarted = true;
+			// Spawn the blocks
+			ThreadPoolManager.getInstance().executeGeneral(new SpawnRound(16, 1));
+			// Start up player parameters
+			setUpPlayers();
+			// Set the started time
+			_startedTime = System.currentTimeMillis() + 300000;
 		}
 		
 		/**
@@ -416,25 +434,236 @@ public final class BlockCheckerEngine
 				broadcastRelationChanged(player);
 			}
 		}
+	}
+	
+	/**
+	 * This class erase all event parameters on player and port them back near Handy. Also, unspawn blocks, runs a garbage collector and set as free the used arena
+	 */
+	protected class EndEvent implements Runnable
+	{
+		@Override
+		public void run()
+		{
+			if (!_abnormalEnd)
+			{
+				rewardPlayers();
+			}
+			setPlayersBack();
+			clearMe();
+			_isStarted = false;
+			_abnormalEnd = false;
+		}
+		
+		// Garbage collector and arena free setter
+		private void clearMe()
+		{
+			HandysBlockCheckerManager.getInstance().clearPaticipantQueueByArenaId(_arena);
+			_holder.clearPlayers();
+			_blueTeamPoints.clear();
+			_redTeamPoints.clear();
+			HandysBlockCheckerManager.getInstance().setArenaFree(_arena);
+			
+			for (L2Spawn spawn : _spawns)
+			{
+				spawn.stopRespawn();
+				spawn.getLastSpawn().deleteMe();
+				SpawnTable.getInstance().deleteSpawn(spawn, false);
+			}
+			_spawns.clear();
+			
+			for (L2ItemInstance item : _drops)
+			{
+				// a player has it, it will be deleted later
+				if (!item.isVisible() || (item.getOwnerId() != 0))
+				{
+					continue;
+				}
+				
+				item.decayMe();
+				L2World.getInstance().removeObject(item);
+			}
+			_drops.clear();
+		}
+		
+		/**
+		 * Will reward the looser team with the predefined rewards Player got >= 10 points: 2 coins Player got < 10 points: 0 coins
+		 * @param isRed
+		 */
+		private void rewardAsLooser(boolean isRed)
+		{
+			Map<L2PcInstance, Integer> tempPoints = isRed ? _redTeamPoints : _blueTeamPoints;
+			
+			for (Entry<L2PcInstance, Integer> entry : tempPoints.entrySet())
+			{
+				L2PcInstance player = entry.getKey();
+				if ((player != null) && (entry.getValue() >= 10))
+				{
+					player.addItem("Block Checker", 13067, 2, player, true);
+				}
+			}
+		}
+		
+		/**
+		 * Reward the specified team as a winner team 1) Higher score - 8 extra 2) Higher score - 5 extra
+		 * @param isRed
+		 */
+		private void rewardAsWinner(boolean isRed)
+		{
+			Map<L2PcInstance, Integer> tempPoints = isRed ? _redTeamPoints : _blueTeamPoints;
+			
+			// Main give
+			for (Entry<L2PcInstance, Integer> points : tempPoints.entrySet())
+			{
+				if (points.getKey() == null)
+				{
+					continue;
+				}
+				
+				if (points.getValue() >= 10)
+				{
+					points.getKey().addItem("Block Checker", 13067, 2, points.getKey(), true);
+				}
+				else
+				{
+					tempPoints.remove(points.getKey());
+				}
+			}
+			
+			int first = 0, second = 0;
+			L2PcInstance winner1 = null, winner2 = null;
+			for (Entry<L2PcInstance, Integer> entry : tempPoints.entrySet())
+			{
+				L2PcInstance pc = entry.getKey();
+				int pcPoints = entry.getValue();
+				if (pcPoints > first)
+				{
+					// Move old data
+					second = first;
+					winner2 = winner1;
+					// Set new data
+					first = pcPoints;
+					winner1 = pc;
+				}
+				else if (pcPoints > second)
+				{
+					second = pcPoints;
+					winner2 = pc;
+				}
+			}
+			if (winner1 != null)
+			{
+				winner1.addItem("Block Checker", 13067, 8, winner1, true);
+			}
+			if (winner2 != null)
+			{
+				winner2.addItem("Block Checker", 13067, 5, winner2, true);
+			}
+		}
+		
+		/**
+		 * Reward players after event. Tie - No Reward
+		 */
+		private void rewardPlayers()
+		{
+			if (_redPoints == _bluePoints)
+			{
+				return;
+			}
+			
+			_isRedWinner = _redPoints > _bluePoints ? true : false;
+			
+			if (_isRedWinner)
+			{
+				rewardAsWinner(true);
+				rewardAsLooser(false);
+				SystemMessage msg = SystemMessage.getSystemMessage(SystemMessageId.TEAM_C1_WON);
+				msg.addString("Red Team");
+				_holder.broadCastPacketToTeam(msg);
+			}
+			else if (_bluePoints > _redPoints)
+			{
+				rewardAsWinner(false);
+				rewardAsLooser(true);
+				SystemMessage msg = SystemMessage.getSystemMessage(SystemMessageId.TEAM_C1_WON);
+				msg.addString("Blue Team");
+				_holder.broadCastPacketToTeam(msg);
+			}
+			else
+			{
+				rewardAsLooser(true);
+				rewardAsLooser(false);
+			}
+		}
+		
+		/**
+		 * Teleport players back, give status back and send final packet
+		 */
+		private void setPlayersBack()
+		{
+			final ExCubeGameEnd end = new ExCubeGameEnd(_isRedWinner);
+			
+			for (L2PcInstance player : _holder.getAllPlayers())
+			{
+				if (player == null)
+				{
+					continue;
+				}
+				
+				player.stopAllEffects();
+				// Remove team aura
+				player.setTeam(Team.NONE);
+				// Set default arena
+				player.setBlockCheckerArena(DEFAULT_ARENA);
+				// Remove the event items
+				PcInventory inv = player.getInventory();
+				if (inv.getItemByItemId(13787) != null)
+				{
+					long count = inv.getInventoryItemCount(13787, 0);
+					inv.destroyItemByItemId("Handys Block Checker", 13787, count, player, player);
+				}
+				if (inv.getItemByItemId(13788) != null)
+				{
+					long count = inv.getInventoryItemCount(13788, 0);
+					inv.destroyItemByItemId("Handys Block Checker", 13788, count, player, player);
+				}
+				broadcastRelationChanged(player);
+				// Teleport Back
+				player.teleToLocation(-57478, -60367, -2370);
+				player.setInsideZone(ZoneId.PVP, false);
+				// Send end packet
+				player.sendPacket(end);
+				player.broadcastUserInfo();
+			}
+		}
+	}
+	
+	private class CarryingGirlUnspawn implements Runnable
+	{
+		private final L2Spawn _spawn;
+		
+		protected CarryingGirlUnspawn(L2Spawn spawn)
+		{
+			_spawn = spawn;
+		}
 		
 		@Override
 		public void run()
 		{
-			// Wrong arena passed, stop event
-			if (_arena == -1)
+			if (_spawn == null)
 			{
-				_log.severe("Couldnt set up the arena Id for the Block Checker event, cancelling event...");
+				_log.warning("HBCE: Block Carrying Girl is null");
 				return;
 			}
-			_isStarted = true;
-			// Spawn the blocks
-			ThreadPoolManager.getInstance().executeGeneral(new SpawnRound(16, 1));
-			// Start up player parameters
-			setUpPlayers();
-			// Set the started time
-			_startedTime = System.currentTimeMillis() + 300000;
+			SpawnTable.getInstance().deleteSpawn(_spawn, false);
+			_spawn.stopRespawn();
+			_spawn.getLastSpawn().deleteMe();
 		}
 	}
+	
+	/*
+	 * private class CountDown implements Runnable {
+	 * @Override public void run() { _holder.broadCastPacketToTeam(SystemMessage.getSystemMessage(SystemMessageId.BLOCK_CHECKER_ENDS_5)); ThreadPoolManager.getInstance().scheduleGeneral(new EndEvent(), 5000); } }
+	 */
 	
 	/**
 	 * This class spawns the second round of boxes and schedules the event end
@@ -542,235 +771,6 @@ public final class BlockCheckerEngine
 			int timeLeft = (int) ((getStarterTime() - System.currentTimeMillis()) / 1000);
 			ExCubeGameChangePoints changePoints = new ExCubeGameChangePoints(timeLeft, getBluePoints(), getRedPoints());
 			getHolder().broadCastPacketToTeam(changePoints);
-		}
-	}
-	
-	private class CarryingGirlUnspawn implements Runnable
-	{
-		private final L2Spawn _spawn;
-		
-		protected CarryingGirlUnspawn(L2Spawn spawn)
-		{
-			_spawn = spawn;
-		}
-		
-		@Override
-		public void run()
-		{
-			if (_spawn == null)
-			{
-				_log.warning("HBCE: Block Carrying Girl is null");
-				return;
-			}
-			SpawnTable.getInstance().deleteSpawn(_spawn, false);
-			_spawn.stopRespawn();
-			_spawn.getLastSpawn().deleteMe();
-		}
-	}
-	
-	/*
-	 * private class CountDown implements Runnable {
-	 * @Override public void run() { _holder.broadCastPacketToTeam(SystemMessage.getSystemMessage(SystemMessageId.BLOCK_CHECKER_ENDS_5)); ThreadPoolManager.getInstance().scheduleGeneral(new EndEvent(), 5000); } }
-	 */
-	
-	/**
-	 * This class erase all event parameters on player and port them back near Handy. Also, unspawn blocks, runs a garbage collector and set as free the used arena
-	 */
-	protected class EndEvent implements Runnable
-	{
-		// Garbage collector and arena free setter
-		private void clearMe()
-		{
-			HandysBlockCheckerManager.getInstance().clearPaticipantQueueByArenaId(_arena);
-			_holder.clearPlayers();
-			_blueTeamPoints.clear();
-			_redTeamPoints.clear();
-			HandysBlockCheckerManager.getInstance().setArenaFree(_arena);
-			
-			for (L2Spawn spawn : _spawns)
-			{
-				spawn.stopRespawn();
-				spawn.getLastSpawn().deleteMe();
-				SpawnTable.getInstance().deleteSpawn(spawn, false);
-			}
-			_spawns.clear();
-			
-			for (L2ItemInstance item : _drops)
-			{
-				// a player has it, it will be deleted later
-				if (!item.isVisible() || (item.getOwnerId() != 0))
-				{
-					continue;
-				}
-				
-				item.decayMe();
-				L2World.getInstance().removeObject(item);
-			}
-			_drops.clear();
-		}
-		
-		/**
-		 * Reward players after event. Tie - No Reward
-		 */
-		private void rewardPlayers()
-		{
-			if (_redPoints == _bluePoints)
-			{
-				return;
-			}
-			
-			_isRedWinner = _redPoints > _bluePoints ? true : false;
-			
-			if (_isRedWinner)
-			{
-				rewardAsWinner(true);
-				rewardAsLooser(false);
-				SystemMessage msg = SystemMessage.getSystemMessage(SystemMessageId.TEAM_C1_WON);
-				msg.addString("Red Team");
-				_holder.broadCastPacketToTeam(msg);
-			}
-			else if (_bluePoints > _redPoints)
-			{
-				rewardAsWinner(false);
-				rewardAsLooser(true);
-				SystemMessage msg = SystemMessage.getSystemMessage(SystemMessageId.TEAM_C1_WON);
-				msg.addString("Blue Team");
-				_holder.broadCastPacketToTeam(msg);
-			}
-			else
-			{
-				rewardAsLooser(true);
-				rewardAsLooser(false);
-			}
-		}
-		
-		/**
-		 * Reward the specified team as a winner team 1) Higher score - 8 extra 2) Higher score - 5 extra
-		 * @param isRed
-		 */
-		private void rewardAsWinner(boolean isRed)
-		{
-			Map<L2PcInstance, Integer> tempPoints = isRed ? _redTeamPoints : _blueTeamPoints;
-			
-			// Main give
-			for (Entry<L2PcInstance, Integer> points : tempPoints.entrySet())
-			{
-				if (points.getKey() == null)
-				{
-					continue;
-				}
-				
-				if (points.getValue() >= 10)
-				{
-					points.getKey().addItem("Block Checker", 13067, 2, points.getKey(), true);
-				}
-				else
-				{
-					tempPoints.remove(points.getKey());
-				}
-			}
-			
-			int first = 0, second = 0;
-			L2PcInstance winner1 = null, winner2 = null;
-			for (Entry<L2PcInstance, Integer> entry : tempPoints.entrySet())
-			{
-				L2PcInstance pc = entry.getKey();
-				int pcPoints = entry.getValue();
-				if (pcPoints > first)
-				{
-					// Move old data
-					second = first;
-					winner2 = winner1;
-					// Set new data
-					first = pcPoints;
-					winner1 = pc;
-				}
-				else if (pcPoints > second)
-				{
-					second = pcPoints;
-					winner2 = pc;
-				}
-			}
-			if (winner1 != null)
-			{
-				winner1.addItem("Block Checker", 13067, 8, winner1, true);
-			}
-			if (winner2 != null)
-			{
-				winner2.addItem("Block Checker", 13067, 5, winner2, true);
-			}
-		}
-		
-		/**
-		 * Will reward the looser team with the predefined rewards Player got >= 10 points: 2 coins Player got < 10 points: 0 coins
-		 * @param isRed
-		 */
-		private void rewardAsLooser(boolean isRed)
-		{
-			Map<L2PcInstance, Integer> tempPoints = isRed ? _redTeamPoints : _blueTeamPoints;
-			
-			for (Entry<L2PcInstance, Integer> entry : tempPoints.entrySet())
-			{
-				L2PcInstance player = entry.getKey();
-				if ((player != null) && (entry.getValue() >= 10))
-				{
-					player.addItem("Block Checker", 13067, 2, player, true);
-				}
-			}
-		}
-		
-		/**
-		 * Teleport players back, give status back and send final packet
-		 */
-		private void setPlayersBack()
-		{
-			final ExCubeGameEnd end = new ExCubeGameEnd(_isRedWinner);
-			
-			for (L2PcInstance player : _holder.getAllPlayers())
-			{
-				if (player == null)
-				{
-					continue;
-				}
-				
-				player.stopAllEffects();
-				// Remove team aura
-				player.setTeam(Team.NONE);
-				// Set default arena
-				player.setBlockCheckerArena(DEFAULT_ARENA);
-				// Remove the event items
-				PcInventory inv = player.getInventory();
-				if (inv.getItemByItemId(13787) != null)
-				{
-					long count = inv.getInventoryItemCount(13787, 0);
-					inv.destroyItemByItemId("Handys Block Checker", 13787, count, player, player);
-				}
-				if (inv.getItemByItemId(13788) != null)
-				{
-					long count = inv.getInventoryItemCount(13788, 0);
-					inv.destroyItemByItemId("Handys Block Checker", 13788, count, player, player);
-				}
-				broadcastRelationChanged(player);
-				// Teleport Back
-				player.teleToLocation(-57478, -60367, -2370);
-				player.setInsideZone(ZoneId.PVP, false);
-				// Send end packet
-				player.sendPacket(end);
-				player.broadcastUserInfo();
-			}
-		}
-		
-		@Override
-		public void run()
-		{
-			if (!_abnormalEnd)
-			{
-				rewardPlayers();
-			}
-			setPlayersBack();
-			clearMe();
-			_isStarted = false;
-			_abnormalEnd = false;
 		}
 	}
 }

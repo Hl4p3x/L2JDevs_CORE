@@ -46,6 +46,18 @@ public class PcStatus extends PlayableStatus
 	}
 	
 	@Override
+	public L2PcInstance getActiveChar()
+	{
+		return (L2PcInstance) super.getActiveChar();
+	}
+	
+	@Override
+	public final double getCurrentCp()
+	{
+		return _currentCp;
+	}
+	
+	@Override
 	public final void reduceCp(int value)
 	{
 		if (getCurrentCp() > value)
@@ -309,12 +321,6 @@ public class PcStatus extends PlayableStatus
 	}
 	
 	@Override
-	public final double getCurrentCp()
-	{
-		return _currentCp;
-	}
-	
-	@Override
 	public final void setCurrentCp(double newCp)
 	{
 		setCurrentCp(newCp, true);
@@ -392,11 +398,5 @@ public class PcStatus extends PlayableStatus
 		}
 		
 		getActiveChar().broadcastStatusUpdate(); // send the StatusUpdate packet
-	}
-	
-	@Override
-	public L2PcInstance getActiveChar()
-	{
-		return (L2PcInstance) super.getActiveChar();
 	}
 }

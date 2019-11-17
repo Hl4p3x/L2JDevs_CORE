@@ -31,21 +31,6 @@ public class PledgeSkillList extends L2GameServerPacket
 	private final Skill[] _skills;
 	private final List<SubPledgeSkill> _subSkills;
 	
-	public static class SubPledgeSkill
-	{
-		int _subType;
-		int _skillId;
-		int _skillLvl;
-		
-		public SubPledgeSkill(int subType, int skillId, int skillLvl)
-		{
-			super();
-			_subType = subType;
-			_skillId = skillId;
-			_skillLvl = skillLvl;
-		}
-	}
-	
 	public PledgeSkillList(L2Clan clan)
 	{
 		_skills = clan.getAllSkills();
@@ -69,6 +54,21 @@ public class PledgeSkillList extends L2GameServerPacket
 			writeD(sk._subType); // Clan Sub-unit types
 			writeD(sk._skillId);
 			writeD(sk._skillLvl);
+		}
+	}
+	
+	public static class SubPledgeSkill
+	{
+		int _subType;
+		int _skillId;
+		int _skillLvl;
+		
+		public SubPledgeSkill(int subType, int skillId, int skillLvl)
+		{
+			super();
+			_subType = subType;
+			_skillId = skillId;
+			_skillLvl = skillLvl;
 		}
 	}
 }

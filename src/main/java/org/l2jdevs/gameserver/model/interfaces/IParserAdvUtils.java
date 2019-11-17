@@ -30,18 +30,18 @@ public interface IParserAdvUtils extends IParserUtils
 	
 	public byte getByte(String key);
 	
-	public short getShort(String key);
+	public double getDouble(String key);
+	
+	public <T extends Enum<T>> T getEnum(String key, Class<T> clazz);
+	
+	public float getFloat(String key);
 	
 	public int getInt(String key);
 	
 	public long getLong(String key);
 	
-	public float getFloat(String key);
-	
-	public double getDouble(String key);
+	public short getShort(String key);
 	
 	public String getString(String key);
-	
-	public <T extends Enum<T>> T getEnum(String key, Class<T> clazz);
 	
 }

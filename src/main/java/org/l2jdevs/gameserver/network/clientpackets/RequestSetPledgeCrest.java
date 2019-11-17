@@ -37,6 +37,12 @@ public final class RequestSetPledgeCrest extends L2GameClientPacket
 	private byte[] _data = null;
 	
 	@Override
+	public String getType()
+	{
+		return _C__09_REQUESTSETPLEDGECREST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_length = readD();
@@ -111,11 +117,5 @@ public final class RequestSetPledgeCrest extends L2GameClientPacket
 				activeChar.sendPacket(SystemMessageId.CLAN_CREST_WAS_SUCCESSFULLY_REGISTRED);
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__09_REQUESTSETPLEDGECREST;
 	}
 }

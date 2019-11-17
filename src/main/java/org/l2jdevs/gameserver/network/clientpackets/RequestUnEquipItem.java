@@ -39,6 +39,12 @@ public class RequestUnEquipItem extends L2GameClientPacket
 	
 	private int _slot;
 	
+	@Override
+	public String getType()
+	{
+		return _C__16_REQUESTUNEQUIPITEM;
+	}
+	
 	/**
 	 * Packet type id 0x16 format: cd
 	 */
@@ -129,11 +135,5 @@ public class RequestUnEquipItem extends L2GameClientPacket
 			iu.addItems(Arrays.asList(unequipped));
 			activeChar.sendPacket(iu);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__16_REQUESTUNEQUIPITEM;
 	}
 }

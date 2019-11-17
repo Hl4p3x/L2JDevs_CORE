@@ -35,6 +35,17 @@ public final class RequestJoinPledge extends L2GameClientPacket
 	private int _target;
 	private int _pledgeType;
 	
+	public int getPledgeType()
+	{
+		return _pledgeType;
+	}
+	
+	@Override
+	public String getType()
+	{
+		return _C__26_REQUESTJOINPLEDGE;
+	}
+	
 	@Override
 	protected void readImpl()
 	{
@@ -77,16 +88,5 @@ public final class RequestJoinPledge extends L2GameClientPacket
 		final String pledgeName = activeChar.getClan().getName();
 		final String subPledgeName = (activeChar.getClan().getSubPledge(_pledgeType) != null ? activeChar.getClan().getSubPledge(_pledgeType).getName() : null);
 		target.sendPacket(new AskJoinPledge(activeChar.getObjectId(), subPledgeName, _pledgeType, pledgeName));
-	}
-	
-	public int getPledgeType()
-	{
-		return _pledgeType;
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__26_REQUESTJOINPLEDGE;
 	}
 }

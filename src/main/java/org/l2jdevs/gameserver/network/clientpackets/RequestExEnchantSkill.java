@@ -53,6 +53,12 @@ public final class RequestExEnchantSkill extends L2GameClientPacket
 	private int _skillLvl;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_0F_REQUESTEXENCHANTSKILL;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_skillId = readD();
@@ -207,11 +213,5 @@ public final class RequestExEnchantSkill extends L2GameClientPacket
 		{
 			player.sendPacket(SystemMessageId.YOU_DONT_HAVE_ENOUGH_SP_TO_ENCHANT_THAT_SKILL);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_0F_REQUESTEXENCHANTSKILL;
 	}
 }

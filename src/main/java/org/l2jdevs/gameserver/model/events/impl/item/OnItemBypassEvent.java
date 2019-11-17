@@ -39,11 +39,6 @@ public class OnItemBypassEvent implements IBaseEvent
 		_event = event;
 	}
 	
-	public L2ItemInstance getItem()
-	{
-		return _item;
-	}
-	
 	public L2PcInstance getActiveChar()
 	{
 		return _activeChar;
@@ -52,6 +47,11 @@ public class OnItemBypassEvent implements IBaseEvent
 	public String getEvent()
 	{
 		return _event;
+	}
+	
+	public L2ItemInstance getItem()
+	{
+		return _item;
 	}
 	
 	@Override

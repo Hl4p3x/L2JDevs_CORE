@@ -43,6 +43,49 @@ public class UIData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Add a category to the stored categories.
+	 * @param map the map to store the category
+	 * @param cat the category
+	 * @param cmd the command
+	 */
+	public static void addCategory(Map<Integer, List<Integer>> map, int cat, int cmd)
+	{
+		map.computeIfAbsent(cat, k -> new ArrayList<>()).add(cmd);
+	}
+	
+	/**
+	 * Create and insert an Action Key into the stored keys.
+	 * @param map the map to store the key
+	 * @param cat the category
+	 * @param akey the action key
+	 */
+	public static void addKey(Map<Integer, List<ActionKey>> map, int cat, ActionKey akey)
+	{
+		map.computeIfAbsent(cat, k -> new ArrayList<>()).add(akey);
+	}
+	
+	public static UIData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * @return the categories
+	 */
+	public Map<Integer, List<Integer>> getCategories()
+	{
+		return _storedCategories;
+	}
+	
+	/**
+	 * @return the keys
+	 */
+	public Map<Integer, List<ActionKey>> getKeys()
+	{
+		return _storedKeys;
+	}
+	
 	@Override
 	public void load()
 	{
@@ -140,49 +183,6 @@ public class UIData implements IXmlReader
 				addKey(_storedKeys, cat, akey);
 			}
 		}
-	}
-	
-	/**
-	 * Add a category to the stored categories.
-	 * @param map the map to store the category
-	 * @param cat the category
-	 * @param cmd the command
-	 */
-	public static void addCategory(Map<Integer, List<Integer>> map, int cat, int cmd)
-	{
-		map.computeIfAbsent(cat, k -> new ArrayList<>()).add(cmd);
-	}
-	
-	/**
-	 * Create and insert an Action Key into the stored keys.
-	 * @param map the map to store the key
-	 * @param cat the category
-	 * @param akey the action key
-	 */
-	public static void addKey(Map<Integer, List<ActionKey>> map, int cat, ActionKey akey)
-	{
-		map.computeIfAbsent(cat, k -> new ArrayList<>()).add(akey);
-	}
-	
-	/**
-	 * @return the categories
-	 */
-	public Map<Integer, List<Integer>> getCategories()
-	{
-		return _storedCategories;
-	}
-	
-	/**
-	 * @return the keys
-	 */
-	public Map<Integer, List<ActionKey>> getKeys()
-	{
-		return _storedKeys;
-	}
-	
-	public static UIData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

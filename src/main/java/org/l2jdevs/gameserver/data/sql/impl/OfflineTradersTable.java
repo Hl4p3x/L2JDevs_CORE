@@ -49,97 +49,13 @@ public class OfflineTradersTable
 	private static final String LOAD_OFFLINE_STATUS = "SELECT * FROM character_offline_trade";
 	private static final String LOAD_OFFLINE_ITEMS = "SELECT * FROM character_offline_trade_items WHERE charId = ?";
 	
-	public void storeOffliners()
+	/**
+	 * Gets the single instance of OfflineTradersTable.
+	 * @return single instance of OfflineTradersTable
+	 */
+	public static OfflineTradersTable getInstance()
 	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement stm1 = con.prepareStatement(CLEAR_OFFLINE_TABLE);
-			PreparedStatement stm2 = con.prepareStatement(CLEAR_OFFLINE_TABLE_ITEMS);
-			PreparedStatement stm3 = con.prepareStatement(SAVE_OFFLINE_STATUS);
-			PreparedStatement stm_items = con.prepareStatement(SAVE_ITEMS))
-		{
-			stm1.execute();
-			stm2.execute();
-			con.setAutoCommit(false); // avoid halfway done
-			
-			for (L2PcInstance pc : L2World.getInstance().getPlayers())
-			{
-				try
-				{
-					if ((pc.getPrivateStoreType() != PrivateStoreType.NONE) && pc.isInOfflineMode())
-					{
-						stm3.setInt(1, pc.getObjectId()); // Char Id
-						stm3.setLong(2, pc.getOfflineStartTime());
-						stm3.setInt(3, pc.getPrivateStoreType().getId()); // store type
-						String title = null;
-						
-						switch (pc.getPrivateStoreType())
-						{
-							case BUY:
-								if (!Config.OFFLINE_TRADE_ENABLE)
-								{
-									continue;
-								}
-								title = pc.getBuyList().getTitle();
-								for (TradeItem i : pc.getBuyList().getItems())
-								{
-									stm_items.setInt(1, pc.getObjectId());
-									stm_items.setInt(2, i.getItem().getId());
-									stm_items.setLong(3, i.getCount());
-									stm_items.setLong(4, i.getPrice());
-									stm_items.executeUpdate();
-									stm_items.clearParameters();
-								}
-								break;
-							case SELL:
-							case PACKAGE_SELL:
-								if (!Config.OFFLINE_TRADE_ENABLE)
-								{
-									continue;
-								}
-								title = pc.getSellList().getTitle();
-								for (TradeItem i : pc.getSellList().getItems())
-								{
-									stm_items.setInt(1, pc.getObjectId());
-									stm_items.setInt(2, i.getObjectId());
-									stm_items.setLong(3, i.getCount());
-									stm_items.setLong(4, i.getPrice());
-									stm_items.executeUpdate();
-									stm_items.clearParameters();
-								}
-								break;
-							case MANUFACTURE:
-								if (!Config.OFFLINE_CRAFT_ENABLE)
-								{
-									continue;
-								}
-								title = pc.getStoreName();
-								for (L2ManufactureItem i : pc.getManufactureItems().values())
-								{
-									stm_items.setInt(1, pc.getObjectId());
-									stm_items.setInt(2, i.getRecipeId());
-									stm_items.setLong(3, 0);
-									stm_items.setLong(4, i.getCost());
-									stm_items.executeUpdate();
-									stm_items.clearParameters();
-								}
-						}
-						stm3.setString(4, title);
-						stm3.executeUpdate();
-						stm3.clearParameters();
-						con.commit(); // flush
-					}
-				}
-				catch (Exception e)
-				{
-					LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": Error while saving offline trader: " + pc.getObjectId() + " " + e, e);
-				}
-			}
-			LOGGER.info(getClass().getSimpleName() + ": Offline traders stored.");
-		}
-		catch (Exception e)
-		{
-			LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": Error while saving offline traders: " + e, e);
-		}
+		return SingletonHolder._instance;
 	}
 	
 	public void restoreOfflineTraders()
@@ -266,13 +182,97 @@ public class OfflineTradersTable
 		}
 	}
 	
-	/**
-	 * Gets the single instance of OfflineTradersTable.
-	 * @return single instance of OfflineTradersTable
-	 */
-	public static OfflineTradersTable getInstance()
+	public void storeOffliners()
 	{
-		return SingletonHolder._instance;
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement stm1 = con.prepareStatement(CLEAR_OFFLINE_TABLE);
+			PreparedStatement stm2 = con.prepareStatement(CLEAR_OFFLINE_TABLE_ITEMS);
+			PreparedStatement stm3 = con.prepareStatement(SAVE_OFFLINE_STATUS);
+			PreparedStatement stm_items = con.prepareStatement(SAVE_ITEMS))
+		{
+			stm1.execute();
+			stm2.execute();
+			con.setAutoCommit(false); // avoid halfway done
+			
+			for (L2PcInstance pc : L2World.getInstance().getPlayers())
+			{
+				try
+				{
+					if ((pc.getPrivateStoreType() != PrivateStoreType.NONE) && pc.isInOfflineMode())
+					{
+						stm3.setInt(1, pc.getObjectId()); // Char Id
+						stm3.setLong(2, pc.getOfflineStartTime());
+						stm3.setInt(3, pc.getPrivateStoreType().getId()); // store type
+						String title = null;
+						
+						switch (pc.getPrivateStoreType())
+						{
+							case BUY:
+								if (!Config.OFFLINE_TRADE_ENABLE)
+								{
+									continue;
+								}
+								title = pc.getBuyList().getTitle();
+								for (TradeItem i : pc.getBuyList().getItems())
+								{
+									stm_items.setInt(1, pc.getObjectId());
+									stm_items.setInt(2, i.getItem().getId());
+									stm_items.setLong(3, i.getCount());
+									stm_items.setLong(4, i.getPrice());
+									stm_items.executeUpdate();
+									stm_items.clearParameters();
+								}
+								break;
+							case SELL:
+							case PACKAGE_SELL:
+								if (!Config.OFFLINE_TRADE_ENABLE)
+								{
+									continue;
+								}
+								title = pc.getSellList().getTitle();
+								for (TradeItem i : pc.getSellList().getItems())
+								{
+									stm_items.setInt(1, pc.getObjectId());
+									stm_items.setInt(2, i.getObjectId());
+									stm_items.setLong(3, i.getCount());
+									stm_items.setLong(4, i.getPrice());
+									stm_items.executeUpdate();
+									stm_items.clearParameters();
+								}
+								break;
+							case MANUFACTURE:
+								if (!Config.OFFLINE_CRAFT_ENABLE)
+								{
+									continue;
+								}
+								title = pc.getStoreName();
+								for (L2ManufactureItem i : pc.getManufactureItems().values())
+								{
+									stm_items.setInt(1, pc.getObjectId());
+									stm_items.setInt(2, i.getRecipeId());
+									stm_items.setLong(3, 0);
+									stm_items.setLong(4, i.getCost());
+									stm_items.executeUpdate();
+									stm_items.clearParameters();
+								}
+						}
+						stm3.setString(4, title);
+						stm3.executeUpdate();
+						stm3.clearParameters();
+						con.commit(); // flush
+					}
+				}
+				catch (Exception e)
+				{
+					LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": Error while saving offline trader: " + pc.getObjectId() + " " + e, e);
+				}
+			}
+			LOGGER.info(getClass().getSimpleName() + ": Offline traders stored.");
+		}
+		catch (Exception e)
+		{
+			LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": Error while saving offline traders: " + e, e);
+		}
 	}
 	
 	private static class SingletonHolder

@@ -25,21 +25,30 @@ import org.l2jdevs.gameserver.network.SystemMessageId;
  */
 public final class SystemMessage extends AbstractMessagePacket<SystemMessage>
 {
+	/**
+	 * Use SystemMessage.getSystemMessage(SystemMessageId smId) where possible instead
+	 * @param id
+	 * @deprecated
+	 */
+	@Deprecated
+	private SystemMessage(final int id)
+	{
+		this(SystemMessageId.getSystemMessageId(id));
+	}
+	
 	private SystemMessage(final SystemMessageId smId)
 	{
 		super(smId);
 	}
 	
-	public static final SystemMessage sendString(final String text)
+	/**
+	 * Use {@link #getSystemMessage(SystemMessageId)} where possible instead
+	 * @param id
+	 * @return the system message associated to the given Id.
+	 */
+	public static SystemMessage getSystemMessage(int id)
 	{
-		if (text == null)
-		{
-			throw new NullPointerException();
-		}
-		
-		final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.S1);
-		sm.addString(text);
-		return sm;
+		return getSystemMessage(SystemMessageId.getSystemMessageId(id));
 	}
 	
 	public static final SystemMessage getSystemMessage(final SystemMessageId smId)
@@ -59,25 +68,16 @@ public final class SystemMessage extends AbstractMessagePacket<SystemMessage>
 		return sm;
 	}
 	
-	/**
-	 * Use {@link #getSystemMessage(SystemMessageId)} where possible instead
-	 * @param id
-	 * @return the system message associated to the given Id.
-	 */
-	public static SystemMessage getSystemMessage(int id)
+	public static final SystemMessage sendString(final String text)
 	{
-		return getSystemMessage(SystemMessageId.getSystemMessageId(id));
-	}
-	
-	/**
-	 * Use SystemMessage.getSystemMessage(SystemMessageId smId) where possible instead
-	 * @param id
-	 * @deprecated
-	 */
-	@Deprecated
-	private SystemMessage(final int id)
-	{
-		this(SystemMessageId.getSystemMessageId(id));
+		if (text == null)
+		{
+			throw new NullPointerException();
+		}
+		
+		final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.S1);
+		sm.addString(text);
+		return sm;
 	}
 	
 	@Override

@@ -33,6 +33,12 @@ public class RequestAskJoinPartyRoom extends L2GameClientPacket
 	private String _name;
 	
 	@Override
+	public String getType()
+	{
+		return "[C] D0:14 RequestAskJoinPartyRoom";
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_name = readS();
@@ -65,11 +71,5 @@ public class RequestAskJoinPartyRoom extends L2GameClientPacket
 		{
 			player.sendPacket(SystemMessageId.TARGET_IS_NOT_FOUND_IN_THE_GAME);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return "[C] D0:14 RequestAskJoinPartyRoom";
 	}
 }

@@ -35,6 +35,12 @@ public final class NpcQuestHtmlMessage extends AbstractHtmlPacket
 	}
 	
 	@Override
+	public HtmlActionScope getScope()
+	{
+		return HtmlActionScope.NPC_QUEST_HTML;
+	}
+	
+	@Override
 	protected final void writeImpl()
 	{
 		writeC(0xFE);
@@ -42,11 +48,5 @@ public final class NpcQuestHtmlMessage extends AbstractHtmlPacket
 		writeD(getNpcObjId());
 		writeS(getHtml());
 		writeD(_questId);
-	}
-	
-	@Override
-	public HtmlActionScope getScope()
-	{
-		return HtmlActionScope.NPC_QUEST_HTML;
 	}
 }

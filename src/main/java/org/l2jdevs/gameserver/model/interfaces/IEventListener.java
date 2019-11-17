@@ -26,14 +26,11 @@ import org.l2jdevs.gameserver.model.actor.instance.L2PcInstance;
 public interface IEventListener
 {
 	/**
-	 * @return {@code true} if player is on event, {@code false} otherwise.
+	 * @return {@code true} if player can revive after death, {@code false} otherwise.
 	 */
-	public boolean isOnEvent();
+	public boolean canRevive();
 	
-	/**
-	 * @return {@code true} if player is blocked from leaving the game, {@code false} otherwise.
-	 */
-	public boolean isBlockingExit();
+	public L2PcInstance getPlayer();
 	
 	/**
 	 * @return {@code true} if player is blocked from receiving death penalty upon death, {@code false} otherwise.
@@ -41,9 +38,12 @@ public interface IEventListener
 	public boolean isBlockingDeathPenalty();
 	
 	/**
-	 * @return {@code true} if player can revive after death, {@code false} otherwise.
+	 * @return {@code true} if player is blocked from leaving the game, {@code false} otherwise.
 	 */
-	public boolean canRevive();
+	public boolean isBlockingExit();
 	
-	public L2PcInstance getPlayer();
+	/**
+	 * @return {@code true} if player is on event, {@code false} otherwise.
+	 */
+	public boolean isOnEvent();
 }

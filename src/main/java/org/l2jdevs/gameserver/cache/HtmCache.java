@@ -51,37 +51,48 @@ public class HtmCache
 		reload();
 	}
 	
-	public void reload()
+	public static HtmCache getInstance()
 	{
-		reload(Config.DATAPACK_ROOT);
+		return SingletonHolder._instance;
 	}
 	
-	public void reload(File f)
+	public boolean contains(String path)
 	{
-		if (!Config.LAZY_CACHE)
+		return _cache.containsKey(path);
+	}
+	
+	public String getHtm(String prefix, String path)
+	{
+		String newPath = null;
+		String content;
+		if ((prefix != null) && !prefix.isEmpty())
 		{
-			LOG.info("Html cache start...");
-			parseDir(f);
-			LOG.info("Cache[HTML]: " + String.format("%.3f", getMemoryUsage()) + " megabytes on " + getLoadedFiles() + " files loaded");
+			newPath = prefix + path;
+			content = getHtm(newPath);
+			if (content != null)
+			{
+				return content;
+			}
 		}
-		else
+		
+		content = getHtm(path);
+		if ((content != null) && (newPath != null))
 		{
-			_cache.clear();
-			_loadedFiles = 0;
-			_bytesBuffLen = 0;
-			LOG.info("Cache[HTML]: Running lazy cache");
+			_cache.put(newPath, content);
 		}
+		
+		return content;
 	}
 	
-	public void reloadPath(File f)
+	public String getHtmForce(String prefix, String path)
 	{
-		parseDir(f);
-		LOG.info("Cache[HTML]: Reloaded specified path.");
-	}
-	
-	public double getMemoryUsage()
-	{
-		return ((float) _bytesBuffLen / 1048576);
+		String content = getHtm(prefix, path);
+		if (content == null)
+		{
+			content = "<html><body>My text is missing:<br>" + path + "</body></html>";
+			LOG.warn("Cache[HTML]: Missing HTML page: " + path);
+		}
+		return content;
 	}
 	
 	public int getLoadedFiles()
@@ -89,23 +100,18 @@ public class HtmCache
 		return _loadedFiles;
 	}
 	
-	private void parseDir(File dir)
+	public double getMemoryUsage()
 	{
-		final File[] files = dir.listFiles();
-		if (files != null)
-		{
-			for (File file : files)
-			{
-				if (!file.isDirectory())
-				{
-					loadFile(file);
-				}
-				else
-				{
-					parseDir(file);
-				}
-			}
-		}
+		return ((float) _bytesBuffLen / 1048576);
+	}
+	
+	/**
+	 * @param path The path to the HTM
+	 * @return {@code true} if the path targets a HTM or HTML file, {@code false} otherwise.
+	 */
+	public boolean isLoadable(String path)
+	{
+		return HTML_FILTER.accept(new File(Config.DATAPACK_ROOT, path));
 	}
 	
 	public String loadFile(File file)
@@ -145,38 +151,32 @@ public class HtmCache
 		return content;
 	}
 	
-	public String getHtmForce(String prefix, String path)
+	public void reload()
 	{
-		String content = getHtm(prefix, path);
-		if (content == null)
-		{
-			content = "<html><body>My text is missing:<br>" + path + "</body></html>";
-			LOG.warn("Cache[HTML]: Missing HTML page: " + path);
-		}
-		return content;
+		reload(Config.DATAPACK_ROOT);
 	}
 	
-	public String getHtm(String prefix, String path)
+	public void reload(File f)
 	{
-		String newPath = null;
-		String content;
-		if ((prefix != null) && !prefix.isEmpty())
+		if (!Config.LAZY_CACHE)
 		{
-			newPath = prefix + path;
-			content = getHtm(newPath);
-			if (content != null)
-			{
-				return content;
-			}
+			LOG.info("Html cache start...");
+			parseDir(f);
+			LOG.info("Cache[HTML]: " + String.format("%.3f", getMemoryUsage()) + " megabytes on " + getLoadedFiles() + " files loaded");
 		}
-		
-		content = getHtm(path);
-		if ((content != null) && (newPath != null))
+		else
 		{
-			_cache.put(newPath, content);
+			_cache.clear();
+			_loadedFiles = 0;
+			_bytesBuffLen = 0;
+			LOG.info("Cache[HTML]: Running lazy cache");
 		}
-		
-		return content;
+	}
+	
+	public void reloadPath(File f)
+	{
+		parseDir(f);
+		LOG.info("Cache[HTML]: Reloaded specified path.");
 	}
 	
 	private String getHtm(String path)
@@ -194,23 +194,23 @@ public class HtmCache
 		return content;
 	}
 	
-	public boolean contains(String path)
+	private void parseDir(File dir)
 	{
-		return _cache.containsKey(path);
-	}
-	
-	/**
-	 * @param path The path to the HTM
-	 * @return {@code true} if the path targets a HTM or HTML file, {@code false} otherwise.
-	 */
-	public boolean isLoadable(String path)
-	{
-		return HTML_FILTER.accept(new File(Config.DATAPACK_ROOT, path));
-	}
-	
-	public static HtmCache getInstance()
-	{
-		return SingletonHolder._instance;
+		final File[] files = dir.listFiles();
+		if (files != null)
+		{
+			for (File file : files)
+			{
+				if (!file.isDirectory())
+				{
+					loadFile(file);
+				}
+				else
+				{
+					parseDir(file);
+				}
+			}
+		}
 	}
 	
 	private static class SingletonHolder

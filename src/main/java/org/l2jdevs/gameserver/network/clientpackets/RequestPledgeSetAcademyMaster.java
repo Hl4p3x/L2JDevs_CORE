@@ -39,6 +39,12 @@ public final class RequestPledgeSetAcademyMaster extends L2GameClientPacket
 	private String _targetPlayerName;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_12_REQUESTSETPLEADGEACADEMYMASTER;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_set = readD();
@@ -157,11 +163,5 @@ public final class RequestPledgeSetAcademyMaster extends L2GameClientPacket
 		{
 			apprentice.sendPacket(sm);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_12_REQUESTSETPLEADGEACADEMYMASTER;
 	}
 }

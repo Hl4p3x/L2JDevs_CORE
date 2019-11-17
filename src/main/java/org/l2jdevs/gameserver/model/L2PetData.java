@@ -49,19 +49,21 @@ public class L2PetData
 	}
 	
 	/**
-	 * @return the npc id representing this pet.
+	 * @param foodId the pet's food Id to add.
 	 */
-	public int getNpcId()
+	public void addFood(Integer foodId)
 	{
-		return _npcId;
+		_food.add(foodId);
 	}
 	
 	/**
-	 * @return the item id that could summon this pet.
+	 * @param skillId the skill Id to add.
+	 * @param skillLvl the skill level.
+	 * @param petLvl the pet's level when this skill is available.
 	 */
-	public int getItemId()
+	public void addNewSkill(int skillId, int skillLvl, int petLvl)
 	{
-		return _itemId;
+		_skills.add(new L2PetSkillLearn(skillId, skillLvl, petLvl));
 	}
 	
 	/**
@@ -75,83 +77,6 @@ public class L2PetData
 			_minlvl = level;
 		}
 		_levelStats.put(level, data);
-	}
-	
-	/**
-	 * @param petLevel the pet's level.
-	 * @return the pet data associated to that pet level.
-	 */
-	public L2PetLevelData getPetLevelData(int petLevel)
-	{
-		return _levelStats.get(petLevel);
-	}
-	
-	/**
-	 * @return the pet's hunger limit.
-	 */
-	public int getHungryLimit()
-	{
-		return _hungryLimit;
-	}
-	
-	/**
-	 * @return {@code true} if pet synchronizes it's level with his master's
-	 */
-	public boolean isSynchLevel()
-	{
-		return _syncLevel;
-	}
-	
-	/**
-	 * @return the pet's minimum level.
-	 */
-	public int getMinLevel()
-	{
-		return _minlvl;
-	}
-	
-	/**
-	 * @return the pet's food list.
-	 */
-	public List<Integer> getFood()
-	{
-		return _food;
-	}
-	
-	/**
-	 * @param foodId the pet's food Id to add.
-	 */
-	public void addFood(Integer foodId)
-	{
-		_food.add(foodId);
-	}
-	
-	/**
-	 * @param limit the hunger limit to set.
-	 */
-	public void setHungryLimit(int limit)
-	{
-		_hungryLimit = limit;
-	}
-	
-	/**
-	 * @param val synchronizes level with master or not.
-	 */
-	public void setSyncLevel(boolean val)
-	{
-		_syncLevel = val;
-	}
-	
-	// SKILS
-	
-	/**
-	 * @param skillId the skill Id to add.
-	 * @param skillLvl the skill level.
-	 * @param petLvl the pet's level when this skill is available.
-	 */
-	public void addNewSkill(int skillId, int skillLvl, int petLvl)
-	{
-		_skills.add(new L2PetSkillLearn(skillId, skillLvl, petLvl));
 	}
 	
 	/**
@@ -209,6 +134,81 @@ public class L2PetData
 	public List<L2PetSkillLearn> getAvailableSkills()
 	{
 		return _skills;
+	}
+	
+	/**
+	 * @return the pet's food list.
+	 */
+	public List<Integer> getFood()
+	{
+		return _food;
+	}
+	
+	/**
+	 * @return the pet's hunger limit.
+	 */
+	public int getHungryLimit()
+	{
+		return _hungryLimit;
+	}
+	
+	/**
+	 * @return the item id that could summon this pet.
+	 */
+	public int getItemId()
+	{
+		return _itemId;
+	}
+	
+	/**
+	 * @return the pet's minimum level.
+	 */
+	public int getMinLevel()
+	{
+		return _minlvl;
+	}
+	
+	/**
+	 * @return the npc id representing this pet.
+	 */
+	public int getNpcId()
+	{
+		return _npcId;
+	}
+	
+	/**
+	 * @param petLevel the pet's level.
+	 * @return the pet data associated to that pet level.
+	 */
+	public L2PetLevelData getPetLevelData(int petLevel)
+	{
+		return _levelStats.get(petLevel);
+	}
+	
+	// SKILS
+	
+	/**
+	 * @return {@code true} if pet synchronizes it's level with his master's
+	 */
+	public boolean isSynchLevel()
+	{
+		return _syncLevel;
+	}
+	
+	/**
+	 * @param limit the hunger limit to set.
+	 */
+	public void setHungryLimit(int limit)
+	{
+		_hungryLimit = limit;
+	}
+	
+	/**
+	 * @param val synchronizes level with master or not.
+	 */
+	public void setSyncLevel(boolean val)
+	{
+		_syncLevel = val;
 	}
 	
 	public static final class L2PetSkillLearn extends SkillHolder

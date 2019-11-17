@@ -58,15 +58,100 @@ public class L2MonsterInstance extends L2Attackable
 	}
 	
 	@Override
+	public boolean deleteMe()
+	{
+		if (_maintenanceTask != null)
+		{
+			_maintenanceTask.cancel(false);
+			_maintenanceTask = null;
+		}
+		
+		if (hasMinions())
+		{
+			getMinionList().onMasterDie(true);
+		}
+		
+		if (getLeader() != null)
+		{
+			getLeader().getMinionList().onMinionDie(this, 0);
+		}
+		
+		return super.deleteMe();
+	}
+	
+	@Override
+	public boolean doDie(L2Character killer)
+	{
+		if (!super.doDie(killer))
+		{
+			return false;
+		}
+		
+		if (_maintenanceTask != null)
+		{
+			_maintenanceTask.cancel(false); // doesn't do it?
+			_maintenanceTask = null;
+		}
+		
+		return true;
+	}
+	
+	public void enableMinions(boolean b)
+	{
+		_enableMinions = b;
+	}
+	
+	@Override
 	public final MonsterKnownList getKnownList()
 	{
 		return (MonsterKnownList) super.getKnownList();
 	}
 	
 	@Override
+	public L2MonsterInstance getLeader()
+	{
+		return _master;
+	}
+	
+	public MinionList getMinionList()
+	{
+		if (_minionList == null)
+		{
+			synchronized (this)
+			{
+				if (_minionList == null)
+				{
+					_minionList = new MinionList(this);
+				}
+			}
+		}
+		return _minionList;
+	}
+	
+	/**
+	 * @return {@code true} if this L2MonsterInstance is not raid minion, master state otherwise.
+	 */
+	@Override
+	public boolean giveRaidCurse()
+	{
+		return (isRaidMinion() && (getLeader() != null)) ? getLeader().giveRaidCurse() : super.giveRaidCurse();
+	}
+	
+	public boolean hasMinions()
+	{
+		return _minionList != null;
+	}
+	
+	@Override
 	public void initKnownList()
 	{
 		setKnownList(new MonsterKnownList(this));
+	}
+	
+	@Override
+	public boolean isAggressive()
+	{
+		return getTemplate().isAggressive() && !isEventMob();
 	}
 	
 	/**
@@ -79,9 +164,18 @@ public class L2MonsterInstance extends L2Attackable
 	}
 	
 	@Override
-	public boolean isAggressive()
+	public boolean isMonster()
 	{
-		return getTemplate().isAggressive() && !isEventMob();
+		return true;
+	}
+	
+	/**
+	 * @return true if this L2MonsterInstance (or its master) is registered in WalkingManager
+	 */
+	@Override
+	public boolean isWalker()
+	{
+		return ((getLeader() == null) ? super.isWalker() : getLeader().isWalker());
 	}
 	
 	@Override
@@ -120,6 +214,11 @@ public class L2MonsterInstance extends L2Attackable
 		}
 	}
 	
+	public void setLeader(L2MonsterInstance leader)
+	{
+		_master = leader;
+	}
+	
 	protected int getMaintenanceInterval()
 	{
 		return MONSTER_MAINTENANCE_INTERVAL;
@@ -127,104 +226,5 @@ public class L2MonsterInstance extends L2Attackable
 	
 	protected void startMaintenanceTask()
 	{
-	}
-	
-	@Override
-	public boolean doDie(L2Character killer)
-	{
-		if (!super.doDie(killer))
-		{
-			return false;
-		}
-		
-		if (_maintenanceTask != null)
-		{
-			_maintenanceTask.cancel(false); // doesn't do it?
-			_maintenanceTask = null;
-		}
-		
-		return true;
-	}
-	
-	@Override
-	public boolean deleteMe()
-	{
-		if (_maintenanceTask != null)
-		{
-			_maintenanceTask.cancel(false);
-			_maintenanceTask = null;
-		}
-		
-		if (hasMinions())
-		{
-			getMinionList().onMasterDie(true);
-		}
-		
-		if (getLeader() != null)
-		{
-			getLeader().getMinionList().onMinionDie(this, 0);
-		}
-		
-		return super.deleteMe();
-	}
-	
-	@Override
-	public L2MonsterInstance getLeader()
-	{
-		return _master;
-	}
-	
-	public void setLeader(L2MonsterInstance leader)
-	{
-		_master = leader;
-	}
-	
-	public void enableMinions(boolean b)
-	{
-		_enableMinions = b;
-	}
-	
-	public boolean hasMinions()
-	{
-		return _minionList != null;
-	}
-	
-	public MinionList getMinionList()
-	{
-		if (_minionList == null)
-		{
-			synchronized (this)
-			{
-				if (_minionList == null)
-				{
-					_minionList = new MinionList(this);
-				}
-			}
-		}
-		return _minionList;
-	}
-	
-	@Override
-	public boolean isMonster()
-	{
-		return true;
-	}
-	
-	/**
-	 * @return true if this L2MonsterInstance (or its master) is registered in WalkingManager
-	 */
-	@Override
-	public boolean isWalker()
-	{
-		return ((getLeader() == null) ? super.isWalker() : getLeader().isWalker());
-	}
-	
-	/**
-	 * @return {@code true} if this L2MonsterInstance is not raid minion, master state otherwise.
-	 */
-	@Override
-	public boolean giveRaidCurse()
-	{
-		return (isRaidMinion() && (getLeader() != null)) ? getLeader().giveRaidCurse() : super.giveRaidCurse();
 	}
 }

@@ -31,14 +31,14 @@ public class FuncMaxHpMul extends AbstractFunction
 {
 	private static final FuncMaxHpMul _fmhm_instance = new FuncMaxHpMul();
 	
-	public static AbstractFunction getInstance()
-	{
-		return _fmhm_instance;
-	}
-	
 	private FuncMaxHpMul()
 	{
 		super(Stats.MAX_HP, 1, null, 0, null);
+	}
+	
+	public static AbstractFunction getInstance()
+	{
+		return _fmhm_instance;
 	}
 	
 	@Override

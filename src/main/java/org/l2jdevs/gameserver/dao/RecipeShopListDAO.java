@@ -26,9 +26,9 @@ import org.l2jdevs.gameserver.model.actor.instance.L2PcInstance;
  */
 public interface RecipeShopListDAO
 {
-	void load(L2PcInstance player);
-	
 	void delete(L2PcInstance player);
 	
 	void insert(L2PcInstance player);
+	
+	void load(L2PcInstance player);
 }

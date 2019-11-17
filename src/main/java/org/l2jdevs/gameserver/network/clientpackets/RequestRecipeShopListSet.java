@@ -49,6 +49,12 @@ public final class RequestRecipeShopListSet extends L2GameClientPacket
 	private L2ManufactureItem[] _items = null;
 	
 	@Override
+	public String getType()
+	{
+		return _C__BB_RequestRecipeShopListSet;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		int count = readD();
@@ -129,11 +135,5 @@ public final class RequestRecipeShopListSet extends L2GameClientPacket
 		player.sitDown();
 		player.broadcastUserInfo();
 		Broadcast.toSelfAndKnownPlayers(player, new RecipeShopMsg(player));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__BB_RequestRecipeShopListSet;
 	}
 }

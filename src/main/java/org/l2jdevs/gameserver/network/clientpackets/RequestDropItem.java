@@ -50,6 +50,12 @@ public final class RequestDropItem extends L2GameClientPacket
 	private int _z;
 	
 	@Override
+	public String getType()
+	{
+		return _C__17_REQUESTDROPITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -228,12 +234,6 @@ public final class RequestDropItem extends L2GameClientPacket
 			_log.warning(msg);
 			AdminData.getInstance().broadcastMessageToGMs(msg);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__17_REQUESTDROPITEM;
 	}
 	
 	@Override

@@ -30,6 +30,15 @@ import org.l2jdevs.gameserver.network.SystemMessageId;
  */
 public class ExShowScreenMessage extends L2GameServerPacket
 {
+	// Positions
+	public static final byte TOP_LEFT = 0x01;
+	public static final byte TOP_CENTER = 0x02;
+	public static final byte TOP_RIGHT = 0x03;
+	public static final byte MIDDLE_LEFT = 0x04;
+	public static final byte MIDDLE_CENTER = 0x05;
+	public static final byte MIDDLE_RIGHT = 0x06;
+	public static final byte BOTTOM_CENTER = 0x07;
+	public static final byte BOTTOM_RIGHT = 0x08;
 	private final int _type;
 	private final int _sysMessageId;
 	private final int _unk1;
@@ -43,90 +52,6 @@ public class ExShowScreenMessage extends L2GameServerPacket
 	private final int _time;
 	private final int _npcString;
 	private List<String> _parameters = null;
-	// Positions
-	public static final byte TOP_LEFT = 0x01;
-	public static final byte TOP_CENTER = 0x02;
-	public static final byte TOP_RIGHT = 0x03;
-	public static final byte MIDDLE_LEFT = 0x04;
-	public static final byte MIDDLE_CENTER = 0x05;
-	public static final byte MIDDLE_RIGHT = 0x06;
-	public static final byte BOTTOM_CENTER = 0x07;
-	public static final byte BOTTOM_RIGHT = 0x08;
-	
-	/**
-	 * Display a String on the screen for a given time.
-	 * @param text the text to display
-	 * @param time the display time
-	 */
-	public ExShowScreenMessage(String text, int time)
-	{
-		_type = 2;
-		_sysMessageId = -1;
-		_unk1 = 0;
-		_unk2 = 0;
-		_unk3 = 0;
-		_fade = false;
-		_position = TOP_CENTER;
-		_text = text;
-		_time = time;
-		_size = 0;
-		_effect = false;
-		_npcString = -1;
-	}
-	
-	/**
-	 * Display a NPC String on the screen for a given position and time.
-	 * @param npcString the NPC String Id
-	 * @param position the position on the screen
-	 * @param time the display time
-	 * @param params the String parameters
-	 */
-	public ExShowScreenMessage(NpcStringId npcString, int position, int time, String... params)
-	{
-		_type = 2;
-		_sysMessageId = -1;
-		_unk1 = 0x00;
-		_unk2 = 0x00;
-		_unk3 = 0x00;
-		_fade = false;
-		_position = position;
-		_text = null;
-		_time = time;
-		_size = 0x00;
-		_effect = false;
-		_npcString = npcString.getId();
-		if (params != null)
-		{
-			addStringParameter(params);
-		}
-	}
-	
-	/**
-	 * Display a System Message on the screen for a given position and time.
-	 * @param systemMsg the System Message Id
-	 * @param position the position on the screen
-	 * @param time the display time
-	 * @param params the String parameters
-	 */
-	public ExShowScreenMessage(SystemMessageId systemMsg, int position, int time, String... params)
-	{
-		_type = 2;
-		_sysMessageId = systemMsg.getId();
-		_unk1 = 0x00;
-		_unk2 = 0x00;
-		_unk3 = 0x00;
-		_fade = false;
-		_position = position;
-		_text = null;
-		_time = time;
-		_size = 0x00;
-		_effect = false;
-		_npcString = -1;
-		if (params != null)
-		{
-			addStringParameter(params);
-		}
-	}
 	
 	/**
 	 * Display a Text, System Message or a NPC String on the screen for the given parameters.
@@ -158,6 +83,81 @@ public class ExShowScreenMessage extends L2GameServerPacket
 		_size = size;
 		_effect = showEffect;
 		_npcString = npcString.getId();
+	}
+	
+	/**
+	 * Display a NPC String on the screen for a given position and time.
+	 * @param npcString the NPC String Id
+	 * @param position the position on the screen
+	 * @param time the display time
+	 * @param params the String parameters
+	 */
+	public ExShowScreenMessage(NpcStringId npcString, int position, int time, String... params)
+	{
+		_type = 2;
+		_sysMessageId = -1;
+		_unk1 = 0x00;
+		_unk2 = 0x00;
+		_unk3 = 0x00;
+		_fade = false;
+		_position = position;
+		_text = null;
+		_time = time;
+		_size = 0x00;
+		_effect = false;
+		_npcString = npcString.getId();
+		if (params != null)
+		{
+			addStringParameter(params);
+		}
+	}
+	
+	/**
+	 * Display a String on the screen for a given time.
+	 * @param text the text to display
+	 * @param time the display time
+	 */
+	public ExShowScreenMessage(String text, int time)
+	{
+		_type = 2;
+		_sysMessageId = -1;
+		_unk1 = 0;
+		_unk2 = 0;
+		_unk3 = 0;
+		_fade = false;
+		_position = TOP_CENTER;
+		_text = text;
+		_time = time;
+		_size = 0;
+		_effect = false;
+		_npcString = -1;
+	}
+	
+	/**
+	 * Display a System Message on the screen for a given position and time.
+	 * @param systemMsg the System Message Id
+	 * @param position the position on the screen
+	 * @param time the display time
+	 * @param params the String parameters
+	 */
+	public ExShowScreenMessage(SystemMessageId systemMsg, int position, int time, String... params)
+	{
+		_type = 2;
+		_sysMessageId = systemMsg.getId();
+		_unk1 = 0x00;
+		_unk2 = 0x00;
+		_unk3 = 0x00;
+		_fade = false;
+		_position = position;
+		_text = null;
+		_time = time;
+		_size = 0x00;
+		_effect = false;
+		_npcString = -1;
+		if (params != null)
+		{
+			addStringParameter(params);
+		}
 	}
 	
 	/**

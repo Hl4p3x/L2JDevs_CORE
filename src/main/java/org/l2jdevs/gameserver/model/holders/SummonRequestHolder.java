@@ -36,9 +36,9 @@ public class SummonRequestHolder
 		_itemCount = itemCount;
 	}
 	
-	public L2PcInstance getRequester()
+	public int getItemCount()
 	{
-		return _requester;
+		return _itemCount;
 	}
 	
 	public int getItemId()
@@ -46,8 +46,8 @@ public class SummonRequestHolder
 		return _itemId;
 	}
 	
-	public int getItemCount()
+	public L2PcInstance getRequester()
 	{
-		return _itemCount;
+		return _requester;
 	}
 }

@@ -46,15 +46,25 @@ public class MerchantPriceConfigTable implements InstanceListManager
 	// Zoey76: TODO: Implement using IXmlReader.
 	private static Logger LOGGER = Logger.getLogger(MerchantPriceConfigTable.class.getName());
 	
+	private static final String MPCS_FILE = "MerchantPriceConfig.xml";
+	
+	private final Map<Integer, MerchantPriceConfig> _mpcs = new HashMap<>();
+	
+	private MerchantPriceConfig _defaultMpc;
 	public static MerchantPriceConfigTable getInstance()
 	{
 		return SingletonHolder._instance;
 	}
 	
-	private static final String MPCS_FILE = "MerchantPriceConfig.xml";
+	@Override
+	public void activateInstances()
+	{
+	}
 	
-	private final Map<Integer, MerchantPriceConfig> _mpcs = new HashMap<>();
-	private MerchantPriceConfig _defaultMpc;
+	public MerchantPriceConfig getMerchantPriceConfig(int id)
+	{
+		return _mpcs.get(id);
+	}
 	
 	public MerchantPriceConfig getMerchantPriceConfig(L2MerchantInstance npc)
 	{
@@ -68,9 +78,18 @@ public class MerchantPriceConfigTable implements InstanceListManager
 		return _defaultMpc;
 	}
 	
-	public MerchantPriceConfig getMerchantPriceConfig(int id)
+	@Override
+	public void loadInstances()
 	{
-		return _mpcs.get(id);
+		try
+		{
+			loadXML();
+			LOGGER.info(getClass().getSimpleName() + ": Loaded " + _mpcs.size() + " merchant price configs.");
+		}
+		catch (Exception e)
+		{
+			LOGGER.log(Level.SEVERE, getClass().getSimpleName() + ": Failed loading MerchantPriceConfigTable. Reason: " + e.getMessage(), e);
+		}
 	}
 	
 	public void loadXML() throws SAXException, IOException, ParserConfigurationException
@@ -108,6 +127,15 @@ public class MerchantPriceConfigTable implements InstanceListManager
 				throw new IllegalStateException("'defaultPriceConfig' points to an non-loaded priceConfig");
 			}
 			_defaultMpc = defaultMpc;
+		}
+	}
+	
+	@Override
+	public void updateReferences()
+	{
+		for (final MerchantPriceConfig mpc : _mpcs.values())
+		{
+			mpc.updateReferences();
 		}
 	}
 	
@@ -159,34 +187,6 @@ public class MerchantPriceConfigTable implements InstanceListManager
 		return null;
 	}
 	
-	@Override
-	public void loadInstances()
-	{
-		try
-		{
-			loadXML();
-			LOGGER.info(getClass().getSimpleName() + ": Loaded " + _mpcs.size() + " merchant price configs.");
-		}
-		catch (Exception e)
-		{
-			LOGGER.log(Level.SEVERE, getClass().getSimpleName() + ": Failed loading MerchantPriceConfigTable. Reason: " + e.getMessage(), e);
-		}
-	}
-	
-	@Override
-	public void updateReferences()
-	{
-		for (final MerchantPriceConfig mpc : _mpcs.values())
-		{
-			mpc.updateReferences();
-		}
-	}
-	
-	@Override
-	public void activateInstances()
-	{
-	}
-	
 	/**
 	 * @author KenM
 	 */
@@ -206,22 +206,6 @@ public class MerchantPriceConfigTable implements InstanceListManager
 			_baseTax = baseTax;
 			_castleId = castleId;
 			_zoneId = zoneId;
-		}
-		
-		/**
-		 * @return Returns the id.
-		 */
-		public int getId()
-		{
-			return _id;
-		}
-		
-		/**
-		 * @return Returns the name.
-		 */
-		public String getName()
-		{
-			return _name;
 		}
 		
 		/**
@@ -248,6 +232,37 @@ public class MerchantPriceConfigTable implements InstanceListManager
 			return _castle;
 		}
 		
+		public double getCastleTaxRate()
+		{
+			return hasCastle() ? getCastle().getTaxRate() : 0.0;
+		}
+		
+		/**
+		 * @return Returns the id.
+		 */
+		public int getId()
+		{
+			return _id;
+		}
+		
+		/**
+		 * @return Returns the name.
+		 */
+		public String getName()
+		{
+			return _name;
+		}
+		
+		public int getTotalTax()
+		{
+			return hasCastle() ? (getCastle().getTaxPercent() + getBaseTax()) : getBaseTax();
+		}
+		
+		public double getTotalTaxRate()
+		{
+			return getTotalTax() / 100.0;
+		}
+		
 		/**
 		 * @return Returns the zoneId.
 		 */
@@ -259,21 +274,6 @@ public class MerchantPriceConfigTable implements InstanceListManager
 		public boolean hasCastle()
 		{
 			return getCastle() != null;
-		}
-		
-		public double getCastleTaxRate()
-		{
-			return hasCastle() ? getCastle().getTaxRate() : 0.0;
-		}
-		
-		public int getTotalTax()
-		{
-			return hasCastle() ? (getCastle().getTaxPercent() + getBaseTax()) : getBaseTax();
-		}
-		
-		public double getTotalTaxRate()
-		{
-			return getTotalTax() / 100.0;
 		}
 		
 		public void updateReferences()

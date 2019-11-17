@@ -43,6 +43,15 @@ public class EffectDurationHolder
 	}
 	
 	/**
+	 * Get the effect's duration.
+	 * @return the duration in <b>seconds</b>
+	 */
+	public int getDuration()
+	{
+		return _duration;
+	}
+	
+	/**
 	 * Get the effect's skill Id.
 	 * @return the skill Id
 	 */
@@ -58,14 +67,5 @@ public class EffectDurationHolder
 	public int getSkillLvl()
 	{
 		return _skillLvl;
-	}
-	
-	/**
-	 * Get the effect's duration.
-	 * @return the duration in <b>seconds</b>
-	 */
-	public int getDuration()
-	{
-		return _duration;
 	}
 }

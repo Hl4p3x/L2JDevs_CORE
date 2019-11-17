@@ -39,18 +39,17 @@ public class FortUpdater implements Runnable
 	private int _runCount;
 	private final UpdaterType _updaterType;
 	
-	public enum UpdaterType
-	{
-		MAX_OWN_TIME, // gives fort back to NPC clan
-		PERIODIC_UPDATE // raise blood oath/supply level
-	}
-	
 	public FortUpdater(Fort fort, L2Clan clan, int runCount, UpdaterType ut)
 	{
 		_fort = fort;
 		_clan = clan;
 		_runCount = runCount;
 		_updaterType = ut;
+	}
+	
+	public int getRunCount()
+	{
+		return _runCount;
 	}
 	
 	@Override
@@ -107,8 +106,9 @@ public class FortUpdater implements Runnable
 		}
 	}
 	
-	public int getRunCount()
+	public enum UpdaterType
 	{
-		return _runCount;
+		MAX_OWN_TIME, // gives fort back to NPC clan
+		PERIODIC_UPDATE // raise blood oath/supply level
 	}
 }

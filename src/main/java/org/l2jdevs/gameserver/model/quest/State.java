@@ -37,24 +37,6 @@ public class State
 	public static final byte COMPLETED = 2;
 	
 	/**
-	 * Get the quest state's string representation from its byte value.
-	 * @param state the byte value of the state
-	 * @return the String representation of the quest state (default: Start)
-	 */
-	public static String getStateName(byte state)
-	{
-		switch (state)
-		{
-			case 1:
-				return "Started";
-			case 2:
-				return "Completed";
-			default:
-				return "Start";
-		}
-	}
-	
-	/**
 	 * Get the quest state's byte value from its string representation.
 	 * @param statename the String representation of the state
 	 * @return the byte value of the quest state (default: 0)
@@ -69,6 +51,24 @@ public class State
 				return 2;
 			default:
 				return 0;
+		}
+	}
+	
+	/**
+	 * Get the quest state's string representation from its byte value.
+	 * @param state the byte value of the state
+	 * @return the String representation of the quest state (default: Start)
+	 */
+	public static String getStateName(byte state)
+	{
+		switch (state)
+		{
+			case 1:
+				return "Started";
+			case 2:
+				return "Completed";
+			default:
+				return "Start";
 		}
 	}
 }

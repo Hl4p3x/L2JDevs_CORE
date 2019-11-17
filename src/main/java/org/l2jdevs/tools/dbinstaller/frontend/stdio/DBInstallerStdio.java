@@ -113,49 +113,35 @@ public class DBInstallerStdio implements IApplicationFrontend
 		run(dir, cleanUpScript, database, mode);
 	}
 	
-	private void run(String dir, String cleanUpScript, String database, String mode)
+	@Override
+	public void close()
 	{
-		try
+	}
+	
+	@Override
+	public void reportError(boolean drawAttention, String message)
+	{
+		System.err.println(message);
+		if (drawAttention)
 		{
-			SQLUtil.ensureDatabaseUsage(_con, database);
-		}
-		catch (Exception e)
-		{
-			reportError(true, e, MessageFormat.format("Failed to ensure that the database {0} exists and is in use!", database));
-			return;
-		}
-		
-		if ((mode != null) && ("c".equalsIgnoreCase(mode) || "u".equalsIgnoreCase(mode)))
-		{
-			final RunTasks rt = new RunTasks(this, _con, database, dir, cleanUpScript, "c".equalsIgnoreCase(mode));
-			rt.run();
+			drawReportAttention(System.err);
 		}
 	}
 	
-	private void clearPendingInput()
+	@Override
+	public void reportError(boolean drawAttention, Throwable t, String message)
 	{
-		try
+		if (t != null)
 		{
-			System.in.read(new byte[System.in.available()]);
+			message += MessageFormat.format("\n\nReason:\n{0}", t.getMessage());
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		reportError(drawAttention, message);
 	}
 	
-	private void drawReportAttention(PrintStream ps)
+	@Override
+	public void reportError(boolean drawAttention, Throwable t, String message, Object... args)
 	{
-		ps.println("Press any key to continue...");
-		try
-		{
-			clearPendingInput();
-			System.in.read();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		reportError(drawAttention, t, MessageFormat.format(message, args));
 	}
 	
 	@Override
@@ -191,29 +177,16 @@ public class DBInstallerStdio implements IApplicationFrontend
 	}
 	
 	@Override
-	public void reportError(boolean drawAttention, String message)
+	public boolean requestUserConfirm(String message, Object... args)
 	{
-		System.err.println(message);
-		if (drawAttention)
+		clearPendingInput();
+		System.out.print(MessageFormat.format(message, args));
+		String res = "";
+		try (Scanner scn = new Scanner(new CloseShieldedInputStream(System.in)))
 		{
-			drawReportAttention(System.err);
+			res = scn.next();
 		}
-	}
-	
-	@Override
-	public void reportError(boolean drawAttention, Throwable t, String message)
-	{
-		if (t != null)
-		{
-			message += MessageFormat.format("\n\nReason:\n{0}", t.getMessage());
-		}
-		reportError(drawAttention, message);
-	}
-	
-	@Override
-	public void reportError(boolean drawAttention, Throwable t, String message, Object... args)
-	{
-		reportError(drawAttention, t, MessageFormat.format(message, args));
+		return res.equalsIgnoreCase("y") ? true : false;
 	}
 	
 	@Override
@@ -229,21 +202,48 @@ public class DBInstallerStdio implements IApplicationFrontend
 		return res;
 	}
 	
-	@Override
-	public boolean requestUserConfirm(String message, Object... args)
+	private void clearPendingInput()
 	{
-		clearPendingInput();
-		System.out.print(MessageFormat.format(message, args));
-		String res = "";
-		try (Scanner scn = new Scanner(new CloseShieldedInputStream(System.in)))
+		try
 		{
-			res = scn.next();
+			System.in.read(new byte[System.in.available()]);
 		}
-		return res.equalsIgnoreCase("y") ? true : false;
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
-	@Override
-	public void close()
+	private void drawReportAttention(PrintStream ps)
 	{
+		ps.println("Press any key to continue...");
+		try
+		{
+			clearPendingInput();
+			System.in.read();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private void run(String dir, String cleanUpScript, String database, String mode)
+	{
+		try
+		{
+			SQLUtil.ensureDatabaseUsage(_con, database);
+		}
+		catch (Exception e)
+		{
+			reportError(true, e, MessageFormat.format("Failed to ensure that the database {0} exists and is in use!", database));
+			return;
+		}
+		
+		if ((mode != null) && ("c".equalsIgnoreCase(mode) || "u".equalsIgnoreCase(mode)))
+		{
+			final RunTasks rt = new RunTasks(this, _con, database, dir, cleanUpScript, "c".equalsIgnoreCase(mode));
+			rt.run();
+		}
 	}
 }

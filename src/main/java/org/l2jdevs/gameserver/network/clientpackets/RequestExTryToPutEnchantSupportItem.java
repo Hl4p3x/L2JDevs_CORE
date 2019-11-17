@@ -37,6 +37,12 @@ public class RequestExTryToPutEnchantSupportItem extends L2GameClientPacket
 	private int _enchantObjectId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_4D_REQUESTEXTRYTOPUTENCHANTSUPPORTITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_supportObjectId = readD();
@@ -80,11 +86,5 @@ public class RequestExTryToPutEnchantSupportItem extends L2GameClientPacket
 			activeChar.setActiveEnchantSupportItemId(support.getObjectId());
 			activeChar.sendPacket(new ExPutEnchantSupportItemResult(_supportObjectId));
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_4D_REQUESTEXTRYTOPUTENCHANTSUPPORTITEM;
 	}
 }

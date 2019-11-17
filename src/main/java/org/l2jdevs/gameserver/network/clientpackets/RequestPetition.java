@@ -43,6 +43,12 @@ public final class RequestPetition extends L2GameClientPacket
 	private int _type; // 1 = on : 0 = off;
 	
 	@Override
+	public String getType()
+	{
+		return _C__89_RequestPetition;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_content = readS();
@@ -112,11 +118,5 @@ public final class RequestPetition extends L2GameClientPacket
 		sm = SystemMessage.getSystemMessage(SystemMessageId.S1_PETITION_ON_WAITING_LIST);
 		sm.addInt(PetitionManager.getInstance().getPendingPetitionCount());
 		activeChar.sendPacket(sm);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__89_RequestPetition;
 	}
 }

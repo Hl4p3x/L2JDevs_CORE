@@ -27,6 +27,12 @@ public final class RequestExFishRanking extends L2GameClientPacket
 	private static final String _C__D0_18_REQUESTEXFISHRANKING = "[C] D0:18 RequestExFishRanking";
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_18_REQUESTEXFISHRANKING;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger
@@ -36,11 +42,5 @@ public final class RequestExFishRanking extends L2GameClientPacket
 	protected void runImpl()
 	{
 		_log.info("C5: RequestExFishRanking");
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_18_REQUESTEXFISHRANKING;
 	}
 }

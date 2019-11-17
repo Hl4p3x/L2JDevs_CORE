@@ -31,24 +31,12 @@ public class CellNode extends AbstractNode<NodeLoc>
 		super(loc);
 	}
 	
-	public boolean isInUse()
+	public void free()
 	{
-		return _isInUse;
-	}
-	
-	public void setInUse()
-	{
-		_isInUse = true;
-	}
-	
-	public CellNode getNext()
-	{
-		return _next;
-	}
-	
-	public void setNext(CellNode next)
-	{
-		_next = next;
+		setParent(null);
+		_cost = -1000;
+		_isInUse = false;
+		_next = null;
 	}
 	
 	public float getCost()
@@ -56,16 +44,28 @@ public class CellNode extends AbstractNode<NodeLoc>
 		return _cost;
 	}
 	
+	public CellNode getNext()
+	{
+		return _next;
+	}
+	
+	public boolean isInUse()
+	{
+		return _isInUse;
+	}
+	
 	public void setCost(double cost)
 	{
 		_cost = (float) cost;
 	}
 	
-	public void free()
+	public void setInUse()
 	{
-		setParent(null);
-		_cost = -1000;
-		_isInUse = false;
-		_next = null;
+		_isInUse = true;
+	}
+	
+	public void setNext(CellNode next)
+	{
+		_next = next;
 	}
 }

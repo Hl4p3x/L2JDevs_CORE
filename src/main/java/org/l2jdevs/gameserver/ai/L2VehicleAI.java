@@ -38,32 +38,17 @@ public abstract class L2VehicleAI extends L2CharacterAI
 	}
 	
 	@Override
-	protected void onIntentionAttack(L2Character target)
+	protected void clientActionFailed()
 	{
 	}
 	
 	@Override
-	protected void onIntentionCast(Skill skill, L2Object target)
+	protected void clientStoppedMoving()
 	{
 	}
 	
 	@Override
-	protected void onIntentionFollow(L2Character target)
-	{
-	}
-	
-	@Override
-	protected void onIntentionPickUp(L2Object item)
-	{
-	}
-	
-	@Override
-	protected void onIntentionInteract(L2Object object)
-	{
-	}
-	
-	@Override
-	protected void onEvtAttacked(L2Character attacker)
+	protected void moveToPawn(L2Object pawn, int offset)
 	{
 	}
 	
@@ -73,22 +58,7 @@ public abstract class L2VehicleAI extends L2CharacterAI
 	}
 	
 	@Override
-	protected void onEvtStunned(L2Character attacker)
-	{
-	}
-	
-	@Override
-	protected void onEvtSleeping(L2Character attacker)
-	{
-	}
-	
-	@Override
-	protected void onEvtRooted(L2Character attacker)
-	{
-	}
-	
-	@Override
-	protected void onEvtForgetObject(L2Object object)
+	protected void onEvtAttacked(L2Character attacker)
 	{
 	}
 	
@@ -113,17 +83,47 @@ public abstract class L2VehicleAI extends L2CharacterAI
 	}
 	
 	@Override
-	protected void clientActionFailed()
+	protected void onEvtForgetObject(L2Object object)
 	{
 	}
 	
 	@Override
-	protected void moveToPawn(L2Object pawn, int offset)
+	protected void onEvtRooted(L2Character attacker)
 	{
 	}
 	
 	@Override
-	protected void clientStoppedMoving()
+	protected void onEvtSleeping(L2Character attacker)
+	{
+	}
+	
+	@Override
+	protected void onEvtStunned(L2Character attacker)
+	{
+	}
+	
+	@Override
+	protected void onIntentionAttack(L2Character target)
+	{
+	}
+	
+	@Override
+	protected void onIntentionCast(Skill skill, L2Object target)
+	{
+	}
+	
+	@Override
+	protected void onIntentionFollow(L2Character target)
+	{
+	}
+	
+	@Override
+	protected void onIntentionInteract(L2Object object)
+	{
+	}
+	
+	@Override
+	protected void onIntentionPickUp(L2Object item)
 	{
 	}
 }

@@ -35,6 +35,12 @@ public final class RequestRecipeShopMakeInfo extends L2GameClientPacket
 	private int _recipeId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__B5_RequestRecipeShopMakeInfo;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_playerObjectId = readD();
@@ -58,11 +64,5 @@ public final class RequestRecipeShopMakeInfo extends L2GameClientPacket
 		
 		player.sendPacket(new RecipeShopItemInfo(shop, _recipeId));
 		
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__B5_RequestRecipeShopMakeInfo;
 	}
 }

@@ -35,6 +35,12 @@ public final class RequestPledgeSetMemberPowerGrade extends L2GameClientPacket
 	private int _powerGrade;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_15_REQUESTPLEDGESETMEMBERPOWERGRADE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_member = readS();
@@ -81,11 +87,5 @@ public final class RequestPledgeSetMemberPowerGrade extends L2GameClientPacket
 		
 		member.setPowerGrade(_powerGrade);
 		clan.broadcastClanStatus();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_15_REQUESTPLEDGESETMEMBERPOWERGRADE;
 	}
 }

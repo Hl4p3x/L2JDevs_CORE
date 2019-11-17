@@ -36,6 +36,17 @@ public class PunishmentHandler implements IHandler<IPunishmentHandler, Punishmen
 		
 	}
 	
+	public static PunishmentHandler getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	@Override
+	public IPunishmentHandler getHandler(PunishmentType val)
+	{
+		return _handlers.get(val);
+	}
+	
 	@Override
 	public void registerHandler(IPunishmentHandler handler)
 	{
@@ -49,20 +60,9 @@ public class PunishmentHandler implements IHandler<IPunishmentHandler, Punishmen
 	}
 	
 	@Override
-	public IPunishmentHandler getHandler(PunishmentType val)
-	{
-		return _handlers.get(val);
-	}
-	
-	@Override
 	public int size()
 	{
 		return _handlers.size();
-	}
-	
-	public static PunishmentHandler getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

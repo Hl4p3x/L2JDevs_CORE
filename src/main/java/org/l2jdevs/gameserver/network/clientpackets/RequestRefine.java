@@ -40,6 +40,12 @@ public final class RequestRefine extends AbstractRefinePacket
 	private long _gemStoneCount;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_41_REQUESTREFINE;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_targetItemObjId = readD();
@@ -133,11 +139,5 @@ public final class RequestRefine extends AbstractRefinePacket
 		StatusUpdate su = new StatusUpdate(activeChar);
 		su.addAttribute(StatusUpdate.CUR_LOAD, activeChar.getCurrentLoad());
 		activeChar.sendPacket(su);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_41_REQUESTREFINE;
 	}
 }

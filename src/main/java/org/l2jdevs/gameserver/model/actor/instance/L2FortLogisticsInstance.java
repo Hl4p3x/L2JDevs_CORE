@@ -67,6 +67,29 @@ public class L2FortLogisticsInstance extends L2MerchantInstance
 	}
 	
 	@Override
+	public String getHtmlPath(int npcId, int val)
+	{
+		String pom = "";
+		
+		if (val == 0)
+		{
+			pom = "logistics";
+		}
+		else
+		{
+			pom = "logistics-" + val;
+		}
+		
+		return "data/html/fortress/" + pom + ".htm";
+	}
+	
+	@Override
+	public boolean hasRandomAnimation()
+	{
+		return false;
+	}
+	
+	@Override
 	public void onBypassFeedback(L2PcInstance player, String command)
 	{
 		if (player.getLastFolkNPC().getObjectId() != getObjectId())
@@ -215,28 +238,5 @@ public class L2FortLogisticsInstance extends L2MerchantInstance
 			html.replace("%clanname%", "NPC");
 		}
 		player.sendPacket(html);
-	}
-	
-	@Override
-	public String getHtmlPath(int npcId, int val)
-	{
-		String pom = "";
-		
-		if (val == 0)
-		{
-			pom = "logistics";
-		}
-		else
-		{
-			pom = "logistics-" + val;
-		}
-		
-		return "data/html/fortress/" + pom + ".htm";
-	}
-	
-	@Override
-	public boolean hasRandomAnimation()
-	{
-		return false;
 	}
 }

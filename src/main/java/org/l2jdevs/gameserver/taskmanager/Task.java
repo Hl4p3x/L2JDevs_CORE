@@ -30,6 +30,8 @@ public abstract class Task
 {
 	protected final Logger _log = Logger.getLogger(getClass().getName());
 	
+	public abstract String getName();
+	
 	public void initializate()
 	{
 	}
@@ -39,12 +41,10 @@ public abstract class Task
 		return null;
 	}
 	
-	public abstract String getName();
-	
-	public abstract void onTimeElapsed(ExecutedTask task);
-	
 	public void onDestroy()
 	{
 		
 	}
+	
+	public abstract void onTimeElapsed(ExecutedTask task);
 }

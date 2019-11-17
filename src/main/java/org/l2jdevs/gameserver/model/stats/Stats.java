@@ -192,11 +192,6 @@ public enum Stats
 	
 	private String _value;
 	
-	public String getValue()
-	{
-		return _value;
-	}
-	
 	private Stats(String s)
 	{
 		_value = s;
@@ -214,5 +209,10 @@ public enum Stats
 		}
 		
 		throw new NoSuchElementException("Unknown name '" + name + "' for enum BaseStats");
+	}
+	
+	public String getValue()
+	{
+		return _value;
 	}
 }

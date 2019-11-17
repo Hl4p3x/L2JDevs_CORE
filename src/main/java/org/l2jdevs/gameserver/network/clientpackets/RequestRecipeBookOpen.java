@@ -31,6 +31,12 @@ public final class RequestRecipeBookOpen extends L2GameClientPacket
 	private boolean _isDwarvenCraft;
 	
 	@Override
+	public String getType()
+	{
+		return _C__B5_REQUESTRECIPEBOOKOPEN;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_isDwarvenCraft = (readD() == 0);
@@ -62,11 +68,5 @@ public final class RequestRecipeBookOpen extends L2GameClientPacket
 		}
 		
 		RecipeController.getInstance().requestBookOpen(activeChar, _isDwarvenCraft);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__B5_REQUESTRECIPEBOOKOPEN;
 	}
 }

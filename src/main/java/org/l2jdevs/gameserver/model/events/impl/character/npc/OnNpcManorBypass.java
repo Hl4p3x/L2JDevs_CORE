@@ -48,9 +48,9 @@ public final class OnNpcManorBypass implements IBaseEvent
 		return _activeChar;
 	}
 	
-	public L2Npc getTarget()
+	public int getManorId()
 	{
-		return _target;
+		return _manorId;
 	}
 	
 	public int getRequest()
@@ -58,19 +58,19 @@ public final class OnNpcManorBypass implements IBaseEvent
 		return _request;
 	}
 	
-	public int getManorId()
+	public L2Npc getTarget()
 	{
-		return _manorId;
-	}
-	
-	public boolean isNextPeriod()
-	{
-		return _nextPeriod;
+		return _target;
 	}
 	
 	@Override
 	public EventType getType()
 	{
 		return EventType.ON_NPC_MANOR_BYPASS;
+	}
+	
+	public boolean isNextPeriod()
+	{
+		return _nextPeriod;
 	}
 }

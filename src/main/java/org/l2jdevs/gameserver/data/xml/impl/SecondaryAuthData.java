@@ -44,6 +44,41 @@ public class SecondaryAuthData implements IXmlReader
 		load();
 	}
 	
+	public static SecondaryAuthData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public int getBanTime()
+	{
+		return _banTime;
+	}
+	
+	public Set<String> getForbiddenPasswords()
+	{
+		return _forbiddenPasswords;
+	}
+	
+	public int getMaxAttempts()
+	{
+		return _maxAttempts;
+	}
+	
+	public String getRecoveryLink()
+	{
+		return _recoveryLink;
+	}
+	
+	public boolean isEnabled()
+	{
+		return _enabled;
+	}
+	
+	public boolean isForbiddenPassword(String password)
+	{
+		return _forbiddenPasswords.contains(password);
+	}
+	
 	@Override
 	public synchronized void load()
 	{
@@ -97,41 +132,6 @@ public class SecondaryAuthData implements IXmlReader
 		{
 			LOG.warn("Failed to load secondary auth data from xml.", e);
 		}
-	}
-	
-	public boolean isEnabled()
-	{
-		return _enabled;
-	}
-	
-	public int getMaxAttempts()
-	{
-		return _maxAttempts;
-	}
-	
-	public int getBanTime()
-	{
-		return _banTime;
-	}
-	
-	public String getRecoveryLink()
-	{
-		return _recoveryLink;
-	}
-	
-	public Set<String> getForbiddenPasswords()
-	{
-		return _forbiddenPasswords;
-	}
-	
-	public boolean isForbiddenPassword(String password)
-	{
-		return _forbiddenPasswords.contains(password);
-	}
-	
-	public static SecondaryAuthData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

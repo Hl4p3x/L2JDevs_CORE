@@ -46,6 +46,11 @@ import org.l2jdevs.util.file.filter.SQLFilter;
  */
 public final class SQLUtil
 {
+	public static void close(Connection con)
+	{
+		ResourceUtil.close(con);
+	}
+	
 	public static Connection connect(String host, String port, String user, String password, String db) throws SQLException
 	{
 		final String url = String.format("jdbc:mysql://%s:%s", host, port);
@@ -56,11 +61,6 @@ public final class SQLUtil
 		info.put("serverTimezone", "UTC");
 		info.put("allowPublicKeyRetrieval", "true");
 		return DriverManager.getConnection(url, info);
-	}
-	
-	public static void close(Connection con)
-	{
-		ResourceUtil.close(con);
 	}
 	
 	public static void createDump(Connection con, String db) throws IOException, SQLException
@@ -224,6 +224,32 @@ public final class SQLUtil
 		}
 	}
 	
+	public static void executeDirectoryOfSQLScripts(Connection con, File dir, boolean skipErrors) throws FileNotFoundException, SQLException
+	{
+		final File[] files = dir.listFiles(new SQLFilter());
+		if (files != null)
+		{
+			Arrays.sort(files);
+			for (File file : files)
+			{
+				if (skipErrors)
+				{
+					try
+					{
+						executeSQLScript(con, file);
+					}
+					catch (Throwable t)
+					{
+					}
+				}
+				else
+				{
+					executeSQLScript(con, file);
+				}
+			}
+		}
+	}
+	
 	public static void executeSQLScript(Connection con, File file) throws FileNotFoundException, SQLException
 	{
 		String line = "";
@@ -253,32 +279,6 @@ public final class SQLUtil
 				{
 					stmt.execute(sb.toString());
 					sb = new StringBuilder();
-				}
-			}
-		}
-	}
-	
-	public static void executeDirectoryOfSQLScripts(Connection con, File dir, boolean skipErrors) throws FileNotFoundException, SQLException
-	{
-		final File[] files = dir.listFiles(new SQLFilter());
-		if (files != null)
-		{
-			Arrays.sort(files);
-			for (File file : files)
-			{
-				if (skipErrors)
-				{
-					try
-					{
-						executeSQLScript(con, file);
-					}
-					catch (Throwable t)
-					{
-					}
-				}
-				else
-				{
-					executeSQLScript(con, file);
 				}
 			}
 		}

@@ -58,19 +58,19 @@ public enum WeaponType implements ItemType
 	}
 	
 	/**
+	 * @return TraitType the type of the WeaponType
+	 */
+	public TraitType getTraitType()
+	{
+		return _traitType;
+	}
+	
+	/**
 	 * @return the ID of the item after applying the mask.
 	 */
 	@Override
 	public int mask()
 	{
 		return _mask;
-	}
-	
-	/**
-	 * @return TraitType the type of the WeaponType
-	 */
-	public TraitType getTraitType()
-	{
-		return _traitType;
 	}
 }

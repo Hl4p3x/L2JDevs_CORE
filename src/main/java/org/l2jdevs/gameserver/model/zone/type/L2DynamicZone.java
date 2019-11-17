@@ -61,6 +61,25 @@ public class L2DynamicZone extends L2ZoneType
 	}
 	
 	@Override
+	public void onDieInside(L2Character character)
+	{
+		if (character == _owner)
+		{
+			remove();
+		}
+		else
+		{
+			character.stopSkillEffects(true, _skill.getId());
+		}
+	}
+	
+	@Override
+	public void onReviveInside(L2Character character)
+	{
+		_skill.applyEffects(_owner, character);
+	}
+	
+	@Override
 	protected void onEnter(L2Character character)
 	{
 		if (character.isPlayer())
@@ -106,24 +125,5 @@ public class L2DynamicZone extends L2ZoneType
 		}
 		_owner.stopSkillEffects(true, _skill.getId());
 		
-	}
-	
-	@Override
-	public void onDieInside(L2Character character)
-	{
-		if (character == _owner)
-		{
-			remove();
-		}
-		else
-		{
-			character.stopSkillEffects(true, _skill.getId());
-		}
-	}
-	
-	@Override
-	public void onReviveInside(L2Character character)
-	{
-		_skill.applyEffects(_owner, character);
 	}
 }

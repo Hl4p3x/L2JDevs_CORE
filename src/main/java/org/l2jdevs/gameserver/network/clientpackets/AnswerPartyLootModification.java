@@ -31,6 +31,12 @@ public class AnswerPartyLootModification extends L2GameClientPacket
 	public int _answer;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_79_ANSWERPARTYLOOTMODIFICATION;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_answer = readD();
@@ -49,11 +55,5 @@ public class AnswerPartyLootModification extends L2GameClientPacket
 		{
 			party.answerLootChangeRequest(activeChar, _answer == 1);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_79_ANSWERPARTYLOOTMODIFICATION;
 	}
 }

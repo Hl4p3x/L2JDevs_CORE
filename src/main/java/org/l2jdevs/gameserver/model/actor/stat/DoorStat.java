@@ -44,13 +44,13 @@ public class DoorStat extends CharStat
 		return super.getMaxHp() * _upgradeHpRatio;
 	}
 	
-	public void setUpgradeHpRatio(int ratio)
-	{
-		_upgradeHpRatio = ratio;
-	}
-	
 	public int getUpgradeHpRatio()
 	{
 		return _upgradeHpRatio;
+	}
+	
+	public void setUpgradeHpRatio(int ratio)
+	{
+		_upgradeHpRatio = ratio;
 	}
 }

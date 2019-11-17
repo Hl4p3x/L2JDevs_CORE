@@ -73,36 +73,9 @@ public final class RequestSendPost extends L2GameClientPacket
 	}
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		_receiver = readS();
-		_isCod = readD() == 0 ? false : true;
-		_subject = readS();
-		_text = readS();
-		
-		int attachCount = readD();
-		if ((attachCount < 0) || (attachCount > Config.MAX_ITEM_IN_PACKET) || (((attachCount * BATCH_LENGTH) + 8) != _buf.remaining()))
-		{
-			return;
-		}
-		
-		if (attachCount > 0)
-		{
-			_items = new AttachmentItem[attachCount];
-			for (int i = 0; i < attachCount; i++)
-			{
-				int objectId = readD();
-				long count = readQ();
-				if ((objectId < 1) || (count < 0))
-				{
-					_items = null;
-					return;
-				}
-				_items[i] = new AttachmentItem(objectId, count);
-			}
-		}
-		
-		_reqAdena = readQ();
+		return _C__D0_66_REQUESTSENDPOST;
 	}
 	
 	@Override
@@ -265,6 +238,45 @@ public final class RequestSendPost extends L2GameClientPacket
 		}
 	}
 	
+	@Override
+	protected void readImpl()
+	{
+		_receiver = readS();
+		_isCod = readD() == 0 ? false : true;
+		_subject = readS();
+		_text = readS();
+		
+		int attachCount = readD();
+		if ((attachCount < 0) || (attachCount > Config.MAX_ITEM_IN_PACKET) || (((attachCount * BATCH_LENGTH) + 8) != _buf.remaining()))
+		{
+			return;
+		}
+		
+		if (attachCount > 0)
+		{
+			_items = new AttachmentItem[attachCount];
+			for (int i = 0; i < attachCount; i++)
+			{
+				int objectId = readD();
+				long count = readQ();
+				if ((objectId < 1) || (count < 0))
+				{
+					_items = null;
+					return;
+				}
+				_items[i] = new AttachmentItem(objectId, count);
+			}
+		}
+		
+		_reqAdena = readQ();
+	}
+	
+	@Override
+	protected boolean triggersOnActionRequest()
+	{
+		return false;
+	}
+	
 	private final boolean removeItems(L2PcInstance player, Message msg)
 	{
 		long currentAdena = player.getAdena();
@@ -377,26 +389,14 @@ public final class RequestSendPost extends L2GameClientPacket
 			_count = num;
 		}
 		
-		public int getObjectId()
-		{
-			return _objectId;
-		}
-		
 		public long getCount()
 		{
 			return _count;
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_66_REQUESTSENDPOST;
-	}
-	
-	@Override
-	protected boolean triggersOnActionRequest()
-	{
-		return false;
+		
+		public int getObjectId()
+		{
+			return _objectId;
+		}
 	}
 }

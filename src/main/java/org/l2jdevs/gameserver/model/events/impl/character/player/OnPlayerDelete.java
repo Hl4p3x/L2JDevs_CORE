@@ -38,9 +38,9 @@ public class OnPlayerDelete implements IBaseEvent
 		_client = client;
 	}
 	
-	public int getObjectId()
+	public L2GameClient getClient()
 	{
-		return _objectId;
+		return _client;
 	}
 	
 	public String getName()
@@ -48,9 +48,9 @@ public class OnPlayerDelete implements IBaseEvent
 		return _name;
 	}
 	
-	public L2GameClient getClient()
+	public int getObjectId()
 	{
-		return _client;
+		return _objectId;
 	}
 	
 	@Override

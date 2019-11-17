@@ -34,6 +34,12 @@ public class SetPrivateStoreWholeMsg extends L2GameClientPacket
 	private String _msg;
 	
 	@Override
+	public String getType()
+	{
+		return _C_D0_4A_SETPRIVATESTOREWHOLEMSG;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_msg = readS();
@@ -56,11 +62,5 @@ public class SetPrivateStoreWholeMsg extends L2GameClientPacket
 		
 		player.getSellList().setTitle(_msg);
 		sendPacket(new ExPrivateStoreSetWholeMsg(player));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C_D0_4A_SETPRIVATESTOREWHOLEMSG;
 	}
 }

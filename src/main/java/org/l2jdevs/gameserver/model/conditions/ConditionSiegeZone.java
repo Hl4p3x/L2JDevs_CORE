@@ -59,32 +59,6 @@ public final class ConditionSiegeZone extends Condition
 		_self = self;
 	}
 	
-	@Override
-	public boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item)
-	{
-		L2Character target = _self ? effector : effected;
-		Castle castle = CastleManager.getInstance().getCastle(target);
-		Fort fort = FortManager.getInstance().getFort(target);
-		
-		if (((_value & COND_TW_PROGRESS) != 0) && !TerritoryWarManager.getInstance().isTWInProgress())
-		{
-			return false;
-		}
-		else if (((_value & COND_TW_CHANNEL) != 0) && !TerritoryWarManager.getInstance().isTWChannelOpen())
-		{
-			return false;
-		}
-		else if ((castle == null) && (fort == null))
-		{
-			return (_value & COND_NOT_ZONE) != 0;
-		}
-		if (castle != null)
-		{
-			return checkIfOk(target, castle, _value);
-		}
-		return checkIfOk(target, fort, _value);
-	}
-	
 	/**
 	 * Check if ok.
 	 * @param activeChar the active char
@@ -175,6 +149,32 @@ public final class ConditionSiegeZone extends Condition
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item)
+	{
+		L2Character target = _self ? effector : effected;
+		Castle castle = CastleManager.getInstance().getCastle(target);
+		Fort fort = FortManager.getInstance().getFort(target);
+		
+		if (((_value & COND_TW_PROGRESS) != 0) && !TerritoryWarManager.getInstance().isTWInProgress())
+		{
+			return false;
+		}
+		else if (((_value & COND_TW_CHANNEL) != 0) && !TerritoryWarManager.getInstance().isTWChannelOpen())
+		{
+			return false;
+		}
+		else if ((castle == null) && (fort == null))
+		{
+			return (_value & COND_NOT_ZONE) != 0;
+		}
+		if (castle != null)
+		{
+			return checkIfOk(target, castle, _value);
+		}
+		return checkIfOk(target, fort, _value);
 	}
 	
 }

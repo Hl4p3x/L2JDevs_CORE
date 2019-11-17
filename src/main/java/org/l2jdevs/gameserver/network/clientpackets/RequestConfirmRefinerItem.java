@@ -36,6 +36,12 @@ public class RequestConfirmRefinerItem extends AbstractRefinePacket
 	private int _refinerItemObjId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_27_REQUESTCONFIRMREFINERITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_targetItemObjId = readD();
@@ -76,12 +82,6 @@ public class RequestConfirmRefinerItem extends AbstractRefinePacket
 		final int gemStoneCount = getGemStoneCount(grade, ls.getGrade());
 		
 		activeChar.sendPacket(new ExPutIntensiveResultForVariationMake(_refinerItemObjId, refinerItemId, gemStoneId, gemStoneCount));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_27_REQUESTCONFIRMREFINERITEM;
 	}
 	
 }

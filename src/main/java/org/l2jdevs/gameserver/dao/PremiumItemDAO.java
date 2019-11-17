@@ -26,9 +26,9 @@ import org.l2jdevs.gameserver.model.actor.instance.L2PcInstance;
  */
 public interface PremiumItemDAO
 {
+	void delete(L2PcInstance player, int itemNum);
+	
 	void load(L2PcInstance player);
 	
 	void update(L2PcInstance player, int itemNum, long newcount);
-	
-	void delete(L2PcInstance player, int itemNum);
 }

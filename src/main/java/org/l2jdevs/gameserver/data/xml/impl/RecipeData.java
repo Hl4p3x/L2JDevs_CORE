@@ -51,6 +51,75 @@ public class RecipeData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of RecipeData.
+	 * @return single instance of RecipeData
+	 */
+	public static RecipeData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the all item ids.
+	 * @return the all item ids
+	 */
+	public int[] getAllItemIds()
+	{
+		int[] idList = new int[_recipes.size()];
+		int i = 0;
+		for (L2RecipeList rec : _recipes.values())
+		{
+			idList[i++] = rec.getRecipeId();
+		}
+		return idList;
+	}
+	
+	/**
+	 * Gets the recipe by item id.
+	 * @param itemId the item id
+	 * @return the recipe by item id
+	 */
+	public L2RecipeList getRecipeByItemId(int itemId)
+	{
+		for (L2RecipeList find : _recipes.values())
+		{
+			if (find.getRecipeId() == itemId)
+			{
+				return find;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the recipe list.
+	 * @param listId the list id
+	 * @return the recipe list
+	 */
+	public L2RecipeList getRecipeList(int listId)
+	{
+		return _recipes.get(listId);
+	}
+	
+	/**
+	 * Gets the valid recipe list.
+	 * @param player the player
+	 * @param id the recipe list id
+	 * @return the valid recipe list
+	 */
+	public L2RecipeList getValidRecipeList(L2PcInstance player, int id)
+	{
+		L2RecipeList recipeList = _recipes.get(id);
+		if ((recipeList == null) || (recipeList.getRecipes().length == 0))
+		{
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "no_recipe_id").replace("%s%", id + ""));
+			player.isInCraftMode(false);
+			return null;
+		}
+		return recipeList;
+	}
+	
 	@Override
 	public void load()
 	{
@@ -202,75 +271,6 @@ public class RecipeData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Gets the recipe list.
-	 * @param listId the list id
-	 * @return the recipe list
-	 */
-	public L2RecipeList getRecipeList(int listId)
-	{
-		return _recipes.get(listId);
-	}
-	
-	/**
-	 * Gets the recipe by item id.
-	 * @param itemId the item id
-	 * @return the recipe by item id
-	 */
-	public L2RecipeList getRecipeByItemId(int itemId)
-	{
-		for (L2RecipeList find : _recipes.values())
-		{
-			if (find.getRecipeId() == itemId)
-			{
-				return find;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * Gets the all item ids.
-	 * @return the all item ids
-	 */
-	public int[] getAllItemIds()
-	{
-		int[] idList = new int[_recipes.size()];
-		int i = 0;
-		for (L2RecipeList rec : _recipes.values())
-		{
-			idList[i++] = rec.getRecipeId();
-		}
-		return idList;
-	}
-	
-	/**
-	 * Gets the valid recipe list.
-	 * @param player the player
-	 * @param id the recipe list id
-	 * @return the valid recipe list
-	 */
-	public L2RecipeList getValidRecipeList(L2PcInstance player, int id)
-	{
-		L2RecipeList recipeList = _recipes.get(id);
-		if ((recipeList == null) || (recipeList.getRecipes().length == 0))
-		{
-			player.sendMessage(LanguageData.getInstance().getMsg(player, "no_recipe_id").replace("%s%", id + ""));
-			player.isInCraftMode(false);
-			return null;
-		}
-		return recipeList;
-	}
-	
-	/**
-	 * Gets the single instance of RecipeData.
-	 * @return single instance of RecipeData
-	 */
-	public static RecipeData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	/**

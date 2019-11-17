@@ -39,6 +39,11 @@ public final class EventDispatcher
 	{
 	}
 	
+	public static EventDispatcher getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	/**
 	 * @param <T>
 	 * @param event
@@ -154,6 +159,36 @@ public final class EventDispatcher
 	/**
 	 * @param <T>
 	 * @param event
+	 * @param container
+	 * @param callbackClass
+	 * @return {@link AbstractEventReturn} object that may keep data from the first listener, or last that breaks notification.
+	 */
+	private <T extends AbstractEventReturn> T notifyEventImpl(IBaseEvent event, ListenersContainer container, Class<T> callbackClass)
+	{
+		if (event == null)
+		{
+			throw new NullPointerException("Event cannot be null!");
+		}
+		
+		T callback = null;
+		// Local listener container first.
+		if (container != null)
+		{
+			callback = notifyToListeners(container.getListeners(event.getType()), event, callbackClass, callback);
+		}
+		
+		// Global listener container.
+		if ((callback == null) || !callback.abort())
+		{
+			callback = notifyToListeners(Containers.Global().getListeners(event.getType()), event, callbackClass, callback);
+		}
+		
+		return callback;
+	}
+	
+	/**
+	 * @param <T>
+	 * @param event
 	 * @param containers
 	 * @param callbackClass
 	 * @return
@@ -197,36 +232,6 @@ public final class EventDispatcher
 	
 	/**
 	 * @param <T>
-	 * @param event
-	 * @param container
-	 * @param callbackClass
-	 * @return {@link AbstractEventReturn} object that may keep data from the first listener, or last that breaks notification.
-	 */
-	private <T extends AbstractEventReturn> T notifyEventImpl(IBaseEvent event, ListenersContainer container, Class<T> callbackClass)
-	{
-		if (event == null)
-		{
-			throw new NullPointerException("Event cannot be null!");
-		}
-		
-		T callback = null;
-		// Local listener container first.
-		if (container != null)
-		{
-			callback = notifyToListeners(container.getListeners(event.getType()), event, callbackClass, callback);
-		}
-		
-		// Global listener container.
-		if ((callback == null) || !callback.abort())
-		{
-			callback = notifyToListeners(Containers.Global().getListeners(event.getType()), event, callbackClass, callback);
-		}
-		
-		return callback;
-	}
-	
-	/**
-	 * @param <T>
 	 * @param listeners
 	 * @param event
 	 * @param returnBackClass
@@ -260,11 +265,6 @@ public final class EventDispatcher
 		}
 		
 		return callback;
-	}
-	
-	public static EventDispatcher getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

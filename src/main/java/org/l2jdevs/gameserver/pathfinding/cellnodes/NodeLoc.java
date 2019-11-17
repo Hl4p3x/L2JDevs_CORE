@@ -40,25 +40,24 @@ public class NodeLoc extends AbstractNodeLoc
 		set(x, y, z);
 	}
 	
-	public void set(int x, int y, int z)
+	public boolean canGoAll()
 	{
-		_x = x;
-		_y = y;
-		_goNorth = GeoData.getInstance().checkNearestNswe(x, y, z, Cell.NSWE_NORTH);
-		_goEast = GeoData.getInstance().checkNearestNswe(x, y, z, Cell.NSWE_EAST);
-		_goSouth = GeoData.getInstance().checkNearestNswe(x, y, z, Cell.NSWE_SOUTH);
-		_goWest = GeoData.getInstance().checkNearestNswe(x, y, z, Cell.NSWE_WEST);
-		_geoHeight = GeoData.getInstance().getNearestZ(x, y, z);
-	}
-	
-	public boolean canGoNorth()
-	{
-		return _goNorth;
+		return canGoNorth() && canGoEast() && canGoSouth() && canGoWest();
 	}
 	
 	public boolean canGoEast()
 	{
 		return _goEast;
+	}
+	
+	public boolean canGoNone()
+	{
+		return !canGoNorth() && !canGoEast() && !canGoSouth() && !canGoWest();
+	}
+	
+	public boolean canGoNorth()
+	{
+		return _goNorth;
 	}
 	
 	public boolean canGoSouth()
@@ -69,83 +68,6 @@ public class NodeLoc extends AbstractNodeLoc
 	public boolean canGoWest()
 	{
 		return _goWest;
-	}
-	
-	public boolean canGoNone()
-	{
-		return !canGoNorth() && !canGoEast() && !canGoSouth() && !canGoWest();
-	}
-	
-	public boolean canGoAll()
-	{
-		return canGoNorth() && canGoEast() && canGoSouth() && canGoWest();
-	}
-	
-	@Override
-	public int getX()
-	{
-		return GeoData.getInstance().getWorldX(_x);
-	}
-	
-	@Override
-	public int getY()
-	{
-		return GeoData.getInstance().getWorldY(_y);
-	}
-	
-	@Override
-	public int getZ()
-	{
-		return _geoHeight;
-	}
-	
-	@Override
-	public void setZ(short z)
-	{
-		//
-	}
-	
-	@Override
-	public int getNodeX()
-	{
-		return _x;
-	}
-	
-	@Override
-	public int getNodeY()
-	{
-		return _y;
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + _x;
-		result = (prime * result) + _y;
-		
-		int nswe = 0;
-		if (canGoNorth())
-		{
-			nswe |= Cell.NSWE_NORTH;
-		}
-		if (canGoEast())
-		{
-			nswe |= Cell.NSWE_EAST;
-		}
-		if (canGoSouth())
-		{
-			nswe |= Cell.NSWE_SOUTH;
-		}
-		if (canGoWest())
-		{
-			nswe |= Cell.NSWE_WEST;
-		}
-		
-		result = (prime * result) + (((_geoHeight & 0xFFFF) << 1) | nswe);
-		return result;
-		// return super.hashCode();
 	}
 	
 	@Override
@@ -193,5 +115,83 @@ public class NodeLoc extends AbstractNodeLoc
 			return false;
 		}
 		return true;
+	}
+	
+	@Override
+	public int getNodeX()
+	{
+		return _x;
+	}
+	
+	@Override
+	public int getNodeY()
+	{
+		return _y;
+	}
+	
+	@Override
+	public int getX()
+	{
+		return GeoData.getInstance().getWorldX(_x);
+	}
+	
+	@Override
+	public int getY()
+	{
+		return GeoData.getInstance().getWorldY(_y);
+	}
+	
+	@Override
+	public int getZ()
+	{
+		return _geoHeight;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + _x;
+		result = (prime * result) + _y;
+		
+		int nswe = 0;
+		if (canGoNorth())
+		{
+			nswe |= Cell.NSWE_NORTH;
+		}
+		if (canGoEast())
+		{
+			nswe |= Cell.NSWE_EAST;
+		}
+		if (canGoSouth())
+		{
+			nswe |= Cell.NSWE_SOUTH;
+		}
+		if (canGoWest())
+		{
+			nswe |= Cell.NSWE_WEST;
+		}
+		
+		result = (prime * result) + (((_geoHeight & 0xFFFF) << 1) | nswe);
+		return result;
+		// return super.hashCode();
+	}
+	
+	public void set(int x, int y, int z)
+	{
+		_x = x;
+		_y = y;
+		_goNorth = GeoData.getInstance().checkNearestNswe(x, y, z, Cell.NSWE_NORTH);
+		_goEast = GeoData.getInstance().checkNearestNswe(x, y, z, Cell.NSWE_EAST);
+		_goSouth = GeoData.getInstance().checkNearestNswe(x, y, z, Cell.NSWE_SOUTH);
+		_goWest = GeoData.getInstance().checkNearestNswe(x, y, z, Cell.NSWE_WEST);
+		_geoHeight = GeoData.getInstance().getNearestZ(x, y, z);
+	}
+	
+	@Override
+	public void setZ(short z)
+	{
+		//
 	}
 }

@@ -60,12 +60,12 @@ public class ForumsBBSManager extends BaseBBSManager
 	}
 	
 	/**
-	 * Inits the root.
+	 * Gets the single instance of ForumsBBSManager.
+	 * @return single instance of ForumsBBSManager
 	 */
-	public void initRoot()
+	public static ForumsBBSManager getInstance()
 	{
-		_table.forEach(f -> f.vload());
-		LOG.info("Loaded " + _table.size() + " forums. Last forum id used: " + _lastid);
+		return SingletonHolder._instance;
 	}
 	
 	/**
@@ -85,21 +85,6 @@ public class ForumsBBSManager extends BaseBBSManager
 		{
 			_lastid = ff.getID();
 		}
-	}
-	
-	@Override
-	public void parsecmd(String command, L2PcInstance activeChar)
-	{
-	}
-	
-	/**
-	 * Gets the forum by name.
-	 * @param name the forum name
-	 * @return the forum by name
-	 */
-	public Forum getForumByName(String name)
-	{
-		return _table.stream().filter(f -> f.getName().equals(name)).findFirst().orElse(null);
 	}
 	
 	/**
@@ -137,19 +122,34 @@ public class ForumsBBSManager extends BaseBBSManager
 		return _table.stream().filter(f -> f.getID() == idf).findFirst().orElse(null);
 	}
 	
+	/**
+	 * Gets the forum by name.
+	 * @param name the forum name
+	 * @return the forum by name
+	 */
+	public Forum getForumByName(String name)
+	{
+		return _table.stream().filter(f -> f.getName().equals(name)).findFirst().orElse(null);
+	}
+	
+	/**
+	 * Inits the root.
+	 */
+	public void initRoot()
+	{
+		_table.forEach(f -> f.vload());
+		LOG.info("Loaded " + _table.size() + " forums. Last forum id used: " + _lastid);
+	}
+	
+	@Override
+	public void parsecmd(String command, L2PcInstance activeChar)
+	{
+	}
+	
 	@Override
 	public void parsewrite(String ar1, String ar2, String ar3, String ar4, String ar5, L2PcInstance activeChar)
 	{
 		
-	}
-	
-	/**
-	 * Gets the single instance of ForumsBBSManager.
-	 * @return single instance of ForumsBBSManager
-	 */
-	public static ForumsBBSManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

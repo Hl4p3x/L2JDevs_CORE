@@ -53,6 +53,11 @@ public class CharNameTable
 		}
 	}
 	
+	public static CharNameTable getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	public final void addName(L2PcInstance player)
 	{
 		if (player != null)
@@ -62,21 +67,53 @@ public class CharNameTable
 		}
 	}
 	
-	private final void addName(int objectId, String name)
+	public synchronized boolean doesCharNameExist(String name)
 	{
-		if (name != null)
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT account_name FROM characters WHERE char_name=?"))
 		{
-			if (!name.equals(_chars.get(objectId)))
+			ps.setString(1, name);
+			try (ResultSet rs = ps.executeQuery())
 			{
-				_chars.put(objectId, name);
+				return rs.next();
 			}
 		}
+		catch (SQLException e)
+		{
+			LOG.warn("Could not check existing charname!", e);
+		}
+		return false;
 	}
 	
-	public final void removeName(int objId)
+	public final int getAccessLevelById(int objectId)
 	{
-		_chars.remove(objId);
-		_accessLevels.remove(objId);
+		if (getNameById(objectId) != null)
+		{
+			return _accessLevels.get(objectId);
+		}
+		
+		return 0;
+	}
+	
+	public int getAccountCharacterCount(String account)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT COUNT(char_name) FROM characters WHERE account_name=?"))
+		{
+			ps.setString(1, account);
+			try (ResultSet rset = ps.executeQuery())
+			{
+				while (rset.next())
+				{
+					return rset.getInt(1);
+				}
+			}
+		}
+		catch (SQLException e)
+		{
+			LOG.warn("Could not check existing char count!", e);
+		}
+		return 0;
 	}
 	
 	public final int getIdByName(String name)
@@ -171,53 +208,21 @@ public class CharNameTable
 		return null; // not found
 	}
 	
-	public final int getAccessLevelById(int objectId)
+	public final void removeName(int objId)
 	{
-		if (getNameById(objectId) != null)
-		{
-			return _accessLevels.get(objectId);
-		}
-		
-		return 0;
+		_chars.remove(objId);
+		_accessLevels.remove(objId);
 	}
 	
-	public synchronized boolean doesCharNameExist(String name)
+	private final void addName(int objectId, String name)
 	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT account_name FROM characters WHERE char_name=?"))
+		if (name != null)
 		{
-			ps.setString(1, name);
-			try (ResultSet rs = ps.executeQuery())
+			if (!name.equals(_chars.get(objectId)))
 			{
-				return rs.next();
+				_chars.put(objectId, name);
 			}
 		}
-		catch (SQLException e)
-		{
-			LOG.warn("Could not check existing charname!", e);
-		}
-		return false;
-	}
-	
-	public int getAccountCharacterCount(String account)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT COUNT(char_name) FROM characters WHERE account_name=?"))
-		{
-			ps.setString(1, account);
-			try (ResultSet rset = ps.executeQuery())
-			{
-				while (rset.next())
-				{
-					return rset.getInt(1);
-				}
-			}
-		}
-		catch (SQLException e)
-		{
-			LOG.warn("Could not check existing char count!", e);
-		}
-		return 0;
 	}
 	
 	private void loadAll()
@@ -238,11 +243,6 @@ public class CharNameTable
 			LOG.warn("Could not load char name!", e);
 		}
 		LOG.info(getClass().getSimpleName() + ": Loaded " + _chars.size() + " char names.");
-	}
-	
-	public static CharNameTable getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

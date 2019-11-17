@@ -81,11 +81,98 @@ public class L2PcTemplate extends L2CharTemplate
 	}
 	
 	/**
+	 * @param level character level to return value
+	 * @return the baseCpMax for given character level
+	 */
+	public float getBaseCpMax(int level)
+	{
+		return _baseCp[level];
+	}
+	
+	/**
+	 * @param level character level to return value
+	 * @return the base HP Regeneration for given character level
+	 */
+	public double getBaseCpRegen(int level)
+	{
+		return _baseCpReg[level];
+	}
+	
+	/**
+	 * @param slotId id of inventory slot to return value
+	 * @return defence value of charactert for EMPTY given slot
+	 */
+	public int getBaseDefBySlot(int slotId)
+	{
+		return _baseSlotDef.containsKey(slotId) ? _baseSlotDef.get(slotId) : 0;
+	}
+	
+	/**
+	 * @param level character level to return value
+	 * @return the baseHpMax for given character level
+	 */
+	public float getBaseHpMax(int level)
+	{
+		return _baseHp[level];
+	}
+	
+	/**
+	 * @param level character level to return value
+	 * @return the base HP Regeneration for given character level
+	 */
+	public double getBaseHpRegen(int level)
+	{
+		return _baseHpReg[level];
+	}
+	
+	/**
+	 * @param level character level to return value
+	 * @return the baseMpMax for given character level
+	 */
+	public float getBaseMpMax(int level)
+	{
+		return _baseMp[level];
+	}
+	
+	/**
+	 * @param level character level to return value
+	 * @return the base MP Regeneration for given character level
+	 */
+	public double getBaseMpRegen(int level)
+	{
+		return _baseMpReg[level];
+	}
+	
+	/**
 	 * @return the template class Id.
 	 */
 	public ClassId getClassId()
 	{
 		return _classId;
+	}
+	
+	/**
+	 * @return the template collision height for female characters.
+	 */
+	public double getFCollisionHeightFemale()
+	{
+		return _fCollisionHeightFemale;
+	}
+	
+	/**
+	 * @return the template collision radius for female characters.
+	 */
+	public double getFCollisionRadiusFemale()
+	{
+		return _fCollisionRadiusFemale;
+	}
+	
+	/**
+	 * @return the safe fall height.
+	 */
+	public int getSafeFallHeight()
+	{
+		return _baseSafeFallHeight;
 	}
 	
 	/**
@@ -129,92 +216,5 @@ public class L2PcTemplate extends L2CharTemplate
 				break;
 			}
 		}
-	}
-	
-	/**
-	 * @param level character level to return value
-	 * @return the baseHpMax for given character level
-	 */
-	public float getBaseHpMax(int level)
-	{
-		return _baseHp[level];
-	}
-	
-	/**
-	 * @param level character level to return value
-	 * @return the baseMpMax for given character level
-	 */
-	public float getBaseMpMax(int level)
-	{
-		return _baseMp[level];
-	}
-	
-	/**
-	 * @param level character level to return value
-	 * @return the baseCpMax for given character level
-	 */
-	public float getBaseCpMax(int level)
-	{
-		return _baseCp[level];
-	}
-	
-	/**
-	 * @param level character level to return value
-	 * @return the base HP Regeneration for given character level
-	 */
-	public double getBaseHpRegen(int level)
-	{
-		return _baseHpReg[level];
-	}
-	
-	/**
-	 * @param level character level to return value
-	 * @return the base MP Regeneration for given character level
-	 */
-	public double getBaseMpRegen(int level)
-	{
-		return _baseMpReg[level];
-	}
-	
-	/**
-	 * @param level character level to return value
-	 * @return the base HP Regeneration for given character level
-	 */
-	public double getBaseCpRegen(int level)
-	{
-		return _baseCpReg[level];
-	}
-	
-	/**
-	 * @param slotId id of inventory slot to return value
-	 * @return defence value of charactert for EMPTY given slot
-	 */
-	public int getBaseDefBySlot(int slotId)
-	{
-		return _baseSlotDef.containsKey(slotId) ? _baseSlotDef.get(slotId) : 0;
-	}
-	
-	/**
-	 * @return the template collision height for female characters.
-	 */
-	public double getFCollisionHeightFemale()
-	{
-		return _fCollisionHeightFemale;
-	}
-	
-	/**
-	 * @return the template collision radius for female characters.
-	 */
-	public double getFCollisionRadiusFemale()
-	{
-		return _fCollisionRadiusFemale;
-	}
-	
-	/**
-	 * @return the safe fall height.
-	 */
-	public int getSafeFallHeight()
-	{
-		return _baseSafeFallHeight;
 	}
 }

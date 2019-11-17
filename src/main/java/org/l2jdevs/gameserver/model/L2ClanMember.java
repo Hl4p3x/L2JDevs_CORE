@@ -51,32 +51,6 @@ public class L2ClanMember
 	private int _sponsor;
 	
 	/**
-	 * Used to restore a clan member from the database.
-	 * @param clan the clan where the clan member belongs.
-	 * @param clanMember the clan member result set
-	 * @throws SQLException if the columnLabel is not valid or a database error occurs
-	 */
-	public L2ClanMember(L2Clan clan, ResultSet clanMember) throws SQLException
-	{
-		if (clan == null)
-		{
-			throw new IllegalArgumentException("Cannot create a Clan Member with a null clan.");
-		}
-		_clan = clan;
-		_name = clanMember.getString("char_name");
-		_level = clanMember.getInt("level");
-		_classId = clanMember.getInt("classid");
-		_objectId = clanMember.getInt("charId");
-		_pledgeType = clanMember.getInt("subpledge");
-		_title = clanMember.getString("title");
-		_powerGrade = clanMember.getInt("power_grade");
-		_apprentice = clanMember.getInt("apprentice");
-		_sponsor = clanMember.getInt("sponsor");
-		_sex = clanMember.getInt("sex") != 0;
-		_raceOrdinal = clanMember.getInt("race");
-	}
-	
-	/**
 	 * Creates a clan member from a player instance.
 	 * @param clan the clan where the player belongs
 	 * @param player the player from which the clan member will be created
@@ -103,334 +77,29 @@ public class L2ClanMember
 	}
 	
 	/**
-	 * Sets the player instance.
-	 * @param player the new player instance
+	 * Used to restore a clan member from the database.
+	 * @param clan the clan where the clan member belongs.
+	 * @param clanMember the clan member result set
+	 * @throws SQLException if the columnLabel is not valid or a database error occurs
 	 */
-	public void setPlayerInstance(L2PcInstance player)
+	public L2ClanMember(L2Clan clan, ResultSet clanMember) throws SQLException
 	{
-		if ((player == null) && (_player != null))
+		if (clan == null)
 		{
-			// this is here to keep the data when the player logs off
-			_name = _player.getName();
-			_level = _player.getLevel();
-			_classId = _player.getClassId().getId();
-			_objectId = _player.getObjectId();
-			_powerGrade = _player.getPowerGrade();
-			_pledgeType = _player.getPledgeType();
-			_title = _player.getTitle();
-			_apprentice = _player.getApprentice();
-			_sponsor = _player.getSponsor();
-			_sex = _player.getAppearance().getSex();
-			_raceOrdinal = _player.getRace().ordinal();
+			throw new IllegalArgumentException("Cannot create a Clan Member with a null clan.");
 		}
-		
-		if (player != null)
-		{
-			_clan.addSkillEffects(player);
-			if ((_clan.getLevel() > 3) && player.isClanLeader())
-			{
-				SiegeManager.getInstance().addSiegeSkills(player);
-			}
-			if (player.isClanLeader())
-			{
-				_clan.setLeader(this);
-			}
-		}
-		_player = player;
-	}
-	
-	/**
-	 * Gets the player instance.
-	 * @return the player instance
-	 */
-	public L2PcInstance getPlayerInstance()
-	{
-		return _player;
-	}
-	
-	/**
-	 * Verifies if the clan member is online.
-	 * @return {@code true} if is online
-	 */
-	public boolean isOnline()
-	{
-		if ((_player == null) || !_player.isOnline())
-		{
-			return false;
-		}
-		if (_player.isInOfflineMode())
-		{
-			return false;
-		}
-		return true;
-	}
-	
-	/**
-	 * Gets the class id.
-	 * @return the classId
-	 */
-	public int getClassId()
-	{
-		if (_player != null)
-		{
-			return _player.getClassId().getId();
-		}
-		return _classId;
-	}
-	
-	/**
-	 * Gets the level.
-	 * @return the level
-	 */
-	public int getLevel()
-	{
-		if (_player != null)
-		{
-			return _player.getLevel();
-		}
-		return _level;
-	}
-	
-	/**
-	 * Gets the name.
-	 * @return the name
-	 */
-	public String getName()
-	{
-		if (_player != null)
-		{
-			return _player.getName();
-		}
-		return _name;
-	}
-	
-	/**
-	 * Gets the object id.
-	 * @return Returns the objectId.
-	 */
-	public int getObjectId()
-	{
-		if (_player != null)
-		{
-			return _player.getObjectId();
-		}
-		return _objectId;
-	}
-	
-	/**
-	 * Gets the title.
-	 * @return the title
-	 */
-	public String getTitle()
-	{
-		if (_player != null)
-		{
-			return _player.getTitle();
-		}
-		return _title;
-	}
-	
-	/**
-	 * Gets the pledge type.
-	 * @return the pledge type
-	 */
-	public int getPledgeType()
-	{
-		if (_player != null)
-		{
-			return _player.getPledgeType();
-		}
-		return _pledgeType;
-	}
-	
-	/**
-	 * Sets the pledge type.
-	 * @param pledgeType the new pledge type
-	 */
-	public void setPledgeType(int pledgeType)
-	{
-		_pledgeType = pledgeType;
-		if (_player != null)
-		{
-			_player.setPledgeType(pledgeType);
-		}
-		else
-		{
-			// db save if char not logged in
-			updatePledgeType();
-		}
-	}
-	
-	/**
-	 * Update pledge type.
-	 */
-	public void updatePledgeType()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("UPDATE characters SET subpledge=? WHERE charId=?"))
-		{
-			ps.setLong(1, _pledgeType);
-			ps.setInt(2, getObjectId());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Could not update pledge type: " + e.getMessage(), e);
-		}
-	}
-	
-	/**
-	 * Gets the power grade.
-	 * @return the power grade
-	 */
-	public int getPowerGrade()
-	{
-		if (_player != null)
-		{
-			return _player.getPowerGrade();
-		}
-		return _powerGrade;
-	}
-	
-	/**
-	 * Sets the power grade.
-	 * @param powerGrade the new power grade
-	 */
-	public void setPowerGrade(int powerGrade)
-	{
-		_powerGrade = powerGrade;
-		if (_player != null)
-		{
-			_player.setPowerGrade(powerGrade);
-		}
-		else
-		{
-			// db save if char not logged in
-			updatePowerGrade();
-		}
-	}
-	
-	/**
-	 * Update the characters table of the database with power grade.
-	 */
-	public void updatePowerGrade()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("UPDATE characters SET power_grade=? WHERE charId=?"))
-		{
-			ps.setLong(1, _powerGrade);
-			ps.setInt(2, getObjectId());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Could not update power _grade: " + e.getMessage(), e);
-		}
-	}
-	
-	/**
-	 * Sets the apprentice and sponsor.
-	 * @param apprenticeID the apprentice id
-	 * @param sponsorID the sponsor id
-	 */
-	public void setApprenticeAndSponsor(int apprenticeID, int sponsorID)
-	{
-		_apprentice = apprenticeID;
-		_sponsor = sponsorID;
-	}
-	
-	/**
-	 * Gets the player's race ordinal.
-	 * @return the race ordinal
-	 */
-	public int getRaceOrdinal()
-	{
-		if (_player != null)
-		{
-			return _player.getRace().ordinal();
-		}
-		return _raceOrdinal;
-	}
-	
-	/**
-	 * Gets the player's sex.
-	 * @return the sex
-	 */
-	public boolean getSex()
-	{
-		if (_player != null)
-		{
-			return _player.getAppearance().getSex();
-		}
-		return _sex;
-	}
-	
-	/**
-	 * Gets the sponsor.
-	 * @return the sponsor
-	 */
-	public int getSponsor()
-	{
-		if (_player != null)
-		{
-			return _player.getSponsor();
-		}
-		return _sponsor;
-	}
-	
-	/**
-	 * Gets the apprentice.
-	 * @return the apprentice
-	 */
-	public int getApprentice()
-	{
-		if (_player != null)
-		{
-			return _player.getApprentice();
-		}
-		return _apprentice;
-	}
-	
-	/**
-	 * Gets the apprentice or sponsor name.
-	 * @return the apprentice or sponsor name
-	 */
-	public String getApprenticeOrSponsorName()
-	{
-		if (_player != null)
-		{
-			_apprentice = _player.getApprentice();
-			_sponsor = _player.getSponsor();
-		}
-		
-		if (_apprentice != 0)
-		{
-			L2ClanMember apprentice = _clan.getClanMember(_apprentice);
-			if (apprentice != null)
-			{
-				return apprentice.getName();
-			}
-			return "Error";
-		}
-		if (_sponsor != 0)
-		{
-			L2ClanMember sponsor = _clan.getClanMember(_sponsor);
-			if (sponsor != null)
-			{
-				return sponsor.getName();
-			}
-			return "Error";
-		}
-		return "";
-	}
-	
-	/**
-	 * Gets the clan.
-	 * @return the clan
-	 */
-	public L2Clan getClan()
-	{
-		return _clan;
+		_clan = clan;
+		_name = clanMember.getString("char_name");
+		_level = clanMember.getInt("level");
+		_classId = clanMember.getInt("classid");
+		_objectId = clanMember.getInt("charId");
+		_pledgeType = clanMember.getInt("subpledge");
+		_title = clanMember.getString("title");
+		_powerGrade = clanMember.getInt("power_grade");
+		_apprentice = clanMember.getInt("apprentice");
+		_sponsor = clanMember.getInt("sponsor");
+		_sex = clanMember.getInt("sex") != 0;
+		_raceOrdinal = clanMember.getInt("race");
 	}
 	
 	/**
@@ -738,6 +407,217 @@ public class L2ClanMember
 	}
 	
 	/**
+	 * Gets the apprentice.
+	 * @return the apprentice
+	 */
+	public int getApprentice()
+	{
+		if (_player != null)
+		{
+			return _player.getApprentice();
+		}
+		return _apprentice;
+	}
+	
+	/**
+	 * Gets the apprentice or sponsor name.
+	 * @return the apprentice or sponsor name
+	 */
+	public String getApprenticeOrSponsorName()
+	{
+		if (_player != null)
+		{
+			_apprentice = _player.getApprentice();
+			_sponsor = _player.getSponsor();
+		}
+		
+		if (_apprentice != 0)
+		{
+			L2ClanMember apprentice = _clan.getClanMember(_apprentice);
+			if (apprentice != null)
+			{
+				return apprentice.getName();
+			}
+			return "Error";
+		}
+		if (_sponsor != 0)
+		{
+			L2ClanMember sponsor = _clan.getClanMember(_sponsor);
+			if (sponsor != null)
+			{
+				return sponsor.getName();
+			}
+			return "Error";
+		}
+		return "";
+	}
+	
+	/**
+	 * Gets the clan.
+	 * @return the clan
+	 */
+	public L2Clan getClan()
+	{
+		return _clan;
+	}
+	
+	/**
+	 * Gets the class id.
+	 * @return the classId
+	 */
+	public int getClassId()
+	{
+		if (_player != null)
+		{
+			return _player.getClassId().getId();
+		}
+		return _classId;
+	}
+	
+	/**
+	 * Gets the level.
+	 * @return the level
+	 */
+	public int getLevel()
+	{
+		if (_player != null)
+		{
+			return _player.getLevel();
+		}
+		return _level;
+	}
+	
+	/**
+	 * Gets the name.
+	 * @return the name
+	 */
+	public String getName()
+	{
+		if (_player != null)
+		{
+			return _player.getName();
+		}
+		return _name;
+	}
+	
+	/**
+	 * Gets the object id.
+	 * @return Returns the objectId.
+	 */
+	public int getObjectId()
+	{
+		if (_player != null)
+		{
+			return _player.getObjectId();
+		}
+		return _objectId;
+	}
+	
+	/**
+	 * Gets the player instance.
+	 * @return the player instance
+	 */
+	public L2PcInstance getPlayerInstance()
+	{
+		return _player;
+	}
+	
+	/**
+	 * Gets the pledge type.
+	 * @return the pledge type
+	 */
+	public int getPledgeType()
+	{
+		if (_player != null)
+		{
+			return _player.getPledgeType();
+		}
+		return _pledgeType;
+	}
+	
+	/**
+	 * Gets the power grade.
+	 * @return the power grade
+	 */
+	public int getPowerGrade()
+	{
+		if (_player != null)
+		{
+			return _player.getPowerGrade();
+		}
+		return _powerGrade;
+	}
+	
+	/**
+	 * Gets the player's race ordinal.
+	 * @return the race ordinal
+	 */
+	public int getRaceOrdinal()
+	{
+		if (_player != null)
+		{
+			return _player.getRace().ordinal();
+		}
+		return _raceOrdinal;
+	}
+	
+	/**
+	 * Gets the player's sex.
+	 * @return the sex
+	 */
+	public boolean getSex()
+	{
+		if (_player != null)
+		{
+			return _player.getAppearance().getSex();
+		}
+		return _sex;
+	}
+	
+	/**
+	 * Gets the sponsor.
+	 * @return the sponsor
+	 */
+	public int getSponsor()
+	{
+		if (_player != null)
+		{
+			return _player.getSponsor();
+		}
+		return _sponsor;
+	}
+	
+	/**
+	 * Gets the title.
+	 * @return the title
+	 */
+	public String getTitle()
+	{
+		if (_player != null)
+		{
+			return _player.getTitle();
+		}
+		return _title;
+	}
+	
+	/**
+	 * Verifies if the clan member is online.
+	 * @return {@code true} if is online
+	 */
+	public boolean isOnline()
+	{
+		if ((_player == null) || !_player.isOnline())
+		{
+			return false;
+		}
+		if (_player.isInOfflineMode())
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	/**
 	 * Save apprentice and sponsor.
 	 * @param apprentice the apprentice
 	 * @param sponsor the sponsor
@@ -755,6 +635,126 @@ public class L2ClanMember
 		catch (SQLException e)
 		{
 			_log.log(Level.WARNING, "Could not save apprentice/sponsor: " + e.getMessage(), e);
+		}
+	}
+	
+	/**
+	 * Sets the apprentice and sponsor.
+	 * @param apprenticeID the apprentice id
+	 * @param sponsorID the sponsor id
+	 */
+	public void setApprenticeAndSponsor(int apprenticeID, int sponsorID)
+	{
+		_apprentice = apprenticeID;
+		_sponsor = sponsorID;
+	}
+	
+	/**
+	 * Sets the player instance.
+	 * @param player the new player instance
+	 */
+	public void setPlayerInstance(L2PcInstance player)
+	{
+		if ((player == null) && (_player != null))
+		{
+			// this is here to keep the data when the player logs off
+			_name = _player.getName();
+			_level = _player.getLevel();
+			_classId = _player.getClassId().getId();
+			_objectId = _player.getObjectId();
+			_powerGrade = _player.getPowerGrade();
+			_pledgeType = _player.getPledgeType();
+			_title = _player.getTitle();
+			_apprentice = _player.getApprentice();
+			_sponsor = _player.getSponsor();
+			_sex = _player.getAppearance().getSex();
+			_raceOrdinal = _player.getRace().ordinal();
+		}
+		
+		if (player != null)
+		{
+			_clan.addSkillEffects(player);
+			if ((_clan.getLevel() > 3) && player.isClanLeader())
+			{
+				SiegeManager.getInstance().addSiegeSkills(player);
+			}
+			if (player.isClanLeader())
+			{
+				_clan.setLeader(this);
+			}
+		}
+		_player = player;
+	}
+	
+	/**
+	 * Sets the pledge type.
+	 * @param pledgeType the new pledge type
+	 */
+	public void setPledgeType(int pledgeType)
+	{
+		_pledgeType = pledgeType;
+		if (_player != null)
+		{
+			_player.setPledgeType(pledgeType);
+		}
+		else
+		{
+			// db save if char not logged in
+			updatePledgeType();
+		}
+	}
+	
+	/**
+	 * Sets the power grade.
+	 * @param powerGrade the new power grade
+	 */
+	public void setPowerGrade(int powerGrade)
+	{
+		_powerGrade = powerGrade;
+		if (_player != null)
+		{
+			_player.setPowerGrade(powerGrade);
+		}
+		else
+		{
+			// db save if char not logged in
+			updatePowerGrade();
+		}
+	}
+	
+	/**
+	 * Update pledge type.
+	 */
+	public void updatePledgeType()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("UPDATE characters SET subpledge=? WHERE charId=?"))
+		{
+			ps.setLong(1, _pledgeType);
+			ps.setInt(2, getObjectId());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Could not update pledge type: " + e.getMessage(), e);
+		}
+	}
+	
+	/**
+	 * Update the characters table of the database with power grade.
+	 */
+	public void updatePowerGrade()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("UPDATE characters SET power_grade=? WHERE charId=?"))
+		{
+			ps.setLong(1, _powerGrade);
+			ps.setInt(2, getObjectId());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Could not update power _grade: " + e.getMessage(), e);
 		}
 	}
 }

@@ -40,22 +40,6 @@ public class L2FishingMonster
 	}
 	
 	/**
-	 * @return the minimum user level.
-	 */
-	public int getUserMinLevel()
-	{
-		return _userMinLevel;
-	}
-	
-	/**
-	 * @return the maximum user level.
-	 */
-	public int getUserMaxLevel()
-	{
-		return _userMaxLevel;
-	}
-	
-	/**
 	 * @return the fishing monster Id.
 	 */
 	public int getFishingMonsterId()
@@ -69,5 +53,21 @@ public class L2FishingMonster
 	public int getProbability()
 	{
 		return _probability;
+	}
+	
+	/**
+	 * @return the maximum user level.
+	 */
+	public int getUserMaxLevel()
+	{
+		return _userMaxLevel;
+	}
+	
+	/**
+	 * @return the minimum user level.
+	 */
+	public int getUserMinLevel()
+	{
+		return _userMinLevel;
 	}
 }

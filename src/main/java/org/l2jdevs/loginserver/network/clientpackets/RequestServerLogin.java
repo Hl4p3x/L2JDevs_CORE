@@ -42,6 +42,14 @@ public class RequestServerLogin extends L2LoginClientPacket
 	/**
 	 * @return
 	 */
+	public int getServerID()
+	{
+		return _serverId;
+	}
+	
+	/**
+	 * @return
+	 */
 	public int getSessionKey1()
 	{
 		return _skey1;
@@ -53,14 +61,6 @@ public class RequestServerLogin extends L2LoginClientPacket
 	public int getSessionKey2()
 	{
 		return _skey2;
-	}
-	
-	/**
-	 * @return
-	 */
-	public int getServerID()
-	{
-		return _serverId;
 	}
 	
 	@Override

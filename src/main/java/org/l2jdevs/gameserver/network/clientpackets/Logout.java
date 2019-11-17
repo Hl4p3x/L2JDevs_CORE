@@ -42,6 +42,12 @@ public final class Logout extends L2GameClientPacket
 	protected static final Logger _logAccounting = Logger.getLogger("accounting");
 	
 	@Override
+	public String getType()
+	{
+		return _C__00_LOGOUT;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		
@@ -127,11 +133,5 @@ public final class Logout extends L2GameClientPacket
 		_logAccounting.log(record);
 		
 		player.logout();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__00_LOGOUT;
 	}
 }

@@ -73,59 +73,6 @@ public class Topic
 		}
 	}
 	
-	public void insertindb()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("INSERT INTO topic (topic_id,topic_forum_id,topic_name,topic_date,topic_ownername,topic_ownerid,topic_type,topic_reply) values (?,?,?,?,?,?,?,?)"))
-		{
-			ps.setInt(1, _id);
-			ps.setInt(2, _forumId);
-			ps.setString(3, _topicName);
-			ps.setLong(4, _date);
-			ps.setString(5, _ownerName);
-			ps.setInt(6, _ownerId);
-			ps.setInt(7, _type);
-			ps.setInt(8, _cReply);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.warn("Error while saving new Topic to database!", e);
-		}
-	}
-	
-	public enum ConstructorType
-	{
-		RESTORE,
-		CREATE
-	}
-	
-	/**
-	 * @return the topic Id
-	 */
-	public int getID()
-	{
-		return _id;
-	}
-	
-	public int getForumID()
-	{
-		return _forumId;
-	}
-	
-	/**
-	 * @return the topic name
-	 */
-	public String getName()
-	{
-		return _topicName;
-	}
-	
-	public String getOwnerName()
-	{
-		return _ownerName;
-	}
-	
 	/**
 	 * @param f
 	 */
@@ -152,5 +99,58 @@ public class Topic
 	public long getDate()
 	{
 		return _date;
+	}
+	
+	public int getForumID()
+	{
+		return _forumId;
+	}
+	
+	/**
+	 * @return the topic Id
+	 */
+	public int getID()
+	{
+		return _id;
+	}
+	
+	/**
+	 * @return the topic name
+	 */
+	public String getName()
+	{
+		return _topicName;
+	}
+	
+	public String getOwnerName()
+	{
+		return _ownerName;
+	}
+	
+	public void insertindb()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("INSERT INTO topic (topic_id,topic_forum_id,topic_name,topic_date,topic_ownername,topic_ownerid,topic_type,topic_reply) values (?,?,?,?,?,?,?,?)"))
+		{
+			ps.setInt(1, _id);
+			ps.setInt(2, _forumId);
+			ps.setString(3, _topicName);
+			ps.setLong(4, _date);
+			ps.setString(5, _ownerName);
+			ps.setInt(6, _ownerId);
+			ps.setInt(7, _type);
+			ps.setInt(8, _cReply);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.warn("Error while saving new Topic to database!", e);
+		}
+	}
+	
+	public enum ConstructorType
+	{
+		RESTORE,
+		CREATE
 	}
 }

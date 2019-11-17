@@ -31,6 +31,12 @@ public final class AllyDismiss extends L2GameClientPacket
 	private String _clanName;
 	
 	@Override
+	public String getType()
+	{
+		return _C__8F_ALLYDISMISS;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_clanName = readS();
@@ -92,11 +98,5 @@ public final class AllyDismiss extends L2GameClientPacket
 		clan.updateClanInDB();
 		
 		player.sendPacket(SystemMessageId.YOU_HAVE_EXPELED_A_CLAN);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__8F_ALLYDISMISS;
 	}
 }

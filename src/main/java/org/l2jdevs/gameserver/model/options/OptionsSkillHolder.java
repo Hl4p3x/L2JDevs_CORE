@@ -41,13 +41,13 @@ public class OptionsSkillHolder extends SkillHolder
 		_type = type;
 	}
 	
-	public OptionsSkillType getSkillType()
-	{
-		return _type;
-	}
-	
 	public double getChance()
 	{
 		return _chance;
+	}
+	
+	public OptionsSkillType getSkillType()
+	{
+		return _type;
 	}
 }

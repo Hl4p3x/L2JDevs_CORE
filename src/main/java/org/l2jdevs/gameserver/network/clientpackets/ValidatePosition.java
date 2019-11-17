@@ -40,6 +40,12 @@ public class ValidatePosition extends L2GameClientPacket
 	private int _data; // vehicle id
 	
 	@Override
+	public String getType()
+	{
+		return _C__59_VALIDATEPOSITION;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_x = readD();
@@ -204,11 +210,5 @@ public class ValidatePosition extends L2GameClientPacket
 		activeChar.setClientZ(_z);
 		activeChar.setClientHeading(_heading); // No real need to validate heading.
 		activeChar.setLastServerPosition(realX, realY, realZ);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__59_VALIDATEPOSITION;
 	}
 }

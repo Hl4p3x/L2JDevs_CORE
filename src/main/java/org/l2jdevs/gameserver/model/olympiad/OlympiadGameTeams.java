@@ -96,6 +96,17 @@ public class OlympiadGameTeams extends AbstractOlympiadGame
 		}
 	}
 	
+	protected static OlympiadGameTeams createGame(int id, List<List<Integer>> list)
+	{
+		final Participant[][] teams = createListOfParticipants(list);
+		if (teams == null)
+		{
+			return null;
+		}
+		
+		return new OlympiadGameTeams(id, teams[0], teams[1]);
+	}
+	
 	protected static final Participant[][] createListOfParticipants(List<List<Integer>> list)
 	{
 		if ((list == null) || list.isEmpty() || (list.size() < 2))
@@ -180,39 +191,78 @@ public class OlympiadGameTeams extends AbstractOlympiadGame
 		return null;
 	}
 	
-	protected static OlympiadGameTeams createGame(int id, List<List<Integer>> list)
+	@Override
+	public final void broadcastOlympiadInfo(L2OlympiadStadiumZone stadium)
 	{
-		final Participant[][] teams = createListOfParticipants(list);
-		if (teams == null)
+		for (int i = 0; i < MAX_TEAM_SIZE; i++)
 		{
-			return null;
+			stadium.broadcastPacket(new ExOlympiadUserInfo(_teamOne[i]));
 		}
 		
-		return new OlympiadGameTeams(id, teams[0], teams[1]);
+		for (int i = 0; i < MAX_TEAM_SIZE; i++)
+		{
+			stadium.broadcastPacket(new ExOlympiadUserInfo(_teamTwo[i]));
+		}
 	}
 	
 	@Override
-	public CompetitionType getType()
+	public final boolean checkDefaulted()
 	{
-		return CompetitionType.TEAMS;
-	}
-	
-	@Override
-	protected int getDivider()
-	{
-		return 5;
-	}
-	
-	@Override
-	protected int[][] getReward()
-	{
-		return Config.ALT_OLY_TEAM_REWARD;
-	}
-	
-	@Override
-	protected final String getWeeklyMatchType()
-	{
-		return COMP_DONE_WEEK_TEAM;
+		try
+		{
+			SystemMessage reason = null;
+			Participant par;
+			for (int i = _teamOneSize; --i >= 0;)
+			{
+				par = _teamOne[i];
+				par.updatePlayer();
+				reason = checkDefaulted(par.getPlayer());
+				if (reason != null)
+				{
+					par.setDefaulted(true);
+					if (!_teamOneDefaulted)
+					{
+						_teamOneDefaulted = true;
+						for (Participant t : _teamTwo)
+						{
+							if (t.getPlayer() != null)
+							{
+								t.getPlayer().sendPacket(reason);
+							}
+						}
+					}
+				}
+			}
+			
+			for (int i = _teamTwoSize; --i >= 0;)
+			{
+				par = _teamTwo[i];
+				par.updatePlayer();
+				reason = checkDefaulted(par.getPlayer());
+				if (reason != null)
+				{
+					par.setDefaulted(true);
+					if (!_teamTwoDefaulted)
+					{
+						_teamTwoDefaulted = true;
+						for (Participant t : _teamOne)
+						{
+							if (t.getPlayer() != null)
+							{
+								t.getPlayer().sendPacket(reason);
+							}
+						}
+					}
+				}
+			}
+			
+			return _teamOneDefaulted || _teamTwoDefaulted;
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Exception on checkDefaulted(): " + e.getMessage(), e);
+			return true;
+		}
 	}
 	
 	@Override
@@ -237,6 +287,29 @@ public class OlympiadGameTeams extends AbstractOlympiadGame
 	}
 	
 	@Override
+	public final String[] getPlayerNames()
+	{
+		return new String[]
+		{
+			_teamOne[0].getName(),
+			_teamTwo[0].getName()
+		};
+	}
+	
+	@Override
+	public CompetitionType getType()
+	{
+		return CompetitionType.TEAMS;
+	}
+	
+	@Override
+	public final void resetDamage()
+	{
+		_damageT1 = 0;
+		_damageT2 = 0;
+	}
+	
+	@Override
 	public final void sendOlympiadInfo(L2Character player)
 	{
 		for (int i = 0; i < MAX_TEAM_SIZE; i++)
@@ -250,17 +323,37 @@ public class OlympiadGameTeams extends AbstractOlympiadGame
 		}
 	}
 	
+	/**
+	 * UnAfraid: TODO: We should calculate the damage in array separately for each player so we can display it on ExOlympiadMatchResult correctly.
+	 */
 	@Override
-	public final void broadcastOlympiadInfo(L2OlympiadStadiumZone stadium)
+	protected final void addDamage(L2PcInstance player, int damage)
 	{
-		for (int i = 0; i < MAX_TEAM_SIZE; i++)
+		Participant par;
+		for (int i = _teamOneSize; --i >= 0;)
 		{
-			stadium.broadcastPacket(new ExOlympiadUserInfo(_teamOne[i]));
+			par = _teamOne[i];
+			if (par.getObjectId() == player.getObjectId())
+			{
+				if (!par.isDisconnected())
+				{
+					_damageT1 += damage;
+				}
+				return;
+			}
 		}
 		
-		for (int i = 0; i < MAX_TEAM_SIZE; i++)
+		for (int i = _teamTwoSize; --i >= 0;)
 		{
-			stadium.broadcastPacket(new ExOlympiadUserInfo(_teamTwo[i]));
+			par = _teamTwo[i];
+			if (par.getObjectId() == player.getObjectId())
+			{
+				if (!par.isDisconnected())
+				{
+					_damageT2 += damage;
+				}
+				return;
+			}
 		}
 	}
 	
@@ -288,86 +381,24 @@ public class OlympiadGameTeams extends AbstractOlympiadGame
 		}
 	}
 	
-	/**
-	 * UnAfraid: FIXME: Sometimes buffers appear on arena 3v3 match where it shouldn't or they don't get unspawned when match start.
-	 */
 	@Override
-	protected boolean needBuffers()
+	protected final boolean checkBattleStatus()
 	{
-		return false;
-	}
-	
-	@Override
-	protected final boolean portPlayersToArena(List<Location> spawns)
-	{
-		boolean result = true;
-		try
-		{
-			for (int i = 0; i < _teamOneSize; i++)
-			{
-				result &= portPlayerToArena(_teamOne[i], spawns.get(i), _stadiumID);
-			}
-			
-			final int offset = spawns.size() / 2;
-			for (int i = 0; i < _teamTwoSize; i++)
-			{
-				result &= portPlayerToArena(_teamTwo[i], spawns.get(i + offset), _stadiumID);
-			}
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "", e);
-			return false;
-		}
-		return result;
-	}
-	
-	@Override
-	protected final void removals()
-	{
-		for (int i = _teamOneSize; --i >= 0;)
-		{
-			removals(_teamOne[i].getPlayer(), false);
-		}
-		
-		for (int i = _teamTwoSize; --i >= 0;)
-		{
-			removals(_teamTwo[i].getPlayer(), false);
-		}
-	}
-	
-	@Override
-	protected final boolean makeCompetitionStart()
-	{
-		if (!super.makeCompetitionStart())
+		if (_aborted)
 		{
 			return false;
 		}
 		
-		Participant par;
-		for (int i = 0; i < _teamOneSize; i++)
+		if (teamOneAllDisconnected())
 		{
-			par = _teamOne[i];
-			if (par.getPlayer() == null)
-			{
-				return false;
-			}
-			
-			par.getPlayer().setIsOlympiadStart(true);
-			par.getPlayer().updateEffectIcons();
+			return false;
 		}
 		
-		for (int i = 0; i < _teamTwoSize; i++)
+		if (teamTwoAllDisconnected())
 		{
-			par = _teamTwo[i];
-			if (par.getPlayer() == null)
-			{
-				return false;
-			}
-			
-			par.getPlayer().setIsOlympiadStart(true);
-			par.getPlayer().updateEffectIcons();
+			return false;
 		}
+		
 		return true;
 	}
 	
@@ -390,52 +421,6 @@ public class OlympiadGameTeams extends AbstractOlympiadGame
 			if ((par.getPlayer() != null) && !par.isDefaulted() && !par.isDisconnected() && (par.getPlayer().getOlympiadGameId() == _stadiumID))
 			{
 				cleanEffects(par.getPlayer());
-			}
-		}
-	}
-	
-	@Override
-	protected final void portPlayersBack()
-	{
-		Participant par;
-		for (int i = _teamOneSize; --i >= 0;)
-		{
-			par = _teamOne[i];
-			if ((par.getPlayer() != null) && !par.isDefaulted() && !par.isDisconnected())
-			{
-				portPlayerBack(par.getPlayer());
-			}
-		}
-		
-		for (int i = _teamTwoSize; --i >= 0;)
-		{
-			par = _teamTwo[i];
-			if ((par.getPlayer() != null) && !par.isDefaulted() && !par.isDisconnected())
-			{
-				portPlayerBack(par.getPlayer());
-			}
-		}
-	}
-	
-	@Override
-	protected final void playersStatusBack()
-	{
-		Participant par;
-		for (int i = _teamOneSize; --i >= 0;)
-		{
-			par = _teamOne[i];
-			if ((par.getPlayer() != null) && !par.isDefaulted() && !par.isDisconnected() && (par.getPlayer().getOlympiadGameId() == _stadiumID))
-			{
-				playerStatusBack(par.getPlayer());
-			}
-		}
-		
-		for (int i = _teamTwoSize; --i >= 0;)
-		{
-			par = _teamTwo[i];
-			if ((par.getPlayer() != null) && !par.isDefaulted() && !par.isDisconnected() && (par.getPlayer().getOlympiadGameId() == _stadiumID))
-			{
-				playerStatusBack(par.getPlayer());
 			}
 		}
 	}
@@ -466,6 +451,24 @@ public class OlympiadGameTeams extends AbstractOlympiadGame
 			_teamOne[i] = null;
 			_teamTwo[i] = null;
 		}
+	}
+	
+	@Override
+	protected int getDivider()
+	{
+		return 5;
+	}
+	
+	@Override
+	protected int[][] getReward()
+	{
+		return Config.ALT_OLY_TEAM_REWARD;
+	}
+	
+	@Override
+	protected final String getWeeklyMatchType()
+	{
+		return COMP_DONE_WEEK_TEAM;
 	}
 	
 	@Override
@@ -532,21 +535,155 @@ public class OlympiadGameTeams extends AbstractOlympiadGame
 	}
 	
 	@Override
-	protected final boolean checkBattleStatus()
+	protected final boolean makeCompetitionStart()
 	{
-		if (_aborted)
+		if (!super.makeCompetitionStart())
 		{
 			return false;
 		}
 		
-		if (teamOneAllDisconnected())
+		Participant par;
+		for (int i = 0; i < _teamOneSize; i++)
 		{
-			return false;
+			par = _teamOne[i];
+			if (par.getPlayer() == null)
+			{
+				return false;
+			}
+			
+			par.getPlayer().setIsOlympiadStart(true);
+			par.getPlayer().updateEffectIcons();
 		}
 		
-		if (teamTwoAllDisconnected())
+		for (int i = 0; i < _teamTwoSize; i++)
 		{
+			par = _teamTwo[i];
+			if (par.getPlayer() == null)
+			{
+				return false;
+			}
+			
+			par.getPlayer().setIsOlympiadStart(true);
+			par.getPlayer().updateEffectIcons();
+		}
+		return true;
+	}
+	
+	/**
+	 * UnAfraid: FIXME: Sometimes buffers appear on arena 3v3 match where it shouldn't or they don't get unspawned when match start.
+	 */
+	@Override
+	protected boolean needBuffers()
+	{
+		return false;
+	}
+	
+	@Override
+	protected final void playersStatusBack()
+	{
+		Participant par;
+		for (int i = _teamOneSize; --i >= 0;)
+		{
+			par = _teamOne[i];
+			if ((par.getPlayer() != null) && !par.isDefaulted() && !par.isDisconnected() && (par.getPlayer().getOlympiadGameId() == _stadiumID))
+			{
+				playerStatusBack(par.getPlayer());
+			}
+		}
+		
+		for (int i = _teamTwoSize; --i >= 0;)
+		{
+			par = _teamTwo[i];
+			if ((par.getPlayer() != null) && !par.isDefaulted() && !par.isDisconnected() && (par.getPlayer().getOlympiadGameId() == _stadiumID))
+			{
+				playerStatusBack(par.getPlayer());
+			}
+		}
+	}
+	
+	@Override
+	protected final void portPlayersBack()
+	{
+		Participant par;
+		for (int i = _teamOneSize; --i >= 0;)
+		{
+			par = _teamOne[i];
+			if ((par.getPlayer() != null) && !par.isDefaulted() && !par.isDisconnected())
+			{
+				portPlayerBack(par.getPlayer());
+			}
+		}
+		
+		for (int i = _teamTwoSize; --i >= 0;)
+		{
+			par = _teamTwo[i];
+			if ((par.getPlayer() != null) && !par.isDefaulted() && !par.isDisconnected())
+			{
+				portPlayerBack(par.getPlayer());
+			}
+		}
+	}
+	
+	@Override
+	protected final boolean portPlayersToArena(List<Location> spawns)
+	{
+		boolean result = true;
+		try
+		{
+			for (int i = 0; i < _teamOneSize; i++)
+			{
+				result &= portPlayerToArena(_teamOne[i], spawns.get(i), _stadiumID);
+			}
+			
+			final int offset = spawns.size() / 2;
+			for (int i = 0; i < _teamTwoSize; i++)
+			{
+				result &= portPlayerToArena(_teamTwo[i], spawns.get(i + offset), _stadiumID);
+			}
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "", e);
 			return false;
+		}
+		return result;
+	}
+	
+	@Override
+	protected final void removals()
+	{
+		for (int i = _teamOneSize; --i >= 0;)
+		{
+			removals(_teamOne[i].getPlayer(), false);
+		}
+		
+		for (int i = _teamTwoSize; --i >= 0;)
+		{
+			removals(_teamTwo[i].getPlayer(), false);
+		}
+	}
+	
+	protected final boolean teamOneAllDisconnected()
+	{
+		for (int i = _teamOneSize; --i >= 0;)
+		{
+			if (!_teamOne[i].isDisconnected())
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	protected final boolean teamTwoAllDisconnected()
+	{
+		for (int i = _teamTwoSize; --i >= 0;)
+		{
+			if (!_teamTwo[i].isDisconnected())
+			{
+				return false;
+			}
 		}
 		
 		return true;
@@ -987,142 +1124,5 @@ public class OlympiadGameTeams extends AbstractOlympiadGame
 		{
 			_log.log(Level.WARNING, "Exception on validateWinner(): " + e.getMessage(), e);
 		}
-	}
-	
-	/**
-	 * UnAfraid: TODO: We should calculate the damage in array separately for each player so we can display it on ExOlympiadMatchResult correctly.
-	 */
-	@Override
-	protected final void addDamage(L2PcInstance player, int damage)
-	{
-		Participant par;
-		for (int i = _teamOneSize; --i >= 0;)
-		{
-			par = _teamOne[i];
-			if (par.getObjectId() == player.getObjectId())
-			{
-				if (!par.isDisconnected())
-				{
-					_damageT1 += damage;
-				}
-				return;
-			}
-		}
-		
-		for (int i = _teamTwoSize; --i >= 0;)
-		{
-			par = _teamTwo[i];
-			if (par.getObjectId() == player.getObjectId())
-			{
-				if (!par.isDisconnected())
-				{
-					_damageT2 += damage;
-				}
-				return;
-			}
-		}
-	}
-	
-	@Override
-	public final String[] getPlayerNames()
-	{
-		return new String[]
-		{
-			_teamOne[0].getName(),
-			_teamTwo[0].getName()
-		};
-	}
-	
-	@Override
-	public final boolean checkDefaulted()
-	{
-		try
-		{
-			SystemMessage reason = null;
-			Participant par;
-			for (int i = _teamOneSize; --i >= 0;)
-			{
-				par = _teamOne[i];
-				par.updatePlayer();
-				reason = checkDefaulted(par.getPlayer());
-				if (reason != null)
-				{
-					par.setDefaulted(true);
-					if (!_teamOneDefaulted)
-					{
-						_teamOneDefaulted = true;
-						for (Participant t : _teamTwo)
-						{
-							if (t.getPlayer() != null)
-							{
-								t.getPlayer().sendPacket(reason);
-							}
-						}
-					}
-				}
-			}
-			
-			for (int i = _teamTwoSize; --i >= 0;)
-			{
-				par = _teamTwo[i];
-				par.updatePlayer();
-				reason = checkDefaulted(par.getPlayer());
-				if (reason != null)
-				{
-					par.setDefaulted(true);
-					if (!_teamTwoDefaulted)
-					{
-						_teamTwoDefaulted = true;
-						for (Participant t : _teamOne)
-						{
-							if (t.getPlayer() != null)
-							{
-								t.getPlayer().sendPacket(reason);
-							}
-						}
-					}
-				}
-			}
-			
-			return _teamOneDefaulted || _teamTwoDefaulted;
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Exception on checkDefaulted(): " + e.getMessage(), e);
-			return true;
-		}
-	}
-	
-	@Override
-	public final void resetDamage()
-	{
-		_damageT1 = 0;
-		_damageT2 = 0;
-	}
-	
-	protected final boolean teamOneAllDisconnected()
-	{
-		for (int i = _teamOneSize; --i >= 0;)
-		{
-			if (!_teamOne[i].isDisconnected())
-			{
-				return false;
-			}
-		}
-		
-		return true;
-	}
-	
-	protected final boolean teamTwoAllDisconnected()
-	{
-		for (int i = _teamTwoSize; --i >= 0;)
-		{
-			if (!_teamTwo[i].isDisconnected())
-			{
-				return false;
-			}
-		}
-		
-		return true;
 	}
 }

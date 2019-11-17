@@ -36,14 +36,14 @@ public class VehicleStat extends CharStat
 		return _moveSpeed;
 	}
 	
-	public final void setMoveSpeed(float speed)
-	{
-		_moveSpeed = speed;
-	}
-	
 	public final double getRotationSpeed()
 	{
 		return _rotationSpeed;
+	}
+	
+	public final void setMoveSpeed(float speed)
+	{
+		_moveSpeed = speed;
 	}
 	
 	public final void setRotationSpeed(int speed)

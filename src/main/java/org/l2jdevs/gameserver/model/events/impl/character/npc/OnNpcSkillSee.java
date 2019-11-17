@@ -45,11 +45,6 @@ public class OnNpcSkillSee implements IBaseEvent
 		_isSummon = isSummon;
 	}
 	
-	public L2Npc getTarget()
-	{
-		return _npc;
-	}
-	
 	public L2PcInstance getCaster()
 	{
 		return _caster;
@@ -60,19 +55,24 @@ public class OnNpcSkillSee implements IBaseEvent
 		return _skill;
 	}
 	
+	public L2Npc getTarget()
+	{
+		return _npc;
+	}
+	
 	public L2Object[] getTargets()
 	{
 		return _targets;
-	}
-	
-	public boolean isSummon()
-	{
-		return _isSummon;
 	}
 	
 	@Override
 	public EventType getType()
 	{
 		return EventType.ON_NPC_SKILL_SEE;
+	}
+	
+	public boolean isSummon()
+	{
+		return _isSummon;
 	}
 }

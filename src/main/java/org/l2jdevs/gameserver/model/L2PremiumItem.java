@@ -34,9 +34,9 @@ public class L2PremiumItem
 		_sender = sender;
 	}
 	
-	public void updateCount(long newcount)
+	public long getCount()
 	{
-		_count = newcount;
+		return _count;
 	}
 	
 	public int getItemId()
@@ -44,13 +44,13 @@ public class L2PremiumItem
 		return _itemId;
 	}
 	
-	public long getCount()
-	{
-		return _count;
-	}
-	
 	public String getSender()
 	{
 		return _sender;
+	}
+	
+	public void updateCount(long newcount)
+	{
+		_count = newcount;
 	}
 }

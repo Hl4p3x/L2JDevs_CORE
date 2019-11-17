@@ -34,6 +34,12 @@ public class BypassUserCmd extends L2GameClientPacket
 	private int _command;
 	
 	@Override
+	public String getType()
+	{
+		return _C__B3_BYPASSUSERCMD;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_command = readD();
@@ -61,11 +67,5 @@ public class BypassUserCmd extends L2GameClientPacket
 		{
 			handler.useUserCommand(_command, getClient().getActiveChar());
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__B3_BYPASSUSERCMD;
 	}
 }

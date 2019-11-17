@@ -50,6 +50,45 @@ public class BackgroundTaskRunner<T> implements Runnable, ComponentListener
 	}
 	
 	@Override
+	public void componentHidden(ComponentEvent e)
+	{
+	}
+	
+	@Override
+	public void componentMoved(ComponentEvent e)
+	{
+	}
+	
+	@Override
+	public void componentResized(ComponentEvent e)
+	{
+	}
+	
+	@Override
+	public void componentShown(ComponentEvent e)
+	{
+		try
+		{
+			_thread.start();
+		}
+		catch (Throwable t)
+		{
+			_thrown = t;
+			finishDialog();
+		}
+	}
+	
+	public T getResult()
+	{
+		return _result;
+	}
+	
+	public Throwable getThrown()
+	{
+		return _thrown;
+	}
+	
+	@Override
 	public void run()
 	{
 		try
@@ -73,44 +112,5 @@ public class BackgroundTaskRunner<T> implements Runnable, ComponentListener
 			_dialog.removeComponentListener(this);
 			_dialog.setVisible(false);
 		}
-	}
-	
-	public Throwable getThrown()
-	{
-		return _thrown;
-	}
-	
-	public T getResult()
-	{
-		return _result;
-	}
-	
-	@Override
-	public void componentResized(ComponentEvent e)
-	{
-	}
-	
-	@Override
-	public void componentMoved(ComponentEvent e)
-	{
-	}
-	
-	@Override
-	public void componentShown(ComponentEvent e)
-	{
-		try
-		{
-			_thread.start();
-		}
-		catch (Throwable t)
-		{
-			_thrown = t;
-			finishDialog();
-		}
-	}
-	
-	@Override
-	public void componentHidden(ComponentEvent e)
-	{
 	}
 }

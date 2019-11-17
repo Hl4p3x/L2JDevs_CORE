@@ -36,6 +36,12 @@ public final class RequestBidItemAuction extends L2GameClientPacket
 	private long _bid;
 	
 	@Override
+	public final String getType()
+	{
+		return _C__D0_39_REQUESTBIDITEMAUCTION;
+	}
+	
+	@Override
 	protected final void readImpl()
 	{
 		_instanceId = super.readD();
@@ -72,11 +78,5 @@ public final class RequestBidItemAuction extends L2GameClientPacket
 				auction.registerBid(activeChar, _bid);
 			}
 		}
-	}
-	
-	@Override
-	public final String getType()
-	{
-		return _C__D0_39_REQUESTBIDITEMAUCTION;
 	}
 }

@@ -48,20 +48,6 @@ public class SellList extends L2GameServerPacket
 		doLease();
 	}
 	
-	private void doLease()
-	{
-		if (_lease == null)
-		{
-			for (L2ItemInstance item : _activeChar.getInventory().getItems())
-			{
-				if (!item.isEquipped() && item.isSellable() && (!_activeChar.hasSummon() || (item.getObjectId() != _activeChar.getSummon().getControlObjectId()))) // Pet is summoned and not the item that summoned the pet
-				{
-					_selllist.add(item);
-				}
-			}
-		}
-	}
-	
 	@Override
 	protected final void writeImpl()
 	{
@@ -94,6 +80,20 @@ public class SellList extends L2GameServerPacket
 			for (int op : item.getEnchantOptions())
 			{
 				writeH(op);
+			}
+		}
+	}
+	
+	private void doLease()
+	{
+		if (_lease == null)
+		{
+			for (L2ItemInstance item : _activeChar.getInventory().getItems())
+			{
+				if (!item.isEquipped() && item.isSellable() && (!_activeChar.hasSummon() || (item.getObjectId() != _activeChar.getSummon().getControlObjectId()))) // Pet is summoned and not the item that summoned the pet
+				{
+					_selllist.add(item);
+				}
 			}
 		}
 	}

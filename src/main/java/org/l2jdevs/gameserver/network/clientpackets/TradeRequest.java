@@ -42,6 +42,12 @@ public final class TradeRequest extends L2GameClientPacket
 	private int _objectId;
 	
 	@Override
+	public String getType()
+	{
+		return "[C] 1A TradeRequest";
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -196,11 +202,5 @@ public final class TradeRequest extends L2GameClientPacket
 		sm = SystemMessage.getSystemMessage(SystemMessageId.REQUEST_C1_FOR_TRADE);
 		sm.addString(partner.getName());
 		player.sendPacket(sm);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return "[C] 1A TradeRequest";
 	}
 }

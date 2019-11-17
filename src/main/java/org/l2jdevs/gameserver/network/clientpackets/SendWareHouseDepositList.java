@@ -49,6 +49,12 @@ public final class SendWareHouseDepositList extends L2GameClientPacket
 	private List<ItemHolder> _items = null;
 	
 	@Override
+	public String getType()
+	{
+		return _C__3B_SENDWAREHOUSEDEPOSITLIST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		final int size = readD();
@@ -222,11 +228,5 @@ public final class SendWareHouseDepositList extends L2GameClientPacket
 		StatusUpdate su = new StatusUpdate(player);
 		su.addAttribute(StatusUpdate.CUR_LOAD, player.getCurrentLoad());
 		player.sendPacket(su);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__3B_SENDWAREHOUSEDEPOSITLIST;
 	}
 }

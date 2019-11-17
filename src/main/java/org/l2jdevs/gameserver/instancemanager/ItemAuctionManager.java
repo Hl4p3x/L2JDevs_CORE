@@ -119,24 +119,6 @@ public final class ItemAuctionManager
 		}
 	}
 	
-	public final void shutdown()
-	{
-		for (ItemAuctionInstance instance : _managerInstances.values())
-		{
-			instance.shutdown();
-		}
-	}
-	
-	public final ItemAuctionInstance getManagerInstance(final int instanceId)
-	{
-		return _managerInstances.get(instanceId);
-	}
-	
-	public final int getNextAuctionId()
-	{
-		return _auctionIds.getAndIncrement();
-	}
-	
 	public static final void deleteAuction(final int auctionId)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection())
@@ -166,6 +148,24 @@ public final class ItemAuctionManager
 	public static final ItemAuctionManager getInstance()
 	{
 		return SingletonHolder.INSTANCE;
+	}
+	
+	public final ItemAuctionInstance getManagerInstance(final int instanceId)
+	{
+		return _managerInstances.get(instanceId);
+	}
+	
+	public final int getNextAuctionId()
+	{
+		return _auctionIds.getAndIncrement();
+	}
+	
+	public final void shutdown()
+	{
+		for (ItemAuctionInstance instance : _managerInstances.values())
+		{
+			instance.shutdown();
+		}
 	}
 	
 	private static class SingletonHolder

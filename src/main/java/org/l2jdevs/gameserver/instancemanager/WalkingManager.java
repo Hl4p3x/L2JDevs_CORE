@@ -73,11 +73,154 @@ public final class WalkingManager implements IXmlReader
 		load();
 	}
 	
+	public static final WalkingManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Cancel NPC moving permanently
+	 * @param npc NPC to cancel
+	 */
+	public synchronized void cancelMoving(L2Npc npc)
+	{
+		final WalkInfo walk = _activeRoutes.remove(npc.getObjectId());
+		if (walk != null)
+		{
+			walk.getWalkCheckTask().cancel(true);
+			npc.getKnownList().stopTrackingTask();
+		}
+	}
+	
+	public L2WalkRoute getRoute(String route)
+	{
+		return _routes.get(route);
+	}
+	
+	/**
+	 * @param npc
+	 * @return name of route
+	 */
+	public String getRouteName(L2Npc npc)
+	{
+		return _activeRoutes.containsKey(npc.getObjectId()) ? _activeRoutes.get(npc.getObjectId()).getRoute().getName() : "";
+	}
+	
+	/**
+	 * @param npc NPC to check
+	 * @return {@code true} if given NPC, or its leader is controlled by Walking Manager and moves currently.
+	 */
+	public boolean isOnWalk(L2Npc npc)
+	{
+		L2MonsterInstance monster = null;
+		
+		if (npc.isMonster())
+		{
+			if (((L2MonsterInstance) npc).getLeader() == null)
+			{
+				monster = (L2MonsterInstance) npc;
+			}
+			else
+			{
+				monster = ((L2MonsterInstance) npc).getLeader();
+			}
+		}
+		
+		if (((monster != null) && !isRegistered(monster)) || !isRegistered(npc))
+		{
+			return false;
+		}
+		
+		final WalkInfo walk = monster != null ? _activeRoutes.get(monster.getObjectId()) : _activeRoutes.get(npc.getObjectId());
+		if (walk.isStoppedByAttack() || walk.isSuspended())
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * @param npc NPC to check
+	 * @return {@code true} if given NPC controlled by Walking Manager.
+	 */
+	public boolean isRegistered(L2Npc npc)
+	{
+		return _activeRoutes.containsKey(npc.getObjectId());
+	}
+	
 	@Override
 	public final void load()
 	{
 		parseDatapackFile("data/Routes.xml");
 		LOG.info("{}: Loaded {} walking routes.", getClass().getSimpleName(), _routes.size());
+	}
+	
+	/**
+	 * Manage "node arriving"-related tasks: schedule move to next node; send ON_NODE_ARRIVED event to Quest script
+	 * @param npc NPC to manage
+	 */
+	public void onArrived(final L2Npc npc)
+	{
+		if (_activeRoutes.containsKey(npc.getObjectId()))
+		{
+			// Notify quest
+			EventDispatcher.getInstance().notifyEventAsync(new OnNpcMoveNodeArrived(npc), npc);
+			
+			final WalkInfo walk = _activeRoutes.get(npc.getObjectId());
+			
+			// Opposite should not happen... but happens sometime
+			if ((walk.getCurrentNodeId() >= 0) && (walk.getCurrentNodeId() < walk.getRoute().getNodesCount()))
+			{
+				final L2NpcWalkerNode node = walk.getRoute().getNodeList().get(walk.getCurrentNodeId());
+				if (npc.isInsideRadius(node, 10, false, false))
+				{
+					npc.sendDebugMessage("Route '" + walk.getRoute().getName() + "', arrived to node " + walk.getCurrentNodeId());
+					npc.sendDebugMessage("Done in " + ((System.currentTimeMillis() - walk.getLastAction()) / 1000) + " s");
+					walk.calculateNextNode(npc);
+					walk.setBlocked(true); // prevents to be ran from walk check task, if there is delay in this node.
+					
+					if (node.getNpcString() != null)
+					{
+						Broadcast.toKnownPlayers(npc, new NpcSay(npc, Say2.NPC_ALL, node.getNpcString()));
+					}
+					else if (!node.getChatText().isEmpty())
+					{
+						Broadcast.toKnownPlayers(npc, new NpcSay(npc, Say2.NPC_ALL, node.getChatText()));
+					}
+					
+					if (npc.isDebug())
+					{
+						walk.setLastAction(System.currentTimeMillis());
+					}
+					ThreadPoolManager.getInstance().scheduleGeneral(new ArrivedTask(npc, walk), 100 + (node.getDelay() * 1000L));
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Manage "on death"-related tasks: permanently cancel moving of died NPC
+	 * @param npc NPC to manage
+	 */
+	public void onDeath(L2Npc npc)
+	{
+		cancelMoving(npc);
+	}
+	
+	/**
+	 * Manage "on spawn"-related tasks: start NPC moving, if there is route attached to its spawn point
+	 * @param npc NPC to manage
+	 */
+	public void onSpawn(L2Npc npc)
+	{
+		if (_routesToAttach.containsKey(npc.getId()))
+		{
+			final String routeName = _routesToAttach.get(npc.getId()).getRouteName(npc);
+			if (!routeName.isEmpty())
+			{
+				startMoving(npc, routeName);
+			}
+		}
 	}
 	
 	@Override
@@ -196,59 +339,18 @@ public final class WalkingManager implements IXmlReader
 	}
 	
 	/**
-	 * @param npc NPC to check
-	 * @return {@code true} if given NPC, or its leader is controlled by Walking Manager and moves currently.
+	 * Resumes previously stopped moving
+	 * @param npc NPC to resume
 	 */
-	public boolean isOnWalk(L2Npc npc)
+	public void resumeMoving(final L2Npc npc)
 	{
-		L2MonsterInstance monster = null;
-		
-		if (npc.isMonster())
+		final WalkInfo walk = _activeRoutes.get(npc.getObjectId());
+		if (walk != null)
 		{
-			if (((L2MonsterInstance) npc).getLeader() == null)
-			{
-				monster = (L2MonsterInstance) npc;
-			}
-			else
-			{
-				monster = ((L2MonsterInstance) npc).getLeader();
-			}
+			walk.setSuspended(false);
+			walk.setStoppedByAttack(false);
+			startMoving(npc, walk.getRoute().getName());
 		}
-		
-		if (((monster != null) && !isRegistered(monster)) || !isRegistered(npc))
-		{
-			return false;
-		}
-		
-		final WalkInfo walk = monster != null ? _activeRoutes.get(monster.getObjectId()) : _activeRoutes.get(npc.getObjectId());
-		if (walk.isStoppedByAttack() || walk.isSuspended())
-		{
-			return false;
-		}
-		return true;
-	}
-	
-	public L2WalkRoute getRoute(String route)
-	{
-		return _routes.get(route);
-	}
-	
-	/**
-	 * @param npc NPC to check
-	 * @return {@code true} if given NPC controlled by Walking Manager.
-	 */
-	public boolean isRegistered(L2Npc npc)
-	{
-		return _activeRoutes.containsKey(npc.getObjectId());
-	}
-	
-	/**
-	 * @param npc
-	 * @return name of route
-	 */
-	public String getRouteName(L2Npc npc)
-	{
-		return _activeRoutes.containsKey(npc.getObjectId()) ? _activeRoutes.get(npc.getObjectId()).getRoute().getName() : "";
 	}
 	
 	/**
@@ -341,35 +443,6 @@ public final class WalkingManager implements IXmlReader
 	}
 	
 	/**
-	 * Cancel NPC moving permanently
-	 * @param npc NPC to cancel
-	 */
-	public synchronized void cancelMoving(L2Npc npc)
-	{
-		final WalkInfo walk = _activeRoutes.remove(npc.getObjectId());
-		if (walk != null)
-		{
-			walk.getWalkCheckTask().cancel(true);
-			npc.getKnownList().stopTrackingTask();
-		}
-	}
-	
-	/**
-	 * Resumes previously stopped moving
-	 * @param npc NPC to resume
-	 */
-	public void resumeMoving(final L2Npc npc)
-	{
-		final WalkInfo walk = _activeRoutes.get(npc.getObjectId());
-		if (walk != null)
-		{
-			walk.setSuspended(false);
-			walk.setStoppedByAttack(false);
-			startMoving(npc, walk.getRoute().getName());
-		}
-	}
-	
-	/**
 	 * Pause NPC moving until it will be resumed
 	 * @param npc NPC to pause moving
 	 * @param suspend {@code true} if moving was temporarily suspended for some reasons of AI-controlling script
@@ -411,79 +484,6 @@ public final class WalkingManager implements IXmlReader
 			npc.stopMove(null);
 			npc.getAI().setIntention(CtrlIntention.AI_INTENTION_ACTIVE);
 		}
-	}
-	
-	/**
-	 * Manage "node arriving"-related tasks: schedule move to next node; send ON_NODE_ARRIVED event to Quest script
-	 * @param npc NPC to manage
-	 */
-	public void onArrived(final L2Npc npc)
-	{
-		if (_activeRoutes.containsKey(npc.getObjectId()))
-		{
-			// Notify quest
-			EventDispatcher.getInstance().notifyEventAsync(new OnNpcMoveNodeArrived(npc), npc);
-			
-			final WalkInfo walk = _activeRoutes.get(npc.getObjectId());
-			
-			// Opposite should not happen... but happens sometime
-			if ((walk.getCurrentNodeId() >= 0) && (walk.getCurrentNodeId() < walk.getRoute().getNodesCount()))
-			{
-				final L2NpcWalkerNode node = walk.getRoute().getNodeList().get(walk.getCurrentNodeId());
-				if (npc.isInsideRadius(node, 10, false, false))
-				{
-					npc.sendDebugMessage("Route '" + walk.getRoute().getName() + "', arrived to node " + walk.getCurrentNodeId());
-					npc.sendDebugMessage("Done in " + ((System.currentTimeMillis() - walk.getLastAction()) / 1000) + " s");
-					walk.calculateNextNode(npc);
-					walk.setBlocked(true); // prevents to be ran from walk check task, if there is delay in this node.
-					
-					if (node.getNpcString() != null)
-					{
-						Broadcast.toKnownPlayers(npc, new NpcSay(npc, Say2.NPC_ALL, node.getNpcString()));
-					}
-					else if (!node.getChatText().isEmpty())
-					{
-						Broadcast.toKnownPlayers(npc, new NpcSay(npc, Say2.NPC_ALL, node.getChatText()));
-					}
-					
-					if (npc.isDebug())
-					{
-						walk.setLastAction(System.currentTimeMillis());
-					}
-					ThreadPoolManager.getInstance().scheduleGeneral(new ArrivedTask(npc, walk), 100 + (node.getDelay() * 1000L));
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Manage "on death"-related tasks: permanently cancel moving of died NPC
-	 * @param npc NPC to manage
-	 */
-	public void onDeath(L2Npc npc)
-	{
-		cancelMoving(npc);
-	}
-	
-	/**
-	 * Manage "on spawn"-related tasks: start NPC moving, if there is route attached to its spawn point
-	 * @param npc NPC to manage
-	 */
-	public void onSpawn(L2Npc npc)
-	{
-		if (_routesToAttach.containsKey(npc.getId()))
-		{
-			final String routeName = _routesToAttach.get(npc.getId()).getRouteName(npc);
-			if (!routeName.isEmpty())
-			{
-				startMoving(npc, routeName);
-			}
-		}
-	}
-	
-	public static final WalkingManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

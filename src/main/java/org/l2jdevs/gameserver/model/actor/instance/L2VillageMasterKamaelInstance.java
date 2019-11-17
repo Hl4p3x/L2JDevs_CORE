@@ -35,23 +35,6 @@ public final class L2VillageMasterKamaelInstance extends L2VillageMasterInstance
 	}
 	
 	@Override
-	protected final String getSubClassMenu(Race race)
-	{
-		if (Config.ALT_GAME_SUBCLASS_EVERYWHERE || (race == Race.KAMAEL))
-		{
-			return "data/html/villagemaster/SubClass.htm";
-		}
-		
-		return "data/html/villagemaster/SubClass_NoKamael.htm";
-	}
-	
-	@Override
-	protected final String getSubClassFail()
-	{
-		return "data/html/villagemaster/SubClass_Fail_Kamael.htm";
-	}
-	
-	@Override
 	protected final boolean checkQuests(L2PcInstance player)
 	{
 		return player.isNoble() || player.hasQuestCompleted("Q00234_FatesWhisper") || player.hasQuestCompleted("Q00236_SeedsOfChaos");
@@ -66,5 +49,22 @@ public final class L2VillageMasterKamaelInstance extends L2VillageMasterInstance
 		}
 		
 		return pclass.isOfRace(Race.KAMAEL);
+	}
+	
+	@Override
+	protected final String getSubClassFail()
+	{
+		return "data/html/villagemaster/SubClass_Fail_Kamael.htm";
+	}
+	
+	@Override
+	protected final String getSubClassMenu(Race race)
+	{
+		if (Config.ALT_GAME_SUBCLASS_EVERYWHERE || (race == Race.KAMAEL))
+		{
+			return "data/html/villagemaster/SubClass.htm";
+		}
+		
+		return "data/html/villagemaster/SubClass_NoKamael.htm";
 	}
 }

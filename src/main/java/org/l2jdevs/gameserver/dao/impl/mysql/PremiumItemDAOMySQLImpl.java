@@ -41,6 +41,22 @@ public class PremiumItemDAOMySQLImpl implements PremiumItemDAO
 	private static final String GET_PREMIUM_ITEMS = "SELECT itemNum, itemId, itemCount, itemSender FROM character_premium_items WHERE charId=?";
 	
 	@Override
+	public void delete(L2PcInstance player, int itemNum)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM character_premium_items WHERE charId=? AND itemNum=? "))
+		{
+			ps.setInt(1, player.getObjectId());
+			ps.setInt(2, itemNum);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.error("Could not delete premium item: {}" + e);
+		}
+	}
+	
+	@Override
 	public void load(L2PcInstance player)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -79,22 +95,6 @@ public class PremiumItemDAOMySQLImpl implements PremiumItemDAO
 		catch (Exception e)
 		{
 			LOG.error("Could not update premium items: {}", e);
-		}
-	}
-	
-	@Override
-	public void delete(L2PcInstance player, int itemNum)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM character_premium_items WHERE charId=? AND itemNum=? "))
-		{
-			ps.setInt(1, player.getObjectId());
-			ps.setInt(2, itemNum);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.error("Could not delete premium item: {}" + e);
 		}
 	}
 }

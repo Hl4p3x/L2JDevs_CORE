@@ -36,6 +36,14 @@ public final class NpcSay extends L2GameServerPacket
 	private final int _npcString;
 	private List<String> _parameters;
 	
+	public NpcSay(int objectId, int messageType, int npcId, NpcStringId npcString)
+	{
+		_objectId = objectId;
+		_textType = messageType;
+		_npcId = 1000000 + npcId;
+		_npcString = npcString.getId();
+	}
+	
 	/**
 	 * @param objectId
 	 * @param messageType
@@ -51,6 +59,14 @@ public final class NpcSay extends L2GameServerPacket
 		_text = text;
 	}
 	
+	public NpcSay(L2Npc npc, int messageType, NpcStringId npcString)
+	{
+		_objectId = npc.getObjectId();
+		_textType = messageType;
+		_npcId = 1000000 + npc.getId();
+		_npcString = npcString.getId();
+	}
+	
 	public NpcSay(L2Npc npc, int messageType, String text)
 	{
 		_objectId = npc.getObjectId();
@@ -58,22 +74,6 @@ public final class NpcSay extends L2GameServerPacket
 		_npcId = 1000000 + npc.getId();
 		_npcString = -1;
 		_text = text;
-	}
-	
-	public NpcSay(int objectId, int messageType, int npcId, NpcStringId npcString)
-	{
-		_objectId = objectId;
-		_textType = messageType;
-		_npcId = 1000000 + npcId;
-		_npcString = npcString.getId();
-	}
-	
-	public NpcSay(L2Npc npc, int messageType, NpcStringId npcString)
-	{
-		_objectId = npc.getObjectId();
-		_textType = messageType;
-		_npcId = 1000000 + npc.getId();
-		_npcString = npcString.getId();
 	}
 	
 	/**

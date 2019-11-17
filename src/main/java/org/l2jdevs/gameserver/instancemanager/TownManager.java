@@ -24,6 +24,37 @@ import org.l2jdevs.gameserver.model.zone.type.L2TownZone;
 
 public final class TownManager
 {
+	public static final L2TownZone getTown(int townId)
+	{
+		for (L2TownZone temp : ZoneManager.getInstance().getAllZones(L2TownZone.class))
+		{
+			if (temp.getTownId() == townId)
+			{
+				return temp;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the town at that position (if any)
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	public static final L2TownZone getTown(int x, int y, int z)
+	{
+		for (L2ZoneType temp : ZoneManager.getInstance().getZones(x, y, z))
+		{
+			if (temp instanceof L2TownZone)
+			{
+				return (L2TownZone) temp;
+			}
+		}
+		return null;
+	}
+	
 	public static final int getTownCastle(int townId)
 	{
 		switch (townId)
@@ -69,36 +100,5 @@ public final class TownManager
 	public static final boolean townHasCastleInSiege(int x, int y)
 	{
 		return townHasCastleInSiege(MapRegionManager.getInstance().getMapRegionLocId(x, y));
-	}
-	
-	public static final L2TownZone getTown(int townId)
-	{
-		for (L2TownZone temp : ZoneManager.getInstance().getAllZones(L2TownZone.class))
-		{
-			if (temp.getTownId() == townId)
-			{
-				return temp;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * Returns the town at that position (if any)
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @return
-	 */
-	public static final L2TownZone getTown(int x, int y, int z)
-	{
-		for (L2ZoneType temp : ZoneManager.getInstance().getZones(x, y, z))
-		{
-			if (temp instanceof L2TownZone)
-			{
-				return (L2TownZone) temp;
-			}
-		}
-		return null;
 	}
 }

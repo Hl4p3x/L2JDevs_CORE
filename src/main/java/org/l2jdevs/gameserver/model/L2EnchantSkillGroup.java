@@ -38,14 +38,14 @@ public final class L2EnchantSkillGroup
 		_enchantDetails.add(detail);
 	}
 	
-	public int getId()
-	{
-		return _id;
-	}
-	
 	public List<EnchantSkillHolder> getEnchantGroupDetails()
 	{
 		return _enchantDetails;
+	}
+	
+	public int getId()
+	{
+		return _id;
 	}
 	
 	public static class EnchantSkillHolder
@@ -69,20 +69,9 @@ public final class L2EnchantSkillGroup
 			}
 		}
 		
-		/**
-		 * @return Returns the level.
-		 */
-		public int getLevel()
+		public int getAdenaCost()
 		{
-			return _level;
-		}
-		
-		/**
-		 * @return Returns the spCost.
-		 */
-		public int getSpCost()
-		{
-			return _spCost;
+			return _adenaCost;
 		}
 		
 		public int getExpCost()
@@ -90,9 +79,12 @@ public final class L2EnchantSkillGroup
 			return _expCost;
 		}
 		
-		public int getAdenaCost()
+		/**
+		 * @return Returns the level.
+		 */
+		public int getLevel()
 		{
-			return _adenaCost;
+			return _level;
 		}
 		
 		public byte getRate(L2PcInstance ply)
@@ -102,6 +94,14 @@ public final class L2EnchantSkillGroup
 				return 0;
 			}
 			return _rate[ply.getLevel() - 76];
+		}
+		
+		/**
+		 * @return Returns the spCost.
+		 */
+		public int getSpCost()
+		{
+			return _spCost;
 		}
 	}
 }

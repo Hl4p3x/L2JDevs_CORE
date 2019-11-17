@@ -29,6 +29,12 @@ public class SiegeFlagStatus extends NpcStatus
 	}
 	
 	@Override
+	public L2SiegeFlagInstance getActiveChar()
+	{
+		return (L2SiegeFlagInstance) super.getActiveChar();
+	}
+	
+	@Override
 	public void reduceHp(double value, L2Character attacker)
 	{
 		reduceHp(value, attacker, true, false, false);
@@ -43,11 +49,5 @@ public class SiegeFlagStatus extends NpcStatus
 		}
 		
 		super.reduceHp(value, attacker, awake, isDOT, isHpConsumption);
-	}
-	
-	@Override
-	public L2SiegeFlagInstance getActiveChar()
-	{
-		return (L2SiegeFlagInstance) super.getActiveChar();
 	}
 }

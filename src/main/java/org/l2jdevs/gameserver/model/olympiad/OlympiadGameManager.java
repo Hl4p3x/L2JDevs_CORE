@@ -60,14 +60,51 @@ public class OlympiadGameManager implements Runnable
 		return SingletonHolder._instance;
 	}
 	
-	protected final boolean isBattleStarted()
+	public final int getNumberOfStadiums()
 	{
-		return _battleStarted;
+		return _tasks.length;
 	}
 	
-	protected final void startBattle()
+	public final OlympiadGameTask getOlympiadTask(int id)
 	{
-		_battleStarted = true;
+		if ((id < 0) || (id >= _tasks.length))
+		{
+			return null;
+		}
+		
+		return _tasks[id];
+	}
+	
+	public final boolean isAllTasksFinished()
+	{
+		for (OlympiadGameTask task : _tasks)
+		{
+			if (task.isRunning())
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public final void notifyCompetitorDamage(L2PcInstance player, int damage)
+	{
+		if (player == null)
+		{
+			return;
+		}
+		
+		final int id = player.getOlympiadGameId();
+		if ((id < 0) || (id >= _tasks.length))
+		{
+			return;
+		}
+		
+		final AbstractOlympiadGame game = _tasks[id].getGame();
+		if (game != null)
+		{
+			game.addDamage(player, damage);
+		}
 	}
 	
 	@Override
@@ -159,51 +196,14 @@ public class OlympiadGameManager implements Runnable
 		}
 	}
 	
-	public final boolean isAllTasksFinished()
+	protected final boolean isBattleStarted()
 	{
-		for (OlympiadGameTask task : _tasks)
-		{
-			if (task.isRunning())
-			{
-				return false;
-			}
-		}
-		return true;
+		return _battleStarted;
 	}
 	
-	public final OlympiadGameTask getOlympiadTask(int id)
+	protected final void startBattle()
 	{
-		if ((id < 0) || (id >= _tasks.length))
-		{
-			return null;
-		}
-		
-		return _tasks[id];
-	}
-	
-	public final int getNumberOfStadiums()
-	{
-		return _tasks.length;
-	}
-	
-	public final void notifyCompetitorDamage(L2PcInstance player, int damage)
-	{
-		if (player == null)
-		{
-			return;
-		}
-		
-		final int id = player.getOlympiadGameId();
-		if ((id < 0) || (id >= _tasks.length))
-		{
-			return;
-		}
-		
-		final AbstractOlympiadGame game = _tasks[id].getGame();
-		if (game != null)
-		{
-			game.addDamage(player, damage);
-		}
+		_battleStarted = true;
 	}
 	
 	private static class SingletonHolder

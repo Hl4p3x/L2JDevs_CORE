@@ -50,6 +50,41 @@ public abstract class FloodProtectedListener extends Thread
 		}
 	}
 	
+	public abstract void addClient(Socket s);
+	
+	public void close()
+	{
+		try
+		{
+			_serverSocket.close();
+		}
+		catch (IOException e)
+		{
+			_log.warning(getClass().getSimpleName() + ": " + e.getMessage());
+		}
+	}
+	
+	public void removeFloodProtection(String ip)
+	{
+		if (!Config.FLOOD_PROTECTION)
+		{
+			return;
+		}
+		ForeignConnection fConnection = _floodProtection.get(ip);
+		if (fConnection != null)
+		{
+			fConnection.connectionNumber -= 1;
+			if (fConnection.connectionNumber == 0)
+			{
+				_floodProtection.remove(ip);
+			}
+		}
+		else
+		{
+			_log.warning("Removing a flood protection for a GameServer that was not in the connection map??? :" + ip);
+		}
+	}
+	
 	@Override
 	public void run()
 	{
@@ -126,41 +161,6 @@ public abstract class FloodProtectedListener extends Thread
 		{
 			lastConnection = time;
 			connectionNumber = 1;
-		}
-	}
-	
-	public abstract void addClient(Socket s);
-	
-	public void removeFloodProtection(String ip)
-	{
-		if (!Config.FLOOD_PROTECTION)
-		{
-			return;
-		}
-		ForeignConnection fConnection = _floodProtection.get(ip);
-		if (fConnection != null)
-		{
-			fConnection.connectionNumber -= 1;
-			if (fConnection.connectionNumber == 0)
-			{
-				_floodProtection.remove(ip);
-			}
-		}
-		else
-		{
-			_log.warning("Removing a flood protection for a GameServer that was not in the connection map??? :" + ip);
-		}
-	}
-	
-	public void close()
-	{
-		try
-		{
-			_serverSocket.close();
-		}
-		catch (IOException e)
-		{
-			_log.warning(getClass().getSimpleName() + ": " + e.getMessage());
 		}
 	}
 }

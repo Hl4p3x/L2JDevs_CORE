@@ -40,24 +40,24 @@ public class OnNpcCreatureSee implements IBaseEvent
 		_isSummon = isSummon;
 	}
 	
-	public final L2Npc getNpc()
-	{
-		return _npc;
-	}
-	
 	public final L2Character getCreature()
 	{
 		return _creature;
 	}
 	
-	public boolean isSummon()
+	public final L2Npc getNpc()
 	{
-		return _isSummon;
+		return _npc;
 	}
 	
 	@Override
 	public EventType getType()
 	{
 		return EventType.ON_NPC_CREATURE_SEE;
+	}
+	
+	public boolean isSummon()
+	{
+		return _isSummon;
 	}
 }

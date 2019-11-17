@@ -45,6 +45,12 @@ public final class ItemList extends AbstractItemPacket
 	}
 	
 	@Override
+	public void runImpl()
+	{
+		getClient().sendPacket(new ExQuestItemList(_activeChar));
+	}
+	
+	@Override
 	protected final void writeImpl()
 	{
 		writeC(0x11);
@@ -55,11 +61,5 @@ public final class ItemList extends AbstractItemPacket
 			writeItem(item);
 		}
 		writeInventoryBlock(_activeChar.getInventory());
-	}
-	
-	@Override
-	public void runImpl()
-	{
-		getClient().sendPacket(new ExQuestItemList(_activeChar));
 	}
 }

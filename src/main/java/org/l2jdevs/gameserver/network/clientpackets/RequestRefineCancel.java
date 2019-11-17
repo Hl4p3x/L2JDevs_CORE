@@ -36,6 +36,12 @@ public final class RequestRefineCancel extends L2GameClientPacket
 	private int _targetItemObjId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_43_REQUESTREFINECANCEL;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_targetItemObjId = readD();
@@ -148,11 +154,5 @@ public final class RequestRefineCancel extends L2GameClientPacket
 		InventoryUpdate iu = new InventoryUpdate();
 		iu.addModifiedItem(targetItem);
 		activeChar.sendPacket(iu);
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_43_REQUESTREFINECANCEL;
 	}
 }

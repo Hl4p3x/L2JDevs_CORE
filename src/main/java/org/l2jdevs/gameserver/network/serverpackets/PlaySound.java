@@ -36,34 +36,16 @@ public class PlaySound extends L2GameServerPacket
 	// Only for Music and Voice
 	private final int _delay;
 	
-	public static PlaySound createSound(String soundName)
+	private PlaySound(int type, String soundFile, int radius)
 	{
-		return new PlaySound(soundName);
-	}
-	
-	public static PlaySound createSound(String soundName, L2Object obj)
-	{
-		return new PlaySound(soundName, obj);
-	}
-	
-	public static PlaySound createMusic(String soundName)
-	{
-		return createMusic(soundName, 0);
-	}
-	
-	public static PlaySound createMusic(String soundName, int delay)
-	{
-		return new PlaySound(1, soundName, delay);
-	}
-	
-	public static PlaySound createVoice(String soundName)
-	{
-		return createVoice(soundName, 0);
-	}
-	
-	public static PlaySound createVoice(String soundName, int delay)
-	{
-		return new PlaySound(2, soundName, delay);
+		_type = type;
+		_soundFile = soundFile;
+		_bindToObject = 0;
+		_objectId = 0;
+		_locX = 0;
+		_locY = 0;
+		_locZ = 0;
+		_delay = radius;
 	}
 	
 	private PlaySound(String soundFile)
@@ -101,16 +83,34 @@ public class PlaySound extends L2GameServerPacket
 		_delay = 0;
 	}
 	
-	private PlaySound(int type, String soundFile, int radius)
+	public static PlaySound createMusic(String soundName)
 	{
-		_type = type;
-		_soundFile = soundFile;
-		_bindToObject = 0;
-		_objectId = 0;
-		_locX = 0;
-		_locY = 0;
-		_locZ = 0;
-		_delay = radius;
+		return createMusic(soundName, 0);
+	}
+	
+	public static PlaySound createMusic(String soundName, int delay)
+	{
+		return new PlaySound(1, soundName, delay);
+	}
+	
+	public static PlaySound createSound(String soundName)
+	{
+		return new PlaySound(soundName);
+	}
+	
+	public static PlaySound createSound(String soundName, L2Object obj)
+	{
+		return new PlaySound(soundName, obj);
+	}
+	
+	public static PlaySound createVoice(String soundName)
+	{
+		return createVoice(soundName, 0);
+	}
+	
+	public static PlaySound createVoice(String soundName, int delay)
+	{
+		return new PlaySound(2, soundName, delay);
 	}
 	
 	public String getSoundName()

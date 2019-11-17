@@ -31,6 +31,12 @@ final class BuilderContainer extends Builder
 	}
 	
 	@Override
+	public final int getIndex()
+	{
+		return -1;
+	}
+	
+	@Override
 	public final String toString(final Object param)
 	{
 		return toString(new Object[]
@@ -76,11 +82,5 @@ final class BuilderContainer extends Builder
 			fsb.append(builds[i]);
 		}
 		return fsb.toString();
-	}
-	
-	@Override
-	public final int getIndex()
-	{
-		return -1;
 	}
 }

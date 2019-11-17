@@ -101,6 +101,27 @@ public class AirShipManager
 		load();
 	}
 	
+	public static final AirShipManager getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public int getFuelConsumption(int dockId, int index)
+	{
+		final AirShipTeleportList all = _teleports.get(dockId);
+		if (all == null)
+		{
+			return 0;
+		}
+		
+		if ((index < -1) || (index >= all.getFuel().length))
+		{
+			return 0;
+		}
+		
+		return all.getFuel()[index + 1];
+	}
+	
 	public L2AirShipInstance getNewAirShip(int x, int y, int z, int heading)
 	{
 		final L2AirShipInstance airShip = new L2AirShipInstance(_airShipTemplate);
@@ -144,22 +165,46 @@ public class AirShipManager
 		return airShip;
 	}
 	
-	public void removeAirShip(L2AirShipInstance ship)
+	public VehiclePathPoint[] getTeleportDestination(int dockId, int index)
 	{
-		if (ship.getOwnerId() != 0)
+		final AirShipTeleportList all = _teleports.get(dockId);
+		if (all == null)
 		{
-			storeInDb(ship.getOwnerId());
-			final StatsSet info = _airShipsInfo.get(ship.getOwnerId());
-			if (info != null)
-			{
-				info.set("fuel", ship.getFuel());
-			}
+			return null;
 		}
+		
+		if ((index < -1) || (index >= all.getRoute().length))
+		{
+			return null;
+		}
+		
+		return all.getRoute()[index + 1];
+	}
+	
+	public boolean hasAirShip(int ownerId)
+	{
+		final L2AirShipInstance ship = _airShips.get(ownerId);
+		if ((ship == null) || !(ship.isVisible() || ship.isTeleporting()))
+		{
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public boolean hasAirShipLicense(int ownerId)
 	{
 		return _airShipsInfo.containsKey(ownerId);
+	}
+	
+	public void registerAirShipTeleportList(int dockId, int locationId, VehiclePathPoint[][] tp, int[] fuelConsumption)
+	{
+		if (tp.length != fuelConsumption.length)
+		{
+			return;
+		}
+		
+		_teleports.put(dockId, new AirShipTeleportList(locationId, fuelConsumption, tp));
 	}
 	
 	public void registerLicense(int ownerId)
@@ -189,25 +234,17 @@ public class AirShipManager
 		}
 	}
 	
-	public boolean hasAirShip(int ownerId)
+	public void removeAirShip(L2AirShipInstance ship)
 	{
-		final L2AirShipInstance ship = _airShips.get(ownerId);
-		if ((ship == null) || !(ship.isVisible() || ship.isTeleporting()))
+		if (ship.getOwnerId() != 0)
 		{
-			return false;
+			storeInDb(ship.getOwnerId());
+			final StatsSet info = _airShipsInfo.get(ship.getOwnerId());
+			if (info != null)
+			{
+				info.set("fuel", ship.getFuel());
+			}
 		}
-		
-		return true;
-	}
-	
-	public void registerAirShipTeleportList(int dockId, int locationId, VehiclePathPoint[][] tp, int[] fuelConsumption)
-	{
-		if (tp.length != fuelConsumption.length)
-		{
-			return;
-		}
-		
-		_teleports.put(dockId, new AirShipTeleportList(locationId, fuelConsumption, tp));
 	}
 	
 	public void sendAirShipTeleportList(L2PcInstance player)
@@ -231,38 +268,6 @@ public class AirShipManager
 		
 		final AirShipTeleportList all = _teleports.get(dockId);
 		player.sendPacket(new ExAirShipTeleportList(all.getLocation(), all.getRoute(), all.getFuel()));
-	}
-	
-	public VehiclePathPoint[] getTeleportDestination(int dockId, int index)
-	{
-		final AirShipTeleportList all = _teleports.get(dockId);
-		if (all == null)
-		{
-			return null;
-		}
-		
-		if ((index < -1) || (index >= all.getRoute().length))
-		{
-			return null;
-		}
-		
-		return all.getRoute()[index + 1];
-	}
-	
-	public int getFuelConsumption(int dockId, int index)
-	{
-		final AirShipTeleportList all = _teleports.get(dockId);
-		if (all == null)
-		{
-			return 0;
-		}
-		
-		if ((index < -1) || (index >= all.getFuel().length))
-		{
-			return 0;
-		}
-		
-		return all.getFuel()[index + 1];
 	}
 	
 	private void load()
@@ -313,11 +318,6 @@ public class AirShipManager
 		{
 			_log.log(Level.WARNING, getClass().getSimpleName() + ": Error while save: " + e.getMessage(), e);
 		}
-	}
-	
-	public static final AirShipManager getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

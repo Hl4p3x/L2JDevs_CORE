@@ -34,6 +34,12 @@ public class RequestExRqItemLink extends L2GameClientPacket
 	private int _objectId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_1E_REQUESTEXRQITEMLINK;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_objectId = readD();
@@ -62,11 +68,5 @@ public class RequestExRqItemLink extends L2GameClientPacket
 				}
 			}
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_1E_REQUESTEXRQITEMLINK;
 	}
 }

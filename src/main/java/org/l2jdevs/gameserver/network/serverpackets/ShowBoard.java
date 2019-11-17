@@ -26,11 +26,6 @@ public class ShowBoard extends L2GameServerPacket
 {
 	private final String _content;
 	
-	public ShowBoard(String htmlCode, String id)
-	{
-		_content = id + "\u0008" + htmlCode;
-	}
-	
 	public ShowBoard(List<String> arg)
 	{
 		StringBuilder builder = new StringBuilder(5 + StringUtil.getLength(arg) + arg.size()).append("1002\u0008");
@@ -39,6 +34,11 @@ public class ShowBoard extends L2GameServerPacket
 			builder.append(str).append("\u0008");
 		}
 		_content = builder.toString();
+	}
+	
+	public ShowBoard(String htmlCode, String id)
+	{
+		_content = id + "\u0008" + htmlCode;
 	}
 	
 	@Override

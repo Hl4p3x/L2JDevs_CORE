@@ -49,14 +49,14 @@ public enum PcCondOverride
 		_descr = descr;
 	}
 	
-	public int getMask()
+	public static long getAllExceptionsMask()
 	{
-		return _mask;
-	}
-	
-	public String getDescription()
-	{
-		return _descr;
+		long result = 0L;
+		for (PcCondOverride ex : values())
+		{
+			result |= ex.getMask();
+		}
+		return result;
 	}
 	
 	public static PcCondOverride getCondOverride(int ordinal)
@@ -71,13 +71,13 @@ public enum PcCondOverride
 		}
 	}
 	
-	public static long getAllExceptionsMask()
+	public String getDescription()
 	{
-		long result = 0L;
-		for (PcCondOverride ex : values())
-		{
-			result |= ex.getMask();
-		}
-		return result;
+		return _descr;
+	}
+	
+	public int getMask()
+	{
+		return _mask;
 	}
 }

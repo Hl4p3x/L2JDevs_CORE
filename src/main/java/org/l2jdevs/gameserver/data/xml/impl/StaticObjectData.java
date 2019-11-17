@@ -47,6 +47,24 @@ public final class StaticObjectData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of StaticObjects.
+	 * @return single instance of StaticObjects
+	 */
+	public static StaticObjectData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Gets the static objects.
+	 * @return a collection of static objects.
+	 */
+	public Collection<L2StaticObjectInstance> getStaticObjects()
+	{
+		return _staticObjects.values();
+	}
+	
 	@Override
 	public void load()
 	{
@@ -92,24 +110,6 @@ public final class StaticObjectData implements IXmlReader
 		obj.setMap(set.getString("texture", "none"), set.getInt("map_x", 0), set.getInt("map_y", 0));
 		obj.spawnMe(set.getInt("x"), set.getInt("y"), set.getInt("z"));
 		_staticObjects.put(obj.getObjectId(), obj);
-	}
-	
-	/**
-	 * Gets the static objects.
-	 * @return a collection of static objects.
-	 */
-	public Collection<L2StaticObjectInstance> getStaticObjects()
-	{
-		return _staticObjects.values();
-	}
-	
-	/**
-	 * Gets the single instance of StaticObjects.
-	 * @return single instance of StaticObjects
-	 */
-	public static StaticObjectData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

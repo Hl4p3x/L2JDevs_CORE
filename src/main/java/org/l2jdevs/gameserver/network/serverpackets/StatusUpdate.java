@@ -60,21 +60,6 @@ public final class StatusUpdate extends L2GameServerPacket
 	private final int _objectId;
 	private final ArrayList<Attribute> _attributes = new ArrayList<>();
 	
-	static class Attribute
-	{
-		/**
-		 * id values 09 - current health 0a - max health 0b - current mana 0c - max mana
-		 */
-		public int id;
-		public int value;
-		
-		Attribute(int pId, int pValue)
-		{
-			id = pId;
-			value = pValue;
-		}
-	}
-	
 	/**
 	 * If you have access to object itself use {@link StatusUpdate#StatusUpdate(L2Object)}.
 	 * @param objectId
@@ -114,6 +99,21 @@ public final class StatusUpdate extends L2GameServerPacket
 		{
 			writeD(temp.id);
 			writeD(temp.value);
+		}
+	}
+	
+	static class Attribute
+	{
+		/**
+		 * id values 09 - current health 0a - max health 0b - current mana 0c - max mana
+		 */
+		public int id;
+		public int value;
+		
+		Attribute(int pId, int pValue)
+		{
+			id = pId;
+			value = pValue;
 		}
 	}
 }

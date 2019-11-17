@@ -29,18 +29,15 @@ import org.l2jdevs.gameserver.model.actor.instance.L2PetInstance;
  */
 public class DropProtection implements Runnable
 {
+	private static final long PROTECTED_MILLIS_TIME = 15000;
 	private volatile boolean _isProtected = false;
 	private L2PcInstance _owner = null;
+	
 	private ScheduledFuture<?> _task = null;
 	
-	private static final long PROTECTED_MILLIS_TIME = 15000;
-	
-	@Override
-	public synchronized void run()
+	public L2PcInstance getOwner()
 	{
-		_isProtected = false;
-		_owner = null;
-		_task = null;
+		return _owner;
 	}
 	
 	public boolean isProtected()
@@ -48,9 +45,27 @@ public class DropProtection implements Runnable
 		return _isProtected;
 	}
 	
-	public L2PcInstance getOwner()
+	public synchronized void protect(L2PcInstance player)
 	{
-		return _owner;
+		unprotect();
+		
+		_isProtected = true;
+		_owner = player;
+		
+		if (_owner == null)
+		{
+			throw new NullPointerException("Trying to protect dropped item to null owner");
+		}
+		
+		_task = ThreadPoolManager.getInstance().scheduleGeneral(this, PROTECTED_MILLIS_TIME);
+	}
+	
+	@Override
+	public synchronized void run()
+	{
+		_isProtected = false;
+		_owner = null;
+		_task = null;
 	}
 	
 	public synchronized boolean tryPickUp(L2PcInstance actor)
@@ -91,20 +106,5 @@ public class DropProtection implements Runnable
 		_isProtected = false;
 		_owner = null;
 		_task = null;
-	}
-	
-	public synchronized void protect(L2PcInstance player)
-	{
-		unprotect();
-		
-		_isProtected = true;
-		_owner = player;
-		
-		if (_owner == null)
-		{
-			throw new NullPointerException("Trying to protect dropped item to null owner");
-		}
-		
-		_task = ThreadPoolManager.getInstance().scheduleGeneral(this, PROTECTED_MILLIS_TIME);
 	}
 }

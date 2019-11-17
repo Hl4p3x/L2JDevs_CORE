@@ -72,14 +72,9 @@ public final class DimensionalRiftRoom
 		}, 4);
 	}
 	
-	public byte getType()
+	public boolean checkIfInZone(int x, int y, int z)
 	{
-		return _type;
-	}
-	
-	public byte getRoom()
-	{
-		return _room;
+		return _s.contains(x, y) && (z >= _zMin) && (z <= _zMax);
 	}
 	
 	public int getRandomX()
@@ -92,14 +87,24 @@ public final class DimensionalRiftRoom
 		return Rnd.get(_yMin, _yMax);
 	}
 	
+	public byte getRoom()
+	{
+		return _room;
+	}
+	
+	public List<L2Spawn> getSpawns()
+	{
+		return _roomSpawns;
+	}
+	
 	public Location getTeleportCoorinates()
 	{
 		return _teleportCoords;
 	}
 	
-	public boolean checkIfInZone(int x, int y, int z)
+	public byte getType()
 	{
-		return _s.contains(x, y) && (z >= _zMin) && (z <= _zMax);
+		return _type;
 	}
 	
 	public boolean isBossRoom()
@@ -107,9 +112,22 @@ public final class DimensionalRiftRoom
 		return _isBossRoom;
 	}
 	
-	public List<L2Spawn> getSpawns()
+	/**
+	 * Returns if party is inside the room.
+	 * @return {@code true} if there is a party inside, {@code false} otherwise
+	 */
+	public boolean isPartyInside()
 	{
-		return _roomSpawns;
+		return _partyInside;
+	}
+	
+	/**
+	 * Sets the party inside.
+	 * @param partyInside
+	 */
+	public void setPartyInside(boolean partyInside)
+	{
+		_partyInside = partyInside;
 	}
 	
 	public void spawn()
@@ -132,23 +150,5 @@ public final class DimensionalRiftRoom
 			}
 		}
 		return this;
-	}
-	
-	/**
-	 * Returns if party is inside the room.
-	 * @return {@code true} if there is a party inside, {@code false} otherwise
-	 */
-	public boolean isPartyInside()
-	{
-		return _partyInside;
-	}
-	
-	/**
-	 * Sets the party inside.
-	 * @param partyInside
-	 */
-	public void setPartyInside(boolean partyInside)
-	{
-		_partyInside = partyInside;
 	}
 }

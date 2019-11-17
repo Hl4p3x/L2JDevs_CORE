@@ -33,6 +33,12 @@ public final class RequestTargetCanceld extends L2GameClientPacket
 	private int _unselect;
 	
 	@Override
+	public String getType()
+	{
+		return _C__48_REQUESTTARGETCANCELD;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_unselect = readH();
@@ -72,11 +78,5 @@ public final class RequestTargetCanceld extends L2GameClientPacket
 		{
 			activeChar.broadcastPacket(new TargetUnselected(activeChar));
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__48_REQUESTTARGETCANCELD;
 	}
 }

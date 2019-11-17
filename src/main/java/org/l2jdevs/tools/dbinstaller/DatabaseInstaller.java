@@ -45,44 +45,6 @@ public final class DatabaseInstaller
 		_defaultDatabase = defaultDatabase;
 	}
 	
-	public void run(String args[])
-	{
-		if ((args != null) && (args.length > 0))
-		{
-			new DBInstallerStdio(_defaultDatabase, _installScriptsPath, _cleanScript, getArg("-h", args), getArg("-p", args), getArg("-u", args), getArg("-pw", args), getArg("-d", args), getArg("-m", args));
-			return;
-		}
-		
-		try
-		{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			new DBConfigGUI(_defaultDatabase, _installScriptsPath, _cleanScript);
-		}
-		catch (HeadlessException e)
-		{
-			new DBInstallerStdio(_defaultDatabase, _installScriptsPath, _cleanScript);
-		}
-		catch (Throwable t)
-		{
-			t.printStackTrace();
-		}
-	}
-	
-	public String getPath()
-	{
-		return _installScriptsPath;
-	}
-	
-	public String getCleanScript()
-	{
-		return _cleanScript;
-	}
-	
-	public String getDefaultDatabase()
-	{
-		return _defaultDatabase;
-	}
-	
 	public static IApplicationFrontend getFrontend()
 	{
 		return _frontend;
@@ -103,6 +65,44 @@ public final class DatabaseInstaller
 		catch (Exception e)
 		{
 			return null;
+		}
+	}
+	
+	public String getCleanScript()
+	{
+		return _cleanScript;
+	}
+	
+	public String getDefaultDatabase()
+	{
+		return _defaultDatabase;
+	}
+	
+	public String getPath()
+	{
+		return _installScriptsPath;
+	}
+	
+	public void run(String args[])
+	{
+		if ((args != null) && (args.length > 0))
+		{
+			new DBInstallerStdio(_defaultDatabase, _installScriptsPath, _cleanScript, getArg("-h", args), getArg("-p", args), getArg("-u", args), getArg("-pw", args), getArg("-d", args), getArg("-m", args));
+			return;
+		}
+		
+		try
+		{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			new DBConfigGUI(_defaultDatabase, _installScriptsPath, _cleanScript);
+		}
+		catch (HeadlessException e)
+		{
+			new DBInstallerStdio(_defaultDatabase, _installScriptsPath, _cleanScript);
+		}
+		catch (Throwable t)
+		{
+			t.printStackTrace();
 		}
 	}
 }

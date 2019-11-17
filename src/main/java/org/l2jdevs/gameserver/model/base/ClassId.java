@@ -217,22 +217,6 @@ public enum ClassId implements IIdentifiable
 	 * Class constructor.
 	 * @param pId the class Id.
 	 * @param pIsMage {code true} if the class is mage class.
-	 * @param race the race related to the class.
-	 * @param pParent the parent class Id.
-	 */
-	private ClassId(int pId, boolean pIsMage, Race race, ClassId pParent)
-	{
-		_id = pId;
-		_isMage = pIsMage;
-		_isSummoner = false;
-		_race = race;
-		_parent = pParent;
-	}
-	
-	/**
-	 * Class constructor.
-	 * @param pId the class Id.
-	 * @param pIsMage {code true} if the class is mage class.
 	 * @param pIsSummoner {code true} if the class is summoner class.
 	 * @param race the race related to the class.
 	 * @param pParent the parent class Id.
@@ -247,37 +231,31 @@ public enum ClassId implements IIdentifiable
 	}
 	
 	/**
-	 * Gets the ID of the class.
-	 * @return the ID of the class
+	 * Class constructor.
+	 * @param pId the class Id.
+	 * @param pIsMage {code true} if the class is mage class.
+	 * @param race the race related to the class.
+	 * @param pParent the parent class Id.
 	 */
-	@Override
-	public final int getId()
+	private ClassId(int pId, boolean pIsMage, Race race, ClassId pParent)
 	{
-		return _id;
+		_id = pId;
+		_isMage = pIsMage;
+		_isSummoner = false;
+		_race = race;
+		_parent = pParent;
 	}
 	
-	/**
-	 * @return {code true} if the class is a mage class.
-	 */
-	public final boolean isMage()
+	public static ClassId getClassId(int cId)
 	{
-		return _isMage;
-	}
-	
-	/**
-	 * @return {code true} if the class is a summoner class.
-	 */
-	public final boolean isSummoner()
-	{
-		return _isSummoner;
-	}
-	
-	/**
-	 * @return the Race object of the class.
-	 */
-	public final Race getRace()
-	{
-		return _race;
+		try
+		{
+			return ClassId.values()[cId];
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
 	}
 	
 	/**
@@ -310,16 +288,13 @@ public enum ClassId implements IIdentifiable
 	}
 	
 	/**
-	 * @return the child level of this Class (0=root, 1=child leve 1...)
+	 * Gets the ID of the class.
+	 * @return the ID of the class
 	 */
-	public final int level()
+	@Override
+	public final int getId()
 	{
-		if (_parent == null)
-		{
-			return 0;
-		}
-		
-		return 1 + _parent.level();
+		return _id;
 	}
 	
 	/**
@@ -330,15 +305,40 @@ public enum ClassId implements IIdentifiable
 		return _parent;
 	}
 	
-	public static ClassId getClassId(int cId)
+	/**
+	 * @return the Race object of the class.
+	 */
+	public final Race getRace()
 	{
-		try
+		return _race;
+	}
+	
+	/**
+	 * @return {code true} if the class is a mage class.
+	 */
+	public final boolean isMage()
+	{
+		return _isMage;
+	}
+	
+	/**
+	 * @return {code true} if the class is a summoner class.
+	 */
+	public final boolean isSummoner()
+	{
+		return _isSummoner;
+	}
+	
+	/**
+	 * @return the child level of this Class (0=root, 1=child leve 1...)
+	 */
+	public final int level()
+	{
+		if (_parent == null)
 		{
-			return ClassId.values()[cId];
+			return 0;
 		}
-		catch (Exception e)
-		{
-			return null;
-		}
+		
+		return 1 + _parent.level();
 	}
 }

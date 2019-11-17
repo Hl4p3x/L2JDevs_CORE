@@ -33,6 +33,12 @@ public final class RequestConfirmTargetItem extends AbstractRefinePacket
 	private int _itemObjId;
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_26_REQUESTCONFIRMTARGETITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_itemObjId = readD();
@@ -67,11 +73,5 @@ public final class RequestConfirmTargetItem extends AbstractRefinePacket
 		}
 		
 		activeChar.sendPacket(new ExPutItemResultForVariationMake(_itemObjId, item.getId()));
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_26_REQUESTCONFIRMTARGETITEM;
 	}
 }

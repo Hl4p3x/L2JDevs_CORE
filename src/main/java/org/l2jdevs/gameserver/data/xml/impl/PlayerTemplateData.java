@@ -45,6 +45,21 @@ public final class PlayerTemplateData implements IXmlReader
 		load();
 	}
 	
+	public static final PlayerTemplateData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public L2PcTemplate getTemplate(ClassId classId)
+	{
+		return _playerTemplates.get(classId);
+	}
+	
+	public L2PcTemplate getTemplate(int classId)
+	{
+		return _playerTemplates.get(ClassId.getClassId(classId));
+	}
+	
 	@Override
 	public void load()
 	{
@@ -156,21 +171,6 @@ public final class PlayerTemplateData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	public L2PcTemplate getTemplate(ClassId classId)
-	{
-		return _playerTemplates.get(classId);
-	}
-	
-	public L2PcTemplate getTemplate(int classId)
-	{
-		return _playerTemplates.get(ClassId.getClassId(classId));
-	}
-	
-	public static final PlayerTemplateData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

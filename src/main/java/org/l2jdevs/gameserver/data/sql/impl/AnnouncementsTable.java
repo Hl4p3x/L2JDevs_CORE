@@ -52,6 +52,83 @@ public final class AnnouncementsTable
 		load();
 	}
 	
+	/**
+	 * @return Single instance of {@link AnnouncementsTable}
+	 */
+	public static AnnouncementsTable getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Adds announcement
+	 * @param announce
+	 */
+	public void addAnnouncement(IAnnouncement announce)
+	{
+		if (announce.storeMe())
+		{
+			_announcements.put(announce.getId(), announce);
+		}
+	}
+	
+	/**
+	 * Removes announcement by id
+	 * @param id
+	 * @return {@code true} if announcement exists and was deleted successfully, {@code false} otherwise.
+	 */
+	public boolean deleteAnnouncement(int id)
+	{
+		final IAnnouncement announce = _announcements.remove(id);
+		return (announce != null) && announce.deleteMe();
+	}
+	
+	/**
+	 * @return {@link Collection} containing all announcements
+	 */
+	public Collection<IAnnouncement> getAllAnnouncements()
+	{
+		return _announcements.values();
+	}
+	
+	/**
+	 * @param id
+	 * @return {@link IAnnouncement} by id
+	 */
+	public IAnnouncement getAnnounce(int id)
+	{
+		return _announcements.get(id);
+	}
+	
+	/**
+	 * Sends all announcements to the player by the specified type
+	 * @param player
+	 * @param type
+	 */
+	public void sendAnnouncements(L2PcInstance player, AnnouncementType type)
+	{
+		for (IAnnouncement announce : _announcements.values())
+		{
+			if (announce.isValid() && (announce.getType() == type))
+			{
+				player.sendPacket(new CreatureSay(0, //
+					type == AnnouncementType.CRITICAL ? Say2.CRITICAL_ANNOUNCE : Say2.ANNOUNCEMENT, //
+					player.getName(), announce.getContent()));
+			}
+		}
+	}
+	
+	/**
+	 * Sending all announcements to the player
+	 * @param player
+	 */
+	public void showAnnouncements(L2PcInstance player)
+	{
+		sendAnnouncements(player, AnnouncementType.NORMAL);
+		sendAnnouncements(player, AnnouncementType.CRITICAL);
+		sendAnnouncements(player, AnnouncementType.EVENT);
+	}
+	
 	private void load()
 	{
 		_announcements.clear();
@@ -89,83 +166,6 @@ public final class AnnouncementsTable
 		{
 			LOG.warn("Failed loading announcements:", e);
 		}
-	}
-	
-	/**
-	 * Sending all announcements to the player
-	 * @param player
-	 */
-	public void showAnnouncements(L2PcInstance player)
-	{
-		sendAnnouncements(player, AnnouncementType.NORMAL);
-		sendAnnouncements(player, AnnouncementType.CRITICAL);
-		sendAnnouncements(player, AnnouncementType.EVENT);
-	}
-	
-	/**
-	 * Sends all announcements to the player by the specified type
-	 * @param player
-	 * @param type
-	 */
-	public void sendAnnouncements(L2PcInstance player, AnnouncementType type)
-	{
-		for (IAnnouncement announce : _announcements.values())
-		{
-			if (announce.isValid() && (announce.getType() == type))
-			{
-				player.sendPacket(new CreatureSay(0, //
-					type == AnnouncementType.CRITICAL ? Say2.CRITICAL_ANNOUNCE : Say2.ANNOUNCEMENT, //
-					player.getName(), announce.getContent()));
-			}
-		}
-	}
-	
-	/**
-	 * Adds announcement
-	 * @param announce
-	 */
-	public void addAnnouncement(IAnnouncement announce)
-	{
-		if (announce.storeMe())
-		{
-			_announcements.put(announce.getId(), announce);
-		}
-	}
-	
-	/**
-	 * Removes announcement by id
-	 * @param id
-	 * @return {@code true} if announcement exists and was deleted successfully, {@code false} otherwise.
-	 */
-	public boolean deleteAnnouncement(int id)
-	{
-		final IAnnouncement announce = _announcements.remove(id);
-		return (announce != null) && announce.deleteMe();
-	}
-	
-	/**
-	 * @param id
-	 * @return {@link IAnnouncement} by id
-	 */
-	public IAnnouncement getAnnounce(int id)
-	{
-		return _announcements.get(id);
-	}
-	
-	/**
-	 * @return {@link Collection} containing all announcements
-	 */
-	public Collection<IAnnouncement> getAllAnnouncements()
-	{
-		return _announcements.values();
-	}
-	
-	/**
-	 * @return Single instance of {@link AnnouncementsTable}
-	 */
-	public static AnnouncementsTable getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

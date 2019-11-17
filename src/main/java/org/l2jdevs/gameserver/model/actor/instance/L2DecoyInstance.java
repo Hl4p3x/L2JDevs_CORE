@@ -57,6 +57,11 @@ public class L2DecoyInstance extends L2Decoy
 		_HateSpam = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new HateSpam(this, SkillData.getInstance().getSkill(5272, skilllevel)), 2000, 5000);
 	}
 	
+	public void decTimeRemaining(int value)
+	{
+		_timeRemaining -= value;
+	}
+	
 	@Override
 	public boolean doDie(L2Character killer)
 	{
@@ -80,10 +85,36 @@ public class L2DecoyInstance extends L2Decoy
 		return (DecoyKnownList) super.getKnownList();
 	}
 	
+	public int getTimeRemaining()
+	{
+		return _timeRemaining;
+	}
+	
+	public int getTotalLifeTime()
+	{
+		return _totalLifeTime;
+	}
+	
 	@Override
 	public void initKnownList()
 	{
 		setKnownList(new DecoyKnownList(this));
+	}
+	
+	@Override
+	public void unSummon(L2PcInstance owner)
+	{
+		if (_DecoyLifeTask != null)
+		{
+			_DecoyLifeTask.cancel(true);
+			_DecoyLifeTask = null;
+		}
+		if (_HateSpam != null)
+		{
+			_HateSpam.cancel(true);
+			_HateSpam = null;
+		}
+		super.unSummon(owner);
 	}
 	
 	static class DecoyLifetime implements Runnable
@@ -142,36 +173,5 @@ public class L2DecoyInstance extends L2Decoy
 				LOG.error("Decoy Error: {}", e);
 			}
 		}
-	}
-	
-	@Override
-	public void unSummon(L2PcInstance owner)
-	{
-		if (_DecoyLifeTask != null)
-		{
-			_DecoyLifeTask.cancel(true);
-			_DecoyLifeTask = null;
-		}
-		if (_HateSpam != null)
-		{
-			_HateSpam.cancel(true);
-			_HateSpam = null;
-		}
-		super.unSummon(owner);
-	}
-	
-	public void decTimeRemaining(int value)
-	{
-		_timeRemaining -= value;
-	}
-	
-	public int getTimeRemaining()
-	{
-		return _timeRemaining;
-	}
-	
-	public int getTotalLifeTime()
-	{
-		return _totalLifeTime;
 	}
 }

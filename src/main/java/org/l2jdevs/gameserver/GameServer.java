@@ -156,11 +156,11 @@ public final class GameServer
 	private static final String DATAPACK = "-dp";
 	private static final String GEODATA = "-gd";
 	
+	public static GameServer gameServer;
+	public static final Calendar dateTimeServerStarted = Calendar.getInstance();
 	private final SelectorThread<L2GameClient> _selectorThread;
 	private final L2GamePacketHandler _gamePacketHandler;
 	private final DeadLockDetector _deadDetectThread;
-	public static GameServer gameServer;
-	public static final Calendar dateTimeServerStarted = Calendar.getInstance();
 	
 	public GameServer() throws Exception
 	{
@@ -474,26 +474,6 @@ public final class GameServer
 		}
 	}
 	
-	public long getUsedMemoryMB()
-	{
-		return (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1048576;
-	}
-	
-	public SelectorThread<L2GameClient> getSelectorThread()
-	{
-		return _selectorThread;
-	}
-	
-	public L2GamePacketHandler getL2GamePacketHandler()
-	{
-		return _gamePacketHandler;
-	}
-	
-	public DeadLockDetector getDeadLockDetectorThread()
-	{
-		return _deadDetectThread;
-	}
-	
 	public static void printSection(String s)
 	{
 		s = "=[ " + s + " ]";
@@ -502,5 +482,25 @@ public final class GameServer
 			s = "-" + s;
 		}
 		LOG.info(s);
+	}
+	
+	public DeadLockDetector getDeadLockDetectorThread()
+	{
+		return _deadDetectThread;
+	}
+	
+	public L2GamePacketHandler getL2GamePacketHandler()
+	{
+		return _gamePacketHandler;
+	}
+	
+	public SelectorThread<L2GameClient> getSelectorThread()
+	{
+		return _selectorThread;
+	}
+	
+	public long getUsedMemoryMB()
+	{
+		return (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1048576;
 	}
 }

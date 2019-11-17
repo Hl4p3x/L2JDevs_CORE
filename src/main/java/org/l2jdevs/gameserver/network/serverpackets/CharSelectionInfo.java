@@ -64,115 +64,6 @@ public class CharSelectionInfo extends L2GameServerPacket
 		_activeId = activeId;
 	}
 	
-	public List<CharSelectInfoPackage> getCharInfo()
-	{
-		return _characterPackages;
-	}
-	
-	@Override
-	protected final void writeImpl()
-	{
-		writeC(0x09);
-		int size = (_characterPackages.size());
-		writeD(size);
-		
-		// Can prevent players from creating new characters (if 0); (if 1, the client will ask if chars may be created (0x13) Response: (0x0D) )
-		writeD(Config.MAX_CHARACTERS_NUMBER_PER_ACCOUNT);
-		writeC(0x00);
-		
-		long lastAccess = 0L;
-		
-		if (_activeId == -1)
-		{
-			for (int i = 0; i < size; i++)
-			{
-				final CharSelectInfoPackage charInfoPackage = _characterPackages.get(i);
-				if (lastAccess < charInfoPackage.getLastAccess())
-				{
-					lastAccess = charInfoPackage.getLastAccess();
-					_activeId = i;
-				}
-			}
-		}
-		
-		for (int i = 0; i < size; i++)
-		{
-			final CharSelectInfoPackage charInfoPackage = _characterPackages.get(i);
-			
-			writeS(charInfoPackage.getName());
-			writeD(charInfoPackage.getObjectId());
-			writeS(_loginName);
-			writeD(_sessionId);
-			writeD(charInfoPackage.getClanId());
-			writeD(0x00); // Builder Level
-			
-			writeD(charInfoPackage.getSex());
-			writeD(charInfoPackage.getRace());
-			writeD(charInfoPackage.getBaseClassId());
-			
-			writeD(0x01); // active ??
-			
-			writeD(charInfoPackage.getX());
-			writeD(charInfoPackage.getY());
-			writeD(charInfoPackage.getZ());
-			
-			writeF(charInfoPackage.getCurrentHp());
-			writeF(charInfoPackage.getCurrentMp());
-			
-			writeD(charInfoPackage.getSp());
-			writeQ(charInfoPackage.getExp());
-			writeF(ExperienceData.getInstance().getPercentFromCurrentLevel(charInfoPackage.getExp(), charInfoPackage.getLevel()));
-			
-			writeD(charInfoPackage.getLevel());
-			
-			writeD(charInfoPackage.getKarma());
-			writeD(charInfoPackage.getPkKills());
-			writeD(charInfoPackage.getPvPKills());
-			
-			writeD(0x00);
-			writeD(0x00);
-			writeD(0x00);
-			writeD(0x00);
-			writeD(0x00);
-			writeD(0x00);
-			writeD(0x00);
-			
-			for (int slot : getPaperdollOrder())
-			{
-				writeD(charInfoPackage.getPaperdollItemId(slot));
-			}
-			
-			writeD(charInfoPackage.getHairStyle());
-			writeD(charInfoPackage.getHairColor());
-			writeD(charInfoPackage.getFace());
-			
-			writeF(charInfoPackage.getMaxHp()); // hp max
-			writeF(charInfoPackage.getMaxMp()); // mp max
-			
-			writeD(charInfoPackage.getDeleteTimer() > 0 ? (int) ((charInfoPackage.getDeleteTimer() - System.currentTimeMillis()) / 1000) : 0); // days left before
-			// delete .. if != 0
-			// then char is inactive
-			writeD(charInfoPackage.getClassId());
-			writeD(i == _activeId ? 0x01 : 0x00); // c3 auto-select char
-			
-			writeC(Math.min(charInfoPackage.getEnchantEffect(), 127));
-			writeD(charInfoPackage.getAugmentationId());
-			
-			writeD(0x00); // Currently on retail when you are on character select you don't see your transformation.
-			
-			// Implementing it will be waster of resources.
-			writeD(0x00); // Pet ID
-			writeD(0x00); // Pet Level
-			writeD(0x00); // Pet Max Food
-			writeD(0x00); // Pet Current Food
-			writeF(0x00); // Pet Max HP
-			writeF(0x00); // Pet Max MP
-			
-			// High Five by Vistall:
-			writeD(charInfoPackage.getVitalityPoints()); // H5 Vitality
-		}
-	}
-	
 	private static List<CharSelectInfoPackage> loadCharacterSelectInfo(String loginName)
 	{
 		final List<CharSelectInfoPackage> characterList = new ArrayList<>();
@@ -332,5 +223,114 @@ public class CharSelectionInfo extends L2GameServerPacket
 		charInfopackage.setDeleteTimer(deletetime);
 		charInfopackage.setLastAccess(chardata.getLong("lastAccess"));
 		return charInfopackage;
+	}
+	
+	public List<CharSelectInfoPackage> getCharInfo()
+	{
+		return _characterPackages;
+	}
+	
+	@Override
+	protected final void writeImpl()
+	{
+		writeC(0x09);
+		int size = (_characterPackages.size());
+		writeD(size);
+		
+		// Can prevent players from creating new characters (if 0); (if 1, the client will ask if chars may be created (0x13) Response: (0x0D) )
+		writeD(Config.MAX_CHARACTERS_NUMBER_PER_ACCOUNT);
+		writeC(0x00);
+		
+		long lastAccess = 0L;
+		
+		if (_activeId == -1)
+		{
+			for (int i = 0; i < size; i++)
+			{
+				final CharSelectInfoPackage charInfoPackage = _characterPackages.get(i);
+				if (lastAccess < charInfoPackage.getLastAccess())
+				{
+					lastAccess = charInfoPackage.getLastAccess();
+					_activeId = i;
+				}
+			}
+		}
+		
+		for (int i = 0; i < size; i++)
+		{
+			final CharSelectInfoPackage charInfoPackage = _characterPackages.get(i);
+			
+			writeS(charInfoPackage.getName());
+			writeD(charInfoPackage.getObjectId());
+			writeS(_loginName);
+			writeD(_sessionId);
+			writeD(charInfoPackage.getClanId());
+			writeD(0x00); // Builder Level
+			
+			writeD(charInfoPackage.getSex());
+			writeD(charInfoPackage.getRace());
+			writeD(charInfoPackage.getBaseClassId());
+			
+			writeD(0x01); // active ??
+			
+			writeD(charInfoPackage.getX());
+			writeD(charInfoPackage.getY());
+			writeD(charInfoPackage.getZ());
+			
+			writeF(charInfoPackage.getCurrentHp());
+			writeF(charInfoPackage.getCurrentMp());
+			
+			writeD(charInfoPackage.getSp());
+			writeQ(charInfoPackage.getExp());
+			writeF(ExperienceData.getInstance().getPercentFromCurrentLevel(charInfoPackage.getExp(), charInfoPackage.getLevel()));
+			
+			writeD(charInfoPackage.getLevel());
+			
+			writeD(charInfoPackage.getKarma());
+			writeD(charInfoPackage.getPkKills());
+			writeD(charInfoPackage.getPvPKills());
+			
+			writeD(0x00);
+			writeD(0x00);
+			writeD(0x00);
+			writeD(0x00);
+			writeD(0x00);
+			writeD(0x00);
+			writeD(0x00);
+			
+			for (int slot : getPaperdollOrder())
+			{
+				writeD(charInfoPackage.getPaperdollItemId(slot));
+			}
+			
+			writeD(charInfoPackage.getHairStyle());
+			writeD(charInfoPackage.getHairColor());
+			writeD(charInfoPackage.getFace());
+			
+			writeF(charInfoPackage.getMaxHp()); // hp max
+			writeF(charInfoPackage.getMaxMp()); // mp max
+			
+			writeD(charInfoPackage.getDeleteTimer() > 0 ? (int) ((charInfoPackage.getDeleteTimer() - System.currentTimeMillis()) / 1000) : 0); // days left before
+			// delete .. if != 0
+			// then char is inactive
+			writeD(charInfoPackage.getClassId());
+			writeD(i == _activeId ? 0x01 : 0x00); // c3 auto-select char
+			
+			writeC(Math.min(charInfoPackage.getEnchantEffect(), 127));
+			writeD(charInfoPackage.getAugmentationId());
+			
+			writeD(0x00); // Currently on retail when you are on character select you don't see your transformation.
+			
+			// Implementing it will be waster of resources.
+			writeD(0x00); // Pet ID
+			writeD(0x00); // Pet Level
+			writeD(0x00); // Pet Max Food
+			writeD(0x00); // Pet Current Food
+			writeF(0x00); // Pet Max HP
+			writeF(0x00); // Pet Max MP
+			
+			// High Five by Vistall:
+			writeD(charInfoPackage.getVitalityPoints()); // H5 Vitality
+		}
 	}
 }

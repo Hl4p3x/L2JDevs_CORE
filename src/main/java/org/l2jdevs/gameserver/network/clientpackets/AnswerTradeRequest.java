@@ -36,6 +36,12 @@ public final class AnswerTradeRequest extends L2GameClientPacket
 	private int _response;
 	
 	@Override
+	public String getType()
+	{
+		return _C__55_ANSWERTRADEREQUEST;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_response = readD();
@@ -89,11 +95,5 @@ public final class AnswerTradeRequest extends L2GameClientPacket
 		// Clears requesting status
 		player.setActiveRequester(null);
 		partner.onTransactionResponse();
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__55_ANSWERTRADEREQUEST;
 	}
 }

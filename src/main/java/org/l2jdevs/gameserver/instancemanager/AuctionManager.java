@@ -35,8 +35,6 @@ import org.l2jdevs.gameserver.model.entity.Auction;
 public final class AuctionManager
 {
 	protected static final Logger _log = Logger.getLogger(AuctionManager.class.getName());
-	private final List<Auction> _auctions = new ArrayList<>();
-	
 	private static final String[] ITEM_INIT_DATA =
 	{
 		"(22, 0, 'NPC', 'NPC Clan', 'ClanHall', 22, 0, 'Moonstone Hall', 1, 20000000, 0, 1073037600000)",
@@ -87,33 +85,16 @@ public final class AuctionManager
 	};
 	// @formatter:on
 	
+	private final List<Auction> _auctions = new ArrayList<>();
+	
 	protected AuctionManager()
 	{
 		load();
 	}
 	
-	public void reload()
+	public static final AuctionManager getInstance()
 	{
-		_auctions.clear();
-		load();
-	}
-	
-	private final void load()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement s = con.createStatement();
-			ResultSet rs = s.executeQuery("SELECT id FROM auction ORDER BY id"))
-		{
-			while (rs.next())
-			{
-				_auctions.add(new Auction(rs.getInt("id")));
-			}
-			_log.info(getClass().getSimpleName() + ": Loaded: " + _auctions.size() + " auction(s)");
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, getClass().getSimpleName() + ": Exception: AuctionManager.load(): " + e.getMessage(), e);
-		}
+		return SingletonHolder._instance;
 	}
 	
 	public final Auction getAuction(int auctionId)
@@ -178,9 +159,28 @@ public final class AuctionManager
 		}
 	}
 	
-	public static final AuctionManager getInstance()
+	public void reload()
 	{
-		return SingletonHolder._instance;
+		_auctions.clear();
+		load();
+	}
+	
+	private final void load()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement s = con.createStatement();
+			ResultSet rs = s.executeQuery("SELECT id FROM auction ORDER BY id"))
+		{
+			while (rs.next())
+			{
+				_auctions.add(new Auction(rs.getInt("id")));
+			}
+			_log.info(getClass().getSimpleName() + ": Loaded: " + _auctions.size() + " auction(s)");
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, getClass().getSimpleName() + ": Exception: AuctionManager.load(): " + e.getMessage(), e);
+		}
 	}
 	
 	private static class SingletonHolder

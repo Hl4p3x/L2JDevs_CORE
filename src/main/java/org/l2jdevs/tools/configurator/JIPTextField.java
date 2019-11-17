@@ -51,6 +51,19 @@ public class JIPTextField extends JPanel implements FocusListener
 	private JTextField[] _textFields;
 	private List<FocusListener> _focusListeners;
 	
+	public JIPTextField()
+	{
+		this("...");
+	}
+	
+	/**
+	 * @param value
+	 */
+	public JIPTextField(Inet4Address value)
+	{
+		this(value.getHostAddress());
+	}
+	
 	public JIPTextField(String textIp)
 	{
 		super.addFocusListener(this);
@@ -63,17 +76,147 @@ public class JIPTextField extends JPanel implements FocusListener
 		}
 	}
 	
-	public JIPTextField()
+	@Override
+	public void addFocusListener(FocusListener fl)
 	{
-		this("...");
+		if (_focusListeners == null)
+		{
+			_focusListeners = new LinkedList<>();
+		}
+		
+		if ((fl != null) && !_focusListeners.contains(fl))
+		{
+			_focusListeners.add(fl);
+		}
 	}
 	
-	/**
-	 * @param value
-	 */
-	public JIPTextField(Inet4Address value)
+	@Override
+	public void focusGained(FocusEvent event)
 	{
-		this(value.getHostAddress());
+		if (_focusListeners != null)
+		{
+			for (FocusListener fl : _focusListeners)
+			{
+				fl.focusGained(event);
+			}
+		}
+	}
+	
+	@Override
+	public void focusLost(FocusEvent event)
+	{
+		if (isCorrect() || isEmpty())
+		{
+			if (_focusListeners != null)
+			{
+				for (FocusListener fl : _focusListeners)
+				{
+					fl.focusLost(event);
+				}
+			}
+		}
+	}
+	
+	public String getText()
+	{
+		StringBuilder str = new StringBuilder();
+		for (int i = 0; i < 4; i++)
+		{
+			if (_textFields[i].getText().length() == 0)
+			{
+				str.append('0');
+			}
+			else
+			{
+				str.append(_textFields[i].getText());
+			}
+			
+			if (i < 3)
+			{
+				str.append('.');
+			}
+		}
+		return str.toString();
+	}
+	
+	public boolean isCorrect()
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			if (_textFields[i].getText().length() == 0)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean isEmpty()
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			if (!_textFields[i].getText().isEmpty())
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	@Override
+	public void removeFocusListener(FocusListener fl)
+	{
+		if (_focusListeners != null)
+		{
+			_focusListeners.remove(fl);
+		}
+	}
+	
+	@Override
+	public void setEnabled(boolean enabled)
+	{
+		for (JTextField _textField : _textFields)
+		{
+			if (_textField != null)
+			{
+				_textField.setEnabled(enabled);
+			}
+		}
+	}
+	
+	public void setText(String str)
+	{
+		try
+		{
+			// make sure string is not null; throw a NullPointerException otherwise
+			str.length();
+			
+			InetAddress ip = InetAddress.getByName(str);
+			byte b[] = ip.getAddress();
+			for (int i = 0; i < 4; i++)
+			{
+				// byte always have a sign in Java, IP addresses aren't
+				if (b[i] >= 0)
+				{
+					_textFields[i].setText(Byte.toString(b[i]));
+				}
+				else
+				{
+					_textFields[i].setText(Integer.toString(b[i] + 256));
+				}
+			}
+			return;
+		}
+		catch (UnknownHostException ex)
+		{
+		}
+		catch (NullPointerException npe)
+		{
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			_textFields[i].setText("");
+		}
 	}
 	
 	private void initIPTextField(String textIp)
@@ -116,149 +259,6 @@ public class JIPTextField extends JPanel implements FocusListener
 		}
 	}
 	
-	@Override
-	public void addFocusListener(FocusListener fl)
-	{
-		if (_focusListeners == null)
-		{
-			_focusListeners = new LinkedList<>();
-		}
-		
-		if ((fl != null) && !_focusListeners.contains(fl))
-		{
-			_focusListeners.add(fl);
-		}
-	}
-	
-	@Override
-	public void removeFocusListener(FocusListener fl)
-	{
-		if (_focusListeners != null)
-		{
-			_focusListeners.remove(fl);
-		}
-	}
-	
-	public String getText()
-	{
-		StringBuilder str = new StringBuilder();
-		for (int i = 0; i < 4; i++)
-		{
-			if (_textFields[i].getText().length() == 0)
-			{
-				str.append('0');
-			}
-			else
-			{
-				str.append(_textFields[i].getText());
-			}
-			
-			if (i < 3)
-			{
-				str.append('.');
-			}
-		}
-		return str.toString();
-	}
-	
-	public void setText(String str)
-	{
-		try
-		{
-			// make sure string is not null; throw a NullPointerException otherwise
-			str.length();
-			
-			InetAddress ip = InetAddress.getByName(str);
-			byte b[] = ip.getAddress();
-			for (int i = 0; i < 4; i++)
-			{
-				// byte always have a sign in Java, IP addresses aren't
-				if (b[i] >= 0)
-				{
-					_textFields[i].setText(Byte.toString(b[i]));
-				}
-				else
-				{
-					_textFields[i].setText(Integer.toString(b[i] + 256));
-				}
-			}
-			return;
-		}
-		catch (UnknownHostException ex)
-		{
-		}
-		catch (NullPointerException npe)
-		{
-		}
-		for (int i = 0; i < 4; i++)
-		{
-			_textFields[i].setText("");
-		}
-	}
-	
-	@Override
-	public void setEnabled(boolean enabled)
-	{
-		for (JTextField _textField : _textFields)
-		{
-			if (_textField != null)
-			{
-				_textField.setEnabled(enabled);
-			}
-		}
-	}
-	
-	public boolean isEmpty()
-	{
-		for (int i = 0; i < 4; i++)
-		{
-			if (!_textFields[i].getText().isEmpty())
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	public boolean isCorrect()
-	{
-		for (int i = 0; i < 4; i++)
-		{
-			if (_textFields[i].getText().length() == 0)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	@Override
-	public void focusGained(FocusEvent event)
-	{
-		if (_focusListeners != null)
-		{
-			for (FocusListener fl : _focusListeners)
-			{
-				fl.focusGained(event);
-			}
-		}
-	}
-	
-	@Override
-	public void focusLost(FocusEvent event)
-	{
-		if (isCorrect() || isEmpty())
-		{
-			if (_focusListeners != null)
-			{
-				for (FocusListener fl : _focusListeners)
-				{
-					fl.focusLost(event);
-				}
-			}
-		}
-	}
-	
 	public class MaxLengthDocument extends PlainDocument
 	{
 		
@@ -279,6 +279,14 @@ public class JIPTextField extends JPanel implements FocusListener
 		{
 			_max = maxLength;
 			setNext(next);
+		}
+		
+		/**
+		 * @return Returns the next.
+		 */
+		public JTextField getNext()
+		{
+			return _next;
 		}
 		
 		@Override
@@ -315,14 +323,6 @@ public class JIPTextField extends JPanel implements FocusListener
 		public void setNext(JTextField next)
 		{
 			_next = next;
-		}
-		
-		/**
-		 * @return Returns the next.
-		 */
-		public JTextField getNext()
-		{
-			return _next;
 		}
 	}
 }

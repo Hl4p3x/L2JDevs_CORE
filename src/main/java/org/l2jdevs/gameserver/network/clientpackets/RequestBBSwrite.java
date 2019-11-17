@@ -35,6 +35,12 @@ public final class RequestBBSwrite extends L2GameClientPacket
 	private String _arg5;
 	
 	@Override
+	public final String getType()
+	{
+		return _C__24_REQUESTBBSWRITE;
+	}
+	
+	@Override
 	protected final void readImpl()
 	{
 		_url = readS();
@@ -49,11 +55,5 @@ public final class RequestBBSwrite extends L2GameClientPacket
 	protected final void runImpl()
 	{
 		CommunityBoardHandler.getInstance().handleWriteCommand(getActiveChar(), _url, _arg1, _arg2, _arg3, _arg4, _arg5);
-	}
-	
-	@Override
-	public final String getType()
-	{
-		return _C__24_REQUESTBBSWRITE;
 	}
 }

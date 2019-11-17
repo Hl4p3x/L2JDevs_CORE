@@ -50,19 +50,6 @@ public final class L2GrandBossInstance extends L2MonsterInstance
 	}
 	
 	@Override
-	protected int getMaintenanceInterval()
-	{
-		return BOSS_MAINTENANCE_INTERVAL;
-	}
-	
-	@Override
-	public void onSpawn()
-	{
-		setIsNoRndWalk(true);
-		super.onSpawn();
-	}
-	
-	@Override
 	public boolean doDie(L2Character killer)
 	{
 		if (!super.doDie(killer))
@@ -113,9 +100,16 @@ public final class L2GrandBossInstance extends L2MonsterInstance
 	}
 	
 	@Override
-	public boolean useVitalityRate()
+	public boolean giveRaidCurse()
 	{
-		return false;
+		return _useRaidCurse;
+	}
+	
+	@Override
+	public void onSpawn()
+	{
+		setIsNoRndWalk(true);
+		super.onSpawn();
 	}
 	
 	public void setUseRaidCurse(boolean val)
@@ -124,8 +118,14 @@ public final class L2GrandBossInstance extends L2MonsterInstance
 	}
 	
 	@Override
-	public boolean giveRaidCurse()
+	public boolean useVitalityRate()
 	{
-		return _useRaidCurse;
+		return false;
+	}
+	
+	@Override
+	protected int getMaintenanceInterval()
+	{
+		return BOSS_MAINTENANCE_INTERVAL;
 	}
 }

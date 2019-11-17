@@ -59,6 +59,135 @@ public class EnchantSkillGroupsData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of EnchantGroupsData.
+	 * @return single instance of EnchantGroupsData
+	 */
+	public static EnchantSkillGroupsData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	/**
+	 * Adds the new route for skill.
+	 * @param skillId the skill id
+	 * @param maxLvL the max lvl
+	 * @param route the route
+	 * @param group the group
+	 * @return the int
+	 */
+	public int addNewRouteForSkill(int skillId, int maxLvL, int route, int group)
+	{
+		L2EnchantSkillLearn enchantableSkill = _enchantSkillTrees.get(skillId);
+		if (enchantableSkill == null)
+		{
+			enchantableSkill = new L2EnchantSkillLearn(skillId, maxLvL);
+			_enchantSkillTrees.put(skillId, enchantableSkill);
+		}
+		if (_enchantSkillGroups.containsKey(group))
+		{
+			enchantableSkill.addNewEnchantRoute(route, group);
+			
+			return _enchantSkillGroups.get(group).getEnchantGroupDetails().size();
+		}
+		LOG.error("{}: Error while loading generating enchant skill ID: {} route: {} missing group: {}", skillId, route, group);
+		return 0;
+	}
+	
+	/**
+	 * Gets the enchant skill Adena cost.
+	 * @param skill the skill
+	 * @return the enchant skill Adena cost
+	 */
+	public int getEnchantSkillAdenaCost(Skill skill)
+	{
+		final L2EnchantSkillLearn enchantSkillLearn = _enchantSkillTrees.get(skill.getId());
+		if (enchantSkillLearn != null)
+		{
+			final EnchantSkillHolder esh = enchantSkillLearn.getEnchantSkillHolder(skill.getLevel());
+			if (esh != null)
+			{
+				return esh.getAdenaCost();
+			}
+		}
+		return Integer.MAX_VALUE;
+	}
+	
+	/**
+	 * Gets the enchant skill group by id.
+	 * @param id the id
+	 * @return the enchant skill group by id
+	 */
+	public L2EnchantSkillGroup getEnchantSkillGroupById(int id)
+	{
+		return _enchantSkillGroups.get(id);
+	}
+	
+	/**
+	 * Gets the enchant skill rate.
+	 * @param player the player
+	 * @param skill the skill
+	 * @return the enchant skill rate
+	 */
+	public byte getEnchantSkillRate(L2PcInstance player, Skill skill)
+	{
+		final L2EnchantSkillLearn enchantSkillLearn = _enchantSkillTrees.get(skill.getId());
+		if (enchantSkillLearn != null)
+		{
+			final EnchantSkillHolder esh = enchantSkillLearn.getEnchantSkillHolder(skill.getLevel());
+			if (esh != null)
+			{
+				return esh.getRate(player);
+			}
+		}
+		return 0;
+	}
+	
+	/**
+	 * Gets the enchant skill sp cost.
+	 * @param skill the skill
+	 * @return the enchant skill sp cost
+	 */
+	public int getEnchantSkillSpCost(Skill skill)
+	{
+		final L2EnchantSkillLearn enchantSkillLearn = _enchantSkillTrees.get(skill.getId());
+		if (enchantSkillLearn != null)
+		{
+			final EnchantSkillHolder esh = enchantSkillLearn.getEnchantSkillHolder(skill.getLevel());
+			if (esh != null)
+			{
+				return esh.getSpCost();
+			}
+		}
+		return Integer.MAX_VALUE;
+	}
+	
+	/**
+	 * Gets the skill enchantment by skill id.
+	 * @param skillId the skill id
+	 * @return the skill enchantment by skill id
+	 */
+	public L2EnchantSkillLearn getSkillEnchantmentBySkillId(int skillId)
+	{
+		return _enchantSkillTrees.get(skillId);
+	}
+	
+	/**
+	 * Gets the skill enchantment for skill.
+	 * @param skill the skill
+	 * @return the skill enchantment for skill
+	 */
+	public L2EnchantSkillLearn getSkillEnchantmentForSkill(Skill skill)
+	{
+		// there is enchantment for this skill and we have the required level of it
+		final L2EnchantSkillLearn esl = getSkillEnchantmentBySkillId(skill.getId());
+		if ((esl != null) && (skill.getLevel() >= esl.getBaseLevel()))
+		{
+			return esl;
+		}
+		return null;
+	}
+	
 	@Override
 	public void load()
 	{
@@ -112,135 +241,6 @@ public class EnchantSkillGroupsData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Adds the new route for skill.
-	 * @param skillId the skill id
-	 * @param maxLvL the max lvl
-	 * @param route the route
-	 * @param group the group
-	 * @return the int
-	 */
-	public int addNewRouteForSkill(int skillId, int maxLvL, int route, int group)
-	{
-		L2EnchantSkillLearn enchantableSkill = _enchantSkillTrees.get(skillId);
-		if (enchantableSkill == null)
-		{
-			enchantableSkill = new L2EnchantSkillLearn(skillId, maxLvL);
-			_enchantSkillTrees.put(skillId, enchantableSkill);
-		}
-		if (_enchantSkillGroups.containsKey(group))
-		{
-			enchantableSkill.addNewEnchantRoute(route, group);
-			
-			return _enchantSkillGroups.get(group).getEnchantGroupDetails().size();
-		}
-		LOG.error("{}: Error while loading generating enchant skill ID: {} route: {} missing group: {}", skillId, route, group);
-		return 0;
-	}
-	
-	/**
-	 * Gets the skill enchantment for skill.
-	 * @param skill the skill
-	 * @return the skill enchantment for skill
-	 */
-	public L2EnchantSkillLearn getSkillEnchantmentForSkill(Skill skill)
-	{
-		// there is enchantment for this skill and we have the required level of it
-		final L2EnchantSkillLearn esl = getSkillEnchantmentBySkillId(skill.getId());
-		if ((esl != null) && (skill.getLevel() >= esl.getBaseLevel()))
-		{
-			return esl;
-		}
-		return null;
-	}
-	
-	/**
-	 * Gets the skill enchantment by skill id.
-	 * @param skillId the skill id
-	 * @return the skill enchantment by skill id
-	 */
-	public L2EnchantSkillLearn getSkillEnchantmentBySkillId(int skillId)
-	{
-		return _enchantSkillTrees.get(skillId);
-	}
-	
-	/**
-	 * Gets the enchant skill group by id.
-	 * @param id the id
-	 * @return the enchant skill group by id
-	 */
-	public L2EnchantSkillGroup getEnchantSkillGroupById(int id)
-	{
-		return _enchantSkillGroups.get(id);
-	}
-	
-	/**
-	 * Gets the enchant skill sp cost.
-	 * @param skill the skill
-	 * @return the enchant skill sp cost
-	 */
-	public int getEnchantSkillSpCost(Skill skill)
-	{
-		final L2EnchantSkillLearn enchantSkillLearn = _enchantSkillTrees.get(skill.getId());
-		if (enchantSkillLearn != null)
-		{
-			final EnchantSkillHolder esh = enchantSkillLearn.getEnchantSkillHolder(skill.getLevel());
-			if (esh != null)
-			{
-				return esh.getSpCost();
-			}
-		}
-		return Integer.MAX_VALUE;
-	}
-	
-	/**
-	 * Gets the enchant skill Adena cost.
-	 * @param skill the skill
-	 * @return the enchant skill Adena cost
-	 */
-	public int getEnchantSkillAdenaCost(Skill skill)
-	{
-		final L2EnchantSkillLearn enchantSkillLearn = _enchantSkillTrees.get(skill.getId());
-		if (enchantSkillLearn != null)
-		{
-			final EnchantSkillHolder esh = enchantSkillLearn.getEnchantSkillHolder(skill.getLevel());
-			if (esh != null)
-			{
-				return esh.getAdenaCost();
-			}
-		}
-		return Integer.MAX_VALUE;
-	}
-	
-	/**
-	 * Gets the enchant skill rate.
-	 * @param player the player
-	 * @param skill the skill
-	 * @return the enchant skill rate
-	 */
-	public byte getEnchantSkillRate(L2PcInstance player, Skill skill)
-	{
-		final L2EnchantSkillLearn enchantSkillLearn = _enchantSkillTrees.get(skill.getId());
-		if (enchantSkillLearn != null)
-		{
-			final EnchantSkillHolder esh = enchantSkillLearn.getEnchantSkillHolder(skill.getLevel());
-			if (esh != null)
-			{
-				return esh.getRate(player);
-			}
-		}
-		return 0;
-	}
-	
-	/**
-	 * Gets the single instance of EnchantGroupsData.
-	 * @return single instance of EnchantGroupsData
-	 */
-	public static EnchantSkillGroupsData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

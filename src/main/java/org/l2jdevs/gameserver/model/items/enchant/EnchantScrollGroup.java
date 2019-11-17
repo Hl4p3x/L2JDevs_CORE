@@ -38,14 +38,6 @@ public final class EnchantScrollGroup
 	}
 	
 	/**
-	 * @return id of current enchant scroll group.
-	 */
-	public int getId()
-	{
-		return _id;
-	}
-	
-	/**
 	 * Adds new rate group.
 	 * @param group
 	 */
@@ -59,11 +51,11 @@ public final class EnchantScrollGroup
 	}
 	
 	/**
-	 * @return {@code List} of all enchant rate items, Empty list if none.
+	 * @return id of current enchant scroll group.
 	 */
-	public List<EnchantRateItem> getRateGroups()
+	public int getId()
 	{
-		return _rateGroups != null ? _rateGroups : Collections.<EnchantRateItem> emptyList();
+		return _id;
 	}
 	
 	/**
@@ -80,5 +72,13 @@ public final class EnchantScrollGroup
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * @return {@code List} of all enchant rate items, Empty list if none.
+	 */
+	public List<EnchantRateItem> getRateGroups()
+	{
+		return _rateGroups != null ? _rateGroups : Collections.<EnchantRateItem> emptyList();
 	}
 }

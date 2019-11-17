@@ -52,6 +52,14 @@ public class L2AdminCommandAccessRight
 	}
 	
 	/**
+	 * @return {@code true} if admin command requires confirmation before execution, {@code false} otherwise.
+	 */
+	public boolean getRequireConfirm()
+	{
+		return _requireConfirm;
+	}
+	
+	/**
 	 * @param characterAccessLevel
 	 * @return {@code true} if characterAccessLevel is allowed to use the admin command which belongs to this access right, {@code false} otherwise
 	 */
@@ -59,13 +67,5 @@ public class L2AdminCommandAccessRight
 	{
 		L2AccessLevel accessLevel = AdminData.getInstance().getAccessLevel(_accessLevel);
 		return ((accessLevel.getLevel() == characterAccessLevel.getLevel()) || characterAccessLevel.hasChildAccess(accessLevel));
-	}
-	
-	/**
-	 * @return {@code true} if admin command requires confirmation before execution, {@code false} otherwise.
-	 */
-	public boolean getRequireConfirm()
-	{
-		return _requireConfirm;
 	}
 }

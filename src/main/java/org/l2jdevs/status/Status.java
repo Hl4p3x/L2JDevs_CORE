@@ -44,6 +44,34 @@ public class Status extends Thread
 	private final int _mode;
 	private final List<LoginStatusThread> _loginStatus;
 	
+	public Status(int mode) throws IOException
+	{
+		super("Status");
+		_mode = mode;
+		Properties telnetSettings = new Properties();
+		try (InputStream is = new FileInputStream(new File(Config.TELNET_FILE)))
+		{
+			telnetSettings.load(is);
+		}
+		int statusPort = Integer.parseInt(telnetSettings.getProperty("StatusPort", "12345"));
+		_statusPw = telnetSettings.getProperty("StatusPW");
+		
+		if ((_mode == Server.MODE_GAMESERVER) || (_mode == Server.MODE_LOGINSERVER))
+		{
+			if (_statusPw == null)
+			{
+				_log.info("Server's Telnet Function Has No Password Defined!");
+				_log.info("A Password Has Been Automaticly Created!");
+				_statusPw = rndPW(10);
+				_log.info("Password Has Been Set To: " + _statusPw);
+			}
+			_log.info("Telnet StatusServer started successfully, listening on Port: " + statusPort);
+		}
+		statusServerSocket = new ServerSocket(statusPort);
+		_uptime = (int) System.currentTimeMillis();
+		_loginStatus = new ArrayList<>();
+	}
+	
 	@Override
 	public void run()
 	{
@@ -97,32 +125,20 @@ public class Status extends Thread
 		}
 	}
 	
-	public Status(int mode) throws IOException
+	public void sendMessageToTelnets(String msg)
 	{
-		super("Status");
-		_mode = mode;
-		Properties telnetSettings = new Properties();
-		try (InputStream is = new FileInputStream(new File(Config.TELNET_FILE)))
+		List<LoginStatusThread> lsToRemove = new ArrayList<>(); // TODO(Zoey76): Unused?
+		for (LoginStatusThread ls : _loginStatus)
 		{
-			telnetSettings.load(is);
-		}
-		int statusPort = Integer.parseInt(telnetSettings.getProperty("StatusPort", "12345"));
-		_statusPw = telnetSettings.getProperty("StatusPW");
-		
-		if ((_mode == Server.MODE_GAMESERVER) || (_mode == Server.MODE_LOGINSERVER))
-		{
-			if (_statusPw == null)
+			if (ls.isInterrupted())
 			{
-				_log.info("Server's Telnet Function Has No Password Defined!");
-				_log.info("A Password Has Been Automaticly Created!");
-				_statusPw = rndPW(10);
-				_log.info("Password Has Been Set To: " + _statusPw);
+				lsToRemove.add(ls);
 			}
-			_log.info("Telnet StatusServer started successfully, listening on Port: " + statusPort);
+			else
+			{
+				ls.printToTelnet(msg);
+			}
 		}
-		statusServerSocket = new ServerSocket(statusPort);
-		_uptime = (int) System.currentTimeMillis();
-		_loginStatus = new ArrayList<>();
 	}
 	
 	private String rndPW(int length)
@@ -149,21 +165,5 @@ public class Status extends Thread
 			}
 		}
 		return password.toString();
-	}
-	
-	public void sendMessageToTelnets(String msg)
-	{
-		List<LoginStatusThread> lsToRemove = new ArrayList<>(); // TODO(Zoey76): Unused?
-		for (LoginStatusThread ls : _loginStatus)
-		{
-			if (ls.isInterrupted())
-			{
-				lsToRemove.add(ls);
-			}
-			else
-			{
-				ls.printToTelnet(msg);
-			}
-		}
 	}
 }

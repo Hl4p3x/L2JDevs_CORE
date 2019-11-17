@@ -82,25 +82,6 @@ public class TeleportBookmarkDAOMySQLImpl implements TeleportBookmarkDAO
 	}
 	
 	@Override
-	public void update(L2PcInstance player, int id, int icon, String tag, String name)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(UPDATE))
-		{
-			ps.setInt(1, icon);
-			ps.setString(2, tag);
-			ps.setString(3, name);
-			ps.setInt(4, player.getObjectId());
-			ps.setInt(5, id);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.error("Could not update character teleport bookmark data: {}", e);
-		}
-	}
-	
-	@Override
 	public void load(L2PcInstance player)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -118,6 +99,25 @@ public class TeleportBookmarkDAOMySQLImpl implements TeleportBookmarkDAO
 		catch (Exception e)
 		{
 			LOG.error("Failed restoing character teleport bookmark.", e);
+		}
+	}
+	
+	@Override
+	public void update(L2PcInstance player, int id, int icon, String tag, String name)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(UPDATE))
+		{
+			ps.setInt(1, icon);
+			ps.setString(2, tag);
+			ps.setString(3, name);
+			ps.setInt(4, player.getObjectId());
+			ps.setInt(5, id);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.error("Could not update character teleport bookmark data: {}", e);
 		}
 	}
 }

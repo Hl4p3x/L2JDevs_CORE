@@ -38,6 +38,12 @@ public final class RequestRecipeShopMakeItem extends L2GameClientPacket
 	private long _unknown;
 	
 	@Override
+	public String getType()
+	{
+		return _C__BF_REQUESTRECIPESHOPMAKEITEM;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		_id = readD();
@@ -90,11 +96,5 @@ public final class RequestRecipeShopMakeItem extends L2GameClientPacket
 		{
 			RecipeController.getInstance().requestManufactureItem(manufacturer, _recipeId, activeChar);
 		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__BF_REQUESTRECIPESHOPMAKEITEM;
 	}
 }

@@ -41,6 +41,25 @@ public final class PlayerXpPercentLostData implements IXmlReader
 		load();
 	}
 	
+	/**
+	 * Gets the single instance of PlayerXpPercentLostData.
+	 * @return single instance of PlayerXpPercentLostData.
+	 */
+	public static PlayerXpPercentLostData getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	public double getXpPercent(final int level)
+	{
+		if (level > Config.MAX_PLAYER_LEVEL)
+		{
+			LOG.warn("Require to high level inside PlayerXpPercentLostData ({})", level);
+			return _playerXpPercentLost[Config.MAX_PLAYER_LEVEL];
+		}
+		return _playerXpPercentLost[level];
+	}
+	
 	@Override
 	public void load()
 	{
@@ -64,25 +83,6 @@ public final class PlayerXpPercentLostData implements IXmlReader
 				}
 			}
 		}
-	}
-	
-	public double getXpPercent(final int level)
-	{
-		if (level > Config.MAX_PLAYER_LEVEL)
-		{
-			LOG.warn("Require to high level inside PlayerXpPercentLostData ({})", level);
-			return _playerXpPercentLost[Config.MAX_PLAYER_LEVEL];
-		}
-		return _playerXpPercentLost[level];
-	}
-	
-	/**
-	 * Gets the single instance of PlayerXpPercentLostData.
-	 * @return single instance of PlayerXpPercentLostData.
-	 */
-	public static PlayerXpPercentLostData getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

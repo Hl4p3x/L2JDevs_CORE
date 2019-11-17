@@ -33,14 +33,14 @@ public class L2ManufactureItem
 		_isDwarven = RecipeData.getInstance().getRecipeList(_recipeId).isDwarvenRecipe();
 	}
 	
-	public int getRecipeId()
-	{
-		return _recipeId;
-	}
-	
 	public long getCost()
 	{
 		return _cost;
+	}
+	
+	public int getRecipeId()
+	{
+		return _recipeId;
 	}
 	
 	public boolean isDwarven()

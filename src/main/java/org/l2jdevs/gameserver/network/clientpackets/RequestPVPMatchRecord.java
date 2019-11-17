@@ -26,6 +26,12 @@ public class RequestPVPMatchRecord extends L2GameClientPacket
 	private static final String _C__D0_49_REQUESTPVPMATCHRECORD = "[C] D0:49 RequestPVPMatchRecord";
 	
 	@Override
+	public String getType()
+	{
+		return _C__D0_49_REQUESTPVPMATCHRECORD;
+	}
+	
+	@Override
 	protected void readImpl()
 	{
 		// trigger, no data
@@ -35,11 +41,5 @@ public class RequestPVPMatchRecord extends L2GameClientPacket
 	protected void runImpl()
 	{
 		
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_49_REQUESTPVPMATCHRECORD;
 	}
 }

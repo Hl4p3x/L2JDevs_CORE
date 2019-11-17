@@ -69,13 +69,6 @@ public class L2FortManagerInstance extends L2MerchantInstance
 		return true;
 	}
 	
-	private void sendHtmlMessage(L2PcInstance player, NpcHtmlMessage html)
-	{
-		html.replace("%objectId%", String.valueOf(getObjectId()));
-		html.replace("%npcId%", String.valueOf(getId()));
-		player.sendPacket(html);
-	}
-	
 	@Override
 	public void onBypassFeedback(L2PcInstance player, String command)
 	{
@@ -982,6 +975,25 @@ public class L2FortManagerInstance extends L2MerchantInstance
 		player.sendPacket(html);
 	}
 	
+	protected int validateCondition(L2PcInstance player)
+	{
+		if ((getFort() != null) && (getFort().getResidenceId() > 0))
+		{
+			if (player.getClan() != null)
+			{
+				if (getFort().getZone().isActive())
+				{
+					return COND_BUSY_BECAUSE_OF_SIEGE; // Busy because of siege
+				}
+				else if ((getFort().getOwnerClan() != null) && (getFort().getOwnerClan().getId() == player.getClanId()))
+				{
+					return COND_OWNER; // Owner
+				}
+			}
+		}
+		return COND_ALL_FALSE;
+	}
+	
 	private void doTeleport(L2PcInstance player, int val)
 	{
 		if (Config.DEBUG)
@@ -1007,23 +1019,11 @@ public class L2FortManagerInstance extends L2MerchantInstance
 		player.sendPacket(ActionFailed.STATIC_PACKET);
 	}
 	
-	protected int validateCondition(L2PcInstance player)
+	private void sendHtmlMessage(L2PcInstance player, NpcHtmlMessage html)
 	{
-		if ((getFort() != null) && (getFort().getResidenceId() > 0))
-		{
-			if (player.getClan() != null)
-			{
-				if (getFort().getZone().isActive())
-				{
-					return COND_BUSY_BECAUSE_OF_SIEGE; // Busy because of siege
-				}
-				else if ((getFort().getOwnerClan() != null) && (getFort().getOwnerClan().getId() == player.getClanId()))
-				{
-					return COND_OWNER; // Owner
-				}
-			}
-		}
-		return COND_ALL_FALSE;
+		html.replace("%objectId%", String.valueOf(getObjectId()));
+		html.replace("%npcId%", String.valueOf(getId()));
+		player.sendPacket(html);
 	}
 	
 	private void showVaultWindowDeposit(L2PcInstance player)

@@ -52,13 +52,6 @@ public class L2MerchantInstance extends L2NpcInstance
 	}
 	
 	@Override
-	public void onSpawn()
-	{
-		super.onSpawn();
-		_mpc = MerchantPriceConfigTable.getInstance().getMerchantPriceConfig(this);
-	}
-	
-	@Override
 	public String getHtmlPath(int npcId, int val)
 	{
 		String pom = "";
@@ -81,6 +74,13 @@ public class L2MerchantInstance extends L2NpcInstance
 	public MerchantPriceConfig getMpc()
 	{
 		return _mpc;
+	}
+	
+	@Override
+	public void onSpawn()
+	{
+		super.onSpawn();
+		_mpc = MerchantPriceConfigTable.getInstance().getMerchantPriceConfig(this);
 	}
 	
 	public final void showBuyWindow(L2PcInstance player, int val)

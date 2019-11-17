@@ -33,6 +33,22 @@ public class AdminCommandHandler implements IHandler<IAdminCommandHandler, Strin
 		_datatable = new HashMap<>();
 	}
 	
+	public static AdminCommandHandler getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
+	@Override
+	public IAdminCommandHandler getHandler(String adminCommand)
+	{
+		String command = adminCommand;
+		if (adminCommand.contains(" "))
+		{
+			command = adminCommand.substring(0, adminCommand.indexOf(" "));
+		}
+		return _datatable.get(command);
+	}
+	
 	@Override
 	public void registerHandler(IAdminCommandHandler handler)
 	{
@@ -54,25 +70,9 @@ public class AdminCommandHandler implements IHandler<IAdminCommandHandler, Strin
 	}
 	
 	@Override
-	public IAdminCommandHandler getHandler(String adminCommand)
-	{
-		String command = adminCommand;
-		if (adminCommand.contains(" "))
-		{
-			command = adminCommand.substring(0, adminCommand.indexOf(" "));
-		}
-		return _datatable.get(command);
-	}
-	
-	@Override
 	public int size()
 	{
 		return _datatable.size();
-	}
-	
-	public static AdminCommandHandler getInstance()
-	{
-		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

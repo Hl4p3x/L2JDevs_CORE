@@ -42,6 +42,19 @@ public class L2ResidenceHallTeleportZone extends L2ResidenceTeleportZone
 		super(id);
 	}
 	
+	public synchronized void checkTeleporTask()
+	{
+		if ((_teleTask == null) || _teleTask.isDone())
+		{
+			_teleTask = ThreadPoolManager.getInstance().scheduleGeneral(new TeleportTask(), 30000);
+		}
+	}
+	
+	public int getResidenceZoneId()
+	{
+		return _id;
+	}
+	
 	@Override
 	public void setParameter(String name, String value)
 	{
@@ -52,19 +65,6 @@ public class L2ResidenceHallTeleportZone extends L2ResidenceTeleportZone
 		else
 		{
 			super.setParameter(name, value);
-		}
-	}
-	
-	public int getResidenceZoneId()
-	{
-		return _id;
-	}
-	
-	public synchronized void checkTeleporTask()
-	{
-		if ((_teleTask == null) || _teleTask.isDone())
-		{
-			_teleTask = ThreadPoolManager.getInstance().scheduleGeneral(new TeleportTask(), 30000);
 		}
 	}
 	

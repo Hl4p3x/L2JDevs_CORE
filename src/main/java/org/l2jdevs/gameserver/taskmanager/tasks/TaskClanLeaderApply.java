@@ -43,6 +43,12 @@ public class TaskClanLeaderApply extends Task
 	}
 	
 	@Override
+	public void initializate()
+	{
+		TaskManager.addUniqueTask(NAME, TaskTypes.TYPE_GLOBAL_TASK, "1", Config.ALT_CLAN_LEADER_HOUR_CHANGE, "");
+	}
+	
+	@Override
 	public void onTimeElapsed(ExecutedTask task)
 	{
 		Calendar cal = Calendar.getInstance();
@@ -63,11 +69,5 @@ public class TaskClanLeaderApply extends Task
 			}
 			_log.info(getClass().getSimpleName() + ": launched.");
 		}
-	}
-	
-	@Override
-	public void initializate()
-	{
-		TaskManager.addUniqueTask(NAME, TaskTypes.TYPE_GLOBAL_TASK, "1", Config.ALT_CLAN_LEADER_HOUR_CHANGE, "");
 	}
 }

@@ -39,16 +39,6 @@ public class L2RespawnZone extends L2ZoneType
 		super(id);
 	}
 	
-	@Override
-	protected void onEnter(L2Character character)
-	{
-	}
-	
-	@Override
-	protected void onExit(L2Character character)
-	{
-	}
-	
 	public void addRaceRespawnPoint(String race, String point)
 	{
 		_raceRespawnPoint.put(Race.valueOf(race), point);
@@ -62,5 +52,15 @@ public class L2RespawnZone extends L2ZoneType
 	public String getRespawnPoint(L2PcInstance activeChar)
 	{
 		return _raceRespawnPoint.get(activeChar.getRace());
+	}
+	
+	@Override
+	protected void onEnter(L2Character character)
+	{
+	}
+	
+	@Override
+	protected void onExit(L2Character character)
+	{
 	}
 }

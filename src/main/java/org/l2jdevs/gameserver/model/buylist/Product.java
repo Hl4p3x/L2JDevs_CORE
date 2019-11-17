@@ -58,9 +58,34 @@ public final class Product
 		}
 	}
 	
+	public boolean decreaseCount(long val)
+	{
+		if (_count == null)
+		{
+			return false;
+		}
+		if ((_restockTask == null) || _restockTask.isDone())
+		{
+			_restockTask = ThreadPoolManager.getInstance().scheduleGeneral(new RestockTask(), getRestockDelay());
+		}
+		boolean result = _count.addAndGet(-val) >= 0;
+		save();
+		return result;
+	}
+	
 	public int getBuyListId()
 	{
 		return _buyListId;
+	}
+	
+	public long getCount()
+	{
+		if (_count == null)
+		{
+			return 0;
+		}
+		long count = _count.get();
+		return count > 0 ? count : 0;
 	}
 	
 	public L2Item getItem()
@@ -71,6 +96,11 @@ public final class Product
 	public int getItemId()
 	{
 		return getItem().getId();
+	}
+	
+	public long getMaxCount()
+	{
+		return _maxCount;
 	}
 	
 	public long getPrice()
@@ -85,45 +115,6 @@ public final class Product
 	public long getRestockDelay()
 	{
 		return _restockDelay;
-	}
-	
-	public long getMaxCount()
-	{
-		return _maxCount;
-	}
-	
-	public long getCount()
-	{
-		if (_count == null)
-		{
-			return 0;
-		}
-		long count = _count.get();
-		return count > 0 ? count : 0;
-	}
-	
-	public void setCount(long currentCount)
-	{
-		if (_count == null)
-		{
-			_count = new AtomicLong();
-		}
-		_count.set(currentCount);
-	}
-	
-	public boolean decreaseCount(long val)
-	{
-		if (_count == null)
-		{
-			return false;
-		}
-		if ((_restockTask == null) || _restockTask.isDone())
-		{
-			_restockTask = ThreadPoolManager.getInstance().scheduleGeneral(new RestockTask(), getRestockDelay());
-		}
-		boolean result = _count.addAndGet(-val) >= 0;
-		save();
-		return result;
 	}
 	
 	public boolean hasLimitedStock()
@@ -150,13 +141,13 @@ public final class Product
 		save();
 	}
 	
-	protected final class RestockTask implements Runnable
+	public void setCount(long currentCount)
 	{
-		@Override
-		public void run()
+		if (_count == null)
 		{
-			restock();
+			_count = new AtomicLong();
 		}
+		_count.set(currentCount);
 	}
 	
 	private void save()
@@ -184,6 +175,15 @@ public final class Product
 		catch (Exception e)
 		{
 			_log.log(Level.WARNING, "Failed to save Product buylist_id:" + getBuyListId() + " item_id:" + getItemId(), e);
+		}
+	}
+	
+	protected final class RestockTask implements Runnable
+	{
+		@Override
+		public void run()
+		{
+			restock();
 		}
 	}
 }

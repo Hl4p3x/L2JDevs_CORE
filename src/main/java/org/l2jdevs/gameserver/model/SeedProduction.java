@@ -38,14 +38,30 @@ public class SeedProduction
 		_startAmount = startAmount;
 	}
 	
-	public final int getId()
+	public final boolean decreaseAmount(long val)
 	{
-		return _seedId;
+		long current, next;
+		do
+		{
+			current = _amount.get();
+			next = current - val;
+			if (next < 0)
+			{
+				return false;
+			}
+		}
+		while (!_amount.compareAndSet(current, next));
+		return true;
 	}
 	
 	public final long getAmount()
 	{
 		return _amount.get();
+	}
+	
+	public final int getId()
+	{
+		return _seedId;
 	}
 	
 	public final long getPrice()
@@ -61,21 +77,5 @@ public class SeedProduction
 	public final void setAmount(long amount)
 	{
 		_amount.set(amount);
-	}
-	
-	public final boolean decreaseAmount(long val)
-	{
-		long current, next;
-		do
-		{
-			current = _amount.get();
-			next = current - val;
-			if (next < 0)
-			{
-				return false;
-			}
-		}
-		while (!_amount.compareAndSet(current, next));
-		return true;
 	}
 }

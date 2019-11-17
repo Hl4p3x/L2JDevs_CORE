@@ -30,14 +30,14 @@ public class FuncAtkAccuracy extends AbstractFunction
 {
 	private static final FuncAtkAccuracy _faa_instance = new FuncAtkAccuracy();
 	
-	public static AbstractFunction getInstance()
-	{
-		return _faa_instance;
-	}
-	
 	private FuncAtkAccuracy()
 	{
 		super(Stats.ACCURACY_COMBAT, 1, null, 0, null);
+	}
+	
+	public static AbstractFunction getInstance()
+	{
+		return _faa_instance;
 	}
 	
 	@Override

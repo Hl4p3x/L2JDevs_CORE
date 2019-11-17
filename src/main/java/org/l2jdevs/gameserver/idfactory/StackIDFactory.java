@@ -71,6 +71,43 @@ public class StackIDFactory extends IdFactory
 		}
 	}
 	
+	public static IdFactory getInstance()
+	{
+		return _instance;
+	}
+	
+	@Override
+	public synchronized int getNextId()
+	{
+		int id;
+		if (!_freeOIDStack.empty())
+		{
+			id = _freeOIDStack.pop();
+		}
+		else
+		{
+			id = _curOID;
+			_curOID = _curOID + 1;
+		}
+		return id;
+	}
+	
+	/**
+	 * return a used Object ID back to the pool
+	 * @param id
+	 */
+	@Override
+	public synchronized void releaseId(int id)
+	{
+		_freeOIDStack.push(id);
+	}
+	
+	@Override
+	public int size()
+	{
+		return (FREE_OBJECT_ID_SIZE - _curOID) + FIRST_OID + _freeOIDStack.size();
+	}
+	
 	private int insertUntil(Integer[] tmp_obj_ids, int idx, int N, Connection con) throws SQLException
 	{
 		int id = tmp_obj_ids[idx];
@@ -120,42 +157,5 @@ public class StackIDFactory extends IdFactory
 			_tempOID++;
 		}
 		return N - hole;
-	}
-	
-	public static IdFactory getInstance()
-	{
-		return _instance;
-	}
-	
-	@Override
-	public synchronized int getNextId()
-	{
-		int id;
-		if (!_freeOIDStack.empty())
-		{
-			id = _freeOIDStack.pop();
-		}
-		else
-		{
-			id = _curOID;
-			_curOID = _curOID + 1;
-		}
-		return id;
-	}
-	
-	/**
-	 * return a used Object ID back to the pool
-	 * @param id
-	 */
-	@Override
-	public synchronized void releaseId(int id)
-	{
-		_freeOIDStack.push(id);
-	}
-	
-	@Override
-	public int size()
-	{
-		return (FREE_OBJECT_ID_SIZE - _curOID) + FIRST_OID + _freeOIDStack.size();
 	}
 }

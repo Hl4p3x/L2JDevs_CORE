@@ -46,15 +46,6 @@ public class PlayerSkillHolder implements ISkillsHolder
 	}
 	
 	/**
-	 * @return the map containing this character skills.
-	 */
-	@Override
-	public Map<Integer, Skill> getSkills()
-	{
-		return _skills;
-	}
-	
-	/**
 	 * Add a skill to the skills map.<br>
 	 * @param skill
 	 */
@@ -62,6 +53,16 @@ public class PlayerSkillHolder implements ISkillsHolder
 	public Skill addSkill(Skill skill)
 	{
 		return _skills.put(skill.getId(), skill);
+	}
+	
+	/**
+	 * @param skillId The identifier of the L2Skill to check the knowledge
+	 * @return the skill from the known skill.
+	 */
+	@Override
+	public Skill getKnownSkill(int skillId)
+	{
+		return _skills.get(skillId);
 	}
 	
 	/**
@@ -77,12 +78,11 @@ public class PlayerSkillHolder implements ISkillsHolder
 	}
 	
 	/**
-	 * @param skillId The identifier of the L2Skill to check the knowledge
-	 * @return the skill from the known skill.
+	 * @return the map containing this character skills.
 	 */
 	@Override
-	public Skill getKnownSkill(int skillId)
+	public Map<Integer, Skill> getSkills()
 	{
-		return _skills.get(skillId);
+		return _skills;
 	}
 }

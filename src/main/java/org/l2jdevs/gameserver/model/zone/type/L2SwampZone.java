@@ -48,6 +48,11 @@ public class L2SwampZone extends L2ZoneType
 		_castle = null;
 	}
 	
+	public double getMoveBonus()
+	{
+		return _move_bonus;
+	}
+	
 	@Override
 	public void setParameter(String name, String value)
 	{
@@ -63,16 +68,6 @@ public class L2SwampZone extends L2ZoneType
 		{
 			super.setParameter(name, value);
 		}
-	}
-	
-	private Castle getCastle()
-	{
-		if ((_castleId > 0) && (_castle == null))
-		{
-			_castle = CastleManager.getInstance().getCastleById(_castleId);
-		}
-		
-		return _castle;
 	}
 	
 	@Override
@@ -115,8 +110,13 @@ public class L2SwampZone extends L2ZoneType
 		}
 	}
 	
-	public double getMoveBonus()
+	private Castle getCastle()
 	{
-		return _move_bonus;
+		if ((_castleId > 0) && (_castle == null))
+		{
+			_castle = CastleManager.getInstance().getCastleById(_castleId);
+		}
+		
+		return _castle;
 	}
 }

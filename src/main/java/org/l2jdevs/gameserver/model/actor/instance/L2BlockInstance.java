@@ -88,13 +88,10 @@ public class L2BlockInstance extends L2MonsterInstance
 		}
 	}
 	
-	/**
-	 * Sets if the block is red or blue. Mainly used in block spawn
-	 * @param isRed
-	 */
-	public void setRed(boolean isRed)
+	@Override
+	public boolean doDie(L2Character killer)
 	{
-		_colorEffect = isRed ? 0x53 : 0x00;
+		return false;
 	}
 	
 	/**
@@ -114,12 +111,6 @@ public class L2BlockInstance extends L2MonsterInstance
 			return (attacker.getActingPlayer() != null) && (attacker.getActingPlayer().getBlockCheckerArena() > -1);
 		}
 		return true;
-	}
-	
-	@Override
-	public boolean doDie(L2Character killer)
-	{
-		return false;
 	}
 	
 	@Override
@@ -143,18 +134,13 @@ public class L2BlockInstance extends L2MonsterInstance
 		}
 	}
 	
-	private void increaseTeamPointsAndSend(L2PcInstance player, int team, BlockCheckerEngine eng)
+	/**
+	 * Sets if the block is red or blue. Mainly used in block spawn
+	 * @param isRed
+	 */
+	public void setRed(boolean isRed)
 	{
-		eng.increasePlayerPoints(player, team);
-		
-		int timeLeft = (int) ((eng.getStarterTime() - System.currentTimeMillis()) / 1000);
-		boolean isRed = eng.getHolder().getRedPlayers().contains(player);
-		
-		ExCubeGameChangePoints changePoints = new ExCubeGameChangePoints(timeLeft, eng.getBluePoints(), eng.getRedPoints());
-		ExCubeGameExtendedChangePoints secretPoints = new ExCubeGameExtendedChangePoints(timeLeft, eng.getBluePoints(), eng.getRedPoints(), isRed, player, eng.getPlayerPoints(player, isRed));
-		
-		eng.getHolder().broadCastPacketToTeam(changePoints);
-		eng.getHolder().broadCastPacketToTeam(secretPoints);
+		_colorEffect = isRed ? 0x53 : 0x00;
 	}
 	
 	private void dropItem(int id, BlockCheckerEngine eng, L2PcInstance player)
@@ -167,5 +153,19 @@ public class L2BlockInstance extends L2MonsterInstance
 		drop.dropMe(this, x, y, z);
 		
 		eng.addNewDrop(drop);
+	}
+	
+	private void increaseTeamPointsAndSend(L2PcInstance player, int team, BlockCheckerEngine eng)
+	{
+		eng.increasePlayerPoints(player, team);
+		
+		int timeLeft = (int) ((eng.getStarterTime() - System.currentTimeMillis()) / 1000);
+		boolean isRed = eng.getHolder().getRedPlayers().contains(player);
+		
+		ExCubeGameChangePoints changePoints = new ExCubeGameChangePoints(timeLeft, eng.getBluePoints(), eng.getRedPoints());
+		ExCubeGameExtendedChangePoints secretPoints = new ExCubeGameExtendedChangePoints(timeLeft, eng.getBluePoints(), eng.getRedPoints(), isRed, player, eng.getPlayerPoints(player, isRed));
+		
+		eng.getHolder().broadCastPacketToTeam(changePoints);
+		eng.getHolder().broadCastPacketToTeam(secretPoints);
 	}
 }
