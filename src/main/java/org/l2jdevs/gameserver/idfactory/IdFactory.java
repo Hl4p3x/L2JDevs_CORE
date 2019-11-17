@@ -155,8 +155,8 @@ public abstract class IdFactory
 		{
 			case Compaction:
 				throw new UnsupportedOperationException("Compaction IdFactory is disabled.");
-				// _instance = new CompactionIDFactory();
-				// break;
+			// _instance = new CompactionIDFactory();
+			// break;
 			case BitSet:
 				_instance = new BitSetIDFactory();
 				break;
