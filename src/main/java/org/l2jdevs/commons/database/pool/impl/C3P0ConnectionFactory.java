@@ -23,9 +23,10 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
 import org.l2jdevs.Config;
 import org.l2jdevs.commons.database.pool.IConnectionFactory;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 /**
  * C3P0 Connection Factory implementation.<br>

@@ -21,11 +21,10 @@ package org.l2jdevs.gameserver.network.serverpackets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.l2jdevs.mmocore.SendablePacket;
-
 import org.l2jdevs.gameserver.model.interfaces.IPositionable;
 import org.l2jdevs.gameserver.model.itemcontainer.Inventory;
 import org.l2jdevs.gameserver.network.L2GameClient;
+import org.l2jdevs.mmocore.SendablePacket;
 
 /**
  * @author KenM

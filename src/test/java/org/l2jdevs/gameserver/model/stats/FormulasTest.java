@@ -1,9 +1,9 @@
 package org.l2jdevs.gameserver.model.stats;
 
-import static org.l2jdevs.gameserver.enums.ShotType.BLESSED_SPIRITSHOTS;
-import static org.l2jdevs.gameserver.enums.ShotType.SPIRITSHOTS;
 import static java.lang.Double.NaN;
 import static java.lang.Double.POSITIVE_INFINITY;
+import static org.l2jdevs.gameserver.enums.ShotType.BLESSED_SPIRITSHOTS;
+import static org.l2jdevs.gameserver.enums.ShotType.SPIRITSHOTS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;

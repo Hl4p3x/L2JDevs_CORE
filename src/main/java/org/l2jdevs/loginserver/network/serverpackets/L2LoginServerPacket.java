@@ -18,9 +18,8 @@
  */
 package org.l2jdevs.loginserver.network.serverpackets;
 
-import org.l2jdevs.mmocore.SendablePacket;
-
 import org.l2jdevs.loginserver.network.L2LoginClient;
+import org.l2jdevs.mmocore.SendablePacket;
 
 /**
  * @author KenM

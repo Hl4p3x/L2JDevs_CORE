@@ -34,10 +34,6 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.l2jdevs.mmocore.MMOClient;
-import org.l2jdevs.mmocore.MMOConnection;
-import org.l2jdevs.mmocore.ReceivablePacket;
-
 import org.l2jdevs.Config;
 import org.l2jdevs.commons.database.pool.impl.ConnectionFactory;
 import org.l2jdevs.gameserver.LoginServerThread;
@@ -61,6 +57,9 @@ import org.l2jdevs.gameserver.network.serverpackets.ServerClose;
 import org.l2jdevs.gameserver.security.SecondaryPasswordAuth;
 import org.l2jdevs.gameserver.util.FloodProtectors;
 import org.l2jdevs.gameserver.util.Util;
+import org.l2jdevs.mmocore.MMOClient;
+import org.l2jdevs.mmocore.MMOConnection;
+import org.l2jdevs.mmocore.ReceivablePacket;
 
 /**
  * Represents a client connected on Game Server.

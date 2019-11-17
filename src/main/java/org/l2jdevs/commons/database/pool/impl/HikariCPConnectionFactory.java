@@ -20,9 +20,10 @@ package org.l2jdevs.commons.database.pool.impl;
 
 import javax.sql.DataSource;
 
+import com.zaxxer.hikari.HikariDataSource;
+
 import org.l2jdevs.Config;
 import org.l2jdevs.commons.database.pool.IConnectionFactory;
-import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * HikariCP Connection Factory implementation.<br>

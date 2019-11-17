@@ -21,15 +21,14 @@ package org.l2jdevs.gameserver.network;
 import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 
+import org.l2jdevs.Config;
+import org.l2jdevs.gameserver.network.L2GameClient.GameClientState;
+import org.l2jdevs.gameserver.network.clientpackets.*;
 import org.l2jdevs.mmocore.IClientFactory;
 import org.l2jdevs.mmocore.IMMOExecutor;
 import org.l2jdevs.mmocore.IPacketHandler;
 import org.l2jdevs.mmocore.MMOConnection;
 import org.l2jdevs.mmocore.ReceivablePacket;
-
-import org.l2jdevs.Config;
-import org.l2jdevs.gameserver.network.L2GameClient.GameClientState;
-import org.l2jdevs.gameserver.network.clientpackets.*;
 import org.l2jdevs.util.Util;
 
 /**

@@ -22,6 +22,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.l2jdevs.Config;
 import org.l2jdevs.gameserver.GameTimeController;
 import org.l2jdevs.gameserver.ThreadPoolManager;
@@ -44,8 +47,6 @@ import org.l2jdevs.gameserver.network.SystemMessageId;
 import org.l2jdevs.gameserver.network.serverpackets.InventoryUpdate;
 import org.l2jdevs.gameserver.network.serverpackets.L2GameServerPacket;
 import org.l2jdevs.gameserver.util.Util;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author DS

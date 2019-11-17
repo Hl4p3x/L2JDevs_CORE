@@ -21,9 +21,8 @@ package org.l2jdevs.loginserver.network.clientpackets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.l2jdevs.mmocore.ReceivablePacket;
-
 import org.l2jdevs.loginserver.network.L2LoginClient;
+import org.l2jdevs.mmocore.ReceivablePacket;
 
 /**
  * @author KenM

@@ -30,8 +30,6 @@ import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
-import org.l2jdevs.mmocore.SelectorConfig;
-import org.l2jdevs.mmocore.SelectorThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,6 +141,8 @@ import org.l2jdevs.gameserver.script.faenor.FaenorScriptEngine;
 import org.l2jdevs.gameserver.scripting.ScriptEngineManager;
 import org.l2jdevs.gameserver.taskmanager.KnownListUpdateTaskManager;
 import org.l2jdevs.gameserver.taskmanager.TaskManager;
+import org.l2jdevs.mmocore.SelectorConfig;
+import org.l2jdevs.mmocore.SelectorThread;
 import org.l2jdevs.status.Status;
 import org.l2jdevs.util.DeadLockDetector;
 import org.l2jdevs.util.IPv4Filter;
