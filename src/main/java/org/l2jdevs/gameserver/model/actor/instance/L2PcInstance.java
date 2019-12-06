@@ -6812,13 +6812,17 @@ public final class L2PcInstance extends L2Playable
 	}
 	
 	/**
-	 * Test if player inventory is under 90% capaity
-	 * @param includeQuestInv check also quest inventory
+	 * Test if player inventory is under 90% capacity
+	 * @param includeQuestInventory checks the Quests inventory also
 	 * @return
 	 */
-	public boolean isInventoryUnder90(boolean includeQuestInv)
+	public boolean isInventoryUnder90(boolean includeQuestInventory)
 	{
-		return (getInventory().getSize(includeQuestInv) <= (getInventoryLimit() * 0.9));
+		if (includeQuestInventory)
+		{
+			return (getInventory().getSize() <= (getInventoryLimit() * 0.9)) || (getInventory().getSize(false) <= (getQuestInventoryLimit() * 0.9));
+		}
+		return getInventory().getSize() <= (getInventoryLimit() * 0.9);
 	}
 	
 	/**
