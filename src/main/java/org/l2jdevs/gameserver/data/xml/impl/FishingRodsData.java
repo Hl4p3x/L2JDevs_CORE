@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -45,25 +45,6 @@ public final class FishingRodsData implements IXmlReader
 		load();
 	}
 	
-	/**
-	 * Gets the single instance of FishingRodsData.
-	 * @return single instance of FishingRodsData
-	 */
-	public static FishingRodsData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Gets the fishing rod.
-	 * @param itemId the item id
-	 * @return A fishing Rod by Item Id
-	 */
-	public L2FishingRod getFishingRod(int itemId)
-	{
-		return _fishingRods.get(itemId);
-	}
-	
 	@Override
 	public void load()
 	{
@@ -97,6 +78,25 @@ public final class FishingRodsData implements IXmlReader
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Gets the fishing rod.
+	 * @param itemId the item id
+	 * @return A fishing Rod by Item Id
+	 */
+	public L2FishingRod getFishingRod(int itemId)
+	{
+		return _fishingRods.get(itemId);
+	}
+	
+	/**
+	 * Gets the single instance of FishingRodsData.
+	 * @return single instance of FishingRodsData
+	 */
+	public static FishingRodsData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

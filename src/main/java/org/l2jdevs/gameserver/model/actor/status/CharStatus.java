@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -35,21 +35,21 @@ public class CharStatus
 {
 	protected static final Logger _log = Logger.getLogger(CharStatus.class.getName());
 	
-	protected static final byte REGEN_FLAG_CP = 4;
-	
-	private static final byte REGEN_FLAG_HP = 1;
-	private static final byte REGEN_FLAG_MP = 2;
-	
 	private final L2Character _activeChar;
 	
 	private double _currentHp = 0; // Current HP of the L2Character
-	
 	private double _currentMp = 0; // Current MP of the L2Character
 	
 	/** Array containing all clients that need to be notified about hp/mp updates of the L2Character */
 	private Set<L2Character> _statusListener;
+	
 	private Future<?> _regTask;
+	
 	protected byte _flagsRegenActive = 0;
+	
+	protected static final byte REGEN_FLAG_CP = 4;
+	private static final byte REGEN_FLAG_HP = 1;
+	private static final byte REGEN_FLAG_MP = 2;
 	
 	public CharStatus(L2Character activeChar)
 	{
@@ -78,25 +78,21 @@ public class CharStatus
 		getStatusListener().add(object);
 	}
 	
-	public L2Character getActiveChar()
+	/**
+	 * Remove the object from the list of L2Character that must be informed of HP/MP updates of this L2Character.<br>
+	 * <B><U>Concept</U>:</B><br>
+	 * Each L2Character owns a list called <B>_statusListener</B> that contains all L2PcInstance to inform of HP/MP updates.<br>
+	 * Players who must be informed are players that target this L2Character.<br>
+	 * When a RegenTask is in progress sever just need to go through this list to send Server->Client packet StatusUpdate.<br>
+	 * <B><U>Example of use </U>:</B>
+	 * <ul>
+	 * <li>Untarget a PC or NPC</li>
+	 * </ul>
+	 * @param object L2Character to add to the listener
+	 */
+	public final void removeStatusListener(L2Character object)
 	{
-		return _activeChar;
-	}
-	
-	// place holder, only PcStatus has CP
-	public double getCurrentCp()
-	{
-		return 0;
-	}
-	
-	public final double getCurrentHp()
-	{
-		return _currentHp;
-	}
-	
-	public final double getCurrentMp()
-	{
-		return _currentMp;
+		getStatusListener().remove(object);
 	}
 	
 	/**
@@ -192,25 +188,70 @@ public class CharStatus
 	}
 	
 	/**
-	 * Remove the object from the list of L2Character that must be informed of HP/MP updates of this L2Character.<br>
-	 * <B><U>Concept</U>:</B><br>
-	 * Each L2Character owns a list called <B>_statusListener</B> that contains all L2PcInstance to inform of HP/MP updates.<br>
-	 * Players who must be informed are players that target this L2Character.<br>
-	 * When a RegenTask is in progress sever just need to go through this list to send Server->Client packet StatusUpdate.<br>
-	 * <B><U>Example of use </U>:</B>
+	 * Start the HP/MP/CP Regeneration task.<br>
+	 * <B><U>Actions</U>:</B>
 	 * <ul>
-	 * <li>Untarget a PC or NPC</li>
+	 * <li>Calculate the regen task period</li>
+	 * <li>Launch the HP/MP/CP Regeneration task with Medium priority</li>
 	 * </ul>
-	 * @param object L2Character to add to the listener
 	 */
-	public final void removeStatusListener(L2Character object)
+	public final synchronized void startHpMpRegeneration()
 	{
-		getStatusListener().remove(object);
+		if ((_regTask == null) && !getActiveChar().isDead())
+		{
+			if (Config.DEBUG)
+			{
+				_log.fine("HP/MP regen started");
+			}
+			
+			// Get the Regeneration period
+			int period = Formulas.getRegeneratePeriod(getActiveChar());
+			
+			// Create the HP/MP/CP Regeneration task
+			_regTask = ThreadPoolManager.getInstance().scheduleEffectAtFixedRate(new RegenTask(), period, period);
+		}
+	}
+	
+	/**
+	 * Stop the HP/MP/CP Regeneration task.<br>
+	 * <B><U>Actions</U>:</B>
+	 * <ul>
+	 * <li>Set the RegenActive flag to False</li>
+	 * <li>Stop the HP/MP/CP Regeneration task</li>
+	 * </ul>
+	 */
+	public final synchronized void stopHpMpRegeneration()
+	{
+		if (_regTask != null)
+		{
+			if (Config.DEBUG)
+			{
+				_log.fine("HP/MP regen stop");
+			}
+			
+			// Stop the HP/MP/CP Regeneration task
+			_regTask.cancel(false);
+			_regTask = null;
+			
+			// Set the RegenActive flag to false
+			_flagsRegenActive = 0;
+		}
+	}
+	
+	// place holder, only PcStatus has CP
+	public double getCurrentCp()
+	{
+		return 0;
 	}
 	
 	// place holder, only PcStatus has CP
 	public void setCurrentCp(double newCp)
 	{
+	}
+	
+	public final double getCurrentHp()
+	{
+		return _currentHp;
 	}
 	
 	public final void setCurrentHp(double newHp)
@@ -281,6 +322,11 @@ public class CharStatus
 		}
 	}
 	
+	public final double getCurrentMp()
+	{
+		return _currentMp;
+	}
+	
 	public final void setCurrentMp(double newMp)
 	{
 		setCurrentMp(newMp, true);
@@ -339,57 +385,6 @@ public class CharStatus
 		return mpWasChanged;
 	}
 	
-	/**
-	 * Start the HP/MP/CP Regeneration task.<br>
-	 * <B><U>Actions</U>:</B>
-	 * <ul>
-	 * <li>Calculate the regen task period</li>
-	 * <li>Launch the HP/MP/CP Regeneration task with Medium priority</li>
-	 * </ul>
-	 */
-	public final synchronized void startHpMpRegeneration()
-	{
-		if ((_regTask == null) && !getActiveChar().isDead())
-		{
-			if (Config.DEBUG)
-			{
-				_log.fine("HP/MP regen started");
-			}
-			
-			// Get the Regeneration period
-			int period = Formulas.getRegeneratePeriod(getActiveChar());
-			
-			// Create the HP/MP/CP Regeneration task
-			_regTask = ThreadPoolManager.getInstance().scheduleEffectAtFixedRate(new RegenTask(), period, period);
-		}
-	}
-	
-	/**
-	 * Stop the HP/MP/CP Regeneration task.<br>
-	 * <B><U>Actions</U>:</B>
-	 * <ul>
-	 * <li>Set the RegenActive flag to False</li>
-	 * <li>Stop the HP/MP/CP Regeneration task</li>
-	 * </ul>
-	 */
-	public final synchronized void stopHpMpRegeneration()
-	{
-		if (_regTask != null)
-		{
-			if (Config.DEBUG)
-			{
-				_log.fine("HP/MP regen stop");
-			}
-			
-			// Stop the HP/MP/CP Regeneration task
-			_regTask.cancel(false);
-			_regTask = null;
-			
-			// Set the RegenActive flag to false
-			_flagsRegenActive = 0;
-		}
-	}
-	
 	protected void doRegeneration()
 	{
 		// Modify the current HP of the L2Character and broadcast Server->Client packet StatusUpdate
@@ -430,5 +425,10 @@ public class CharStatus
 				_log.log(Level.SEVERE, "", e);
 			}
 		}
+	}
+	
+	public L2Character getActiveChar()
+	{
+		return _activeChar;
 	}
 }

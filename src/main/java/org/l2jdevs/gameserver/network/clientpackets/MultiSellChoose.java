@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -73,9 +73,22 @@ public class MultiSellChoose extends L2GameClientPacket
 	private int _unk11;
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__B0_MULTISELLCHOOSE;
+		_listId = readD();
+		_entryId = readD();
+		_amount = readQ();
+		_unk1 = readH();
+		_unk2 = readD();
+		_unk3 = readD();
+		_unk4 = readH(); // elemental attributes
+		_unk5 = readH(); // elemental attributes
+		_unk6 = readH(); // elemental attributes
+		_unk7 = readH(); // elemental attributes
+		_unk8 = readH(); // elemental attributes
+		_unk9 = readH(); // elemental attributes
+		_unk10 = readH(); // elemental attributes
+		_unk11 = readH(); // elemental attributes
 	}
 	
 	@Override
@@ -457,21 +470,8 @@ public class MultiSellChoose extends L2GameClientPacket
 	}
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		_listId = readD();
-		_entryId = readD();
-		_amount = readQ();
-		_unk1 = readH();
-		_unk2 = readD();
-		_unk3 = readD();
-		_unk4 = readH(); // elemental attributes
-		_unk5 = readH(); // elemental attributes
-		_unk6 = readH(); // elemental attributes
-		_unk7 = readH(); // elemental attributes
-		_unk8 = readH(); // elemental attributes
-		_unk9 = readH(); // elemental attributes
-		_unk10 = readH(); // elemental attributes
-		_unk11 = readH(); // elemental attributes
+		return _C__B0_MULTISELLCHOOSE;
 	}
 }

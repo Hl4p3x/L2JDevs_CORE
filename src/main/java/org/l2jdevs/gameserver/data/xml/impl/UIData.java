@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -41,49 +41,6 @@ public class UIData implements IXmlReader
 	protected UIData()
 	{
 		load();
-	}
-	
-	/**
-	 * Add a category to the stored categories.
-	 * @param map the map to store the category
-	 * @param cat the category
-	 * @param cmd the command
-	 */
-	public static void addCategory(Map<Integer, List<Integer>> map, int cat, int cmd)
-	{
-		map.computeIfAbsent(cat, k -> new ArrayList<>()).add(cmd);
-	}
-	
-	/**
-	 * Create and insert an Action Key into the stored keys.
-	 * @param map the map to store the key
-	 * @param cat the category
-	 * @param akey the action key
-	 */
-	public static void addKey(Map<Integer, List<ActionKey>> map, int cat, ActionKey akey)
-	{
-		map.computeIfAbsent(cat, k -> new ArrayList<>()).add(akey);
-	}
-	
-	public static UIData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * @return the categories
-	 */
-	public Map<Integer, List<Integer>> getCategories()
-	{
-		return _storedCategories;
-	}
-	
-	/**
-	 * @return the keys
-	 */
-	public Map<Integer, List<ActionKey>> getKeys()
-	{
-		return _storedKeys;
 	}
 	
 	@Override
@@ -183,6 +140,49 @@ public class UIData implements IXmlReader
 				addKey(_storedKeys, cat, akey);
 			}
 		}
+	}
+	
+	/**
+	 * Add a category to the stored categories.
+	 * @param map the map to store the category
+	 * @param cat the category
+	 * @param cmd the command
+	 */
+	public static void addCategory(Map<Integer, List<Integer>> map, int cat, int cmd)
+	{
+		map.computeIfAbsent(cat, k -> new ArrayList<>()).add(cmd);
+	}
+	
+	/**
+	 * Create and insert an Action Key into the stored keys.
+	 * @param map the map to store the key
+	 * @param cat the category
+	 * @param akey the action key
+	 */
+	public static void addKey(Map<Integer, List<ActionKey>> map, int cat, ActionKey akey)
+	{
+		map.computeIfAbsent(cat, k -> new ArrayList<>()).add(akey);
+	}
+	
+	/**
+	 * @return the categories
+	 */
+	public Map<Integer, List<Integer>> getCategories()
+	{
+		return _storedCategories;
+	}
+	
+	/**
+	 * @return the keys
+	 */
+	public Map<Integer, List<ActionKey>> getKeys()
+	{
+		return _storedKeys;
+	}
+	
+	public static UIData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

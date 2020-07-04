@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -57,135 +57,6 @@ public final class SpawnTable implements IXmlReader
 	
 	private int _xmlSpawnCount = 0;
 	
-	public static SpawnTable getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Adds a new spawn to the spawn table.
-	 * @param spawn the spawn to add
-	 * @param storeInDb if {@code true} it'll be saved in the database
-	 */
-	public void addNewSpawn(L2Spawn spawn, boolean storeInDb)
-	{
-		addSpawn(spawn);
-		
-		if (storeInDb)
-		{
-			final String spawnTable = spawn.isCustom() && Config.CUSTOM_SPAWNLIST_TABLE ? "custom_spawnlist" : "spawnlist";
-			try (Connection con = ConnectionFactory.getInstance().getConnection();
-				PreparedStatement insert = con.prepareStatement("INSERT INTO " + spawnTable + "(count,npc_templateid,locx,locy,locz,heading,respawn_delay,respawn_random,loc_id) values(?,?,?,?,?,?,?,?,?)"))
-			{
-				insert.setInt(1, spawn.getAmount());
-				insert.setInt(2, spawn.getId());
-				insert.setInt(3, spawn.getX());
-				insert.setInt(4, spawn.getY());
-				insert.setInt(5, spawn.getZ());
-				insert.setInt(6, spawn.getHeading());
-				insert.setInt(7, spawn.getRespawnDelay() / 1000);
-				insert.setInt(8, spawn.getRespawnMaxDelay() - spawn.getRespawnMinDelay());
-				insert.setInt(9, spawn.getLocationId());
-				insert.execute();
-			}
-			catch (Exception e)
-			{
-				LOG.warn("{}: Could not store spawn in the DB!", getClass().getSimpleName(), e);
-			}
-		}
-	}
-	
-	/**
-	 * Delete an spawn from the spawn table.
-	 * @param spawn the spawn to delete
-	 * @param updateDb if {@code true} database will be updated
-	 */
-	public void deleteSpawn(L2Spawn spawn, boolean updateDb)
-	{
-		if (!removeSpawn(spawn))
-		{
-			return;
-		}
-		
-		if (updateDb)
-		{
-			try (Connection con = ConnectionFactory.getInstance().getConnection();
-				PreparedStatement delete = con.prepareStatement("DELETE FROM " + (spawn.isCustom() ? "custom_spawnlist" : "spawnlist") + " WHERE locx=? AND locy=? AND locz=? AND npc_templateid=? AND heading=?"))
-			{
-				delete.setInt(1, spawn.getX());
-				delete.setInt(2, spawn.getY());
-				delete.setInt(3, spawn.getZ());
-				delete.setInt(4, spawn.getId());
-				delete.setInt(5, spawn.getHeading());
-				delete.execute();
-			}
-			catch (Exception e)
-			{
-				LOG.warn("{}: Spawn {} could not be removed from DB!", getClass().getSimpleName(), spawn, e);
-			}
-		}
-	}
-	
-	/**
-	 * Finds a spawn for the given NPC ID.
-	 * @param npcId the NPC Id
-	 * @return a spawn for the given NPC ID or {@code null}
-	 */
-	public L2Spawn findAny(int npcId)
-	{
-		return getSpawns(npcId).stream().findFirst().orElse(null);
-	}
-	
-	/**
-	 * Execute a procedure over all spawns.<br>
-	 * <font size="4" color="red">Do not use it!</font>
-	 * @param function the function to execute
-	 * @return {@code true} if all procedures were executed, {@code false} otherwise
-	 */
-	public boolean forEachSpawn(Function<L2Spawn, Boolean> function)
-	{
-		for (Set<L2Spawn> set : _spawnTable.values())
-		{
-			for (L2Spawn spawn : set)
-			{
-				if (!function.apply(spawn))
-				{
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-	
-	/**
-	 * Gets the spawn count for the given NPC ID.
-	 * @param npcId the NPC Id
-	 * @return the spawn count
-	 */
-	public int getSpawnCount(int npcId)
-	{
-		return getSpawns(npcId).size();
-	}
-	
-	/**
-	 * Gets the spawns for the NPC Id.
-	 * @param npcId the NPC Id
-	 * @return the spawn set for the given npcId
-	 */
-	public Set<L2Spawn> getSpawns(int npcId)
-	{
-		return _spawnTable.getOrDefault(npcId, Collections.emptySet());
-	}
-	
-	/**
-	 * Gets the spawn data.
-	 * @return the spawn data
-	 */
-	public Map<Integer, Set<L2Spawn>> getSpawnTable()
-	{
-		return _spawnTable;
-	}
-	
 	/**
 	 * Wrapper to load all spawns.
 	 */
@@ -207,6 +78,29 @@ public final class SpawnTable implements IXmlReader
 			parseDatapackDirectory("data/spawnlist", false);
 			LOG.info("{}: Loaded " + _xmlSpawnCount + " npc spawns from XML.", getClass().getSimpleName());
 		}
+	}
+	
+	/**
+	 * Verifies if the template exists and it's spawnable.
+	 * @param npcId the NPC ID
+	 * @return {@code true} if the NPC ID belongs to an spawnable template, {@code false} otherwise
+	 */
+	private boolean checkTemplate(int npcId)
+	{
+		L2NpcTemplate npcTemplate = NpcData.getInstance().getTemplate(npcId);
+		if (npcTemplate == null)
+		{
+			LOG.warn("{}: Data missing in NPC table for ID: {}.", getClass().getSimpleName(), npcId);
+			return false;
+		}
+		
+		if (npcTemplate.isType("L2SiegeGuard") || npcTemplate.isType("L2RaidBoss"))
+		{
+			// Don't spawn
+			return false;
+		}
+		
+		return true;
 	}
 	
 	@Override
@@ -321,14 +215,14 @@ public final class SpawnTable implements IXmlReader
 								}
 								
 								if (attrs.getNamedItem("respawnDelay") != null)
-								{
-									spawnInfo.set("respawnDelay", parseInteger(attrs, "respawnDelay"));
-								}
-								
+                                                                    spawnInfo.set("respawnDelay",
+                                                                                  fixDelay(parseInteger(attrs, "respawnDelay"),
+                                                                                           Config.L2JMOD_RESPAWN_DELAY_MULTIPLIER));
+
 								if (attrs.getNamedItem("respawnRandom") != null)
-								{
-									spawnInfo.set("respawnRandom", parseInteger(attrs, "respawnRandom"));
-								}
+                                                                    spawnInfo.set("respawnRandom",
+                                                                                  fixDelay(parseInteger(attrs, "respawnRandom"),
+                                                                                           Config.L2JMOD_RESPAWN_RANDOM_MULTIPLIER));
 								
 								if (attrs.getNamedItem("periodOfDay") != null)
 								{
@@ -349,23 +243,59 @@ public final class SpawnTable implements IXmlReader
 	}
 	
 	/**
-	 * Add a spawn to the spawn set if present, otherwise add a spawn set and add the spawn to the newly created spawn set.
-	 * @param spawn the NPC spawn to add
+	 * Retrieves spawn data from database.
+	 * @param isCustom if {@code true} the spawns are loaded as custom from custom spawn table
+	 * @return the spawn count
 	 */
-	private void addSpawn(L2Spawn spawn)
+	private int fillSpawnTable(boolean isCustom)
 	{
-		_spawnTable.computeIfAbsent(spawn.getId(), k -> ConcurrentHashMap.newKeySet(1)).add(spawn);
+		int npcSpawnCount = 0;
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement s = con.createStatement();
+			ResultSet rs = s.executeQuery(isCustom ? SELECT_CUSTOM_SPAWNS : SELECT_SPAWNS))
+		{
+			while (rs.next())
+			{
+				StatsSet spawnInfo = new StatsSet();
+				int npcId = rs.getInt("npc_templateid");
+				
+				// Check basic requirements first
+				if (!checkTemplate(npcId))
+				{
+					// Don't spawn
+					continue;
+				}
+				
+				spawnInfo.set("npcTemplateid", npcId);
+				spawnInfo.set("count", rs.getInt("count"));
+				spawnInfo.set("x", rs.getInt("locx"));
+				spawnInfo.set("y", rs.getInt("locy"));
+				spawnInfo.set("z", rs.getInt("locz"));
+				spawnInfo.set("heading", rs.getInt("heading"));
+
+				spawnInfo.set("respawnDelay",
+                                              fixDelay(rs.getInt("respawn_delay"),
+                                                        Config.L2JMOD_RESPAWN_DELAY_MULTIPLIER));
+                                spawnInfo.set("respawnRandom",
+                                              fixDelay(rs.getInt("respawn_random"),
+                                                       Config.L2JMOD_RESPAWN_RANDOM_MULTIPLIER));
+
+				spawnInfo.set("locId", rs.getInt("loc_id"));
+				spawnInfo.set("periodOfDay", rs.getInt("periodOfDay"));
+				spawnInfo.set("isCustomSpawn", isCustom);
+				npcSpawnCount += addSpawn(spawnInfo);
+			}
+		}
+		catch (Exception e)
+		{
+			LOG.warn("{}: Spawn could not be initialized!", getClass().getSimpleName(), e);
+		}
+		return npcSpawnCount;
 	}
-	
-	/**
-	 * Wrapper for {@link #addSpawn(StatsSet, Map)}.
-	 * @param spawnInfo StatsSet of spawn parameters
-	 * @return count NPC instances, spawned by this spawn
-	 */
-	private int addSpawn(StatsSet spawnInfo)
-	{
-		return addSpawn(spawnInfo, null);
-	}
+
+    private long fixDelay(final long delay, final long mul) {
+        return mul < 2 ? delay : delay * mul;
+    }
 	
 	/**
 	 * Creates NPC spawn
@@ -425,71 +355,125 @@ public final class SpawnTable implements IXmlReader
 	}
 	
 	/**
-	 * Verifies if the template exists and it's spawnable.
-	 * @param npcId the NPC ID
-	 * @return {@code true} if the NPC ID belongs to an spawnable template, {@code false} otherwise
+	 * Wrapper for {@link #addSpawn(StatsSet, Map)}.
+	 * @param spawnInfo StatsSet of spawn parameters
+	 * @return count NPC instances, spawned by this spawn
 	 */
-	private boolean checkTemplate(int npcId)
+	private int addSpawn(StatsSet spawnInfo)
 	{
-		L2NpcTemplate npcTemplate = NpcData.getInstance().getTemplate(npcId);
-		if (npcTemplate == null)
-		{
-			LOG.warn("{}: Data missing in NPC table for ID: {}.", getClass().getSimpleName(), npcId);
-			return false;
-		}
-		
-		if (npcTemplate.isType("L2SiegeGuard") || npcTemplate.isType("L2RaidBoss"))
-		{
-			// Don't spawn
-			return false;
-		}
-		
-		return true;
+		return addSpawn(spawnInfo, null);
 	}
 	
 	/**
-	 * Retrieves spawn data from database.
-	 * @param isCustom if {@code true} the spawns are loaded as custom from custom spawn table
+	 * Gets the spawn data.
+	 * @return the spawn data
+	 */
+	public Map<Integer, Set<L2Spawn>> getSpawnTable()
+	{
+		return _spawnTable;
+	}
+	
+	/**
+	 * Gets the spawns for the NPC Id.
+	 * @param npcId the NPC Id
+	 * @return the spawn set for the given npcId
+	 */
+	public Set<L2Spawn> getSpawns(int npcId)
+	{
+		return _spawnTable.getOrDefault(npcId, Collections.emptySet());
+	}
+	
+	/**
+	 * Gets the spawn count for the given NPC ID.
+	 * @param npcId the NPC Id
 	 * @return the spawn count
 	 */
-	private int fillSpawnTable(boolean isCustom)
+	public int getSpawnCount(int npcId)
 	{
-		int npcSpawnCount = 0;
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement s = con.createStatement();
-			ResultSet rs = s.executeQuery(isCustom ? SELECT_CUSTOM_SPAWNS : SELECT_SPAWNS))
+		return getSpawns(npcId).size();
+	}
+	
+	/**
+	 * Finds a spawn for the given NPC ID.
+	 * @param npcId the NPC Id
+	 * @return a spawn for the given NPC ID or {@code null}
+	 */
+	public L2Spawn findAny(int npcId)
+	{
+		return getSpawns(npcId).stream().findFirst().orElse(null);
+	}
+	
+	/**
+	 * Adds a new spawn to the spawn table.
+	 * @param spawn the spawn to add
+	 * @param storeInDb if {@code true} it'll be saved in the database
+	 */
+	public void addNewSpawn(L2Spawn spawn, boolean storeInDb)
+	{
+		addSpawn(spawn);
+		
+		if (storeInDb)
 		{
-			while (rs.next())
+			final String spawnTable = spawn.isCustom() && Config.CUSTOM_SPAWNLIST_TABLE ? "custom_spawnlist" : "spawnlist";
+			try (Connection con = ConnectionFactory.getInstance().getConnection();
+				PreparedStatement insert = con.prepareStatement("INSERT INTO " + spawnTable + "(count,npc_templateid,locx,locy,locz,heading,respawn_delay,respawn_random,loc_id) values(?,?,?,?,?,?,?,?,?)"))
 			{
-				StatsSet spawnInfo = new StatsSet();
-				int npcId = rs.getInt("npc_templateid");
-				
-				// Check basic requirements first
-				if (!checkTemplate(npcId))
-				{
-					// Don't spawn
-					continue;
-				}
-				
-				spawnInfo.set("npcTemplateid", npcId);
-				spawnInfo.set("count", rs.getInt("count"));
-				spawnInfo.set("x", rs.getInt("locx"));
-				spawnInfo.set("y", rs.getInt("locy"));
-				spawnInfo.set("z", rs.getInt("locz"));
-				spawnInfo.set("heading", rs.getInt("heading"));
-				spawnInfo.set("respawnDelay", rs.getInt("respawn_delay"));
-				spawnInfo.set("respawnRandom", rs.getInt("respawn_random"));
-				spawnInfo.set("locId", rs.getInt("loc_id"));
-				spawnInfo.set("periodOfDay", rs.getInt("periodOfDay"));
-				spawnInfo.set("isCustomSpawn", isCustom);
-				npcSpawnCount += addSpawn(spawnInfo);
+				insert.setInt(1, spawn.getAmount());
+				insert.setInt(2, spawn.getId());
+				insert.setInt(3, spawn.getX());
+				insert.setInt(4, spawn.getY());
+				insert.setInt(5, spawn.getZ());
+				insert.setInt(6, spawn.getHeading());
+				insert.setInt(7, spawn.getRespawnDelay() / 1000);
+				insert.setInt(8, spawn.getRespawnMaxDelay() - spawn.getRespawnMinDelay());
+				insert.setInt(9, spawn.getLocationId());
+				insert.execute();
+			}
+			catch (Exception e)
+			{
+				LOG.warn("{}: Could not store spawn in the DB!", getClass().getSimpleName(), e);
 			}
 		}
-		catch (Exception e)
+	}
+	
+	/**
+	 * Delete an spawn from the spawn table.
+	 * @param spawn the spawn to delete
+	 * @param updateDb if {@code true} database will be updated
+	 */
+	public void deleteSpawn(L2Spawn spawn, boolean updateDb)
+	{
+		if (!removeSpawn(spawn))
 		{
-			LOG.warn("{}: Spawn could not be initialized!", getClass().getSimpleName(), e);
+			return;
 		}
-		return npcSpawnCount;
+		
+		if (updateDb)
+		{
+			try (Connection con = ConnectionFactory.getInstance().getConnection();
+				PreparedStatement delete = con.prepareStatement("DELETE FROM " + (spawn.isCustom() ? "custom_spawnlist" : "spawnlist") + " WHERE locx=? AND locy=? AND locz=? AND npc_templateid=? AND heading=?"))
+			{
+				delete.setInt(1, spawn.getX());
+				delete.setInt(2, spawn.getY());
+				delete.setInt(3, spawn.getZ());
+				delete.setInt(4, spawn.getId());
+				delete.setInt(5, spawn.getHeading());
+				delete.execute();
+			}
+			catch (Exception e)
+			{
+				LOG.warn("{}: Spawn {} could not be removed from DB!", getClass().getSimpleName(), spawn, e);
+			}
+		}
+	}
+	
+	/**
+	 * Add a spawn to the spawn set if present, otherwise add a spawn set and add the spawn to the newly created spawn set.
+	 * @param spawn the NPC spawn to add
+	 */
+	private void addSpawn(L2Spawn spawn)
+	{
+		_spawnTable.computeIfAbsent(spawn.getId(), k -> ConcurrentHashMap.newKeySet(1)).add(spawn);
 	}
 	
 	/**
@@ -510,6 +494,32 @@ public final class SpawnTable implements IXmlReader
 			return removed;
 		}
 		return false;
+	}
+	
+	/**
+	 * Execute a procedure over all spawns.<br>
+	 * <font size="4" color="red">Do not use it!</font>
+	 * @param function the function to execute
+	 * @return {@code true} if all procedures were executed, {@code false} otherwise
+	 */
+	public boolean forEachSpawn(Function<L2Spawn, Boolean> function)
+	{
+		for (Set<L2Spawn> set : _spawnTable.values())
+		{
+			for (L2Spawn spawn : set)
+			{
+				if (!function.apply(spawn))
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	public static SpawnTable getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

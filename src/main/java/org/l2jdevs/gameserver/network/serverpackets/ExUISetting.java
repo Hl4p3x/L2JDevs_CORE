@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -36,6 +36,38 @@ public class ExUISetting extends L2GameServerPacket
 	{
 		_uiSettings = player.getUISettings();
 		calcSize();
+	}
+	
+	private void calcSize()
+	{
+		int size = 16; // initial header and footer
+		int category = 0;
+		int numKeyCt = _uiSettings.getKeys().size();
+		for (int i = 0; i < numKeyCt; i++)
+		{
+			size++;
+			if (_uiSettings.getCategories().containsKey(category))
+			{
+				List<Integer> catElList1 = _uiSettings.getCategories().get(category);
+				size = size + catElList1.size();
+			}
+			category++;
+			size++;
+			if (_uiSettings.getCategories().containsKey(category))
+			{
+				List<Integer> catElList2 = _uiSettings.getCategories().get(category);
+				size = size + catElList2.size();
+			}
+			category++;
+			size = size + 4;
+			if (_uiSettings.getKeys().containsKey(i))
+			{
+				List<ActionKey> keyElList = _uiSettings.getKeys().get(i);
+				size = size + (keyElList.size() * 20);
+			}
+		}
+		buffsize = size;
+		categories = category;
 	}
 	
 	@Override
@@ -103,37 +135,5 @@ public class ExUISetting extends L2GameServerPacket
 		}
 		writeD(0x11);
 		writeD(0x10);
-	}
-	
-	private void calcSize()
-	{
-		int size = 16; // initial header and footer
-		int category = 0;
-		int numKeyCt = _uiSettings.getKeys().size();
-		for (int i = 0; i < numKeyCt; i++)
-		{
-			size++;
-			if (_uiSettings.getCategories().containsKey(category))
-			{
-				List<Integer> catElList1 = _uiSettings.getCategories().get(category);
-				size = size + catElList1.size();
-			}
-			category++;
-			size++;
-			if (_uiSettings.getCategories().containsKey(category))
-			{
-				List<Integer> catElList2 = _uiSettings.getCategories().get(category);
-				size = size + catElList2.size();
-			}
-			category++;
-			size = size + 4;
-			if (_uiSettings.getKeys().containsKey(i))
-			{
-				List<ActionKey> keyElList = _uiSettings.getKeys().get(i);
-				size = size + (keyElList.size() * 20);
-			}
-		}
-		buffsize = size;
-		categories = category;
 	}
 }

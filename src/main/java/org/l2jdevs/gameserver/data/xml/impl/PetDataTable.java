@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -46,91 +46,6 @@ public final class PetDataTable implements IXmlReader
 	protected PetDataTable()
 	{
 		load();
-	}
-	
-	/**
-	 * Gets the single instance of PetDataTable.
-	 * @return this class unique instance.
-	 */
-	public static PetDataTable getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Checks if is mountable.
-	 * @param npcId the NPC Id to verify.
-	 * @return {@code true} if the given Id is from a mountable pet, {@code false} otherwise.
-	 */
-	public static boolean isMountable(int npcId)
-	{
-		return MountType.findByNpcId(npcId) != MountType.NONE;
-	}
-	
-	/**
-	 * Gets the pet data.
-	 * @param petId the pet Id.
-	 * @return the pet data
-	 */
-	public L2PetData getPetData(int petId)
-	{
-		if (!_pets.containsKey(petId))
-		{
-			LOG.info("{}: Missing pet data for NPC ID {}!", getClass().getSimpleName(), petId);
-		}
-		return _pets.get(petId);
-	}
-	
-	/**
-	 * @param itemId
-	 * @return
-	 */
-	public L2PetData getPetDataByItemId(int itemId)
-	{
-		for (L2PetData data : _pets.values())
-		{
-			if (data.getItemId() == itemId)
-			{
-				return data;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * Gets the pet items by npc.
-	 * @param npcId the NPC ID to get its summoning item
-	 * @return summoning item for the given NPC ID
-	 */
-	public int getPetItemsByNpc(int npcId)
-	{
-		return _pets.get(npcId).getItemId();
-	}
-	
-	/**
-	 * Gets the pet level data.
-	 * @param petId the pet Id.
-	 * @param petLevel the pet level.
-	 * @return the pet's parameters for the given Id and level.
-	 */
-	public L2PetLevelData getPetLevelData(int petId, int petLevel)
-	{
-		final L2PetData pd = getPetData(petId);
-		if (pd != null)
-		{
-			return pd.getPetLevelData(petLevel);
-		}
-		return null;
-	}
-	
-	/**
-	 * Gets the pet min level.
-	 * @param petId the pet Id.
-	 * @return the pet min level
-	 */
-	public int getPetMinLevel(int petId)
-	{
-		return _pets.get(petId).getMinLevel();
 	}
 	
 	@Override
@@ -230,6 +145,91 @@ public final class PetDataTable implements IXmlReader
 				_pets.put(npcId, data);
 			}
 		}
+	}
+	
+	/**
+	 * @param itemId
+	 * @return
+	 */
+	public L2PetData getPetDataByItemId(int itemId)
+	{
+		for (L2PetData data : _pets.values())
+		{
+			if (data.getItemId() == itemId)
+			{
+				return data;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the pet level data.
+	 * @param petId the pet Id.
+	 * @param petLevel the pet level.
+	 * @return the pet's parameters for the given Id and level.
+	 */
+	public L2PetLevelData getPetLevelData(int petId, int petLevel)
+	{
+		final L2PetData pd = getPetData(petId);
+		if (pd != null)
+		{
+			return pd.getPetLevelData(petLevel);
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the pet data.
+	 * @param petId the pet Id.
+	 * @return the pet data
+	 */
+	public L2PetData getPetData(int petId)
+	{
+		if (!_pets.containsKey(petId))
+		{
+			LOG.info("{}: Missing pet data for NPC ID {}!", getClass().getSimpleName(), petId);
+		}
+		return _pets.get(petId);
+	}
+	
+	/**
+	 * Gets the pet min level.
+	 * @param petId the pet Id.
+	 * @return the pet min level
+	 */
+	public int getPetMinLevel(int petId)
+	{
+		return _pets.get(petId).getMinLevel();
+	}
+	
+	/**
+	 * Gets the pet items by npc.
+	 * @param npcId the NPC ID to get its summoning item
+	 * @return summoning item for the given NPC ID
+	 */
+	public int getPetItemsByNpc(int npcId)
+	{
+		return _pets.get(npcId).getItemId();
+	}
+	
+	/**
+	 * Checks if is mountable.
+	 * @param npcId the NPC Id to verify.
+	 * @return {@code true} if the given Id is from a mountable pet, {@code false} otherwise.
+	 */
+	public static boolean isMountable(int npcId)
+	{
+		return MountType.findByNpcId(npcId) != MountType.NONE;
+	}
+	
+	/**
+	 * Gets the single instance of PetDataTable.
+	 * @return this class unique instance.
+	 */
+	public static PetDataTable getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

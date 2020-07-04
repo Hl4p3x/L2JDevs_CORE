@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -41,9 +41,13 @@ public final class AntiFeedManager
 	{
 	}
 	
-	public static final AntiFeedManager getInstance()
+	/**
+	 * Set time of the last player's death to current
+	 * @param objectId Player's objectId
+	 */
+	public final void setLastDeathTime(int objectId)
 	{
-		return SingletonHolder._instance;
+		_lastDeathTimes.put(objectId, System.currentTimeMillis());
 	}
 	
 	/**
@@ -109,67 +113,6 @@ public final class AntiFeedManager
 	}
 	
 	/**
-	 * Clear all entries for this eventId.
-	 * @param eventId
-	 */
-	public final void clear(int eventId)
-	{
-		final Map<Integer, AtomicInteger> event = _eventIPs.get(eventId);
-		if (event != null)
-		{
-			event.clear();
-		}
-	}
-	
-	/**
-	 * @param client
-	 * @param max
-	 * @return maximum number of allowed connections (whitelist + max)
-	 */
-	public final int getLimit(L2GameClient client, int max)
-	{
-		if (client == null)
-		{
-			return max;
-		}
-		
-		final Integer addrHash = Integer.valueOf(client.getConnectionAddress().hashCode());
-		int limit = max;
-		if (Config.L2JMOD_DUALBOX_CHECK_WHITELIST.containsKey(addrHash))
-		{
-			limit += Config.L2JMOD_DUALBOX_CHECK_WHITELIST.get(addrHash);
-		}
-		return limit;
-	}
-	
-	/**
-	 * @param player
-	 * @param max
-	 * @return maximum number of allowed connections (whitelist + max)
-	 */
-	public final int getLimit(L2PcInstance player, int max)
-	{
-		return getLimit(player.getClient(), max);
-	}
-	
-	/**
-	 * Remove player connection IP address from all registered events lists.
-	 * @param client
-	 */
-	public final void onDisconnect(L2GameClient client)
-	{
-		if (client == null)
-		{
-			return;
-		}
-		
-		_eventIPs.forEach((k, v) ->
-		{
-			removeClient(k, client);
-		});
-	}
-	
-	/**
 	 * Register new event for dualbox check. Should be called only once.
 	 * @param eventId
 	 */
@@ -179,54 +122,15 @@ public final class AntiFeedManager
 	}
 	
 	/**
-	 * Decreasing number of active connection from player's IP address
-	 * @param eventId
-	 * @param client
-	 * @return true if success and false if any problem detected.
-	 */
-	public final boolean removeClient(int eventId, L2GameClient client)
-	{
-		if (client == null)
-		{
-			return false; // unable to determine IP address
-		}
-		
-		final Map<Integer, AtomicInteger> event = _eventIPs.get(eventId);
-		if (event == null)
-		{
-			return false; // no such event registered
-		}
-		
-		final Integer addrHash = Integer.valueOf(client.getConnectionAddress().hashCode());
-		
-		return event.computeIfPresent(addrHash, (k, v) ->
-		{
-			if ((v == null) || (v.decrementAndGet() == 0))
-			{
-				return null;
-			}
-			return v;
-		}) != null;
-	}
-	
-	/**
-	 * Decreasing number of active connection from player's IP address
 	 * @param eventId
 	 * @param player
-	 * @return true if success and false if any problem detected.
+	 * @param max
+	 * @return If number of all simultaneous connections from player's IP address lower than max then increment connection count and return true.<br>
+	 *         False if number of all simultaneous connections from player's IP address higher than max.
 	 */
-	public final boolean removePlayer(int eventId, L2PcInstance player)
+	public final boolean tryAddPlayer(int eventId, L2PcInstance player, int max)
 	{
-		return removeClient(eventId, player.getClient());
-	}
-	
-	/**
-	 * Set time of the last player's death to current
-	 * @param objectId Player's objectId
-	 */
-	public final void setLastDeathTime(int objectId)
-	{
-		_lastDeathTimes.put(objectId, System.currentTimeMillis());
+		return tryAddClient(eventId, player.getClient(), max);
 	}
 	
 	/**
@@ -262,15 +166,111 @@ public final class AntiFeedManager
 	}
 	
 	/**
+	 * Decreasing number of active connection from player's IP address
 	 * @param eventId
 	 * @param player
-	 * @param max
-	 * @return If number of all simultaneous connections from player's IP address lower than max then increment connection count and return true.<br>
-	 *         False if number of all simultaneous connections from player's IP address higher than max.
+	 * @return true if success and false if any problem detected.
 	 */
-	public final boolean tryAddPlayer(int eventId, L2PcInstance player, int max)
+	public final boolean removePlayer(int eventId, L2PcInstance player)
 	{
-		return tryAddClient(eventId, player.getClient(), max);
+		return removeClient(eventId, player.getClient());
+	}
+	
+	/**
+	 * Decreasing number of active connection from player's IP address
+	 * @param eventId
+	 * @param client
+	 * @return true if success and false if any problem detected.
+	 */
+	public final boolean removeClient(int eventId, L2GameClient client)
+	{
+		if (client == null)
+		{
+			return false; // unable to determine IP address
+		}
+		
+		final Map<Integer, AtomicInteger> event = _eventIPs.get(eventId);
+		if (event == null)
+		{
+			return false; // no such event registered
+		}
+		
+		final Integer addrHash = Integer.valueOf(client.getConnectionAddress().hashCode());
+		
+		return event.computeIfPresent(addrHash, (k, v) ->
+		{
+			if ((v == null) || (v.decrementAndGet() == 0))
+			{
+				return null;
+			}
+			return v;
+		}) != null;
+	}
+	
+	/**
+	 * Remove player connection IP address from all registered events lists.
+	 * @param client
+	 */
+	public final void onDisconnect(L2GameClient client)
+	{
+		if (client == null)
+		{
+			return;
+		}
+		
+		_eventIPs.forEach((k, v) ->
+		{
+			removeClient(k, client);
+		});
+	}
+	
+	/**
+	 * Clear all entries for this eventId.
+	 * @param eventId
+	 */
+	public final void clear(int eventId)
+	{
+		final Map<Integer, AtomicInteger> event = _eventIPs.get(eventId);
+		if (event != null)
+		{
+			event.clear();
+		}
+	}
+	
+	/**
+	 * @param player
+	 * @param max
+	 * @return maximum number of allowed connections (whitelist + max)
+	 */
+	public final int getLimit(L2PcInstance player, int max)
+	{
+		return getLimit(player.getClient(), max);
+	}
+	
+	/**
+	 * @param client
+	 * @param max
+	 * @return maximum number of allowed connections (whitelist + max)
+	 */
+	public final int getLimit(L2GameClient client, int max)
+	{
+		if (client == null)
+		{
+			return max;
+		}
+		
+		final Integer addrHash = Integer.valueOf(client.getConnectionAddress().hashCode());
+		int limit = max;
+		if (Config.L2JMOD_DUALBOX_CHECK_WHITELIST.containsKey(addrHash))
+		{
+			limit += Config.L2JMOD_DUALBOX_CHECK_WHITELIST.get(addrHash);
+		}
+		return limit;
+	}
+	
+	public static final AntiFeedManager getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

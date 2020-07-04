@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -30,6 +30,8 @@ import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
+import org.l2jdevs.mmocore.SelectorConfig;
+import org.l2jdevs.mmocore.SelectorThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,8 +143,6 @@ import org.l2jdevs.gameserver.script.faenor.FaenorScriptEngine;
 import org.l2jdevs.gameserver.scripting.ScriptEngineManager;
 import org.l2jdevs.gameserver.taskmanager.KnownListUpdateTaskManager;
 import org.l2jdevs.gameserver.taskmanager.TaskManager;
-import org.l2jdevs.mmocore.SelectorConfig;
-import org.l2jdevs.mmocore.SelectorThread;
 import org.l2jdevs.status.Status;
 import org.l2jdevs.util.DeadLockDetector;
 import org.l2jdevs.util.IPv4Filter;
@@ -156,11 +156,11 @@ public final class GameServer
 	private static final String DATAPACK = "-dp";
 	private static final String GEODATA = "-gd";
 	
-	public static GameServer gameServer;
-	public static final Calendar dateTimeServerStarted = Calendar.getInstance();
 	private final SelectorThread<L2GameClient> _selectorThread;
 	private final L2GamePacketHandler _gamePacketHandler;
 	private final DeadLockDetector _deadDetectThread;
+	public static GameServer gameServer;
+	public static final Calendar dateTimeServerStarted = Calendar.getInstance();
 	
 	public GameServer() throws Exception
 	{
@@ -474,6 +474,26 @@ public final class GameServer
 		}
 	}
 	
+	public long getUsedMemoryMB()
+	{
+		return (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1048576;
+	}
+	
+	public SelectorThread<L2GameClient> getSelectorThread()
+	{
+		return _selectorThread;
+	}
+	
+	public L2GamePacketHandler getL2GamePacketHandler()
+	{
+		return _gamePacketHandler;
+	}
+	
+	public DeadLockDetector getDeadLockDetectorThread()
+	{
+		return _deadDetectThread;
+	}
+	
 	public static void printSection(String s)
 	{
 		s = "=[ " + s + " ]";
@@ -482,25 +502,5 @@ public final class GameServer
 			s = "-" + s;
 		}
 		LOG.info(s);
-	}
-	
-	public DeadLockDetector getDeadLockDetectorThread()
-	{
-		return _deadDetectThread;
-	}
-	
-	public L2GamePacketHandler getL2GamePacketHandler()
-	{
-		return _gamePacketHandler;
-	}
-	
-	public SelectorThread<L2GameClient> getSelectorThread()
-	{
-		return _selectorThread;
-	}
-	
-	public long getUsedMemoryMB()
-	{
-		return (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1048576;
 	}
 }

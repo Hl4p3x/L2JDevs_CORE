@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -63,11 +63,6 @@ public final class SiegeManager
 		load();
 	}
 	
-	public static final SiegeManager getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
 	public final void addSiegeSkills(L2PcInstance character)
 	{
 		for (Skill sk : SkillData.getInstance().getSiegeSkills(character.isNoble(), character.getClan().getCastleId() > 0))
@@ -113,83 +108,6 @@ public final class SiegeManager
 			_log.log(Level.WARNING, getClass().getSimpleName() + ": Exception: checkIsRegistered(): " + e.getMessage(), e);
 		}
 		return register;
-	}
-	
-	public final int getAttackerMaxClans()
-	{
-		return _attackerMaxClans;
-	}
-	
-	public final int getAttackerRespawnDelay()
-	{
-		return _attackerRespawnDelay;
-	}
-	
-	public final int getBloodAllianceReward()
-	{
-		return _bloodAllianceReward;
-	}
-	
-	public final List<TowerSpawn> getControlTowers(int castleId)
-	{
-		return _controlTowers.get(castleId);
-	}
-	
-	public final int getDefenderMaxClans()
-	{
-		return _defenderMaxClans;
-	}
-	
-	public final int getFlagMaxCount()
-	{
-		return _flagMaxCount;
-	}
-	
-	public final List<TowerSpawn> getFlameTowers(int castleId)
-	{
-		return _flameTowers.get(castleId);
-	}
-	
-	public final Siege getSiege(ILocational loc)
-	{
-		return getSiege(loc.getX(), loc.getY(), loc.getZ());
-	}
-	
-	public final Siege getSiege(int x, int y, int z)
-	{
-		for (Castle castle : CastleManager.getInstance().getCastles())
-		{
-			if (castle.getSiege().checkIfInZone(x, y, z))
-			{
-				return castle.getSiege();
-			}
-		}
-		return null;
-	}
-	
-	public final Siege getSiege(L2Object activeObject)
-	{
-		return getSiege(activeObject.getX(), activeObject.getY(), activeObject.getZ());
-	}
-	
-	public final int getSiegeClanMinLevel()
-	{
-		return _siegeClanMinLevel;
-	}
-	
-	public final int getSiegeLength()
-	{
-		return _siegeLength;
-	}
-	
-	public final List<Siege> getSieges()
-	{
-		List<Siege> sieges = new ArrayList<>();
-		for (Castle castle : CastleManager.getInstance().getCastles())
-		{
-			sieges.add(castle.getSiege());
-		}
-		return sieges;
 	}
 	
 	public final void removeSiegeSkills(L2PcInstance character)
@@ -281,6 +199,83 @@ public final class SiegeManager
 		}
 	}
 	
+	public final List<TowerSpawn> getControlTowers(int castleId)
+	{
+		return _controlTowers.get(castleId);
+	}
+	
+	public final List<TowerSpawn> getFlameTowers(int castleId)
+	{
+		return _flameTowers.get(castleId);
+	}
+	
+	public final int getAttackerMaxClans()
+	{
+		return _attackerMaxClans;
+	}
+	
+	public final int getAttackerRespawnDelay()
+	{
+		return _attackerRespawnDelay;
+	}
+	
+	public final int getDefenderMaxClans()
+	{
+		return _defenderMaxClans;
+	}
+	
+	public final int getFlagMaxCount()
+	{
+		return _flagMaxCount;
+	}
+	
+	public final Siege getSiege(ILocational loc)
+	{
+		return getSiege(loc.getX(), loc.getY(), loc.getZ());
+	}
+	
+	public final Siege getSiege(L2Object activeObject)
+	{
+		return getSiege(activeObject.getX(), activeObject.getY(), activeObject.getZ());
+	}
+	
+	public final Siege getSiege(int x, int y, int z)
+	{
+		for (Castle castle : CastleManager.getInstance().getCastles())
+		{
+			if (castle.getSiege().checkIfInZone(x, y, z))
+			{
+				return castle.getSiege();
+			}
+		}
+		return null;
+	}
+	
+	public final int getSiegeClanMinLevel()
+	{
+		return _siegeClanMinLevel;
+	}
+	
+	public final int getSiegeLength()
+	{
+		return _siegeLength;
+	}
+	
+	public final int getBloodAllianceReward()
+	{
+		return _bloodAllianceReward;
+	}
+	
+	public final List<Siege> getSieges()
+	{
+		List<Siege> sieges = new ArrayList<>();
+		for (Castle castle : CastleManager.getInstance().getCastles())
+		{
+			sieges.add(castle.getSiege());
+		}
+		return sieges;
+	}
+	
 	private final void loadTrapUpgrade(int castleId)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -299,6 +294,11 @@ public final class SiegeManager
 		{
 			_log.log(Level.WARNING, "Exception: loadTrapUpgrade(): " + e.getMessage(), e);
 		}
+	}
+	
+	public static final SiegeManager getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

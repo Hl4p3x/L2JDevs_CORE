@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -347,27 +347,703 @@ public class Skill implements IIdentifiable
 		_channelingTickInitialDelay = set.getInt("channelingTickInitialDelay", _channelingTickInterval / 1000) * 1000;
 	}
 	
-	public static final boolean addCharacter(L2Character caster, L2Character target, int radius, boolean isDead)
+	public TraitType getTraitType()
 	{
-		if (isDead != target.isDead())
+		return _traitType;
+	}
+	
+	public AttributeType getAttributeType()
+	{
+		return _attributeType;
+	}
+	
+	public int getAttributePower()
+	{
+		return _attributePower;
+	}
+	
+	/**
+	 * Return the target type of the skill : SELF, PARTY, CLAN, PET...
+	 * @return
+	 */
+	public L2TargetType getTargetType()
+	{
+		return _targetType;
+	}
+	
+	/**
+	 * Gets the affect scope of the skill.
+	 * @return the affect scope
+	 */
+	public AffectScope getAffectScope()
+	{
+		return _affectScope;
+	}
+	
+	public boolean isAOE()
+	{
+		switch (_targetType)
 		{
+			case AREA:
+			case AURA:
+			case BEHIND_AREA:
+			case BEHIND_AURA:
+			case FRONT_AREA:
+			case FRONT_AURA:
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean isDamage()
+	{
+		return hasEffectType(L2EffectType.MAGICAL_ATTACK, L2EffectType.HP_DRAIN, L2EffectType.PHYSICAL_ATTACK);
+	}
+	
+	public boolean isOverhit()
+	{
+		return _overhit;
+	}
+	
+	public boolean isSuicideAttack()
+	{
+		return _isSuicideAttack;
+	}
+	
+	/**
+	 * Verify if this skill is abnormal instant.<br>
+	 * Herb buff skills yield {@code true} for this check.
+	 * @return {@code true} if the skill is abnormal instant, {@code false} otherwise
+	 */
+	public boolean isAbnormalInstant()
+	{
+		return _isAbnormalInstant;
+	}
+	
+	/**
+	 * Gets the skill abnormal type.
+	 * @return the abnormal type
+	 */
+	public AbnormalType getAbnormalType()
+	{
+		return _abnormalType;
+	}
+	
+	/**
+	 * Gets the skill abnormal level.
+	 * @return the skill abnormal level
+	 */
+	public int getAbnormalLvl()
+	{
+		return _abnormalLvl;
+	}
+	
+	/**
+	 * Gets the skill abnormal time.<br>
+	 * Is the base to calculate the duration of the continuous effects of this skill.
+	 * @return the abnormal time
+	 */
+	public int getAbnormalTime()
+	{
+		return _abnormalTime;
+	}
+	
+	/**
+	 * Gets the skill abnormal visual effect.
+	 * @return the abnormal visual effect
+	 */
+	public AbnormalVisualEffect[] getAbnormalVisualEffects()
+	{
+		return _abnormalVisualEffects;
+	}
+	
+	/**
+	 * Verify if the skill has abnormal visual effects.
+	 * @return {@code true} if the skill has abnormal visual effects, {@code false} otherwise
+	 */
+	public boolean hasAbnormalVisualEffects()
+	{
+		return (_abnormalVisualEffects != null) && (_abnormalVisualEffects.length > 0);
+	}
+	
+	/**
+	 * Gets the skill special abnormal visual effect.
+	 * @return the abnormal visual effect
+	 */
+	public AbnormalVisualEffect[] getAbnormalVisualEffectsSpecial()
+	{
+		return _abnormalVisualEffectsSpecial;
+	}
+	
+	/**
+	 * Verify if the skill has special abnormal visual effects.
+	 * @return {@code true} if the skill has special abnormal visual effects, {@code false} otherwise
+	 */
+	public boolean hasAbnormalVisualEffectsSpecial()
+	{
+		return (_abnormalVisualEffectsSpecial != null) && (_abnormalVisualEffectsSpecial.length > 0);
+	}
+	
+	/**
+	 * Gets the skill event abnormal visual effect.
+	 * @return the abnormal visual effect
+	 */
+	public AbnormalVisualEffect[] getAbnormalVisualEffectsEvent()
+	{
+		return _abnormalVisualEffectsEvent;
+	}
+	
+	/**
+	 * Verify if the skill has event abnormal visual effects.
+	 * @return {@code true} if the skill has event abnormal visual effects, {@code false} otherwise
+	 */
+	public boolean hasAbnormalVisualEffectsEvent()
+	{
+		return (_abnormalVisualEffectsEvent != null) && (_abnormalVisualEffectsEvent.length > 0);
+	}
+	
+	/**
+	 * Gets the skill magic level.
+	 * @return the skill magic level
+	 */
+	public int getMagicLevel()
+	{
+		return _magicLevel;
+	}
+	
+	public int getLvlBonusRate()
+	{
+		return _lvlBonusRate;
+	}
+	
+	public int getActivateRate()
+	{
+		return _activateRate;
+	}
+	
+	/**
+	 * Return custom minimum skill/effect chance.
+	 * @return
+	 */
+	public int getMinChance()
+	{
+		return _minChance;
+	}
+	
+	/**
+	 * Return custom maximum skill/effect chance.
+	 * @return
+	 */
+	public int getMaxChance()
+	{
+		return _maxChance;
+	}
+	
+	/**
+	 * Return true if skill effects should be removed on any action except movement
+	 * @return
+	 */
+	public boolean isRemovedOnAnyActionExceptMove()
+	{
+		return (_abnormalType == AbnormalType.INVINCIBILITY) || (_abnormalType == AbnormalType.HIDE);
+	}
+	
+	/**
+	 * @return {@code true} if skill effects should be removed on damage
+	 */
+	public boolean isRemovedOnDamage()
+	{
+		return (_abnormalType == AbnormalType.SLEEP) || (_abnormalType == AbnormalType.FORCE_MEDITATION) || (_abnormalType == AbnormalType.HIDE);
+	}
+	
+	/**
+	 * @return {@code true} if skill can not be used in olympiad.
+	 */
+	public boolean isBlockedInOlympiad()
+	{
+		return _blockedInOlympiad;
+	}
+	
+	/**
+	 * Return the additional effect Id.
+	 * @return
+	 */
+	public int getChannelingSkillId()
+	{
+		return _channelingSkillId;
+	}
+	
+	/**
+	 * Return true if character should attack target after skill
+	 * @return
+	 */
+	public boolean nextActionIsAttack()
+	{
+		return _nextActionIsAttack;
+	}
+	
+	/**
+	 * @return Returns the castRange.
+	 */
+	public int getCastRange()
+	{
+		return _castRange;
+	}
+	
+	/**
+	 * @return Returns the effectRange.
+	 */
+	public int getEffectRange()
+	{
+		return _effectRange;
+	}
+	
+	/**
+	 * @return Returns the hpConsume.
+	 */
+	public int getHpConsume()
+	{
+		return _hpConsume;
+	}
+	
+	/**
+	 * Gets the skill ID.
+	 * @return the skill ID
+	 */
+	@Override
+	public int getId()
+	{
+		return _id;
+	}
+	
+	/**
+	 * Verify if this skill is a debuff.
+	 * @return {@code true} if this skill is a debuff, {@code false} otherwise
+	 */
+	public boolean isDebuff()
+	{
+		return _isDebuff;
+	}
+	
+	/**
+	 * Verify if this skill is coming from Recovery Herb.
+	 * @return {@code true} if this skill is a recover herb, {@code false} otherwise
+	 */
+	public boolean isRecoveryHerb()
+	{
+		return _isRecoveryHerb;
+	}
+	
+	public int getDisplayId()
+	{
+		return _displayId;
+	}
+	
+	public int getDisplayLevel()
+	{
+		return _displayLevel;
+	}
+	
+	/**
+	 * Return skill basicProperty base stat (STR, INT ...).
+	 * @return
+	 */
+	public BaseStats getBasicProperty()
+	{
+		return _basicProperty;
+	}
+	
+	/**
+	 * @return Returns the how much items will be consumed.
+	 */
+	public int getItemConsumeCount()
+	{
+		return _itemConsumeCount;
+	}
+	
+	/**
+	 * @return Returns the ID of item for consume.
+	 */
+	public int getItemConsumeId()
+	{
+		return _itemConsumeId;
+	}
+	
+	/**
+	 * @return Returns the level.
+	 */
+	public int getLevel()
+	{
+		return _level;
+	}
+	
+	/**
+	 * @return Returns true to set physical skills.
+	 */
+	public boolean isPhysical()
+	{
+		return _magic == 0;
+	}
+	
+	/**
+	 * @return Returns true to set magic skills.
+	 */
+	public boolean isMagic()
+	{
+		return _magic == 1;
+	}
+	
+	/**
+	 * @return Returns true to set static skills.
+	 */
+	public boolean isStatic()
+	{
+		return _magic == 2;
+	}
+	
+	/**
+	 * @return Returns true to set dance skills.
+	 */
+	public boolean isDance()
+	{
+		return _magic == 3;
+	}
+	
+	/**
+	 * @return Returns true to set trigger skills.
+	 */
+	public boolean isTrigger()
+	{
+		return _magic == 4;
+	}
+	
+	/**
+	 * @return Returns true to set static reuse.
+	 */
+	public boolean isReuseDelayLocked()
+	{
+		return _reuseDelayLock;
+	}
+	
+	/**
+	 * @return Returns the mpConsume1.
+	 */
+	public int getMpConsume1()
+	{
+		return _mpConsume1;
+	}
+	
+	/**
+	 * @return Returns the mpConsume2.
+	 */
+	public int getMpConsume2()
+	{
+		return _mpConsume2;
+	}
+	
+	/**
+	 * @return Mana consumption per channeling tick.
+	 */
+	public int getMpPerChanneling()
+	{
+		return _mpPerChanneling;
+	}
+	
+	/**
+	 * @return the skill name
+	 */
+	public String getName()
+	{
+		return _name;
+	}
+	
+	/**
+	 * @return the reuse delay
+	 */
+	public int getReuseDelay()
+	{
+		return _reuseDelay;
+	}
+	
+	public int getReuseHashCode()
+	{
+		return _reuseHashCode;
+	}
+	
+	public int getHitTime()
+	{
+		return _hitTime;
+	}
+	
+	/**
+	 * @return the cool time
+	 */
+	public int getCoolTime()
+	{
+		return _coolTime;
+	}
+	
+	public int getAffectRange()
+	{
+		return _affectRange;
+	}
+	
+	public int getAffectLimit()
+	{
+		return (_affectLimit[0] + Rnd.get(_affectLimit[1]));
+	}
+	
+	public boolean isActive()
+	{
+		return (_operateType != null) && _operateType.isActive();
+	}
+	
+	public boolean isPassive()
+	{
+		return (_operateType != null) && _operateType.isPassive();
+	}
+	
+	public boolean isToggle()
+	{
+		return (_operateType != null) && _operateType.isToggle();
+	}
+	
+	public boolean isContinuous()
+	{
+		return ((_operateType != null) && _operateType.isContinuous()) || isSelfContinuous();
+	}
+	
+	public boolean isSelfContinuous()
+	{
+		return (_operateType != null) && _operateType.isSelfContinuous();
+	}
+	
+	public boolean isChanneling()
+	{
+		return (_operateType != null) && _operateType.isChanneling();
+	}
+	
+	public boolean isFlyType()
+	{
+		return (_operateType != null) && _operateType.isFlyType();
+	}
+	
+	/**
+	 * Verify if the skill is a transformation skill.
+	 * @return {@code true} if the skill is a transformation, {@code false} otherwise
+	 */
+	public boolean isTransformation()
+	{
+		return _abnormalType == AbnormalType.TRANSFORM;
+	}
+	
+	public int getEffectPoint()
+	{
+		return _effectPoint;
+	}
+	
+	public boolean useSoulShot()
+	{
+		return hasEffectType(L2EffectType.PHYSICAL_ATTACK);
+	}
+	
+	public boolean useSpiritShot()
+	{
+		return _magic == 1;
+	}
+	
+	public boolean useFishShot()
+	{
+		return hasEffectType(L2EffectType.FISHING);
+	}
+	
+	public int getMinPledgeClass()
+	{
+		return _minPledgeClass;
+	}
+	
+	public boolean isHeroSkill()
+	{
+		return SkillTreesData.getInstance().isHeroSkill(_id, _level);
+	}
+	
+	public boolean isGMSkill()
+	{
+		return SkillTreesData.getInstance().isGMSkill(_id, _level);
+	}
+	
+	public boolean is7Signs()
+	{
+		return (_id > 4360) && (_id < 4367);
+	}
+	
+	/**
+	 * Verify if this is a healing potion skill.
+	 * @return {@code true} if this is a healing potion skill, {@code false} otherwise
+	 */
+	public boolean isHealingPotionSkill()
+	{
+		return getAbnormalType() == AbnormalType.HP_RECOVER;
+	}
+	
+	public int getChargeConsume()
+	{
+		return _chargeConsume;
+	}
+	
+	public int getMaxSoulConsumeCount()
+	{
+		return _soulMaxConsume;
+	}
+	
+	public boolean getDmgDirectlyToHP()
+	{
+		return _directHpDmg;
+	}
+	
+	public boolean isStayAfterDeath()
+	{
+		return _stayAfterDeath;
+	}
+	
+	public boolean isStayOnSubclassChange()
+	{
+		return _stayOnSubclassChange;
+	}
+	
+	public boolean isBad()
+	{
+		return (_effectPoint < 0) && (_targetType != L2TargetType.SELF);
+	}
+	
+	public boolean checkCondition(L2Character activeChar, L2Object object, boolean itemOrWeapon)
+	{
+		if (activeChar.canOverrideCond(PcCondOverride.SKILL_CONDITIONS) && !Config.GM_SKILL_RESTRICTION)
+		{
+			return true;
+		}
+		
+		if (activeChar.isPlayer() && !canBeUseWhileRiding((L2PcInstance) activeChar))
+		{
+			final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.S1_CANNOT_BE_USED);
+			sm.addSkillName(_id);
+			activeChar.sendPacket(sm);
 			return false;
 		}
 		
-		if ((radius > 0) && !Util.checkIfInRange(radius, caster, target, true))
+		final List<Condition> preCondition = itemOrWeapon ? _itemPreCondition : _preCondition;
+		if ((preCondition == null) || preCondition.isEmpty())
 		{
-			return false;
+			return true;
+		}
+		
+		final L2Character target = (object instanceof L2Character) ? (L2Character) object : null;
+		for (Condition cond : preCondition)
+		{
+			if (!cond.test(activeChar, target, this))
+			{
+				final String msg = cond.getMessage();
+				final int msgId = cond.getMessageId();
+				if (msgId != 0)
+				{
+					final SystemMessage sm = SystemMessage.getSystemMessage(msgId);
+					if (cond.isAddName())
+					{
+						sm.addSkillName(_id);
+					}
+					activeChar.sendPacket(sm);
+				}
+				else if (msg != null)
+				{
+					activeChar.sendMessage(msg);
+				}
+				return false;
+			}
 		}
 		return true;
 	}
 	
-	public static final boolean addSummon(L2Character caster, L2PcInstance owner, int radius, boolean isDead)
+	/**
+	 * Checks if a player can use this skill while riding.
+	 * @param player the player
+	 * @return {@code true} if the player can use this skill, {@code false} otherwise
+	 */
+	public boolean canBeUseWhileRiding(final L2PcInstance player)
 	{
-		if (!owner.hasSummon())
+		return (_rideState == null) || _rideState.contains(player.getMountType());
+	}
+	
+	public L2Object[] getTargetList(L2Character activeChar, boolean onlyFirst)
+	{
+		// Init to null the target of the skill
+		L2Character target = null;
+		
+		// Get the L2Objcet targeted by the user of the skill at this moment
+		L2Object objTarget = activeChar.getTarget();
+		// If the L2Object targeted is a L2Character, it becomes the L2Character target
+		if (objTarget instanceof L2Character)
 		{
-			return false;
+			target = (L2Character) objTarget;
 		}
-		return addCharacter(caster, owner.getSummon(), radius, isDead);
+		
+		return getTargetList(activeChar, onlyFirst, target);
+	}
+	
+	/**
+	 * Return all targets of the skill in a table in function a the skill type.<br>
+	 * <B><U>Values of skill type</U>:</B>
+	 * <ul>
+	 * <li>ONE : The skill can only be used on the L2PcInstance targeted, or on the caster if it's a L2PcInstance and no L2PcInstance targeted</li>
+	 * <li>SELF</li>
+	 * <li>HOLY, UNDEAD</li>
+	 * <li>PET</li>
+	 * <li>AURA, AURA_CLOSE</li>
+	 * <li>AREA</li>
+	 * <li>MULTIFACE</li>
+	 * <li>PARTY, CLAN</li>
+	 * <li>CORPSE_PLAYER, CORPSE_MOB, CORPSE_CLAN</li>
+	 * <li>UNLOCKABLE</li>
+	 * <li>ITEM</li>
+	 * <ul>
+	 * @param activeChar The L2Character who use the skill
+	 * @param onlyFirst
+	 * @param target
+	 * @return
+	 */
+	public L2Object[] getTargetList(L2Character activeChar, boolean onlyFirst, L2Character target)
+	{
+		final ITargetTypeHandler handler = TargetHandler.getInstance().getHandler(getTargetType());
+		if (handler != null)
+		{
+			try
+			{
+				return handler.getTargetList(this, activeChar, onlyFirst, target);
+			}
+			catch (Exception e)
+			{
+				_log.log(Level.WARNING, "Exception in L2Skill.getTargetList(): " + e.getMessage(), e);
+			}
+		}
+		
+		activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar.getActingPlayer(), "skill_target_null"));
+		return EMPTY_TARGET_LIST;
+	}
+	
+	public L2Object[] getTargetList(L2Character activeChar)
+	{
+		return getTargetList(activeChar, false);
+	}
+	
+	public L2Object getFirstOfTargetList(L2Character activeChar)
+	{
+		L2Object[] targets = getTargetList(activeChar, true);
+		if (targets.length == 0)
+		{
+			return null;
+		}
+		return targets[0];
 	}
 	
 	/**
@@ -468,40 +1144,106 @@ public class Skill implements IIdentifiable
 		return true;
 	}
 	
-	/**
-	 * Activates a skill for the given creature and targets.
-	 * @param caster the caster
-	 * @param targets the targets
-	 */
-	public void activateSkill(L2Character caster, L2Object... targets)
+	public static final boolean addSummon(L2Character caster, L2PcInstance owner, int radius, boolean isDead)
 	{
-		activateSkill(caster, null, targets);
+		if (!owner.hasSummon())
+		{
+			return false;
+		}
+		return addCharacter(caster, owner.getSummon(), radius, isDead);
+	}
+	
+	public static final boolean addCharacter(L2Character caster, L2Character target, int radius, boolean isDead)
+	{
+		if (isDead != target.isDead())
+		{
+			return false;
+		}
+		
+		if ((radius > 0) && !Util.checkIfInRange(radius, caster, target, true))
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	public List<AbstractFunction> getStatFuncs(AbstractEffect effect, L2Character player)
+	{
+		if (_funcTemplates == null)
+		{
+			return Collections.<AbstractFunction> emptyList();
+		}
+		
+		if (!(player instanceof L2Playable) && !(player instanceof L2Attackable))
+		{
+			return Collections.<AbstractFunction> emptyList();
+		}
+		
+		final List<AbstractFunction> funcs = new ArrayList<>(_funcTemplates.size());
+		for (FuncTemplate t : _funcTemplates)
+		{
+			AbstractFunction f = t.getFunc(player, null, this, this); // skill is owner
+			if (f != null)
+			{
+				funcs.add(f);
+			}
+		}
+		return funcs;
 	}
 	
 	/**
-	 * Activates a skill for the given cubic and targets.
-	 * @param cubic the cubic
-	 * @param targets the targets
-	 */
-	public void activateSkill(L2CubicInstance cubic, L2Object... targets)
-	{
-		activateSkill(cubic.getOwner(), cubic, targets);
-	}
-	
-	/**
-	 * Adds an effect to the effect list for the give effect scope.
+	 * Gets the skill effects.
 	 * @param effectScope the effect scope
-	 * @param effect the effect to add
+	 * @return the list of effects for the give scope
 	 */
-	public void addEffect(EffectScope effectScope, AbstractEffect effect)
+	public List<AbstractEffect> getEffects(EffectScope effectScope)
+	{
+		return _effectLists.get(effectScope);
+	}
+	
+	/**
+	 * Verify if this skill has effects for the given scope.
+	 * @param effectScope the effect scope
+	 * @return {@code true} if this skill has effects for the given scope, {@code false} otherwise
+	 */
+	public boolean hasEffects(EffectScope effectScope)
 	{
 		List<AbstractEffect> effects = _effectLists.get(effectScope);
-		if (effects == null)
+		return (effects != null) && !effects.isEmpty();
+	}
+	
+	/**
+	 * Applies the effects from this skill to the target for the given effect scope.
+	 * @param effectScope the effect scope
+	 * @param info the buff info
+	 * @param applyInstantEffects if {@code true} instant effects will be applied to the effected
+	 * @param addContinuousEffects if {@code true} continuous effects will be applied to the effected
+	 */
+	public void applyEffectScope(EffectScope effectScope, BuffInfo info, boolean applyInstantEffects, boolean addContinuousEffects)
+	{
+		if ((effectScope != null) && hasEffects(effectScope))
 		{
-			effects = new ArrayList<>(1);
-			_effectLists.put(effectScope, effects);
+			for (AbstractEffect effect : getEffects(effectScope))
+			{
+				if (effect != null)
+				{
+					if (effect.isInstant())
+					{
+						if (applyInstantEffects && effect.calcSuccess(info))
+						{
+							effect.onStart(info);
+						}
+					}
+					else if (addContinuousEffects)
+					{
+						if (effect.canStart(info))
+						{
+							info.addEffect(effect);
+						}
+					}
+				}
+			}
 		}
-		effects.add(effect);
 	}
 	
 	/**
@@ -513,6 +1255,19 @@ public class Skill implements IIdentifiable
 	public void applyEffects(L2Character effector, L2Character effected)
 	{
 		applyEffects(effector, effected, false, false, true, 0);
+	}
+	
+	/**
+	 * Method overload for {@link Skill#applyEffects(L2Character, L2Character, boolean, boolean, boolean, int)}.<br>
+	 * Simplify the calls, allowing abnormal time time customization.
+	 * @param effector the caster of the skill
+	 * @param effected the target of the effect
+	 * @param instant if {@code true} instant effects will be applied to the effected
+	 * @param abnormalTime custom abnormal time, if equal or lesser than zero will be ignored
+	 */
+	public void applyEffects(L2Character effector, L2Character effected, boolean instant, int abnormalTime)
+	{
+		applyEffects(effector, effected, false, false, instant, abnormalTime);
 	}
 	
 	/**
@@ -630,955 +1385,23 @@ public class Skill implements IIdentifiable
 	}
 	
 	/**
-	 * Method overload for {@link Skill#applyEffects(L2Character, L2Character, boolean, boolean, boolean, int)}.<br>
-	 * Simplify the calls, allowing abnormal time time customization.
-	 * @param effector the caster of the skill
-	 * @param effected the target of the effect
-	 * @param instant if {@code true} instant effects will be applied to the effected
-	 * @param abnormalTime custom abnormal time, if equal or lesser than zero will be ignored
+	 * Activates a skill for the given creature and targets.
+	 * @param caster the caster
+	 * @param targets the targets
 	 */
-	public void applyEffects(L2Character effector, L2Character effected, boolean instant, int abnormalTime)
+	public void activateSkill(L2Character caster, L2Object... targets)
 	{
-		applyEffects(effector, effected, false, false, instant, abnormalTime);
+		activateSkill(caster, null, targets);
 	}
 	
 	/**
-	 * Applies the effects from this skill to the target for the given effect scope.
-	 * @param effectScope the effect scope
-	 * @param info the buff info
-	 * @param applyInstantEffects if {@code true} instant effects will be applied to the effected
-	 * @param addContinuousEffects if {@code true} continuous effects will be applied to the effected
+	 * Activates a skill for the given cubic and targets.
+	 * @param cubic the cubic
+	 * @param targets the targets
 	 */
-	public void applyEffectScope(EffectScope effectScope, BuffInfo info, boolean applyInstantEffects, boolean addContinuousEffects)
+	public void activateSkill(L2CubicInstance cubic, L2Object... targets)
 	{
-		if ((effectScope != null) && hasEffects(effectScope))
-		{
-			for (AbstractEffect effect : getEffects(effectScope))
-			{
-				if (effect != null)
-				{
-					if (effect.isInstant())
-					{
-						if (applyInstantEffects && effect.calcSuccess(info))
-						{
-							effect.onStart(info);
-						}
-					}
-					else if (addContinuousEffects)
-					{
-						if (effect.canStart(info))
-						{
-							info.addEffect(effect);
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	public void attach(Condition c, boolean itemOrWeapon)
-	{
-		if (itemOrWeapon)
-		{
-			if (_itemPreCondition == null)
-			{
-				_itemPreCondition = new ArrayList<>();
-			}
-			_itemPreCondition.add(c);
-		}
-		else
-		{
-			if (_preCondition == null)
-			{
-				_preCondition = new ArrayList<>();
-			}
-			_preCondition.add(c);
-		}
-	}
-	
-	public void attach(FuncTemplate f)
-	{
-		if (_funcTemplates == null)
-		{
-			_funcTemplates = new ArrayList<>(1);
-		}
-		_funcTemplates.add(f);
-	}
-	
-	/**
-	 * Verify if the skill can be stolen.
-	 * @return {@code true} if skill can be stolen, {@code false} otherwise
-	 */
-	public boolean canBeStolen()
-	{
-		return !isPassive() && !isToggle() && !isDebuff() && !isHeroSkill() && !isGMSkill() && !isIrreplaceableBuff() && !(isStatic() && (getId() != CommonSkill.CARAVANS_SECRET_MEDICINE.getId()) && (getMagicLevel() >= 0));
-	}
-	
-	/**
-	 * Checks if a player can use this skill while riding.
-	 * @param player the player
-	 * @return {@code true} if the player can use this skill, {@code false} otherwise
-	 */
-	public boolean canBeUseWhileRiding(final L2PcInstance player)
-	{
-		return (_rideState == null) || _rideState.contains(player.getMountType());
-	}
-	
-	public boolean checkCondition(L2Character activeChar, L2Object object, boolean itemOrWeapon)
-	{
-		if (activeChar.canOverrideCond(PcCondOverride.SKILL_CONDITIONS) && !Config.GM_SKILL_RESTRICTION)
-		{
-			return true;
-		}
-		
-		if (activeChar.isPlayer() && !canBeUseWhileRiding((L2PcInstance) activeChar))
-		{
-			final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.S1_CANNOT_BE_USED);
-			sm.addSkillName(_id);
-			activeChar.sendPacket(sm);
-			return false;
-		}
-		
-		final List<Condition> preCondition = itemOrWeapon ? _itemPreCondition : _preCondition;
-		if ((preCondition == null) || preCondition.isEmpty())
-		{
-			return true;
-		}
-		
-		final L2Character target = (object instanceof L2Character) ? (L2Character) object : null;
-		for (Condition cond : preCondition)
-		{
-			if (!cond.test(activeChar, target, this))
-			{
-				final String msg = cond.getMessage();
-				final int msgId = cond.getMessageId();
-				if (msgId != 0)
-				{
-					final SystemMessage sm = SystemMessage.getSystemMessage(msgId);
-					if (cond.isAddName())
-					{
-						sm.addSkillName(_id);
-					}
-					activeChar.sendPacket(sm);
-				}
-				else if (msg != null)
-				{
-					activeChar.sendMessage(msg);
-				}
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	/**
-	 * Gets the skill abnormal level.
-	 * @return the skill abnormal level
-	 */
-	public int getAbnormalLvl()
-	{
-		return _abnormalLvl;
-	}
-	
-	/**
-	 * Gets the skill abnormal time.<br>
-	 * Is the base to calculate the duration of the continuous effects of this skill.
-	 * @return the abnormal time
-	 */
-	public int getAbnormalTime()
-	{
-		return _abnormalTime;
-	}
-	
-	/**
-	 * Gets the skill abnormal type.
-	 * @return the abnormal type
-	 */
-	public AbnormalType getAbnormalType()
-	{
-		return _abnormalType;
-	}
-	
-	/**
-	 * Gets the skill abnormal visual effect.
-	 * @return the abnormal visual effect
-	 */
-	public AbnormalVisualEffect[] getAbnormalVisualEffects()
-	{
-		return _abnormalVisualEffects;
-	}
-	
-	/**
-	 * Gets the skill event abnormal visual effect.
-	 * @return the abnormal visual effect
-	 */
-	public AbnormalVisualEffect[] getAbnormalVisualEffectsEvent()
-	{
-		return _abnormalVisualEffectsEvent;
-	}
-	
-	/**
-	 * Gets the skill special abnormal visual effect.
-	 * @return the abnormal visual effect
-	 */
-	public AbnormalVisualEffect[] getAbnormalVisualEffectsSpecial()
-	{
-		return _abnormalVisualEffectsSpecial;
-	}
-	
-	public int getActivateRate()
-	{
-		return _activateRate;
-	}
-	
-	public int getAffectLimit()
-	{
-		return (_affectLimit[0] + Rnd.get(_affectLimit[1]));
-	}
-	
-	public int getAffectRange()
-	{
-		return _affectRange;
-	}
-	
-	/**
-	 * Gets the affect scope of the skill.
-	 * @return the affect scope
-	 */
-	public AffectScope getAffectScope()
-	{
-		return _affectScope;
-	}
-	
-	public int getAttributePower()
-	{
-		return _attributePower;
-	}
-	
-	public AttributeType getAttributeType()
-	{
-		return _attributeType;
-	}
-	
-	/**
-	 * Return skill basicProperty base stat (STR, INT ...).
-	 * @return
-	 */
-	public BaseStats getBasicProperty()
-	{
-		return _basicProperty;
-	}
-	
-	/**
-	 * @return Returns the castRange.
-	 */
-	public int getCastRange()
-	{
-		return _castRange;
-	}
-	
-	/**
-	 * Return the additional effect Id.
-	 * @return
-	 */
-	public int getChannelingSkillId()
-	{
-		return _channelingSkillId;
-	}
-	
-	public int getChannelingTickInitialDelay()
-	{
-		return _channelingTickInitialDelay;
-	}
-	
-	public int getChannelingTickInterval()
-	{
-		return _channelingTickInterval;
-	}
-	
-	public int getChargeConsume()
-	{
-		return _chargeConsume;
-	}
-	
-	/**
-	 * @return the cool time
-	 */
-	public int getCoolTime()
-	{
-		return _coolTime;
-	}
-	
-	public int getDisplayId()
-	{
-		return _displayId;
-	}
-	
-	public int getDisplayLevel()
-	{
-		return _displayLevel;
-	}
-	
-	public boolean getDmgDirectlyToHP()
-	{
-		return _directHpDmg;
-	}
-	
-	public int getEffectPoint()
-	{
-		return _effectPoint;
-	}
-	
-	/**
-	 * @return Returns the effectRange.
-	 */
-	public int getEffectRange()
-	{
-		return _effectRange;
-	}
-	
-	/**
-	 * Gets the skill effects.
-	 * @param effectScope the effect scope
-	 * @return the list of effects for the give scope
-	 */
-	public List<AbstractEffect> getEffects(EffectScope effectScope)
-	{
-		return _effectLists.get(effectScope);
-	}
-	
-	public L2ExtractableSkill getExtractableSkill()
-	{
-		return _extractableItems;
-	}
-	
-	public L2Object getFirstOfTargetList(L2Character activeChar)
-	{
-		L2Object[] targets = getTargetList(activeChar, true);
-		if (targets.length == 0)
-		{
-			return null;
-		}
-		return targets[0];
-	}
-	
-	public int getHitTime()
-	{
-		return _hitTime;
-	}
-	
-	/**
-	 * @return Returns the hpConsume.
-	 */
-	public int getHpConsume()
-	{
-		return _hpConsume;
-	}
-	
-	/**
-	 * @return icon of the current skill.
-	 */
-	public String getIcon()
-	{
-		return _icon;
-	}
-	
-	/**
-	 * Gets the skill ID.
-	 * @return the skill ID
-	 */
-	@Override
-	public int getId()
-	{
-		return _id;
-	}
-	
-	/**
-	 * @return Returns the how much items will be consumed.
-	 */
-	public int getItemConsumeCount()
-	{
-		return _itemConsumeCount;
-	}
-	
-	/**
-	 * @return Returns the ID of item for consume.
-	 */
-	public int getItemConsumeId()
-	{
-		return _itemConsumeId;
-	}
-	
-	/**
-	 * @return Returns the level.
-	 */
-	public int getLevel()
-	{
-		return _level;
-	}
-	
-	public int getLvlBonusRate()
-	{
-		return _lvlBonusRate;
-	}
-	
-	/**
-	 * Gets the skill magic level.
-	 * @return the skill magic level
-	 */
-	public int getMagicLevel()
-	{
-		return _magicLevel;
-	}
-	
-	/**
-	 * Return custom maximum skill/effect chance.
-	 * @return
-	 */
-	public int getMaxChance()
-	{
-		return _maxChance;
-	}
-	
-	public int getMaxSoulConsumeCount()
-	{
-		return _soulMaxConsume;
-	}
-	
-	/**
-	 * Return custom minimum skill/effect chance.
-	 * @return
-	 */
-	public int getMinChance()
-	{
-		return _minChance;
-	}
-	
-	public int getMinPledgeClass()
-	{
-		return _minPledgeClass;
-	}
-	
-	/**
-	 * @return Returns the mpConsume1.
-	 */
-	public int getMpConsume1()
-	{
-		return _mpConsume1;
-	}
-	
-	/**
-	 * @return Returns the mpConsume2.
-	 */
-	public int getMpConsume2()
-	{
-		return _mpConsume2;
-	}
-	
-	/**
-	 * @return Mana consumption per channeling tick.
-	 */
-	public int getMpPerChanneling()
-	{
-		return _mpPerChanneling;
-	}
-	
-	/**
-	 * @return the skill name
-	 */
-	public String getName()
-	{
-		return _name;
-	}
-	
-	/**
-	 * used for tracking item id in case that item consume cannot be used
-	 * @return reference item id
-	 */
-	public int getReferenceItemId()
-	{
-		return _refId;
-	}
-	
-	/**
-	 * @return the reuse delay
-	 */
-	public int getReuseDelay()
-	{
-		return _reuseDelay;
-	}
-	
-	public int getReuseHashCode()
-	{
-		return _reuseHashCode;
-	}
-	
-	public Set<MountType> getRideState()
-	{
-		return _rideState;
-	}
-	
-	public List<AbstractFunction> getStatFuncs(AbstractEffect effect, L2Character player)
-	{
-		if (_funcTemplates == null)
-		{
-			return Collections.<AbstractFunction> emptyList();
-		}
-		
-		if (!(player instanceof L2Playable) && !(player instanceof L2Attackable))
-		{
-			return Collections.<AbstractFunction> emptyList();
-		}
-		
-		final List<AbstractFunction> funcs = new ArrayList<>(_funcTemplates.size());
-		for (FuncTemplate t : _funcTemplates)
-		{
-			AbstractFunction f = t.getFunc(player, null, this, this); // skill is owner
-			if (f != null)
-			{
-				funcs.add(f);
-			}
-		}
-		return funcs;
-	}
-	
-	public L2Object[] getTargetList(L2Character activeChar)
-	{
-		return getTargetList(activeChar, false);
-	}
-	
-	public L2Object[] getTargetList(L2Character activeChar, boolean onlyFirst)
-	{
-		// Init to null the target of the skill
-		L2Character target = null;
-		
-		// Get the L2Objcet targeted by the user of the skill at this moment
-		L2Object objTarget = activeChar.getTarget();
-		// If the L2Object targeted is a L2Character, it becomes the L2Character target
-		if (objTarget instanceof L2Character)
-		{
-			target = (L2Character) objTarget;
-		}
-		
-		return getTargetList(activeChar, onlyFirst, target);
-	}
-	
-	/**
-	 * Return all targets of the skill in a table in function a the skill type.<br>
-	 * <B><U>Values of skill type</U>:</B>
-	 * <ul>
-	 * <li>ONE : The skill can only be used on the L2PcInstance targeted, or on the caster if it's a L2PcInstance and no L2PcInstance targeted</li>
-	 * <li>SELF</li>
-	 * <li>HOLY, UNDEAD</li>
-	 * <li>PET</li>
-	 * <li>AURA, AURA_CLOSE</li>
-	 * <li>AREA</li>
-	 * <li>MULTIFACE</li>
-	 * <li>PARTY, CLAN</li>
-	 * <li>CORPSE_PLAYER, CORPSE_MOB, CORPSE_CLAN</li>
-	 * <li>UNLOCKABLE</li>
-	 * <li>ITEM</li>
-	 * <ul>
-	 * @param activeChar The L2Character who use the skill
-	 * @param onlyFirst
-	 * @param target
-	 * @return
-	 */
-	public L2Object[] getTargetList(L2Character activeChar, boolean onlyFirst, L2Character target)
-	{
-		final ITargetTypeHandler handler = TargetHandler.getInstance().getHandler(getTargetType());
-		if (handler != null)
-		{
-			try
-			{
-				return handler.getTargetList(this, activeChar, onlyFirst, target);
-			}
-			catch (Exception e)
-			{
-				_log.log(Level.WARNING, "Exception in L2Skill.getTargetList(): " + e.getMessage(), e);
-			}
-		}
-		
-		activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar.getActingPlayer(), "skill_target_null"));
-		return EMPTY_TARGET_LIST;
-	}
-	
-	/**
-	 * Return the target type of the skill : SELF, PARTY, CLAN, PET...
-	 * @return
-	 */
-	public L2TargetType getTargetType()
-	{
-		return _targetType;
-	}
-	
-	public TraitType getTraitType()
-	{
-		return _traitType;
-	}
-	
-	/**
-	 * Verify if the skill has abnormal visual effects.
-	 * @return {@code true} if the skill has abnormal visual effects, {@code false} otherwise
-	 */
-	public boolean hasAbnormalVisualEffects()
-	{
-		return (_abnormalVisualEffects != null) && (_abnormalVisualEffects.length > 0);
-	}
-	
-	/**
-	 * Verify if the skill has event abnormal visual effects.
-	 * @return {@code true} if the skill has event abnormal visual effects, {@code false} otherwise
-	 */
-	public boolean hasAbnormalVisualEffectsEvent()
-	{
-		return (_abnormalVisualEffectsEvent != null) && (_abnormalVisualEffectsEvent.length > 0);
-	}
-	
-	/**
-	 * Verify if the skill has special abnormal visual effects.
-	 * @return {@code true} if the skill has special abnormal visual effects, {@code false} otherwise
-	 */
-	public boolean hasAbnormalVisualEffectsSpecial()
-	{
-		return (_abnormalVisualEffectsSpecial != null) && (_abnormalVisualEffectsSpecial.length > 0);
-	}
-	
-	/**
-	 * Verify if this skill has effects for the given scope.
-	 * @param effectScope the effect scope
-	 * @return {@code true} if this skill has effects for the given scope, {@code false} otherwise
-	 */
-	public boolean hasEffects(EffectScope effectScope)
-	{
-		List<AbstractEffect> effects = _effectLists.get(effectScope);
-		return (effects != null) && !effects.isEmpty();
-	}
-	
-	/**
-	 * @param effectType Effect type to check if its present on this skill effects.
-	 * @param effectTypes Effect types to check if are present on this skill effects.
-	 * @return {@code true} if at least one of specified {@link L2EffectType} types is present on this skill effects, {@code false} otherwise.
-	 */
-	public boolean hasEffectType(L2EffectType effectType, L2EffectType... effectTypes)
-	{
-		if (_effectTypes == null)
-		{
-			synchronized (this)
-			{
-				if (_effectTypes == null)
-				{
-					Set<Byte> effectTypesSet = new HashSet<>();
-					for (List<AbstractEffect> effectList : _effectLists.values())
-					{
-						if (effectList != null)
-						{
-							for (AbstractEffect effect : effectList)
-							{
-								if (effect == null)
-								{
-									continue;
-								}
-								effectTypesSet.add((byte) effect.getEffectType().ordinal());
-							}
-						}
-					}
-					
-					Byte[] effectTypesArray = effectTypesSet.toArray(new Byte[effectTypesSet.size()]);
-					Arrays.sort(effectTypesArray);
-					_effectTypes = effectTypesArray;
-				}
-			}
-		}
-		
-		if (Arrays.binarySearch(_effectTypes, (byte) effectType.ordinal()) >= 0)
-		{
-			return true;
-		}
-		
-		for (L2EffectType type : effectTypes)
-		{
-			if (Arrays.binarySearch(_effectTypes, (byte) type.ordinal()) >= 0)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public boolean is7Signs()
-	{
-		return (_id > 4360) && (_id < 4367);
-	}
-	
-	/**
-	 * Verify if this skill is abnormal instant.<br>
-	 * Herb buff skills yield {@code true} for this check.
-	 * @return {@code true} if the skill is abnormal instant, {@code false} otherwise
-	 */
-	public boolean isAbnormalInstant()
-	{
-		return _isAbnormalInstant;
-	}
-	
-	public boolean isActive()
-	{
-		return (_operateType != null) && _operateType.isActive();
-	}
-	
-	public boolean isAOE()
-	{
-		switch (_targetType)
-		{
-			case AREA:
-			case AURA:
-			case BEHIND_AREA:
-			case BEHIND_AURA:
-			case FRONT_AREA:
-			case FRONT_AURA:
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public boolean isBad()
-	{
-		return (_effectPoint < 0) && (_targetType != L2TargetType.SELF);
-	}
-	
-	/**
-	 * @return {@code true} if skill can not be used in olympiad.
-	 */
-	public boolean isBlockedInOlympiad()
-	{
-		return _blockedInOlympiad;
-	}
-	
-	public boolean isChanneling()
-	{
-		return (_operateType != null) && _operateType.isChanneling();
-	}
-	
-	public boolean isClanSkill()
-	{
-		return SkillTreesData.getInstance().isClanSkill(_id, _level);
-	}
-	
-	public boolean isContinuous()
-	{
-		return ((_operateType != null) && _operateType.isContinuous()) || isSelfContinuous();
-	}
-	
-	public boolean isDamage()
-	{
-		return hasEffectType(L2EffectType.MAGICAL_ATTACK, L2EffectType.HP_DRAIN, L2EffectType.PHYSICAL_ATTACK);
-	}
-	
-	/**
-	 * @return Returns true to set dance skills.
-	 */
-	public boolean isDance()
-	{
-		return _magic == 3;
-	}
-	
-	/**
-	 * Verify if this skill is a debuff.
-	 * @return {@code true} if this skill is a debuff, {@code false} otherwise
-	 */
-	public boolean isDebuff()
-	{
-		return _isDebuff;
-	}
-	
-	public boolean isExcludedFromCheck()
-	{
-		return _excludedFromCheck;
-	}
-	
-	public boolean isFlyType()
-	{
-		return (_operateType != null) && _operateType.isFlyType();
-	}
-	
-	public boolean isGMSkill()
-	{
-		return SkillTreesData.getInstance().isGMSkill(_id, _level);
-	}
-	
-	/**
-	 * Verify if this is a healing potion skill.
-	 * @return {@code true} if this is a healing potion skill, {@code false} otherwise
-	 */
-	public boolean isHealingPotionSkill()
-	{
-		return getAbnormalType() == AbnormalType.HP_RECOVER;
-	}
-	
-	public boolean isHeroSkill()
-	{
-		return SkillTreesData.getInstance().isHeroSkill(_id, _level);
-	}
-	
-	/**
-	 * Verify if the skill can be replaced.
-	 * @return {@code true} if skill can be replaced, {@code false} otherwise
-	 */
-	public boolean isIrreplaceableBuff()
-	{
-		return _irreplaceableBuff;
-	}
-	
-	/**
-	 * @return Returns true to set magic skills.
-	 */
-	public boolean isMagic()
-	{
-		return _magic == 1;
-	}
-	
-	public boolean isOverhit()
-	{
-		return _overhit;
-	}
-	
-	public boolean isPassive()
-	{
-		return (_operateType != null) && _operateType.isPassive();
-	}
-	
-	/**
-	 * @return Returns true to set physical skills.
-	 */
-	public boolean isPhysical()
-	{
-		return _magic == 0;
-	}
-	
-	/**
-	 * Verify if this skill is coming from Recovery Herb.
-	 * @return {@code true} if this skill is a recover herb, {@code false} otherwise
-	 */
-	public boolean isRecoveryHerb()
-	{
-		return _isRecoveryHerb;
-	}
-	
-	/**
-	 * Return true if skill effects should be removed on any action except movement
-	 * @return
-	 */
-	public boolean isRemovedOnAnyActionExceptMove()
-	{
-		return (_abnormalType == AbnormalType.INVINCIBILITY) || (_abnormalType == AbnormalType.HIDE);
-	}
-	
-	/**
-	 * @return {@code true} if skill effects should be removed on damage
-	 */
-	public boolean isRemovedOnDamage()
-	{
-		return (_abnormalType == AbnormalType.SLEEP) || (_abnormalType == AbnormalType.FORCE_MEDITATION) || (_abnormalType == AbnormalType.HIDE);
-	}
-	
-	/**
-	 * @return Returns true to set static reuse.
-	 */
-	public boolean isReuseDelayLocked()
-	{
-		return _reuseDelayLock;
-	}
-	
-	public boolean isSelfContinuous()
-	{
-		return (_operateType != null) && _operateType.isSelfContinuous();
-	}
-	
-	public boolean isSimultaneousCast()
-	{
-		return _simultaneousCast;
-	}
-	
-	/**
-	 * @return Returns true to set static skills.
-	 */
-	public boolean isStatic()
-	{
-		return _magic == 2;
-	}
-	
-	public boolean isStayAfterDeath()
-	{
-		return _stayAfterDeath;
-	}
-	
-	public boolean isStayOnSubclassChange()
-	{
-		return _stayOnSubclassChange;
-	}
-	
-	public boolean isSuicideAttack()
-	{
-		return _isSuicideAttack;
-	}
-	
-	public boolean isToggle()
-	{
-		return (_operateType != null) && _operateType.isToggle();
-	}
-	
-	/**
-	 * Verify if the skill is a transformation skill.
-	 * @return {@code true} if the skill is a transformation, {@code false} otherwise
-	 */
-	public boolean isTransformation()
-	{
-		return _abnormalType == AbnormalType.TRANSFORM;
-	}
-	
-	/**
-	 * @return Returns true to set trigger skills.
-	 */
-	public boolean isTrigger()
-	{
-		return _magic == 4;
-	}
-	
-	/**
-	 * Return true if character should attack target after skill
-	 * @return
-	 */
-	public boolean nextActionIsAttack()
-	{
-		return _nextActionIsAttack;
-	}
-	
-	public void setReferenceItemId(int val)
-	{
-		_refId = val;
-	}
-	
-	@Override
-	public String toString()
-	{
-		return "Skill " + _name + "(" + _id + "," + _level + ")";
-	}
-	
-	public boolean useFishShot()
-	{
-		return hasEffectType(L2EffectType.FISHING);
-	}
-	
-	public boolean useSoulShot()
-	{
-		return hasEffectType(L2EffectType.PHYSICAL_ATTACK);
-	}
-	
-	public boolean useSpiritShot()
-	{
-		return _magic == 1;
+		activateSkill(cubic.getOwner(), cubic, targets);
 	}
 	
 	/**
@@ -1680,6 +1503,156 @@ public class Skill implements IIdentifiable
 		}
 	}
 	
+	public void attach(FuncTemplate f)
+	{
+		if (_funcTemplates == null)
+		{
+			_funcTemplates = new ArrayList<>(1);
+		}
+		_funcTemplates.add(f);
+	}
+	
+	/**
+	 * Adds an effect to the effect list for the give effect scope.
+	 * @param effectScope the effect scope
+	 * @param effect the effect to add
+	 */
+	public void addEffect(EffectScope effectScope, AbstractEffect effect)
+	{
+		List<AbstractEffect> effects = _effectLists.get(effectScope);
+		if (effects == null)
+		{
+			effects = new ArrayList<>(1);
+			_effectLists.put(effectScope, effects);
+		}
+		effects.add(effect);
+	}
+	
+	public void attach(Condition c, boolean itemOrWeapon)
+	{
+		if (itemOrWeapon)
+		{
+			if (_itemPreCondition == null)
+			{
+				_itemPreCondition = new ArrayList<>();
+			}
+			_itemPreCondition.add(c);
+		}
+		else
+		{
+			if (_preCondition == null)
+			{
+				_preCondition = new ArrayList<>();
+			}
+			_preCondition.add(c);
+		}
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Skill " + _name + "(" + _id + "," + _level + ")";
+	}
+	
+	/**
+	 * used for tracking item id in case that item consume cannot be used
+	 * @return reference item id
+	 */
+	public int getReferenceItemId()
+	{
+		return _refId;
+	}
+	
+	public void setReferenceItemId(int val)
+	{
+		_refId = val;
+	}
+	
+	/**
+	 * Verify if the skill can be replaced.
+	 * @return {@code true} if skill can be replaced, {@code false} otherwise
+	 */
+	public boolean isIrreplaceableBuff()
+	{
+		return _irreplaceableBuff;
+	}
+	
+	/**
+	 * Verify if the skill can be stolen.
+	 * @return {@code true} if skill can be stolen, {@code false} otherwise
+	 */
+	public boolean canBeStolen()
+	{
+		return !isPassive() && !isToggle() && !isDebuff() && !isHeroSkill() && !isGMSkill() && !isIrreplaceableBuff() && !(isStatic() && (getId() != CommonSkill.CARAVANS_SECRET_MEDICINE.getId()) && (getMagicLevel() >= 0));
+	}
+	
+	public boolean isClanSkill()
+	{
+		return SkillTreesData.getInstance().isClanSkill(_id, _level);
+	}
+	
+	public boolean isExcludedFromCheck()
+	{
+		return _excludedFromCheck;
+	}
+	
+	public boolean isSimultaneousCast()
+	{
+		return _simultaneousCast;
+	}
+	
+	/**
+	 * Parse an extractable skill.
+	 * @param skillId the skill Id
+	 * @param skillLvl the skill level
+	 * @param values the values to parse
+	 * @return the parsed extractable skill
+	 * @author Zoey76
+	 */
+	private L2ExtractableSkill parseExtractableSkill(int skillId, int skillLvl, String values)
+	{
+		final String[] prodLists = values.split(";");
+		final List<L2ExtractableProductItem> products = new ArrayList<>();
+		String[] prodData;
+		for (String prodList : prodLists)
+		{
+			prodData = prodList.split(",");
+			if (prodData.length < 3)
+			{
+				_log.warning("Extractable skills data: Error in Skill Id: " + skillId + " Level: " + skillLvl + " -> wrong seperator!");
+			}
+			List<ItemHolder> items = null;
+			double chance = 0;
+			final int length = prodData.length - 1;
+			try
+			{
+				items = new ArrayList<>(length / 2);
+				for (int j = 0; j < length; j += 2)
+				{
+					final int prodId = Integer.parseInt(prodData[j]);
+					final int quantity = Integer.parseInt(prodData[j + 1]);
+					if ((prodId <= 0) || (quantity <= 0))
+					{
+						_log.warning("Extractable skills data: Error in Skill Id: " + skillId + " Level: " + skillLvl + " wrong production Id: " + prodId + " or wrond quantity: " + quantity + "!");
+					}
+					items.add(new ItemHolder(prodId, quantity));
+				}
+				chance = Double.parseDouble(prodData[length]);
+			}
+			catch (Exception e)
+			{
+				_log.warning("Extractable skills data: Error in Skill Id: " + skillId + " Level: " + skillLvl + " -> incomplete/invalid production data or wrong seperator!");
+			}
+			products.add(new L2ExtractableProductItem(items, chance));
+		}
+		
+		if (products.isEmpty())
+		{
+			_log.warning("Extractable skills data: Error in Skill Id: " + skillId + " Level: " + skillLvl + " -> There are no production items!");
+		}
+		return new L2ExtractableSkill(SkillData.getSkillHashCode(skillId, skillLvl), products);
+	}
+	
 	/**
 	 * Parses all the abnormal visual effects.
 	 * @param abnormalVisualEffects the abnormal visual effects list
@@ -1742,55 +1715,82 @@ public class Skill implements IIdentifiable
 		}
 	}
 	
-	/**
-	 * Parse an extractable skill.
-	 * @param skillId the skill Id
-	 * @param skillLvl the skill level
-	 * @param values the values to parse
-	 * @return the parsed extractable skill
-	 * @author Zoey76
-	 */
-	private L2ExtractableSkill parseExtractableSkill(int skillId, int skillLvl, String values)
+	public L2ExtractableSkill getExtractableSkill()
 	{
-		final String[] prodLists = values.split(";");
-		final List<L2ExtractableProductItem> products = new ArrayList<>();
-		String[] prodData;
-		for (String prodList : prodLists)
+		return _extractableItems;
+	}
+	
+	/**
+	 * @param effectType Effect type to check if its present on this skill effects.
+	 * @param effectTypes Effect types to check if are present on this skill effects.
+	 * @return {@code true} if at least one of specified {@link L2EffectType} types is present on this skill effects, {@code false} otherwise.
+	 */
+	public boolean hasEffectType(L2EffectType effectType, L2EffectType... effectTypes)
+	{
+		if (_effectTypes == null)
 		{
-			prodData = prodList.split(",");
-			if (prodData.length < 3)
+			synchronized (this)
 			{
-				_log.warning("Extractable skills data: Error in Skill Id: " + skillId + " Level: " + skillLvl + " -> wrong seperator!");
-			}
-			List<ItemHolder> items = null;
-			double chance = 0;
-			final int length = prodData.length - 1;
-			try
-			{
-				items = new ArrayList<>(length / 2);
-				for (int j = 0; j < length; j += 2)
+				if (_effectTypes == null)
 				{
-					final int prodId = Integer.parseInt(prodData[j]);
-					final int quantity = Integer.parseInt(prodData[j + 1]);
-					if ((prodId <= 0) || (quantity <= 0))
+					Set<Byte> effectTypesSet = new HashSet<>();
+					for (List<AbstractEffect> effectList : _effectLists.values())
 					{
-						_log.warning("Extractable skills data: Error in Skill Id: " + skillId + " Level: " + skillLvl + " wrong production Id: " + prodId + " or wrond quantity: " + quantity + "!");
+						if (effectList != null)
+						{
+							for (AbstractEffect effect : effectList)
+							{
+								if (effect == null)
+								{
+									continue;
+								}
+								effectTypesSet.add((byte) effect.getEffectType().ordinal());
+							}
+						}
 					}
-					items.add(new ItemHolder(prodId, quantity));
+					
+					Byte[] effectTypesArray = effectTypesSet.toArray(new Byte[effectTypesSet.size()]);
+					Arrays.sort(effectTypesArray);
+					_effectTypes = effectTypesArray;
 				}
-				chance = Double.parseDouble(prodData[length]);
 			}
-			catch (Exception e)
-			{
-				_log.warning("Extractable skills data: Error in Skill Id: " + skillId + " Level: " + skillLvl + " -> incomplete/invalid production data or wrong seperator!");
-			}
-			products.add(new L2ExtractableProductItem(items, chance));
 		}
 		
-		if (products.isEmpty())
+		if (Arrays.binarySearch(_effectTypes, (byte) effectType.ordinal()) >= 0)
 		{
-			_log.warning("Extractable skills data: Error in Skill Id: " + skillId + " Level: " + skillLvl + " -> There are no production items!");
+			return true;
 		}
-		return new L2ExtractableSkill(SkillData.getSkillHashCode(skillId, skillLvl), products);
+		
+		for (L2EffectType type : effectTypes)
+		{
+			if (Arrays.binarySearch(_effectTypes, (byte) type.ordinal()) >= 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * @return icon of the current skill.
+	 */
+	public String getIcon()
+	{
+		return _icon;
+	}
+	
+	public int getChannelingTickInterval()
+	{
+		return _channelingTickInterval;
+	}
+	
+	public int getChannelingTickInitialDelay()
+	{
+		return _channelingTickInitialDelay;
+	}
+	
+	public Set<MountType> getRideState()
+	{
+		return _rideState;
 	}
 }

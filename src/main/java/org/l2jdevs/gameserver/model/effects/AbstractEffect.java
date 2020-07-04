@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -113,6 +113,18 @@ public abstract class AbstractEffect
 	}
 	
 	/**
+	 * Tests the attach condition.
+	 * @param caster the caster
+	 * @param target the target
+	 * @param skill the skill
+	 * @return {@code true} if there isn't a condition to test or it's passed, {@code false} otherwise
+	 */
+	public boolean testConditions(L2Character caster, L2Character target, Skill skill)
+	{
+		return (_attachCond == null) || _attachCond.test(caster, target, skill);
+	}
+	
+	/**
 	 * Attaches a function template.
 	 * @param f the function
 	 */
@@ -123,6 +135,43 @@ public abstract class AbstractEffect
 			_funcTemplates = new ArrayList<>(1);
 		}
 		_funcTemplates.add(f);
+	}
+	
+	/**
+	 * Gets the effect name.
+	 * @return the name
+	 */
+	public String getName()
+	{
+		return _name;
+	}
+	
+	/**
+	 * Gets the effect ticks
+	 * @return the ticks
+	 */
+	public int getTicks()
+	{
+		return _ticks;
+	}
+	
+	/**
+	 * Sets the effect ticks
+	 * @param ticks the ticks
+	 */
+	protected void setTicks(int ticks)
+	{
+		_ticks = ticks;
+	}
+	
+	public double getTicksMultiplier()
+	{
+		return (getTicks() * Config.EFFECT_TICK_RATIO) / 1000f;
+	}
+	
+	public List<FuncTemplate> getFuncTemplates()
+	{
+		return _funcTemplates;
 	}
 	
 	/**
@@ -139,6 +188,16 @@ public abstract class AbstractEffect
 	}
 	
 	/**
+	 * Get this effect's type.<br>
+	 * TODO: Remove.
+	 * @return the effect type
+	 */
+	public L2EffectType getEffectType()
+	{
+		return L2EffectType.NONE;
+	}
+	
+	/**
 	 * Verify if the buff can start.<br>
 	 * Used for continuous effects.
 	 * @param info the buff info
@@ -149,47 +208,33 @@ public abstract class AbstractEffect
 		return true;
 	}
 	
-	public boolean checkCondition(Object obj)
-	{
-		return true;
-	}
-	
-	public void decreaseForce()
+	/**
+	 * Called on effect start.
+	 * @param info the buff info
+	 */
+	public void onStart(BuffInfo info)
 	{
 		
 	}
 	
 	/**
-	 * Get the effect flags.
-	 * @return bit flag for current effect
+	 * Called on each tick.<br>
+	 * If the abnormal time is lesser than zero it will last forever.
+	 * @param info the buff info
+	 * @return if {@code true} this effect will continue forever, if {@code false} it will stop after abnormal time has passed
 	 */
-	public int getEffectFlags()
+	public boolean onActionTime(BuffInfo info)
 	{
-		return EffectFlag.NONE.getMask();
+		return false;
 	}
 	
 	/**
-	 * Get this effect's type.<br>
-	 * TODO: Remove.
-	 * @return the effect type
+	 * Called when the effect is exited.
+	 * @param info the buff info
 	 */
-	public L2EffectType getEffectType()
+	public void onExit(BuffInfo info)
 	{
-		return L2EffectType.NONE;
-	}
-	
-	public List<FuncTemplate> getFuncTemplates()
-	{
-		return _funcTemplates;
-	}
-	
-	/**
-	 * Gets the effect name.
-	 * @return the name
-	 */
-	public String getName()
-	{
-		return _name;
+		
 	}
 	
 	/**
@@ -219,22 +264,33 @@ public abstract class AbstractEffect
 	}
 	
 	/**
-	 * Gets the effect ticks
-	 * @return the ticks
+	 * Get the effect flags.
+	 * @return bit flag for current effect
 	 */
-	public int getTicks()
+	public int getEffectFlags()
 	{
-		return _ticks;
+		return EffectFlag.NONE.getMask();
 	}
 	
-	public double getTicksMultiplier()
+	@Override
+	public String toString()
 	{
-		return (getTicks() * Config.EFFECT_TICK_RATIO) / 1000f;
+		return "Effect " + _name;
+	}
+	
+	public void decreaseForce()
+	{
+		
 	}
 	
 	public void increaseEffect()
 	{
 		
+	}
+	
+	public boolean checkCondition(Object obj)
+	{
+		return true;
 	}
 	
 	/**
@@ -244,61 +300,5 @@ public abstract class AbstractEffect
 	public boolean isInstant()
 	{
 		return false;
-	}
-	
-	/**
-	 * Called on each tick.<br>
-	 * If the abnormal time is lesser than zero it will last forever.
-	 * @param info the buff info
-	 * @return if {@code true} this effect will continue forever, if {@code false} it will stop after abnormal time has passed
-	 */
-	public boolean onActionTime(BuffInfo info)
-	{
-		return false;
-	}
-	
-	/**
-	 * Called when the effect is exited.
-	 * @param info the buff info
-	 */
-	public void onExit(BuffInfo info)
-	{
-		
-	}
-	
-	/**
-	 * Called on effect start.
-	 * @param info the buff info
-	 */
-	public void onStart(BuffInfo info)
-	{
-		
-	}
-	
-	/**
-	 * Tests the attach condition.
-	 * @param caster the caster
-	 * @param target the target
-	 * @param skill the skill
-	 * @return {@code true} if there isn't a condition to test or it's passed, {@code false} otherwise
-	 */
-	public boolean testConditions(L2Character caster, L2Character target, Skill skill)
-	{
-		return (_attachCond == null) || _attachCond.test(caster, target, skill);
-	}
-	
-	@Override
-	public String toString()
-	{
-		return "Effect " + _name;
-	}
-	
-	/**
-	 * Sets the effect ticks
-	 * @param ticks the ticks
-	 */
-	protected void setTicks(int ticks)
-	{
-		_ticks = ticks;
 	}
 }

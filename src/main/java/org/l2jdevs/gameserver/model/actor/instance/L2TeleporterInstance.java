@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -40,6 +40,8 @@ import org.l2jdevs.gameserver.network.SystemMessageId;
 import org.l2jdevs.gameserver.network.serverpackets.ActionFailed;
 import org.l2jdevs.gameserver.network.serverpackets.NpcHtmlMessage;
 
+import org.l2jdevs.gameserver.enums.HTMLColor;
+
 /**
  * @author NightMarez
  */
@@ -59,22 +61,6 @@ public final class L2TeleporterInstance extends L2Npc
 	{
 		super(template);
 		setInstanceType(InstanceType.L2TeleporterInstance);
-	}
-	
-	@Override
-	public String getHtmlPath(int npcId, int val)
-	{
-		String pom = "";
-		if (val == 0)
-		{
-			pom = "" + npcId;
-		}
-		else
-		{
-			pom = npcId + "-" + val;
-		}
-		
-		return "data/html/teleporter/" + pom + ".htm";
 	}
 	
 	@Override
@@ -162,7 +148,7 @@ public final class L2TeleporterInstance extends L2Npc
 			{
 			}
 			
-			if ((val == 1) && (player.getLevel() < 41))
+			if ((val == 1) && (player.getLevel() <= Config.L2JMOD_TELEPORT_FREE_LEVEL))
 			{
 				showNewbieHtml(player);
 				return;
@@ -176,6 +162,64 @@ public final class L2TeleporterInstance extends L2Npc
 		}
 		
 		super.onBypassFeedback(player, command);
+	}
+	
+	@Override
+	public String getHtmlPath(int npcId, int val)
+	{
+		String pom = "";
+		if (val == 0)
+		{
+			pom = "" + npcId;
+		}
+		else
+		{
+			pom = npcId + "-" + val;
+		}
+		
+		return "data/html/teleporter/" + pom + ".htm";
+	}
+	
+	private void showNewbieHtml(L2PcInstance player)
+	{
+		if (player == null)
+		{
+			return;
+		}
+		
+		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
+		
+		String filename = "data/html/teleporter/free/" + getTemplate().getId() + ".htm";
+		if (!HtmCache.getInstance().isLoadable(filename))
+		{
+			filename = "data/html/teleporter/" + getTemplate().getId() + "-1.htm";
+		}
+		
+		html.setFile(player.getHtmlPrefix(), filename);
+		html.replace("%objectId%", String.valueOf(getObjectId()));
+		html.replace("%npcname%", getName());
+		player.sendPacket(html);
+	}
+	
+	private void showHalfPriceHtml(L2PcInstance player)
+	{
+		if (player == null)
+		{
+			return;
+		}
+		
+		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
+		
+		String filename = "data/html/teleporter/half/" + getId() + ".htm";
+		if (!HtmCache.getInstance().isLoadable(filename))
+		{
+			filename = "data/html/teleporter/" + getId() + "-1.htm";
+		}
+		
+		html.setFile(player.getHtmlPrefix(), filename);
+		html.replace("%objectId%", String.valueOf(getObjectId()));
+		html.replace("%npcname%", getName());
+		player.sendPacket(html);
 	}
 	
 	@Override
@@ -250,7 +294,7 @@ public final class L2TeleporterInstance extends L2Npc
 			}
 			
 			int price = list.getPrice();
-			if (player.getLevel() < 41)
+			if (player.getLevel() <= Config.L2JMOD_TELEPORT_FREE_LEVEL)
 			{
 				price = 0;
 			}
@@ -262,7 +306,18 @@ public final class L2TeleporterInstance extends L2Npc
 					price /= 2;
 				}
 			}
-			
+                        if (Config.L2JMOD_TELEPORT_COST_SCALE && price > 0) {
+                            price = (price * player.getLevel())
+                                / (Config.L2JMOD_TELEPORT_COST_SCALE_PIVOT_LEVEL > 0
+                                   ? Config.L2JMOD_TELEPORT_COST_SCALE_PIVOT_LEVEL
+                                   : Config.MAX_PLAYER_LEVEL);
+                            if (price <= 0) price = 1; // just in case...
+                            final String priceMsg =
+                                "<html><body><font color=\" + HTMLColor.SKYBLUE + \">Teleportation price " +
+                                price +
+                                " adena</font></body></html>";
+                            sendPacket(new NpcHtmlMessage(priceMsg));
+			}
 			if (Config.ALT_GAME_FREE_TELEPORT || player.destroyItemByItemId("Teleport " + (list.getIsForNoble() ? " nobless" : ""), list.getItemId(), price, this, true))
 			{
 				LOG.debug("Teleporting {} to new location: {}, {}, {}", player, list.getLocX(), list.getLocY(), list.getLocZ());
@@ -276,48 +331,6 @@ public final class L2TeleporterInstance extends L2Npc
 		}
 		
 		player.sendPacket(ActionFailed.STATIC_PACKET);
-	}
-	
-	private void showHalfPriceHtml(L2PcInstance player)
-	{
-		if (player == null)
-		{
-			return;
-		}
-		
-		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
-		
-		String filename = "data/html/teleporter/half/" + getId() + ".htm";
-		if (!HtmCache.getInstance().isLoadable(filename))
-		{
-			filename = "data/html/teleporter/" + getId() + "-1.htm";
-		}
-		
-		html.setFile(player.getHtmlPrefix(), filename);
-		html.replace("%objectId%", String.valueOf(getObjectId()));
-		html.replace("%npcname%", getName());
-		player.sendPacket(html);
-	}
-	
-	private void showNewbieHtml(L2PcInstance player)
-	{
-		if (player == null)
-		{
-			return;
-		}
-		
-		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
-		
-		String filename = "data/html/teleporter/free/" + getTemplate().getId() + ".htm";
-		if (!HtmCache.getInstance().isLoadable(filename))
-		{
-			filename = "data/html/teleporter/" + getTemplate().getId() + "-1.htm";
-		}
-		
-		html.setFile(player.getHtmlPrefix(), filename);
-		html.replace("%objectId%", String.valueOf(getObjectId()));
-		html.replace("%npcname%", getName());
-		player.sendPacket(html);
 	}
 	
 	private int validateCondition(L2PcInstance player)

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -73,9 +73,36 @@ public final class RequestSendPost extends L2GameClientPacket
 	}
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__D0_66_REQUESTSENDPOST;
+		_receiver = readS();
+		_isCod = readD() == 0 ? false : true;
+		_subject = readS();
+		_text = readS();
+		
+		int attachCount = readD();
+		if ((attachCount < 0) || (attachCount > Config.MAX_ITEM_IN_PACKET) || (((attachCount * BATCH_LENGTH) + 8) != _buf.remaining()))
+		{
+			return;
+		}
+		
+		if (attachCount > 0)
+		{
+			_items = new AttachmentItem[attachCount];
+			for (int i = 0; i < attachCount; i++)
+			{
+				int objectId = readD();
+				long count = readQ();
+				if ((objectId < 1) || (count < 0))
+				{
+					_items = null;
+					return;
+				}
+				_items[i] = new AttachmentItem(objectId, count);
+			}
+		}
+		
+		_reqAdena = readQ();
 	}
 	
 	@Override
@@ -238,45 +265,6 @@ public final class RequestSendPost extends L2GameClientPacket
 		}
 	}
 	
-	@Override
-	protected void readImpl()
-	{
-		_receiver = readS();
-		_isCod = readD() == 0 ? false : true;
-		_subject = readS();
-		_text = readS();
-		
-		int attachCount = readD();
-		if ((attachCount < 0) || (attachCount > Config.MAX_ITEM_IN_PACKET) || (((attachCount * BATCH_LENGTH) + 8) != _buf.remaining()))
-		{
-			return;
-		}
-		
-		if (attachCount > 0)
-		{
-			_items = new AttachmentItem[attachCount];
-			for (int i = 0; i < attachCount; i++)
-			{
-				int objectId = readD();
-				long count = readQ();
-				if ((objectId < 1) || (count < 0))
-				{
-					_items = null;
-					return;
-				}
-				_items[i] = new AttachmentItem(objectId, count);
-			}
-		}
-		
-		_reqAdena = readQ();
-	}
-	
-	@Override
-	protected boolean triggersOnActionRequest()
-	{
-		return false;
-	}
-	
 	private final boolean removeItems(L2PcInstance player, Message msg)
 	{
 		long currentAdena = player.getAdena();
@@ -389,14 +377,26 @@ public final class RequestSendPost extends L2GameClientPacket
 			_count = num;
 		}
 		
-		public long getCount()
-		{
-			return _count;
-		}
-		
 		public int getObjectId()
 		{
 			return _objectId;
 		}
+		
+		public long getCount()
+		{
+			return _count;
+		}
+	}
+	
+	@Override
+	public String getType()
+	{
+		return _C__D0_66_REQUESTSENDPOST;
+	}
+	
+	@Override
+	protected boolean triggersOnActionRequest()
+	{
+		return false;
 	}
 }

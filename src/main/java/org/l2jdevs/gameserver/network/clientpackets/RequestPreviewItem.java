@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -57,10 +57,28 @@ public final class RequestPreviewItem extends L2GameClientPacket
 	private int _count;
 	private int[] _items;
 	
-	@Override
-	public String getType()
+	private class RemoveWearItemsTask implements Runnable
 	{
-		return _C__C7_REQUESTPREVIEWITEM;
+		private final L2PcInstance activeChar;
+		
+		protected RemoveWearItemsTask(L2PcInstance player)
+		{
+			activeChar = player;
+		}
+		
+		@Override
+		public void run()
+		{
+			try
+			{
+				activeChar.sendPacket(SystemMessageId.NO_LONGER_TRYING_ON);
+				activeChar.sendPacket(new UserInfo(activeChar));
+			}
+			catch (Exception e)
+			{
+				_log.log(Level.SEVERE, "", e);
+			}
+		}
 	}
 	
 	@Override
@@ -228,27 +246,9 @@ public final class RequestPreviewItem extends L2GameClientPacket
 		}
 	}
 	
-	private class RemoveWearItemsTask implements Runnable
+	@Override
+	public String getType()
 	{
-		private final L2PcInstance activeChar;
-		
-		protected RemoveWearItemsTask(L2PcInstance player)
-		{
-			activeChar = player;
-		}
-		
-		@Override
-		public void run()
-		{
-			try
-			{
-				activeChar.sendPacket(SystemMessageId.NO_LONGER_TRYING_ON);
-				activeChar.sendPacket(new UserInfo(activeChar));
-			}
-			catch (Exception e)
-			{
-				_log.log(Level.SEVERE, "", e);
-			}
-		}
+		return _C__C7_REQUESTPREVIEWITEM;
 	}
 }

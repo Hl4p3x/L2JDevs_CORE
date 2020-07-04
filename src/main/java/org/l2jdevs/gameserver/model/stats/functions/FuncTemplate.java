@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -77,16 +77,30 @@ public final class FuncTemplate
 	}
 	
 	/**
-	 * Gets the functions for items.
-	 * @param caster the caster
-	 * @param target the target
-	 * @param item the item
-	 * @param owner the owner
-	 * @return the function if conditions are met, {@code null} otherwise
+	 * Gets the function stat.
+	 * @return the stat.
 	 */
-	public AbstractFunction getFunc(L2Character caster, L2Character target, L2ItemInstance item, Object owner)
+	public Stats getStat()
 	{
-		return getFunc(caster, target, null, item, owner);
+		return _stat;
+	}
+	
+	/**
+	 * Gets the function priority order.
+	 * @return the order
+	 */
+	public int getOrder()
+	{
+		return _order;
+	}
+	
+	/**
+	 * Gets the function value.
+	 * @return the value
+	 */
+	public double getValue()
+	{
+		return _value;
 	}
 	
 	/**
@@ -103,30 +117,16 @@ public final class FuncTemplate
 	}
 	
 	/**
-	 * Gets the function priority order.
-	 * @return the order
+	 * Gets the functions for items.
+	 * @param caster the caster
+	 * @param target the target
+	 * @param item the item
+	 * @param owner the owner
+	 * @return the function if conditions are met, {@code null} otherwise
 	 */
-	public int getOrder()
+	public AbstractFunction getFunc(L2Character caster, L2Character target, L2ItemInstance item, Object owner)
 	{
-		return _order;
-	}
-	
-	/**
-	 * Gets the function stat.
-	 * @return the stat.
-	 */
-	public Stats getStat()
-	{
-		return _stat;
-	}
-	
-	/**
-	 * Gets the function value.
-	 * @return the value
-	 */
-	public double getValue()
-	{
-		return _value;
+		return getFunc(caster, target, null, item, owner);
 	}
 	
 	/**

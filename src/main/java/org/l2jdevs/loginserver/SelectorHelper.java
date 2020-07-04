@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -25,13 +25,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import org.l2jdevs.loginserver.network.L2LoginClient;
-import org.l2jdevs.loginserver.network.serverpackets.Init;
 import org.l2jdevs.mmocore.IAcceptFilter;
 import org.l2jdevs.mmocore.IClientFactory;
 import org.l2jdevs.mmocore.IMMOExecutor;
 import org.l2jdevs.mmocore.MMOConnection;
 import org.l2jdevs.mmocore.ReceivablePacket;
+
+import org.l2jdevs.loginserver.network.L2LoginClient;
+import org.l2jdevs.loginserver.network.serverpackets.Init;
 import org.l2jdevs.util.IPv4Filter;
 
 /**
@@ -50,17 +51,9 @@ public class SelectorHelper implements IMMOExecutor<L2LoginClient>, IClientFacto
 	}
 	
 	@Override
-	public boolean accept(SocketChannel sc)
+	public void execute(ReceivablePacket<L2LoginClient> packet)
 	{
-		try
-		{
-			return _ipv4filter.accept(sc) && !LoginController.getInstance().isBannedAddress(sc.socket().getInetAddress());
-		}
-		catch (UnknownHostException e)
-		{
-			LOG.severe(SelectorHelper.class.getSimpleName() + ": Invalid address: " + sc.socket().getInetAddress() + "; " + e.getMessage());
-		}
-		return false;
+		_generalPacketsThreadPool.execute(packet);
 	}
 	
 	@Override
@@ -72,8 +65,16 @@ public class SelectorHelper implements IMMOExecutor<L2LoginClient>, IClientFacto
 	}
 	
 	@Override
-	public void execute(ReceivablePacket<L2LoginClient> packet)
+	public boolean accept(SocketChannel sc)
 	{
-		_generalPacketsThreadPool.execute(packet);
+		try
+		{
+			return _ipv4filter.accept(sc) && !LoginController.getInstance().isBannedAddress(sc.socket().getInetAddress());
+		}
+		catch (UnknownHostException e)
+		{
+			LOG.severe(SelectorHelper.class.getSimpleName() + ": Invalid address: " + sc.socket().getInetAddress() + "; " + e.getMessage());
+		}
+		return false;
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -64,27 +64,6 @@ public final class GroupedGeneralDropItem implements IDropItem
 		_preciseStrategy = preciseStrategy;
 	}
 	
-	@Override
-	public final List<ItemHolder> calculateDrops(L2Character victim, L2Character killer)
-	{
-		return _dropCalculationStrategy.calculateDrops(this, victim, killer);
-	}
-	
-	/**
-	 * Returns a list of items in the group with chance multiplied by chance of the group
-	 * @return the list of items with modified chances
-	 */
-	public final List<GeneralDropItem> extractMe()
-	{
-		List<GeneralDropItem> items = new ArrayList<>();
-		for (final GeneralDropItem item : getItems())
-		{
-			// precise and killer strategies of the group
-			items.add(new GeneralDropItem(item.getItemId(), item.getMin(), item.getMax(), (item.getChance() * getChance()) / 100, item.getAmountStrategy(), item.getChanceStrategy(), getPreciseStrategy(), getKillerChanceModifierStrategy(), item.getDropCalculationStrategy()));
-		}
-		return items;
-	}
-	
 	/**
 	 * Gets the chance of this drop item.
 	 * @return the chance
@@ -92,14 +71,6 @@ public final class GroupedGeneralDropItem implements IDropItem
 	public final double getChance()
 	{
 		return _chance;
-	}
-	
-	/**
-	 * @return the strategy
-	 */
-	public final IGroupedItemDropCalculationStrategy getDropCalculationStrategy()
-	{
-		return _dropCalculationStrategy;
 	}
 	
 	/**
@@ -112,14 +83,11 @@ public final class GroupedGeneralDropItem implements IDropItem
 	}
 	
 	/**
-	 * This handles by default deep blue drop rules. It may also be used to handle another drop chance rules based on killer
-	 * @param victim the victim who drops the item
-	 * @param killer who kills the victim
-	 * @return a number between 0 and 1 (usually)
+	 * @return the strategy
 	 */
-	public final double getKillerChanceModifier(L2Character victim, L2Character killer)
+	public final IGroupedItemDropCalculationStrategy getDropCalculationStrategy()
 	{
-		return _killerChanceModifierStrategy.getKillerChanceModifier(this, victim, killer);
+		return _dropCalculationStrategy;
 	}
 	
 	/**
@@ -138,9 +106,28 @@ public final class GroupedGeneralDropItem implements IDropItem
 		return _preciseStrategy;
 	}
 	
-	public boolean isPreciseCalculated()
+	/**
+	 * Sets an item list to this drop item.
+	 * @param items the item list
+	 */
+	public final void setItems(List<GeneralDropItem> items)
 	{
-		return _preciseStrategy.isPreciseCalculated(this);
+		_items = Collections.unmodifiableList(items);
+	}
+	
+	/**
+	 * Returns a list of items in the group with chance multiplied by chance of the group
+	 * @return the list of items with modified chances
+	 */
+	public final List<GeneralDropItem> extractMe()
+	{
+		List<GeneralDropItem> items = new ArrayList<>();
+		for (final GeneralDropItem item : getItems())
+		{
+			// precise and killer strategies of the group
+			items.add(new GeneralDropItem(item.getItemId(), item.getMin(), item.getMax(), (item.getChance() * getChance()) / 100, item.getAmountStrategy(), item.getChanceStrategy(), getPreciseStrategy(), getKillerChanceModifierStrategy(), item.getDropCalculationStrategy()));
+		}
+		return items;
 	}
 	
 	/**
@@ -169,27 +156,6 @@ public final class GroupedGeneralDropItem implements IDropItem
 	/**
 	 * Creates a normalized group taking into account all drop modifiers, needed when handling a group which has items with different chance rates
 	 * @param victim
-	 * @return a new normalized group with all victim modifiers applied
-	 */
-	public final GroupedGeneralDropItem normalizeMe(L2Character victim)
-	{
-		return normalizeMe(victim, null, false, 1);
-	}
-	
-	/**
-	 * Creates a normalized group taking into account all drop modifiers, needed when handling a group which has items with different chance rates
-	 * @param victim
-	 * @param chanceModifier an additional chance modifier
-	 * @return a new normalized group with all victim modifiers applied
-	 */
-	public final GroupedGeneralDropItem normalizeMe(L2Character victim, double chanceModifier)
-	{
-		return normalizeMe(victim, null, false, chanceModifier);
-	}
-	
-	/**
-	 * Creates a normalized group taking into account all drop modifiers, needed when handling a group which has items with different chance rates
-	 * @param victim
 	 * @param killer
 	 * @return a new normalized group with all drop modifiers applied
 	 */
@@ -211,12 +177,24 @@ public final class GroupedGeneralDropItem implements IDropItem
 	}
 	
 	/**
-	 * Sets an item list to this drop item.
-	 * @param items the item list
+	 * Creates a normalized group taking into account all drop modifiers, needed when handling a group which has items with different chance rates
+	 * @param victim
+	 * @return a new normalized group with all victim modifiers applied
 	 */
-	public final void setItems(List<GeneralDropItem> items)
+	public final GroupedGeneralDropItem normalizeMe(L2Character victim)
 	{
-		_items = Collections.unmodifiableList(items);
+		return normalizeMe(victim, null, false, 1);
+	}
+	
+	/**
+	 * Creates a normalized group taking into account all drop modifiers, needed when handling a group which has items with different chance rates
+	 * @param victim
+	 * @param chanceModifier an additional chance modifier
+	 * @return a new normalized group with all victim modifiers applied
+	 */
+	public final GroupedGeneralDropItem normalizeMe(L2Character victim, double chanceModifier)
+	{
+		return normalizeMe(victim, null, false, chanceModifier);
 	}
 	
 	/**
@@ -249,5 +227,27 @@ public final class GroupedGeneralDropItem implements IDropItem
 		group.setItems(items);
 		return group;
 		
+	}
+	
+	@Override
+	public final List<ItemHolder> calculateDrops(L2Character victim, L2Character killer)
+	{
+		return _dropCalculationStrategy.calculateDrops(this, victim, killer);
+	}
+	
+	/**
+	 * This handles by default deep blue drop rules. It may also be used to handle another drop chance rules based on killer
+	 * @param victim the victim who drops the item
+	 * @param killer who kills the victim
+	 * @return a number between 0 and 1 (usually)
+	 */
+	public final double getKillerChanceModifier(L2Character victim, L2Character killer)
+	{
+		return _killerChanceModifierStrategy.getKillerChanceModifier(this, victim, killer);
+	}
+	
+	public boolean isPreciseCalculated()
+	{
+		return _preciseStrategy.isPreciseCalculated(this);
 	}
 }

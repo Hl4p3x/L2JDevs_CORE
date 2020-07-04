@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -51,13 +51,13 @@ public final class L2Radar
 		}, 500);
 	}
 	
-	public void loadMarkers()
+	// Remove a marker from player's radar
+	public void removeMarker(int x, int y, int z)
 	{
-		_player.sendPacket(new RadarControl(2, 2, _player.getX(), _player.getY(), _player.getZ()));
-		for (RadarMarker tempMarker : _markers)
-		{
-			_player.sendPacket(new RadarControl(0, 1, tempMarker._x, tempMarker._y, tempMarker._z));
-		}
+		RadarMarker newMarker = new RadarMarker(x, y, z);
+		
+		_markers.remove(newMarker);
+		_player.sendPacket(new RadarControl(1, 1, x, y, z));
 	}
 	
 	public void removeAllMarkers()
@@ -69,19 +69,27 @@ public final class L2Radar
 		_markers.clear();
 	}
 	
-	// Remove a marker from player's radar
-	public void removeMarker(int x, int y, int z)
+	public void loadMarkers()
 	{
-		RadarMarker newMarker = new RadarMarker(x, y, z);
-		
-		_markers.remove(newMarker);
-		_player.sendPacket(new RadarControl(1, 1, x, y, z));
+		_player.sendPacket(new RadarControl(2, 2, _player.getX(), _player.getY(), _player.getZ()));
+		for (RadarMarker tempMarker : _markers)
+		{
+			_player.sendPacket(new RadarControl(0, 1, tempMarker._x, tempMarker._y, tempMarker._z));
+		}
 	}
 	
 	public static class RadarMarker
 	{
 		// Simple class to model radar points.
 		public int _type, _x, _y, _z;
+		
+		public RadarMarker(int type, int x, int y, int z)
+		{
+			_type = type;
+			_x = x;
+			_y = y;
+			_z = z;
+		}
 		
 		public RadarMarker(int x, int y, int z)
 		{
@@ -91,12 +99,16 @@ public final class L2Radar
 			_z = z;
 		}
 		
-		public RadarMarker(int type, int x, int y, int z)
+		@Override
+		public int hashCode()
 		{
-			_type = type;
-			_x = x;
-			_y = y;
-			_z = z;
+			final int prime = 31;
+			int result = 1;
+			result = (prime * result) + _type;
+			result = (prime * result) + _x;
+			result = (prime * result) + _y;
+			result = (prime * result) + _z;
+			return result;
 		}
 		
 		@Override
@@ -118,18 +130,6 @@ public final class L2Radar
 				return false;
 			}
 			return true;
-		}
-		
-		@Override
-		public int hashCode()
-		{
-			final int prime = 31;
-			int result = 1;
-			result = (prime * result) + _type;
-			result = (prime * result) + _x;
-			result = (prime * result) + _y;
-			result = (prime * result) + _z;
-			return result;
 		}
 	}
 }

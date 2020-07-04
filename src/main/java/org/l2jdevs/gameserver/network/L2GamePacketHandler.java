@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -21,14 +21,15 @@ package org.l2jdevs.gameserver.network;
 import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 
-import org.l2jdevs.Config;
-import org.l2jdevs.gameserver.network.L2GameClient.GameClientState;
-import org.l2jdevs.gameserver.network.clientpackets.*;
 import org.l2jdevs.mmocore.IClientFactory;
 import org.l2jdevs.mmocore.IMMOExecutor;
 import org.l2jdevs.mmocore.IPacketHandler;
 import org.l2jdevs.mmocore.MMOConnection;
 import org.l2jdevs.mmocore.ReceivablePacket;
+
+import org.l2jdevs.Config;
+import org.l2jdevs.gameserver.network.L2GameClient.GameClientState;
+import org.l2jdevs.gameserver.network.clientpackets.*;
 import org.l2jdevs.util.Util;
 
 /**
@@ -44,19 +45,6 @@ import org.l2jdevs.util.Util;
 public final class L2GamePacketHandler implements IPacketHandler<L2GameClient>, IClientFactory<L2GameClient>, IMMOExecutor<L2GameClient>
 {
 	private static final Logger _log = Logger.getLogger(L2GamePacketHandler.class.getName());
-	
-	// impl
-	@Override
-	public L2GameClient create(MMOConnection<L2GameClient> con)
-	{
-		return new L2GameClient(con);
-	}
-	
-	@Override
-	public void execute(ReceivablePacket<L2GameClient> rp)
-	{
-		rp.getClient().execute(rp);
-	}
 	
 	// implementation
 	@Override
@@ -1247,5 +1235,18 @@ public final class L2GamePacketHandler implements IPacketHandler<L2GameClient>, 
 		byte[] array = new byte[size];
 		buf.get(array);
 		_log.warning(Util.printData(array, size));
+	}
+	
+	// impl
+	@Override
+	public L2GameClient create(MMOConnection<L2GameClient> con)
+	{
+		return new L2GameClient(con);
+	}
+	
+	@Override
+	public void execute(ReceivablePacket<L2GameClient> rp)
+	{
+		rp.getClient().execute(rp);
 	}
 }

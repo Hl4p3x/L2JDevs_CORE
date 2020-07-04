@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -54,6 +54,98 @@ public class DoorData implements IXmlReader
 		load();
 	}
 	
+	@Override
+	public void load()
+	{
+		_doors.clear();
+		_groups.clear();
+		_regions.clear();
+		parseDatapackFile("data/doors.xml");
+		LOG.info("{}: Loaded {} Door templates for {} regions.", getClass().getSimpleName(), _doors.size(), _regions.size());
+	}
+	
+	@Override
+	public void parseDocument(Document doc)
+	{
+		for (Node a = doc.getFirstChild(); a != null; a = a.getNextSibling())
+		{
+			if ("list".equalsIgnoreCase(a.getNodeName()))
+			{
+				for (Node b = a.getFirstChild(); b != null; b = b.getNextSibling())
+				{
+					if ("door".equalsIgnoreCase(b.getNodeName()))
+					{
+						final NamedNodeMap attrs = b.getAttributes();
+						final StatsSet set = new StatsSet();
+						set.set("baseHpMax", 1); // Avoid doors without HP value created dead due to default value 0 in L2CharTemplate
+						for (int i = 0; i < attrs.getLength(); i++)
+						{
+							final Node att = attrs.item(i);
+							set.set(att.getNodeName(), att.getNodeValue());
+						}
+						makeDoor(set);
+						_templates.put(set.getInt("id"), set);
+					}
+				}
+			}
+		}
+	}
+	
+	public void insertCollisionData(StatsSet set)
+	{
+		int posX, posY, nodeX, nodeY, height;
+		height = set.getInt("height");
+		String[] pos = set.getString("node1").split(",");
+		nodeX = Integer.parseInt(pos[0]);
+		nodeY = Integer.parseInt(pos[1]);
+		pos = set.getString("node2").split(",");
+		posX = Integer.parseInt(pos[0]);
+		posY = Integer.parseInt(pos[1]);
+		int collisionRadius; // (max) radius for movement checks
+		collisionRadius = Math.min(Math.abs(nodeX - posX), Math.abs(nodeY - posY));
+		if (collisionRadius < 20)
+		{
+			collisionRadius = 20;
+		}
+		
+		set.set("collisionRadius", collisionRadius);
+		set.set("collisionHeight", height);
+	}
+	
+	/**
+	 * @param set
+	 */
+	private void makeDoor(StatsSet set)
+	{
+		insertCollisionData(set);
+		L2DoorTemplate template = new L2DoorTemplate(set);
+		L2DoorInstance door = new L2DoorInstance(template);
+		door.setCurrentHp(door.getMaxHp());
+		door.spawnMe(template.getX(), template.getY(), template.getZ());
+		putDoor(door, MapRegionManager.getInstance().getMapRegionLocId(door));
+	}
+	
+	public StatsSet getDoorTemplate(int doorId)
+	{
+		return _templates.get(doorId);
+	}
+	
+	public L2DoorInstance getDoor(int doorId)
+	{
+		return _doors.get(doorId);
+	}
+	
+	public void putDoor(L2DoorInstance door, int region)
+	{
+		_doors.put(door.getId(), door);
+		
+		if (!_regions.containsKey(region))
+		{
+			_regions.put(region, new ArrayList<L2DoorInstance>());
+		}
+		_regions.get(region).add(door);
+	}
+	
 	public static void addDoorGroup(String groupName, int doorId)
 	{
 		Set<Integer> set = _groups.get(groupName);
@@ -70,9 +162,9 @@ public class DoorData implements IXmlReader
 		return _groups.get(groupName);
 	}
 	
-	public static DoorData getInstance()
+	public Collection<L2DoorInstance> getDoors()
 	{
-		return SingletonHolder._instance;
+		return _doors.values();
 	}
 	
 	public boolean checkIfDoorsBetween(AbstractNodeLoc start, AbstractNodeLoc end, int instanceId)
@@ -154,101 +246,9 @@ public class DoorData implements IXmlReader
 		return false;
 	}
 	
-	public L2DoorInstance getDoor(int doorId)
+	public static DoorData getInstance()
 	{
-		return _doors.get(doorId);
-	}
-	
-	public Collection<L2DoorInstance> getDoors()
-	{
-		return _doors.values();
-	}
-	
-	public StatsSet getDoorTemplate(int doorId)
-	{
-		return _templates.get(doorId);
-	}
-	
-	public void insertCollisionData(StatsSet set)
-	{
-		int posX, posY, nodeX, nodeY, height;
-		height = set.getInt("height");
-		String[] pos = set.getString("node1").split(",");
-		nodeX = Integer.parseInt(pos[0]);
-		nodeY = Integer.parseInt(pos[1]);
-		pos = set.getString("node2").split(",");
-		posX = Integer.parseInt(pos[0]);
-		posY = Integer.parseInt(pos[1]);
-		int collisionRadius; // (max) radius for movement checks
-		collisionRadius = Math.min(Math.abs(nodeX - posX), Math.abs(nodeY - posY));
-		if (collisionRadius < 20)
-		{
-			collisionRadius = 20;
-		}
-		
-		set.set("collisionRadius", collisionRadius);
-		set.set("collisionHeight", height);
-	}
-	
-	@Override
-	public void load()
-	{
-		_doors.clear();
-		_groups.clear();
-		_regions.clear();
-		parseDatapackFile("data/doors.xml");
-		LOG.info("{}: Loaded {} Door templates for {} regions.", getClass().getSimpleName(), _doors.size(), _regions.size());
-	}
-	
-	@Override
-	public void parseDocument(Document doc)
-	{
-		for (Node a = doc.getFirstChild(); a != null; a = a.getNextSibling())
-		{
-			if ("list".equalsIgnoreCase(a.getNodeName()))
-			{
-				for (Node b = a.getFirstChild(); b != null; b = b.getNextSibling())
-				{
-					if ("door".equalsIgnoreCase(b.getNodeName()))
-					{
-						final NamedNodeMap attrs = b.getAttributes();
-						final StatsSet set = new StatsSet();
-						set.set("baseHpMax", 1); // Avoid doors without HP value created dead due to default value 0 in L2CharTemplate
-						for (int i = 0; i < attrs.getLength(); i++)
-						{
-							final Node att = attrs.item(i);
-							set.set(att.getNodeName(), att.getNodeValue());
-						}
-						makeDoor(set);
-						_templates.put(set.getInt("id"), set);
-					}
-				}
-			}
-		}
-	}
-	
-	public void putDoor(L2DoorInstance door, int region)
-	{
-		_doors.put(door.getId(), door);
-		
-		if (!_regions.containsKey(region))
-		{
-			_regions.put(region, new ArrayList<L2DoorInstance>());
-		}
-		_regions.get(region).add(door);
-	}
-	
-	/**
-	 * @param set
-	 */
-	private void makeDoor(StatsSet set)
-	{
-		insertCollisionData(set);
-		L2DoorTemplate template = new L2DoorTemplate(set);
-		L2DoorInstance door = new L2DoorInstance(template);
-		door.setCurrentHp(door.getMaxHp());
-		door.spawnMe(template.getX(), template.getY(), template.getZ());
-		putDoor(door, MapRegionManager.getInstance().getMapRegionLocId(door));
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -47,41 +47,6 @@ public abstract class FloodProtectedListener extends Thread
 		else
 		{
 			_serverSocket = new ServerSocket(port, 50, InetAddress.getByName(listenIp));
-		}
-	}
-	
-	public abstract void addClient(Socket s);
-	
-	public void close()
-	{
-		try
-		{
-			_serverSocket.close();
-		}
-		catch (IOException e)
-		{
-			_log.warning(getClass().getSimpleName() + ": " + e.getMessage());
-		}
-	}
-	
-	public void removeFloodProtection(String ip)
-	{
-		if (!Config.FLOOD_PROTECTION)
-		{
-			return;
-		}
-		ForeignConnection fConnection = _floodProtection.get(ip);
-		if (fConnection != null)
-		{
-			fConnection.connectionNumber -= 1;
-			if (fConnection.connectionNumber == 0)
-			{
-				_floodProtection.remove(ip);
-			}
-		}
-		else
-		{
-			_log.warning("Removing a flood protection for a GameServer that was not in the connection map??? :" + ip);
 		}
 	}
 	
@@ -161,6 +126,41 @@ public abstract class FloodProtectedListener extends Thread
 		{
 			lastConnection = time;
 			connectionNumber = 1;
+		}
+	}
+	
+	public abstract void addClient(Socket s);
+	
+	public void removeFloodProtection(String ip)
+	{
+		if (!Config.FLOOD_PROTECTION)
+		{
+			return;
+		}
+		ForeignConnection fConnection = _floodProtection.get(ip);
+		if (fConnection != null)
+		{
+			fConnection.connectionNumber -= 1;
+			if (fConnection.connectionNumber == 0)
+			{
+				_floodProtection.remove(ip);
+			}
+		}
+		else
+		{
+			_log.warning("Removing a flood protection for a GameServer that was not in the connection map??? :" + ip);
+		}
+	}
+	
+	public void close()
+	{
+		try
+		{
+			_serverSocket.close();
+		}
+		catch (IOException e)
+		{
+			_log.warning(getClass().getSimpleName() + ": " + e.getMessage());
 		}
 	}
 }

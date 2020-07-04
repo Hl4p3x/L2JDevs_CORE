@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -46,14 +46,6 @@ public class ScriptPackage
 	}
 	
 	/**
-	 * @return Returns the name.
-	 */
-	public String getName()
-	{
-		return _name;
-	}
-	
-	/**
 	 * @return Returns the otherFiles.
 	 */
 	public List<String> getOtherFiles()
@@ -67,6 +59,40 @@ public class ScriptPackage
 	public List<ScriptDocument> getScriptFiles()
 	{
 		return _scriptFiles;
+	}
+	
+	/**
+	 * @param pack
+	 */
+	private void addFiles(ZipFile pack)
+	{
+		for (Enumeration<? extends ZipEntry> e = pack.entries(); e.hasMoreElements();)
+		{
+			ZipEntry entry = e.nextElement();
+			if (entry.getName().endsWith(".xml"))
+			{
+				try
+				{
+					_scriptFiles.add(new ScriptDocument(entry.getName(), pack.getInputStream(entry)));
+				}
+				catch (IOException io)
+				{
+					_log.warning(getClass().getSimpleName() + ": " + io.getMessage());
+				}
+			}
+			else if (!entry.isDirectory())
+			{
+				_otherFiles.add(entry.getName());
+			}
+		}
+	}
+	
+	/**
+	 * @return Returns the name.
+	 */
+	public String getName()
+	{
+		return _name;
 	}
 	
 	@Override
@@ -102,31 +128,5 @@ public class ScriptPackage
 			}
 		}
 		return out.toString();
-	}
-	
-	/**
-	 * @param pack
-	 */
-	private void addFiles(ZipFile pack)
-	{
-		for (Enumeration<? extends ZipEntry> e = pack.entries(); e.hasMoreElements();)
-		{
-			ZipEntry entry = e.nextElement();
-			if (entry.getName().endsWith(".xml"))
-			{
-				try
-				{
-					_scriptFiles.add(new ScriptDocument(entry.getName(), pack.getInputStream(entry)));
-				}
-				catch (IOException io)
-				{
-					_log.warning(getClass().getSimpleName() + ": " + io.getMessage());
-				}
-			}
-			else if (!entry.isDirectory())
-			{
-				_otherFiles.add(entry.getName());
-			}
-		}
 	}
 }

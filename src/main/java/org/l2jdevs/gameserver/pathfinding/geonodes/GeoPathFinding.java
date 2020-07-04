@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -55,67 +55,15 @@ public class GeoPathFinding extends PathFinding
 	private static Map<Short, ByteBuffer> _pathNodes = new HashMap<>();
 	private static Map<Short, IntBuffer> _pathNodesIndex = new HashMap<>();
 	
-	protected GeoPathFinding()
-	{
-		try
-		{
-			_log.info("Path Engine: - Loading Path Nodes...");
-			//@formatter:off
-			Files.lines(Paths.get(Config.PATHNODE_DIR.getPath(), "pn_index.txt"), StandardCharsets.UTF_8)
-				.map(String::trim)
-				.filter(l -> !l.isEmpty())
-				.forEach(line -> {
-					final String[] parts = line.split("_");
-					
-					if ((parts.length < 2)
-						|| !Util.isDigit(parts[0])
-						|| !Util.isDigit(parts[1]))
-					{
-						_log.warning("Invalid pathnode entry: '" + line + "', must be in format 'XX_YY', where X and Y - integers");
-						return;
-					}
-					
-					byte rx = Byte.parseByte(parts[0]);
-					byte ry = Byte.parseByte(parts[1]);
-					LoadPathNodeFile(rx, ry);
-				});
-			//@formatter:on
-		}
-		catch (IOException e)
-		{
-			_log.log(Level.WARNING, "", e);
-			throw new Error("Failed to read pn_index file.");
-		}
-	}
-	
 	public static GeoPathFinding getInstance()
 	{
 		return SingletonHolder._instance;
 	}
 	
-	public List<AbstractNodeLoc> constructPath2(AbstractNode<GeoNodeLoc> node)
+	@Override
+	public boolean pathNodesExist(short regionoffset)
 	{
-		LinkedList<AbstractNodeLoc> path = new LinkedList<>();
-		int previousDirectionX = -1000;
-		int previousDirectionY = -1000;
-		int directionX;
-		int directionY;
-		
-		while (node.getParent() != null)
-		{
-			// only add a new route point if moving direction changes
-			directionX = node.getLoc().getNodeX() - node.getParent().getLoc().getNodeX();
-			directionY = node.getLoc().getNodeY() - node.getParent().getLoc().getNodeY();
-			
-			if ((directionX != previousDirectionX) || (directionY != previousDirectionY))
-			{
-				previousDirectionX = directionX;
-				previousDirectionY = directionY;
-				path.addFirst(node.getLoc());
-			}
-			node = node.getParent();
-		}
-		return path;
+		return _pathNodesIndex.containsKey(regionoffset);
 	}
 	
 	@Override
@@ -163,12 +111,6 @@ public class GeoPathFinding extends PathFinding
 		
 		// return searchAStar(start, end);
 		return searchByClosest2(start, end);
-	}
-	
-	@Override
-	public boolean pathNodesExist(short regionoffset)
-	{
-		return _pathNodesIndex.containsKey(regionoffset);
 	}
 	
 	public List<AbstractNodeLoc> searchByClosest2(GeoNode start, GeoNode end)
@@ -249,52 +191,29 @@ public class GeoPathFinding extends PathFinding
 		return null;
 	}
 	
-	// Private
-	
-	private void LoadPathNodeFile(byte rx, byte ry)
+	public List<AbstractNodeLoc> constructPath2(AbstractNode<GeoNodeLoc> node)
 	{
-		if ((rx < L2World.TILE_X_MIN) || (rx > L2World.TILE_X_MAX) || (ry < L2World.TILE_Y_MIN) || (ry > L2World.TILE_Y_MAX))
-		{
-			_log.warning("Failed to Load PathNode File: invalid region " + rx + "," + ry + Config.EOL);
-			return;
-		}
-		short regionoffset = getRegionOffset(rx, ry);
-		File file = new File(Config.PATHNODE_DIR, rx + "_" + ry + ".pn");
-		_log.info("Path Engine: - Loading: " + file.getName() + " -> region offset: " + regionoffset + " X: " + rx + " Y: " + ry);
-		int node = 0, size, index = 0;
+		LinkedList<AbstractNodeLoc> path = new LinkedList<>();
+		int previousDirectionX = -1000;
+		int previousDirectionY = -1000;
+		int directionX;
+		int directionY;
 		
-		// Create a read-only memory-mapped file
-		try (RandomAccessFile raf = new RandomAccessFile(file, "r");
-			FileChannel roChannel = raf.getChannel())
+		while (node.getParent() != null)
 		{
-			size = (int) roChannel.size();
-			MappedByteBuffer nodes;
-			if (Config.FORCE_GEODATA)
-			{
-				// it is not guarantee, because the underlying operating system may have paged out some of the buffer's data
-				nodes = roChannel.map(FileChannel.MapMode.READ_ONLY, 0, size).load();
-			}
-			else
-			{
-				nodes = roChannel.map(FileChannel.MapMode.READ_ONLY, 0, size);
-			}
+			// only add a new route point if moving direction changes
+			directionX = node.getLoc().getNodeX() - node.getParent().getLoc().getNodeX();
+			directionY = node.getLoc().getNodeY() - node.getParent().getLoc().getNodeY();
 			
-			// Indexing pathnode files, so we will know where each block starts
-			IntBuffer indexs = IntBuffer.allocate(65536);
-			
-			while (node < 65536)
+			if ((directionX != previousDirectionX) || (directionY != previousDirectionY))
 			{
-				byte layer = nodes.get(index);
-				indexs.put(node++, index);
-				index += (layer * 10) + 1;
+				previousDirectionX = directionX;
+				previousDirectionY = directionY;
+				path.addFirst(node.getLoc());
 			}
-			_pathNodesIndex.put(regionoffset, indexs);
-			_pathNodes.put(regionoffset, nodes);
+			node = node.getParent();
 		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Failed to Load PathNode File: " + file.getAbsolutePath() + " : " + e.getMessage(), e);
-		}
+		return path;
 	}
 	
 	private GeoNode[] readNeighbors(GeoNode n)
@@ -418,6 +337,31 @@ public class GeoPathFinding extends PathFinding
 		return neighbors.toArray(result);
 	}
 	
+	// Private
+	
+	private GeoNode readNode(short node_x, short node_y, byte layer)
+	{
+		short regoffset = getRegionOffset(getRegionX(node_x), getRegionY(node_y));
+		if (!pathNodesExist(regoffset))
+		{
+			return null;
+		}
+		short nbx = getNodeBlock(node_x);
+		short nby = getNodeBlock(node_y);
+		int idx = _pathNodesIndex.get(regoffset).get((nby << 8) + nbx);
+		ByteBuffer pn = _pathNodes.get(regoffset);
+		// reading
+		byte nodes = pn.get(idx);
+		idx += (layer * 10) + 1;// byte + layer*10byte
+		if (nodes < layer)
+		{
+			_log.warning("SmthWrong!");
+		}
+		short node_z = pn.getShort(idx);
+		idx += 2;
+		return new GeoNode(new GeoNodeLoc(node_x, node_y, node_z), idx);
+	}
+	
 	private GeoNode readNode(int gx, int gy, short z)
 	{
 		short node_x = getNodePos(gx);
@@ -449,27 +393,83 @@ public class GeoPathFinding extends PathFinding
 		return new GeoNode(new GeoNodeLoc(node_x, node_y, last_z), idx2);
 	}
 	
-	private GeoNode readNode(short node_x, short node_y, byte layer)
+	protected GeoPathFinding()
 	{
-		short regoffset = getRegionOffset(getRegionX(node_x), getRegionY(node_y));
-		if (!pathNodesExist(regoffset))
+		try
 		{
-			return null;
+			_log.info("Path Engine: - Loading Path Nodes...");
+			//@formatter:off
+			Files.lines(Paths.get(Config.PATHNODE_DIR.getPath(), "pn_index.txt"), StandardCharsets.UTF_8)
+				.map(String::trim)
+				.filter(l -> !l.isEmpty())
+				.forEach(line -> {
+					final String[] parts = line.split("_");
+					
+					if ((parts.length < 2)
+						|| !Util.isDigit(parts[0])
+						|| !Util.isDigit(parts[1]))
+					{
+						_log.warning("Invalid pathnode entry: '" + line + "', must be in format 'XX_YY', where X and Y - integers");
+						return;
+					}
+					
+					byte rx = Byte.parseByte(parts[0]);
+					byte ry = Byte.parseByte(parts[1]);
+					LoadPathNodeFile(rx, ry);
+				});
+			//@formatter:on
 		}
-		short nbx = getNodeBlock(node_x);
-		short nby = getNodeBlock(node_y);
-		int idx = _pathNodesIndex.get(regoffset).get((nby << 8) + nbx);
-		ByteBuffer pn = _pathNodes.get(regoffset);
-		// reading
-		byte nodes = pn.get(idx);
-		idx += (layer * 10) + 1;// byte + layer*10byte
-		if (nodes < layer)
+		catch (IOException e)
 		{
-			_log.warning("SmthWrong!");
+			_log.log(Level.WARNING, "", e);
+			throw new Error("Failed to read pn_index file.");
 		}
-		short node_z = pn.getShort(idx);
-		idx += 2;
-		return new GeoNode(new GeoNodeLoc(node_x, node_y, node_z), idx);
+	}
+	
+	private void LoadPathNodeFile(byte rx, byte ry)
+	{
+		if ((rx < L2World.TILE_X_MIN) || (rx > L2World.TILE_X_MAX) || (ry < L2World.TILE_Y_MIN) || (ry > L2World.TILE_Y_MAX))
+		{
+			_log.warning("Failed to Load PathNode File: invalid region " + rx + "," + ry + Config.EOL);
+			return;
+		}
+		short regionoffset = getRegionOffset(rx, ry);
+		File file = new File(Config.PATHNODE_DIR, rx + "_" + ry + ".pn");
+		_log.info("Path Engine: - Loading: " + file.getName() + " -> region offset: " + regionoffset + " X: " + rx + " Y: " + ry);
+		int node = 0, size, index = 0;
+		
+		// Create a read-only memory-mapped file
+		try (RandomAccessFile raf = new RandomAccessFile(file, "r");
+			FileChannel roChannel = raf.getChannel())
+		{
+			size = (int) roChannel.size();
+			MappedByteBuffer nodes;
+			if (Config.FORCE_GEODATA)
+			{
+				// it is not guarantee, because the underlying operating system may have paged out some of the buffer's data
+				nodes = roChannel.map(FileChannel.MapMode.READ_ONLY, 0, size).load();
+			}
+			else
+			{
+				nodes = roChannel.map(FileChannel.MapMode.READ_ONLY, 0, size);
+			}
+			
+			// Indexing pathnode files, so we will know where each block starts
+			IntBuffer indexs = IntBuffer.allocate(65536);
+			
+			while (node < 65536)
+			{
+				byte layer = nodes.get(index);
+				indexs.put(node++, index);
+				index += (layer * 10) + 1;
+			}
+			_pathNodesIndex.put(regionoffset, indexs);
+			_pathNodes.put(regionoffset, nodes);
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Failed to Load PathNode File: " + file.getAbsolutePath() + " : " + e.getMessage(), e);
+		}
 	}
 	
 	private static class SingletonHolder

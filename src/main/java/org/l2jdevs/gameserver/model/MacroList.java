@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -55,34 +55,14 @@ public class MacroList implements IRestorable
 		_macroId = 1000;
 	}
 	
-	public void deleteMacro(int id)
+	public int getRevision()
 	{
-		final Macro removed = _macroses.remove(id);
-		if (removed != null)
-		{
-			deleteMacroFromDb(removed);
-		}
-		
-		final Shortcut[] allShortCuts = _owner.getAllShortCuts();
-		for (Shortcut sc : allShortCuts)
-		{
-			if ((sc.getId() == id) && (sc.getType() == ShortcutType.MACRO))
-			{
-				_owner.deleteShortCut(sc.getSlot(), sc.getPage());
-			}
-		}
-		
-		sendUpdate();
+		return _revision;
 	}
 	
 	public Map<Integer, Macro> getAllMacroses()
 	{
 		return _macroses;
-	}
-	
-	public int getRevision()
-	{
-		return _revision;
 	}
 	
 	public void registerMacro(Macro macro)
@@ -107,6 +87,97 @@ public class MacroList implements IRestorable
 			registerMacroInDb(macro);
 		}
 		sendUpdate();
+	}
+	
+	public void deleteMacro(int id)
+	{
+		final Macro removed = _macroses.remove(id);
+		if (removed != null)
+		{
+			deleteMacroFromDb(removed);
+		}
+		
+		final Shortcut[] allShortCuts = _owner.getAllShortCuts();
+		for (Shortcut sc : allShortCuts)
+		{
+			if ((sc.getId() == id) && (sc.getType() == ShortcutType.MACRO))
+			{
+				_owner.deleteShortCut(sc.getSlot(), sc.getPage());
+			}
+		}
+		
+		sendUpdate();
+	}
+	
+	public void sendUpdate()
+	{
+		_revision++;
+		final Collection<Macro> allMacros = _macroses.values();
+		synchronized (_macroses)
+		{
+			if (allMacros.isEmpty())
+			{
+				_owner.sendPacket(new SendMacroList(_revision, 0, null));
+			}
+			else
+			{
+				for (Macro m : allMacros)
+				{
+					_owner.sendPacket(new SendMacroList(_revision, allMacros.size(), m));
+				}
+			}
+		}
+	}
+	
+	private void registerMacroInDb(Macro macro)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("INSERT INTO character_macroses (charId,id,icon,name,descr,acronym,commands) values(?,?,?,?,?,?,?)"))
+		{
+			ps.setInt(1, _owner.getObjectId());
+			ps.setInt(2, macro.getId());
+			ps.setInt(3, macro.getIcon());
+			ps.setString(4, macro.getName());
+			ps.setString(5, macro.getDescr());
+			ps.setString(6, macro.getAcronym());
+			final StringBuilder sb = new StringBuilder(300);
+			for (MacroCmd cmd : macro.getCommands())
+			{
+				StringUtil.append(sb, String.valueOf(cmd.getType().ordinal()), ",", String.valueOf(cmd.getD1()), ",", String.valueOf(cmd.getD2()));
+				if ((cmd.getCmd() != null) && (cmd.getCmd().length() > 0))
+				{
+					StringUtil.append(sb, ",", cmd.getCmd());
+				}
+				sb.append(';');
+			}
+			
+			if (sb.length() > 255)
+			{
+				sb.setLength(255);
+			}
+			
+			ps.setString(7, sb.toString());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "could not store macro:", e);
+		}
+	}
+	
+	private void deleteMacroFromDb(Macro macro)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM character_macroses WHERE charId=? AND id=?"))
+		{
+			ps.setInt(1, _owner.getObjectId());
+			ps.setInt(2, macro.getId());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "could not delete macro:", e);
+		}
 	}
 	
 	@Override
@@ -155,76 +226,5 @@ public class MacroList implements IRestorable
 			return false;
 		}
 		return true;
-	}
-	
-	public void sendUpdate()
-	{
-		_revision++;
-		final Collection<Macro> allMacros = _macroses.values();
-		synchronized (_macroses)
-		{
-			if (allMacros.isEmpty())
-			{
-				_owner.sendPacket(new SendMacroList(_revision, 0, null));
-			}
-			else
-			{
-				for (Macro m : allMacros)
-				{
-					_owner.sendPacket(new SendMacroList(_revision, allMacros.size(), m));
-				}
-			}
-		}
-	}
-	
-	private void deleteMacroFromDb(Macro macro)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM character_macroses WHERE charId=? AND id=?"))
-		{
-			ps.setInt(1, _owner.getObjectId());
-			ps.setInt(2, macro.getId());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "could not delete macro:", e);
-		}
-	}
-	
-	private void registerMacroInDb(Macro macro)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("INSERT INTO character_macroses (charId,id,icon,name,descr,acronym,commands) values(?,?,?,?,?,?,?)"))
-		{
-			ps.setInt(1, _owner.getObjectId());
-			ps.setInt(2, macro.getId());
-			ps.setInt(3, macro.getIcon());
-			ps.setString(4, macro.getName());
-			ps.setString(5, macro.getDescr());
-			ps.setString(6, macro.getAcronym());
-			final StringBuilder sb = new StringBuilder(300);
-			for (MacroCmd cmd : macro.getCommands())
-			{
-				StringUtil.append(sb, String.valueOf(cmd.getType().ordinal()), ",", String.valueOf(cmd.getD1()), ",", String.valueOf(cmd.getD2()));
-				if ((cmd.getCmd() != null) && (cmd.getCmd().length() > 0))
-				{
-					StringUtil.append(sb, ",", cmd.getCmd());
-				}
-				sb.append(';');
-			}
-			
-			if (sb.length() > 255)
-			{
-				sb.setLength(255);
-			}
-			
-			ps.setString(7, sb.toString());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "could not store macro:", e);
-		}
 	}
 }

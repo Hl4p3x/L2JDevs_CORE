@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -26,17 +26,6 @@ public class IPSubnet
 	final byte[] _addr;
 	final byte[] _mask;
 	final boolean _isIPv4;
-	
-	public IPSubnet(InetAddress addr, int mask) throws UnknownHostException
-	{
-		_addr = addr.getAddress();
-		_isIPv4 = _addr.length == 4;
-		_mask = getMask(mask, _addr.length);
-		if (!applyMask(_addr))
-		{
-			throw new UnknownHostException(addr.toString() + "/" + mask);
-		}
-	}
 	
 	public IPSubnet(String input) throws UnknownHostException, NumberFormatException, ArrayIndexOutOfBoundsException
 	{
@@ -60,25 +49,20 @@ public class IPSubnet
 		}
 	}
 	
-	private static final byte[] getMask(int n, int maxLength) throws UnknownHostException
+	public IPSubnet(InetAddress addr, int mask) throws UnknownHostException
 	{
-		if ((n > (maxLength << 3)) || (n < 0))
+		_addr = addr.getAddress();
+		_isIPv4 = _addr.length == 4;
+		_mask = getMask(mask, _addr.length);
+		if (!applyMask(_addr))
 		{
-			throw new UnknownHostException("Invalid netmask: " + n);
+			throw new UnknownHostException(addr.toString() + "/" + mask);
 		}
-		
-		final byte[] result = new byte[maxLength];
-		for (int i = 0; i < maxLength; i++)
-		{
-			result[i] = (byte) 0xFF;
-		}
-		
-		for (int i = (maxLength << 3) - 1; i >= n; i--)
-		{
-			result[i >> 3] = (byte) (result[i >> 3] << 1);
-		}
-		
-		return result;
+	}
+	
+	public byte[] getAddress()
+	{
+		return _addr;
 	}
 	
 	public boolean applyMask(byte[] addr)
@@ -125,6 +109,25 @@ public class IPSubnet
 	}
 	
 	@Override
+	public String toString()
+	{
+		int size = 0;
+		for (byte element : _mask)
+		{
+			size += Integer.bitCount((element & 0xFF));
+		}
+		
+		try
+		{
+			return InetAddress.getByAddress(_addr).toString() + "/" + size;
+		}
+		catch (UnknownHostException e)
+		{
+			return "Invalid";
+		}
+	}
+	
+	@Override
 	public boolean equals(Object o)
 	{
 		if (this == o)
@@ -143,27 +146,24 @@ public class IPSubnet
 		return false;
 	}
 	
-	public byte[] getAddress()
+	private static final byte[] getMask(int n, int maxLength) throws UnknownHostException
 	{
-		return _addr;
-	}
-	
-	@Override
-	public String toString()
-	{
-		int size = 0;
-		for (byte element : _mask)
+		if ((n > (maxLength << 3)) || (n < 0))
 		{
-			size += Integer.bitCount((element & 0xFF));
+			throw new UnknownHostException("Invalid netmask: " + n);
 		}
 		
-		try
+		final byte[] result = new byte[maxLength];
+		for (int i = 0; i < maxLength; i++)
 		{
-			return InetAddress.getByAddress(_addr).toString() + "/" + size;
+			result[i] = (byte) 0xFF;
 		}
-		catch (UnknownHostException e)
+		
+		for (int i = (maxLength << 3) - 1; i >= n; i--)
 		{
-			return "Invalid";
+			result[i >> 3] = (byte) (result[i >> 3] << 1);
 		}
+		
+		return result;
 	}
 }

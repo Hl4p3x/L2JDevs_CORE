@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -46,28 +46,6 @@ public final class EnchantItemGroupsData implements IXmlReader
 	protected EnchantItemGroupsData()
 	{
 		load();
-	}
-	
-	public static EnchantItemGroupsData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	public EnchantItemGroup getItemGroup(L2Item item, int scrollGroup)
-	{
-		final EnchantScrollGroup group = _scrollGroups.get(scrollGroup);
-		final EnchantRateItem rateGroup = group.getRateGroup(item);
-		return rateGroup != null ? _itemGroups.get(rateGroup.getName()) : null;
-	}
-	
-	public EnchantItemGroup getItemGroup(String name)
-	{
-		return _itemGroups.get(name);
-	}
-	
-	public EnchantScrollGroup getScrollGroup(int id)
-	{
-		return _scrollGroups.get(id);
 	}
 	
 	@Override
@@ -159,6 +137,28 @@ public final class EnchantItemGroupsData implements IXmlReader
 				}
 			}
 		}
+	}
+	
+	public EnchantItemGroup getItemGroup(L2Item item, int scrollGroup)
+	{
+		final EnchantScrollGroup group = _scrollGroups.get(scrollGroup);
+		final EnchantRateItem rateGroup = group.getRateGroup(item);
+		return rateGroup != null ? _itemGroups.get(rateGroup.getName()) : null;
+	}
+	
+	public EnchantItemGroup getItemGroup(String name)
+	{
+		return _itemGroups.get(name);
+	}
+	
+	public EnchantScrollGroup getScrollGroup(int id)
+	{
+		return _scrollGroups.get(id);
+	}
+	
+	public static EnchantItemGroupsData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

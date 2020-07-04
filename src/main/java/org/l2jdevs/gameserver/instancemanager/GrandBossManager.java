@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -73,94 +73,49 @@ public final class GrandBossManager implements IStorable
 		init();
 	}
 	
-	/**
-	 * Gets the single instance of {@code GrandBossManager}.
-	 * @return single instance of {@code GrandBossManager}
-	 */
-	public static GrandBossManager getInstance()
+	private void init()
 	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Adds a L2GrandBossInstance to the list of bosses.
-	 * @param boss
-	 */
-	public void addBoss(L2GrandBossInstance boss)
-	{
-		if (boss != null)
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement s = con.createStatement();
+			ResultSet rs = s.executeQuery("SELECT * from grandboss_data ORDER BY boss_id"))
 		{
-			BOSSES.put(boss.getId(), boss);
+			while (rs.next())
+			{
+				// Read all info from DB, and store it for AI to read and decide what to do
+				// faster than accessing DB in real time
+				StatsSet info = new StatsSet();
+				int bossId = rs.getInt("boss_id");
+				info.set("loc_x", rs.getInt("loc_x"));
+				info.set("loc_y", rs.getInt("loc_y"));
+				info.set("loc_z", rs.getInt("loc_z"));
+				info.set("heading", rs.getInt("heading"));
+				info.set("respawn_time", rs.getLong("respawn_time"));
+				double HP = rs.getDouble("currentHP"); // jython doesn't recognize doubles
+				int true_HP = (int) HP; // so use java's ability to type cast
+				info.set("currentHP", true_HP); // to convert double to int
+				double MP = rs.getDouble("currentMP");
+				int true_MP = (int) MP;
+				info.set("currentMP", true_MP);
+				int status = rs.getInt("status");
+				_bossStatus.put(bossId, status);
+				_storedInfo.put(bossId, info);
+				_log.info(getClass().getSimpleName() + ": " + NpcData.getInstance().getTemplate(bossId).getName() + "(" + bossId + ") status is " + status + ".");
+				if (status > 0)
+				{
+					_log.info(getClass().getSimpleName() + ": Next spawn date of " + NpcData.getInstance().getTemplate(bossId).getName() + " is " + new Date(info.getLong("respawn_time")) + ".");
+				}
+			}
+			_log.info(getClass().getSimpleName() + ": Loaded " + _storedInfo.size() + " Instances");
 		}
-	}
-	
-	public void addZone(L2BossZone zone)
-	{
-		_zones.put(zone.getId(), zone);
-	}
-	
-	public boolean checkIfInZone(L2PcInstance player)
-	{
-		return (player != null) && (getZone(player.getX(), player.getY(), player.getZ()) != null);
-	}
-	
-	public boolean checkIfInZone(String zoneType, L2Object obj)
-	{
-		final L2BossZone temp = getZone(obj.getX(), obj.getY(), obj.getZ());
-		return (temp != null) && temp.getName().equalsIgnoreCase(zoneType);
-	}
-	
-	/**
-	 * Saves all Grand Boss info and then clears all info from memory, including all schedules.
-	 */
-	public void cleanUp()
-	{
-		storeMe();
-		
-		BOSSES.clear();
-		_storedInfo.clear();
-		_bossStatus.clear();
-		_zones.clear();
-	}
-	
-	public L2GrandBossInstance getBoss(int bossId)
-	{
-		return BOSSES.get(bossId);
-	}
-	
-	public int getBossStatus(int bossId)
-	{
-		return _bossStatus.get(bossId);
-	}
-	
-	public StatsSet getStatsSet(int bossId)
-	{
-		return _storedInfo.get(bossId);
-	}
-	
-	public L2BossZone getZone(int zoneId)
-	{
-		return _zones.get(zoneId);
-	}
-	
-	public L2BossZone getZone(int x, int y, int z)
-	{
-		return _zones.values().stream().filter(zone -> zone.isInsideZone(x, y, z)).findFirst().orElse(null);
-	}
-	
-	public L2BossZone getZone(L2Character character)
-	{
-		return _zones.values().stream().filter(z -> z.isCharacterInZone(character)).findFirst().orElse(null);
-	}
-	
-	public L2BossZone getZone(Location loc)
-	{
-		return getZone(loc.getX(), loc.getY(), loc.getZ());
-	}
-	
-	public Map<Integer, L2BossZone> getZones()
-	{
-		return _zones;
+		catch (SQLException e)
+		{
+			_log.log(Level.WARNING, getClass().getSimpleName() + ": Could not load grandboss_data table: " + e.getMessage(), e);
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Error while initializing GrandBossManager: " + e.getMessage(), e);
+		}
+		ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new GrandBossManagerStoreTask(), 5 * 60 * 1000, 5 * 60 * 1000);
 	}
 	
 	/**
@@ -203,11 +158,74 @@ public final class GrandBossManager implements IStorable
 		zones.clear();
 	}
 	
+	public void addZone(L2BossZone zone)
+	{
+		_zones.put(zone.getId(), zone);
+	}
+	
+	public L2BossZone getZone(int zoneId)
+	{
+		return _zones.get(zoneId);
+	}
+	
+	public L2BossZone getZone(L2Character character)
+	{
+		return _zones.values().stream().filter(z -> z.isCharacterInZone(character)).findFirst().orElse(null);
+	}
+	
+	public L2BossZone getZone(Location loc)
+	{
+		return getZone(loc.getX(), loc.getY(), loc.getZ());
+	}
+	
+	public L2BossZone getZone(int x, int y, int z)
+	{
+		return _zones.values().stream().filter(zone -> zone.isInsideZone(x, y, z)).findFirst().orElse(null);
+	}
+	
+	public boolean checkIfInZone(String zoneType, L2Object obj)
+	{
+		final L2BossZone temp = getZone(obj.getX(), obj.getY(), obj.getZ());
+		return (temp != null) && temp.getName().equalsIgnoreCase(zoneType);
+	}
+	
+	public boolean checkIfInZone(L2PcInstance player)
+	{
+		return (player != null) && (getZone(player.getX(), player.getY(), player.getZ()) != null);
+	}
+	
+	public int getBossStatus(int bossId)
+	{
+		return _bossStatus.get(bossId);
+	}
+	
 	public void setBossStatus(int bossId, int status)
 	{
 		_bossStatus.put(bossId, status);
 		_log.info(getClass().getSimpleName() + ": Updated " + NpcData.getInstance().getTemplate(bossId).getName() + "(" + bossId + ") status to " + status);
 		updateDb(bossId, true);
+	}
+	
+	/**
+	 * Adds a L2GrandBossInstance to the list of bosses.
+	 * @param boss
+	 */
+	public void addBoss(L2GrandBossInstance boss)
+	{
+		if (boss != null)
+		{
+			BOSSES.put(boss.getId(), boss);
+		}
+	}
+	
+	public L2GrandBossInstance getBoss(int bossId)
+	{
+		return BOSSES.get(bossId);
+	}
+	
+	public StatsSet getStatsSet(int bossId)
+	{
+		return _storedInfo.get(bossId);
 	}
 	
 	public void setStatsSet(int bossId, StatsSet info)
@@ -290,51 +308,6 @@ public final class GrandBossManager implements IStorable
 		return true;
 	}
 	
-	private void init()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement s = con.createStatement();
-			ResultSet rs = s.executeQuery("SELECT * from grandboss_data ORDER BY boss_id"))
-		{
-			while (rs.next())
-			{
-				// Read all info from DB, and store it for AI to read and decide what to do
-				// faster than accessing DB in real time
-				StatsSet info = new StatsSet();
-				int bossId = rs.getInt("boss_id");
-				info.set("loc_x", rs.getInt("loc_x"));
-				info.set("loc_y", rs.getInt("loc_y"));
-				info.set("loc_z", rs.getInt("loc_z"));
-				info.set("heading", rs.getInt("heading"));
-				info.set("respawn_time", rs.getLong("respawn_time"));
-				double HP = rs.getDouble("currentHP"); // jython doesn't recognize doubles
-				int true_HP = (int) HP; // so use java's ability to type cast
-				info.set("currentHP", true_HP); // to convert double to int
-				double MP = rs.getDouble("currentMP");
-				int true_MP = (int) MP;
-				info.set("currentMP", true_MP);
-				int status = rs.getInt("status");
-				_bossStatus.put(bossId, status);
-				_storedInfo.put(bossId, info);
-				_log.info(getClass().getSimpleName() + ": " + NpcData.getInstance().getTemplate(bossId).getName() + "(" + bossId + ") status is " + status + ".");
-				if (status > 0)
-				{
-					_log.info(getClass().getSimpleName() + ": Next spawn date of " + NpcData.getInstance().getTemplate(bossId).getName() + " is " + new Date(info.getLong("respawn_time")) + ".");
-				}
-			}
-			_log.info(getClass().getSimpleName() + ": Loaded " + _storedInfo.size() + " Instances");
-		}
-		catch (SQLException e)
-		{
-			_log.log(Level.WARNING, getClass().getSimpleName() + ": Could not load grandboss_data table: " + e.getMessage(), e);
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Error while initializing GrandBossManager: " + e.getMessage(), e);
-		}
-		ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new GrandBossManagerStoreTask(), 5 * 60 * 1000, 5 * 60 * 1000);
-	}
-	
 	private void updateDb(int bossId, boolean statusOnly)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection())
@@ -379,6 +352,33 @@ public final class GrandBossManager implements IStorable
 		{
 			_log.log(Level.WARNING, getClass().getSimpleName() + ": Couldn't update grandbosses to database:" + e.getMessage(), e);
 		}
+	}
+	
+	/**
+	 * Saves all Grand Boss info and then clears all info from memory, including all schedules.
+	 */
+	public void cleanUp()
+	{
+		storeMe();
+		
+		BOSSES.clear();
+		_storedInfo.clear();
+		_bossStatus.clear();
+		_zones.clear();
+	}
+	
+	public Map<Integer, L2BossZone> getZones()
+	{
+		return _zones;
+	}
+	
+	/**
+	 * Gets the single instance of {@code GrandBossManager}.
+	 * @return single instance of {@code GrandBossManager}
+	 */
+	public static GrandBossManager getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

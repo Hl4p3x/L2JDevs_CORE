@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -71,11 +71,27 @@ public abstract class AbstractEnchantItem
 	}
 	
 	/**
+	 * @return id of current item
+	 */
+	public final int getId()
+	{
+		return _id;
+	}
+	
+	/**
 	 * @return bonus chance that would be added
 	 */
 	public final double getBonusRate()
 	{
 		return _bonusRate;
+	}
+	
+	/**
+	 * @return {@link L2Item} current item/scroll
+	 */
+	public final L2Item getItem()
+	{
+		return ItemTable.getInstance().getTemplate(_id);
 	}
 	
 	/**
@@ -87,20 +103,9 @@ public abstract class AbstractEnchantItem
 	}
 	
 	/**
-	 * @return id of current item
+	 * @return {@code true} if scroll is for weapon, {@code false} for armor
 	 */
-	public final int getId()
-	{
-		return _id;
-	}
-	
-	/**
-	 * @return {@link L2Item} current item/scroll
-	 */
-	public final L2Item getItem()
-	{
-		return ItemTable.getInstance().getTemplate(_id);
-	}
+	public abstract boolean isWeapon();
 	
 	/**
 	 * @return the maximum enchant level that this scroll/item can be used with
@@ -139,11 +144,6 @@ public abstract class AbstractEnchantItem
 		}
 		return true;
 	}
-	
-	/**
-	 * @return {@code true} if scroll is for weapon, {@code false} for armor
-	 */
-	public abstract boolean isWeapon();
 	
 	/**
 	 * @param type2

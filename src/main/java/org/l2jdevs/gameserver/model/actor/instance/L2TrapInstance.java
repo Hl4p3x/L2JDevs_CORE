@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -259,11 +259,6 @@ public final class L2TrapInstance extends L2Npc
 		return (TrapKnownList) super.getKnownList();
 	}
 	
-	public int getLifeTime()
-	{
-		return _lifeTime;
-	}
-	
 	/**
 	 * Get the owner of this trap.
 	 * @return the owner
@@ -276,11 +271,6 @@ public final class L2TrapInstance extends L2Npc
 	public byte getPvpFlag()
 	{
 		return _owner != null ? _owner.getPvpFlag() : 0;
-	}
-	
-	public int getRemainingTime()
-	{
-		return _remainingTime;
 	}
 	
 	@Override
@@ -298,11 +288,6 @@ public final class L2TrapInstance extends L2Npc
 	public Skill getSkill()
 	{
 		return _skill.getSkill();
-	}
-	
-	public boolean hasLifeTime()
-	{
-		return _hasLifeTime;
 	}
 	
 	@Override
@@ -403,16 +388,6 @@ public final class L2TrapInstance extends L2Npc
 		}
 	}
 	
-	public void setHasLifeTime(boolean val)
-	{
-		_hasLifeTime = val;
-	}
-	
-	public void setRemainingTime(int time)
-	{
-		_remainingTime = time;
-	}
-	
 	public void stopDecay()
 	{
 		DecayTaskManager.getInstance().cancel(this);
@@ -468,5 +443,30 @@ public final class L2TrapInstance extends L2Npc
 	public void updateAbnormalEffect()
 	{
 		
+	}
+	
+	public boolean hasLifeTime()
+	{
+		return _hasLifeTime;
+	}
+	
+	public void setHasLifeTime(boolean val)
+	{
+		_hasLifeTime = val;
+	}
+	
+	public int getRemainingTime()
+	{
+		return _remainingTime;
+	}
+	
+	public void setRemainingTime(int time)
+	{
+		_remainingTime = time;
+	}
+	
+	public int getLifeTime()
+	{
+		return _lifeTime;
 	}
 }

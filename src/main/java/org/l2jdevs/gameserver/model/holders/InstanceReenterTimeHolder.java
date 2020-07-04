@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -31,6 +31,14 @@ public final class InstanceReenterTimeHolder
 	private final int _minute;
 	private final long _time;
 	
+	public InstanceReenterTimeHolder(long time)
+	{
+		_time = time;
+		_day = null;
+		_hour = -1;
+		_minute = -1;
+	}
+	
 	public InstanceReenterTimeHolder(DayOfWeek day, int hour, int minute)
 	{
 		_time = -1;
@@ -39,12 +47,9 @@ public final class InstanceReenterTimeHolder
 		_minute = minute;
 	}
 	
-	public InstanceReenterTimeHolder(long time)
+	public final Long getTime()
 	{
-		_time = time;
-		_day = null;
-		_hour = -1;
-		_minute = -1;
+		return _time;
 	}
 	
 	public final DayOfWeek getDay()
@@ -60,10 +65,5 @@ public final class InstanceReenterTimeHolder
 	public final int getMinute()
 	{
 		return _minute;
-	}
-	
-	public final Long getTime()
-	{
-		return _time;
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -58,34 +58,9 @@ public final class Product
 		}
 	}
 	
-	public boolean decreaseCount(long val)
-	{
-		if (_count == null)
-		{
-			return false;
-		}
-		if ((_restockTask == null) || _restockTask.isDone())
-		{
-			_restockTask = ThreadPoolManager.getInstance().scheduleGeneral(new RestockTask(), getRestockDelay());
-		}
-		boolean result = _count.addAndGet(-val) >= 0;
-		save();
-		return result;
-	}
-	
 	public int getBuyListId()
 	{
 		return _buyListId;
-	}
-	
-	public long getCount()
-	{
-		if (_count == null)
-		{
-			return 0;
-		}
-		long count = _count.get();
-		return count > 0 ? count : 0;
 	}
 	
 	public L2Item getItem()
@@ -96,11 +71,6 @@ public final class Product
 	public int getItemId()
 	{
 		return getItem().getId();
-	}
-	
-	public long getMaxCount()
-	{
-		return _maxCount;
 	}
 	
 	public long getPrice()
@@ -115,6 +85,45 @@ public final class Product
 	public long getRestockDelay()
 	{
 		return _restockDelay;
+	}
+	
+	public long getMaxCount()
+	{
+		return _maxCount;
+	}
+	
+	public long getCount()
+	{
+		if (_count == null)
+		{
+			return 0;
+		}
+		long count = _count.get();
+		return count > 0 ? count : 0;
+	}
+	
+	public void setCount(long currentCount)
+	{
+		if (_count == null)
+		{
+			_count = new AtomicLong();
+		}
+		_count.set(currentCount);
+	}
+	
+	public boolean decreaseCount(long val)
+	{
+		if (_count == null)
+		{
+			return false;
+		}
+		if ((_restockTask == null) || _restockTask.isDone())
+		{
+			_restockTask = ThreadPoolManager.getInstance().scheduleGeneral(new RestockTask(), getRestockDelay());
+		}
+		boolean result = _count.addAndGet(-val) >= 0;
+		save();
+		return result;
 	}
 	
 	public boolean hasLimitedStock()
@@ -141,13 +150,13 @@ public final class Product
 		save();
 	}
 	
-	public void setCount(long currentCount)
+	protected final class RestockTask implements Runnable
 	{
-		if (_count == null)
+		@Override
+		public void run()
 		{
-			_count = new AtomicLong();
+			restock();
 		}
-		_count.set(currentCount);
 	}
 	
 	private void save()
@@ -175,15 +184,6 @@ public final class Product
 		catch (Exception e)
 		{
 			_log.log(Level.WARNING, "Failed to save Product buylist_id:" + getBuyListId() + " item_id:" + getItemId(), e);
-		}
-	}
-	
-	protected final class RestockTask implements Runnable
-	{
-		@Override
-		public void run()
-		{
-			restock();
 		}
 	}
 }

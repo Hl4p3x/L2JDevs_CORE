@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -66,14 +66,14 @@ public final class GameTimeController extends Thread
 		super.start();
 	}
 	
-	public static final GameTimeController getInstance()
+	private final int getGameHour()
 	{
-		return _instance;
+		return getGameTime() / 60;
 	}
 	
-	protected static final void init()
+	protected final int getGameMinute()
 	{
-		_instance = new GameTimeController();
+		return getGameTime() % 60;
 	}
 	
 	/**
@@ -96,6 +96,22 @@ public final class GameTimeController extends Thread
 	}
 	
 	/**
+	 * Move all L2Characters contained in movingObjects of GameTimeController.<BR>
+	 * <B><U> Concept</U> :</B><BR>
+	 * All L2Character in movement are identified in <B>movingObjects</B> of GameTimeController.<BR>
+	 * <B><U> Actions</U> :</B><BR>
+	 * <ul>
+	 * <li>Update the position of each L2Character</li>
+	 * <li>If movement is finished, the L2Character is removed from movingObjects</li>
+	 * <li>Create a task to update the _knownObject and _knowPlayers of each L2Character that finished its movement and of their already known L2Object then notify AI with EVT_ARRIVED</li>
+	 * </ul>
+	 */
+	private final void moveObjects()
+	{
+		_movingObjects.removeIf(L2Character::updatePosition);
+	}
+	
+	/**
 	 * Add a L2Character to movingObjects of GameTimeController.
 	 * @param character The L2Character to add to movingObjects of GameTimeController
 	 */
@@ -106,6 +122,12 @@ public final class GameTimeController extends Thread
 			return;
 		}
 		_movingObjects.add(character);
+	}
+	
+	protected final void stopTimer()
+	{
+		super.interrupt();
+		LOG.info("Stopping {}", getClass().getSimpleName());
 	}
 	
 	@Override
@@ -155,35 +177,13 @@ public final class GameTimeController extends Thread
 		}
 	}
 	
-	protected final int getGameMinute()
+	public static final GameTimeController getInstance()
 	{
-		return getGameTime() % 60;
+		return _instance;
 	}
 	
-	protected final void stopTimer()
+	protected static final void init()
 	{
-		super.interrupt();
-		LOG.info("Stopping {}", getClass().getSimpleName());
-	}
-	
-	private final int getGameHour()
-	{
-		return getGameTime() / 60;
-	}
-	
-	/**
-	 * Move all L2Characters contained in movingObjects of GameTimeController.<BR>
-	 * <B><U> Concept</U> :</B><BR>
-	 * All L2Character in movement are identified in <B>movingObjects</B> of GameTimeController.<BR>
-	 * <B><U> Actions</U> :</B><BR>
-	 * <ul>
-	 * <li>Update the position of each L2Character</li>
-	 * <li>If movement is finished, the L2Character is removed from movingObjects</li>
-	 * <li>Create a task to update the _knownObject and _knowPlayers of each L2Character that finished its movement and of their already known L2Object then notify AI with EVT_ARRIVED</li>
-	 * </ul>
-	 */
-	private final void moveObjects()
-	{
-		_movingObjects.removeIf(L2Character::updatePosition);
+		_instance = new GameTimeController();
 	}
 }

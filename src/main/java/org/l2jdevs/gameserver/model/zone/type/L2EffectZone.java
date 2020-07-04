@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -67,58 +67,10 @@ public class L2EffectZone extends L2ZoneType
 		setSettings(settings);
 	}
 	
-	public void addSkill(int skillId, int skillLvL)
-	{
-		if (skillLvL < 1) // remove skill
-		{
-			removeSkill(skillId);
-			return;
-		}
-		
-		if (_skills == null)
-		{
-			synchronized (this)
-			{
-				if (_skills == null)
-				{
-					_skills = new ConcurrentHashMap<>(3);
-				}
-			}
-		}
-		_skills.put(skillId, skillLvL);
-	}
-	
-	public void clearSkills()
-	{
-		if (_skills != null)
-		{
-			_skills.clear();
-		}
-	}
-	
-	public int getChance()
-	{
-		return _chance;
-	}
-	
 	@Override
 	public TaskZoneSettings getSettings()
 	{
 		return (TaskZoneSettings) super.getSettings();
-	}
-	
-	public int getSkillLevel(int skillId)
-	{
-		final Map<Integer, Integer> skills = _skills;
-		return skills != null ? skills.getOrDefault(skillId, 0) : 0;
-	}
-	
-	public void removeSkill(int skillId)
-	{
-		if (_skills != null)
-		{
-			_skills.remove(skillId);
-		}
 	}
 	
 	@Override
@@ -181,11 +133,6 @@ public class L2EffectZone extends L2ZoneType
 		}
 	}
 	
-	protected Skill getSkill(int skillId, int skillLvl)
-	{
-		return SkillData.getInstance().getSkill(skillId, skillLvl);
-	}
-	
 	@Override
 	protected void onEnter(L2Character character)
 	{
@@ -232,6 +179,59 @@ public class L2EffectZone extends L2ZoneType
 		{
 			getSettings().clear();
 		}
+	}
+	
+	protected Skill getSkill(int skillId, int skillLvl)
+	{
+		return SkillData.getInstance().getSkill(skillId, skillLvl);
+	}
+	
+	public int getChance()
+	{
+		return _chance;
+	}
+	
+	public void addSkill(int skillId, int skillLvL)
+	{
+		if (skillLvL < 1) // remove skill
+		{
+			removeSkill(skillId);
+			return;
+		}
+		
+		if (_skills == null)
+		{
+			synchronized (this)
+			{
+				if (_skills == null)
+				{
+					_skills = new ConcurrentHashMap<>(3);
+				}
+			}
+		}
+		_skills.put(skillId, skillLvL);
+	}
+	
+	public void removeSkill(int skillId)
+	{
+		if (_skills != null)
+		{
+			_skills.remove(skillId);
+		}
+	}
+	
+	public void clearSkills()
+	{
+		if (_skills != null)
+		{
+			_skills.clear();
+		}
+	}
+	
+	public int getSkillLevel(int skillId)
+	{
+		final Map<Integer, Integer> skills = _skills;
+		return skills != null ? skills.getOrDefault(skillId, 0) : 0;
 	}
 	
 	private final class ApplySkill implements Runnable

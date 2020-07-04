@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-
 import org.l2jdevs.Config;
 
 /**
@@ -54,13 +53,21 @@ public final class ExperienceData
 		load();
 	}
 	
-	/**
-	 * Gets the single instance of ExperienceTable.
-	 * @return single instance of ExperienceTable
-	 */
-	public static ExperienceData getInstance()
+	public void load()
 	{
-		return SingletonHolder._instance;
+		_expTable.clear();
+		try (JsonReader reader = new JsonReader(new FileReader(new File(Config.DATAPACK_ROOT, "data/stats/expData.json"))))
+		{
+			_expTable.putAll(GSON.fromJson(reader, TYPE_MAP_INTEGER_LONG));
+		}
+		catch (FileNotFoundException fnfe)
+		{
+			LOG.warn("data/stats/expData.json not found!");
+		}
+		catch (IOException ioe)
+		{
+			LOG.warn("Failed to load expData.json for: ", ioe);
+		}
 	}
 	
 	/**
@@ -80,21 +87,13 @@ public final class ExperienceData
 		return (float) (exp - expPerLevel) / (expPerLevel2 - expPerLevel);
 	}
 	
-	public void load()
+	/**
+	 * Gets the single instance of ExperienceTable.
+	 * @return single instance of ExperienceTable
+	 */
+	public static ExperienceData getInstance()
 	{
-		_expTable.clear();
-		try (JsonReader reader = new JsonReader(new FileReader(new File(Config.DATAPACK_ROOT, "data/stats/expData.json"))))
-		{
-			_expTable.putAll(GSON.fromJson(reader, TYPE_MAP_INTEGER_LONG));
-		}
-		catch (FileNotFoundException fnfe)
-		{
-			LOG.warn("data/stats/expData.json not found!");
-		}
-		catch (IOException ioe)
-		{
-			LOG.warn("Failed to load expData.json for: ", ioe);
-		}
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

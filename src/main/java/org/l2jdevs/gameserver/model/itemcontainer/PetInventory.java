@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -55,29 +55,14 @@ public class PetInventory extends Inventory
 		return id;
 	}
 	
+	/**
+	 * Refresh the weight of equipment loaded
+	 */
 	@Override
-	public void restore()
+	protected void refreshWeight()
 	{
-		super.restore();
-		// check for equiped items from other pets
-		for (L2ItemInstance item : _items)
-		{
-			if (item.isEquipped())
-			{
-				if (!item.getItem().checkCondition(getOwner(), getOwner(), false))
-				{
-					unEquipItemInSlot(item.getLocationSlot());
-				}
-			}
-		}
-	}
-	
-	public void transferItemsToOwner()
-	{
-		for (L2ItemInstance item : _items)
-		{
-			getOwner().transferItem("return", item.getObjectId(), item.getCount(), getOwner().getOwner().getInventory(), getOwner().getOwner(), getOwner());
-		}
+		super.refreshWeight();
+		getOwner().updateAndBroadcastStatus(1);
 	}
 	
 	public boolean validateCapacity(L2ItemInstance item)
@@ -128,13 +113,28 @@ public class PetInventory extends Inventory
 		return ItemLocation.PET_EQUIP;
 	}
 	
-	/**
-	 * Refresh the weight of equipment loaded
-	 */
 	@Override
-	protected void refreshWeight()
+	public void restore()
 	{
-		super.refreshWeight();
-		getOwner().updateAndBroadcastStatus(1);
+		super.restore();
+		// check for equiped items from other pets
+		for (L2ItemInstance item : _items)
+		{
+			if (item.isEquipped())
+			{
+				if (!item.getItem().checkCondition(getOwner(), getOwner(), false))
+				{
+					unEquipItemInSlot(item.getLocationSlot());
+				}
+			}
+		}
+	}
+	
+	public void transferItemsToOwner()
+	{
+		for (L2ItemInstance item : _items)
+		{
+			getOwner().transferItem("return", item.getObjectId(), item.getCount(), getOwner().getOwner().getInventory(), getOwner().getOwner(), getOwner());
+		}
 	}
 }

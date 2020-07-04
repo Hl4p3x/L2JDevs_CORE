@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -52,83 +52,6 @@ public final class AnnouncementsTable
 		load();
 	}
 	
-	/**
-	 * @return Single instance of {@link AnnouncementsTable}
-	 */
-	public static AnnouncementsTable getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Adds announcement
-	 * @param announce
-	 */
-	public void addAnnouncement(IAnnouncement announce)
-	{
-		if (announce.storeMe())
-		{
-			_announcements.put(announce.getId(), announce);
-		}
-	}
-	
-	/**
-	 * Removes announcement by id
-	 * @param id
-	 * @return {@code true} if announcement exists and was deleted successfully, {@code false} otherwise.
-	 */
-	public boolean deleteAnnouncement(int id)
-	{
-		final IAnnouncement announce = _announcements.remove(id);
-		return (announce != null) && announce.deleteMe();
-	}
-	
-	/**
-	 * @return {@link Collection} containing all announcements
-	 */
-	public Collection<IAnnouncement> getAllAnnouncements()
-	{
-		return _announcements.values();
-	}
-	
-	/**
-	 * @param id
-	 * @return {@link IAnnouncement} by id
-	 */
-	public IAnnouncement getAnnounce(int id)
-	{
-		return _announcements.get(id);
-	}
-	
-	/**
-	 * Sends all announcements to the player by the specified type
-	 * @param player
-	 * @param type
-	 */
-	public void sendAnnouncements(L2PcInstance player, AnnouncementType type)
-	{
-		for (IAnnouncement announce : _announcements.values())
-		{
-			if (announce.isValid() && (announce.getType() == type))
-			{
-				player.sendPacket(new CreatureSay(0, //
-					type == AnnouncementType.CRITICAL ? Say2.CRITICAL_ANNOUNCE : Say2.ANNOUNCEMENT, //
-					player.getName(), announce.getContent()));
-			}
-		}
-	}
-	
-	/**
-	 * Sending all announcements to the player
-	 * @param player
-	 */
-	public void showAnnouncements(L2PcInstance player)
-	{
-		sendAnnouncements(player, AnnouncementType.NORMAL);
-		sendAnnouncements(player, AnnouncementType.CRITICAL);
-		sendAnnouncements(player, AnnouncementType.EVENT);
-	}
-	
 	private void load()
 	{
 		_announcements.clear();
@@ -166,6 +89,83 @@ public final class AnnouncementsTable
 		{
 			LOG.warn("Failed loading announcements:", e);
 		}
+	}
+	
+	/**
+	 * Sending all announcements to the player
+	 * @param player
+	 */
+	public void showAnnouncements(L2PcInstance player)
+	{
+		sendAnnouncements(player, AnnouncementType.NORMAL);
+		sendAnnouncements(player, AnnouncementType.CRITICAL);
+		sendAnnouncements(player, AnnouncementType.EVENT);
+	}
+	
+	/**
+	 * Sends all announcements to the player by the specified type
+	 * @param player
+	 * @param type
+	 */
+	public void sendAnnouncements(L2PcInstance player, AnnouncementType type)
+	{
+		for (IAnnouncement announce : _announcements.values())
+		{
+			if (announce.isValid() && (announce.getType() == type))
+			{
+				player.sendPacket(new CreatureSay(0, //
+					type == AnnouncementType.CRITICAL ? Say2.CRITICAL_ANNOUNCE : Say2.ANNOUNCEMENT, //
+					player.getName(), announce.getContent()));
+			}
+		}
+	}
+	
+	/**
+	 * Adds announcement
+	 * @param announce
+	 */
+	public void addAnnouncement(IAnnouncement announce)
+	{
+		if (announce.storeMe())
+		{
+			_announcements.put(announce.getId(), announce);
+		}
+	}
+	
+	/**
+	 * Removes announcement by id
+	 * @param id
+	 * @return {@code true} if announcement exists and was deleted successfully, {@code false} otherwise.
+	 */
+	public boolean deleteAnnouncement(int id)
+	{
+		final IAnnouncement announce = _announcements.remove(id);
+		return (announce != null) && announce.deleteMe();
+	}
+	
+	/**
+	 * @param id
+	 * @return {@link IAnnouncement} by id
+	 */
+	public IAnnouncement getAnnounce(int id)
+	{
+		return _announcements.get(id);
+	}
+	
+	/**
+	 * @return {@link Collection} containing all announcements
+	 */
+	public Collection<IAnnouncement> getAllAnnouncements()
+	{
+		return _announcements.values();
+	}
+	
+	/**
+	 * @return Single instance of {@link AnnouncementsTable}
+	 */
+	public static AnnouncementsTable getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

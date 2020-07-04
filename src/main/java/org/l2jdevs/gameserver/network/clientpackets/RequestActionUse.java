@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -79,12 +79,6 @@ public final class RequestActionUse extends L2GameClientPacket
 	private int _actionId;
 	private boolean _ctrlPressed;
 	private boolean _shiftPressed;
-	
-	@Override
-	public String getType()
-	{
-		return _C__56_REQUESTACTIONUSE;
-	}
 	
 	@Override
 	protected void readImpl()
@@ -776,12 +770,6 @@ public final class RequestActionUse extends L2GameClientPacket
 		}
 	}
 	
-	@Override
-	protected boolean triggersOnActionRequest()
-	{
-		return (_actionId != 10) && (_actionId != 28);
-	}
-	
 	/**
 	 * Use the sit action.
 	 * @param activeChar the player trying to sit
@@ -819,6 +807,105 @@ public final class RequestActionUse extends L2GameClientPacket
 		return true;
 	}
 	
+	/**
+	 * Cast a skill for active summon.<br>
+	 * Target is specified as a parameter but can be overwritten or ignored depending on skill type.
+	 * @param skillId the skill Id to be casted by the summon
+	 * @param target the target to cast the skill on, overwritten or ignored depending on skill type
+	 * @param pet if {@code true} it'll validate a pet, if {@code false} it will validate a servitor
+	 */
+	private void useSkill(int skillId, L2Object target, boolean pet)
+	{
+		final L2PcInstance activeChar = getActiveChar();
+		if (activeChar == null)
+		{
+			return;
+		}
+		
+		final L2Summon summon = activeChar.getSummon();
+		if (!validateSummon(summon, pet))
+		{
+			return;
+		}
+		
+		if (!canControl(summon))
+		{
+			return;
+		}
+		
+		int lvl = 0;
+		if (summon.isPet())
+		{
+			lvl = PetDataTable.getInstance().getPetData(summon.getId()).getAvailableLevel(skillId, summon.getLevel());
+		}
+		else
+		{
+			lvl = SummonSkillsTable.getInstance().getAvailableLevel(summon, skillId);
+		}
+		
+		if (lvl > 0)
+		{
+			summon.setTarget(target);
+			summon.useMagic(SkillData.getInstance().getSkill(skillId, lvl), _ctrlPressed, _shiftPressed);
+		}
+		
+		if (skillId == SWITCH_STANCE_ID)
+		{
+			summon.switchMode();
+		}
+	}
+	
+	private void useSkill(String skillName, L2Object target, boolean pet)
+	{
+		final L2PcInstance activeChar = getActiveChar();
+		if (activeChar == null)
+		{
+			return;
+		}
+		
+		final L2Summon summon = activeChar.getSummon();
+		if (!validateSummon(summon, pet))
+		{
+			return;
+		}
+		
+		if (!canControl(summon))
+		{
+			return;
+		}
+		
+		if (summon instanceof L2PetInstance)
+		{
+			if (!((L2PetInstance) summon).isInSupportMode())
+			{
+				sendPacket(SystemMessageId.PET_AUXILIARY_MODE_CANNOT_USE_SKILLS);
+				return;
+			}
+		}
+		
+		final SkillHolder skillHolder = summon.getTemplate().getParameters().getSkillHolder(skillName);
+		if (skillHolder == null)
+		{
+			_log.warning(summon + " requested missing skill " + skillName + "!");
+			return;
+		}
+		
+		final Skill skill = skillHolder.getSkill();
+		if (skill == null)
+		{
+			_log.warning(summon + " requested missing skill " + skillHolder + "!");
+			return;
+		}
+		
+		summon.setTarget(target);
+		summon.useMagic(skill, _ctrlPressed, _shiftPressed);
+		
+		if (skill.getId() == SWITCH_STANCE_ID)
+		{
+			summon.switchMode();
+		}
+	}
+	
 	private boolean canControl(L2Summon summon)
 	{
 		if (summon instanceof L2PetInstance)
@@ -839,6 +926,74 @@ public final class RequestActionUse extends L2GameClientPacket
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * Cast a skill for active summon.<br>
+	 * Target is retrieved from owner's target, then validated by overloaded method useSkill(int, L2Character).
+	 * @param skillId the skill Id to use
+	 * @param pet if {@code true} it'll validate a pet, if {@code false} it will validate a servitor
+	 */
+	private void useSkill(int skillId, boolean pet)
+	{
+		final L2PcInstance activeChar = getActiveChar();
+		if (activeChar == null)
+		{
+			return;
+		}
+		
+		useSkill(skillId, activeChar.getTarget(), pet);
+	}
+	
+	/**
+	 * Cast a skill for active summon.<br>
+	 * Target is retrieved from owner's target, then validated by overloaded method useSkill(int, L2Character).
+	 * @param skillName the skill name to use
+	 * @param pet if {@code true} it'll validate a pet, if {@code false} it will validate a servitor
+	 */
+	private void useSkill(String skillName, boolean pet)
+	{
+		final L2PcInstance activeChar = getActiveChar();
+		if (activeChar == null)
+		{
+			return;
+		}
+		
+		useSkill(skillName, activeChar.getTarget(), pet);
+	}
+	
+	/**
+	 * Validates the given summon and sends a system message to the master.
+	 * @param summon the summon to validate
+	 * @param checkPet if {@code true} it'll validate a pet, if {@code false} it will validate a servitor
+	 * @return {@code true} if the summon is not null and whether is a pet or a servitor depending on {@code checkPet} value, {@code false} otherwise
+	 */
+	private boolean validateSummon(L2Summon summon, boolean checkPet)
+	{
+		if ((summon != null) && ((checkPet && summon.isPet()) || summon.isServitor()))
+		{
+			if (summon.isPet() && ((L2PetInstance) summon).isUncontrollable())
+			{
+				sendPacket(SystemMessageId.WHEN_YOUR_PETS_HUNGER_GAUGE_IS_AT_0_YOU_CANNOT_USE_YOUR_PET);
+				return false;
+			}
+			if (summon.isBetrayed())
+			{
+				sendPacket(SystemMessageId.PET_REFUSING_ORDER);
+				return false;
+			}
+			return true;
+		}
+		
+		if (checkPet)
+		{
+			sendPacket(SystemMessageId.DONT_HAVE_PET);
+		}
+		else
+		{
+			sendPacket(SystemMessageId.DONT_HAVE_SERVITOR);
+		}
+		return false;
 	}
 	
 	/**
@@ -1094,170 +1249,15 @@ public final class RequestActionUse extends L2GameClientPacket
 		partner.sendPacket(new ExAskCoupleAction(requester.getObjectId(), id));
 	}
 	
-	/**
-	 * Cast a skill for active summon.<br>
-	 * Target is retrieved from owner's target, then validated by overloaded method useSkill(int, L2Character).
-	 * @param skillId the skill Id to use
-	 * @param pet if {@code true} it'll validate a pet, if {@code false} it will validate a servitor
-	 */
-	private void useSkill(int skillId, boolean pet)
+	@Override
+	public String getType()
 	{
-		final L2PcInstance activeChar = getActiveChar();
-		if (activeChar == null)
-		{
-			return;
-		}
-		
-		useSkill(skillId, activeChar.getTarget(), pet);
+		return _C__56_REQUESTACTIONUSE;
 	}
 	
-	/**
-	 * Cast a skill for active summon.<br>
-	 * Target is specified as a parameter but can be overwritten or ignored depending on skill type.
-	 * @param skillId the skill Id to be casted by the summon
-	 * @param target the target to cast the skill on, overwritten or ignored depending on skill type
-	 * @param pet if {@code true} it'll validate a pet, if {@code false} it will validate a servitor
-	 */
-	private void useSkill(int skillId, L2Object target, boolean pet)
+	@Override
+	protected boolean triggersOnActionRequest()
 	{
-		final L2PcInstance activeChar = getActiveChar();
-		if (activeChar == null)
-		{
-			return;
-		}
-		
-		final L2Summon summon = activeChar.getSummon();
-		if (!validateSummon(summon, pet))
-		{
-			return;
-		}
-		
-		if (!canControl(summon))
-		{
-			return;
-		}
-		
-		int lvl = 0;
-		if (summon.isPet())
-		{
-			lvl = PetDataTable.getInstance().getPetData(summon.getId()).getAvailableLevel(skillId, summon.getLevel());
-		}
-		else
-		{
-			lvl = SummonSkillsTable.getInstance().getAvailableLevel(summon, skillId);
-		}
-		
-		if (lvl > 0)
-		{
-			summon.setTarget(target);
-			summon.useMagic(SkillData.getInstance().getSkill(skillId, lvl), _ctrlPressed, _shiftPressed);
-		}
-		
-		if (skillId == SWITCH_STANCE_ID)
-		{
-			summon.switchMode();
-		}
-	}
-	
-	/**
-	 * Cast a skill for active summon.<br>
-	 * Target is retrieved from owner's target, then validated by overloaded method useSkill(int, L2Character).
-	 * @param skillName the skill name to use
-	 * @param pet if {@code true} it'll validate a pet, if {@code false} it will validate a servitor
-	 */
-	private void useSkill(String skillName, boolean pet)
-	{
-		final L2PcInstance activeChar = getActiveChar();
-		if (activeChar == null)
-		{
-			return;
-		}
-		
-		useSkill(skillName, activeChar.getTarget(), pet);
-	}
-	
-	private void useSkill(String skillName, L2Object target, boolean pet)
-	{
-		final L2PcInstance activeChar = getActiveChar();
-		if (activeChar == null)
-		{
-			return;
-		}
-		
-		final L2Summon summon = activeChar.getSummon();
-		if (!validateSummon(summon, pet))
-		{
-			return;
-		}
-		
-		if (!canControl(summon))
-		{
-			return;
-		}
-		
-		if (summon instanceof L2PetInstance)
-		{
-			if (!((L2PetInstance) summon).isInSupportMode())
-			{
-				sendPacket(SystemMessageId.PET_AUXILIARY_MODE_CANNOT_USE_SKILLS);
-				return;
-			}
-		}
-		
-		final SkillHolder skillHolder = summon.getTemplate().getParameters().getSkillHolder(skillName);
-		if (skillHolder == null)
-		{
-			_log.warning(summon + " requested missing skill " + skillName + "!");
-			return;
-		}
-		
-		final Skill skill = skillHolder.getSkill();
-		if (skill == null)
-		{
-			_log.warning(summon + " requested missing skill " + skillHolder + "!");
-			return;
-		}
-		
-		summon.setTarget(target);
-		summon.useMagic(skill, _ctrlPressed, _shiftPressed);
-		
-		if (skill.getId() == SWITCH_STANCE_ID)
-		{
-			summon.switchMode();
-		}
-	}
-	
-	/**
-	 * Validates the given summon and sends a system message to the master.
-	 * @param summon the summon to validate
-	 * @param checkPet if {@code true} it'll validate a pet, if {@code false} it will validate a servitor
-	 * @return {@code true} if the summon is not null and whether is a pet or a servitor depending on {@code checkPet} value, {@code false} otherwise
-	 */
-	private boolean validateSummon(L2Summon summon, boolean checkPet)
-	{
-		if ((summon != null) && ((checkPet && summon.isPet()) || summon.isServitor()))
-		{
-			if (summon.isPet() && ((L2PetInstance) summon).isUncontrollable())
-			{
-				sendPacket(SystemMessageId.WHEN_YOUR_PETS_HUNGER_GAUGE_IS_AT_0_YOU_CANNOT_USE_YOUR_PET);
-				return false;
-			}
-			if (summon.isBetrayed())
-			{
-				sendPacket(SystemMessageId.PET_REFUSING_ORDER);
-				return false;
-			}
-			return true;
-		}
-		
-		if (checkPet)
-		{
-			sendPacket(SystemMessageId.DONT_HAVE_PET);
-		}
-		else
-		{
-			sendPacket(SystemMessageId.DONT_HAVE_SERVITOR);
-		}
-		return false;
+		return (_actionId != 10) && (_actionId != 28);
 	}
 }

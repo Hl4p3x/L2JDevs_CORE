@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -42,6 +42,11 @@ public class DocumentEngine
 	private final List<File> _itemFiles = new ArrayList<>();
 	private final List<File> _skillFiles = new ArrayList<>();
 	
+	public static DocumentEngine getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	protected DocumentEngine()
 	{
 		hashFiles("data/stats/items", _itemFiles);
@@ -56,9 +61,35 @@ public class DocumentEngine
 		}
 	}
 	
-	public static DocumentEngine getInstance()
+	private void hashFiles(String dirname, List<File> hash)
 	{
-		return SingletonHolder._instance;
+		File dir = new File(Config.DATAPACK_ROOT, dirname);
+		if (!dir.exists())
+		{
+			_log.warning("Dir " + dir.getAbsolutePath() + " not exists");
+			return;
+		}
+		
+		final File[] files = dir.listFiles(new XMLFilter());
+		if (files != null)
+		{
+			for (File f : files)
+			{
+				hash.add(f);
+			}
+		}
+	}
+	
+	public List<Skill> loadSkills(File file)
+	{
+		if (file == null)
+		{
+			_log.warning("Skill file not found.");
+			return null;
+		}
+		DocumentSkill doc = new DocumentSkill(file);
+		doc.parse();
+		return doc.getSkills();
 	}
 	
 	public void loadAllSkills(final Map<Integer, Skill> allSkills)
@@ -94,37 +125,6 @@ public class DocumentEngine
 			list.addAll(document.getItemList());
 		}
 		return list;
-	}
-	
-	public List<Skill> loadSkills(File file)
-	{
-		if (file == null)
-		{
-			_log.warning("Skill file not found.");
-			return null;
-		}
-		DocumentSkill doc = new DocumentSkill(file);
-		doc.parse();
-		return doc.getSkills();
-	}
-	
-	private void hashFiles(String dirname, List<File> hash)
-	{
-		File dir = new File(Config.DATAPACK_ROOT, dirname);
-		if (!dir.exists())
-		{
-			_log.warning("Dir " + dir.getAbsolutePath() + " not exists");
-			return;
-		}
-		
-		final File[] files = dir.listFiles(new XMLFilter());
-		if (files != null)
-		{
-			for (File f : files)
-			{
-				hash.add(f);
-			}
-		}
 	}
 	
 	private static class SingletonHolder

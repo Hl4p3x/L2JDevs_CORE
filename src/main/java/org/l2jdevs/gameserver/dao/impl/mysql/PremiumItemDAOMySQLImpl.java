@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -39,22 +39,6 @@ public class PremiumItemDAOMySQLImpl implements PremiumItemDAO
 	private static final Logger LOG = LoggerFactory.getLogger(PremiumItemDAOMySQLImpl.class);
 	
 	private static final String GET_PREMIUM_ITEMS = "SELECT itemNum, itemId, itemCount, itemSender FROM character_premium_items WHERE charId=?";
-	
-	@Override
-	public void delete(L2PcInstance player, int itemNum)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM character_premium_items WHERE charId=? AND itemNum=? "))
-		{
-			ps.setInt(1, player.getObjectId());
-			ps.setInt(2, itemNum);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.error("Could not delete premium item: {}" + e);
-		}
-	}
 	
 	@Override
 	public void load(L2PcInstance player)
@@ -95,6 +79,22 @@ public class PremiumItemDAOMySQLImpl implements PremiumItemDAO
 		catch (Exception e)
 		{
 			LOG.error("Could not update premium items: {}", e);
+		}
+	}
+	
+	@Override
+	public void delete(L2PcInstance player, int itemNum)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM character_premium_items WHERE charId=? AND itemNum=? "))
+		{
+			ps.setInt(1, player.getObjectId());
+			ps.setInt(2, itemNum);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.error("Could not delete premium item: {}" + e);
 		}
 	}
 }

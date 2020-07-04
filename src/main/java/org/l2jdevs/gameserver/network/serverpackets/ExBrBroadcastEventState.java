@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -25,21 +25,21 @@ package org.l2jdevs.gameserver.network.serverpackets;
  */
 public class ExBrBroadcastEventState extends L2GameServerPacket
 {
-	public static final int APRIL_FOOLS = 20090401;
-	public static final int EVAS_INFERNO = 20090801; // event state (0 - hide, 1 - show), day (1-14), percent (0-100)
-	public static final int HALLOWEEN_EVENT = 20091031; // event state (0 - hide, 1 - show)
-	public static final int RAISING_RUDOLPH = 20091225; // event state (0 - hide, 1 - show)
-	public static final int LOVERS_JUBILEE = 20100214; // event state (0 - hide, 1 - show)
 	private final int _eventId;
 	private final int _eventState;
 	private int _param0;
 	private int _param1;
-	
 	private int _param2;
 	private int _param3;
 	private int _param4;
 	private String _param5;
 	private String _param6;
+	
+	public static final int APRIL_FOOLS = 20090401;
+	public static final int EVAS_INFERNO = 20090801; // event state (0 - hide, 1 - show), day (1-14), percent (0-100)
+	public static final int HALLOWEEN_EVENT = 20091031; // event state (0 - hide, 1 - show)
+	public static final int RAISING_RUDOLPH = 20091225; // event state (0 - hide, 1 - show)
+	public static final int LOVERS_JUBILEE = 20100214; // event state (0 - hide, 1 - show)
 	
 	public ExBrBroadcastEventState(int eventId, int eventState)
 	{

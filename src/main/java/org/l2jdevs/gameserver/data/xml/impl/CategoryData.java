@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -41,38 +41,6 @@ public final class CategoryData implements IXmlReader
 	protected CategoryData()
 	{
 		load();
-	}
-	
-	public static CategoryData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Gets the category by category type.
-	 * @param type The category type
-	 * @return A {@code Set} containing all the IDs in category if category is found, {@code null} if category was not found
-	 */
-	public Set<Integer> getCategoryByType(CategoryType type)
-	{
-		return _categories.get(type);
-	}
-	
-	/**
-	 * Checks if ID is in category.
-	 * @param type The category type
-	 * @param id The id to be checked
-	 * @return {@code true} if id is in category, {@code false} if id is not in category or category was not found
-	 */
-	public boolean isInCategory(CategoryType type, int id)
-	{
-		final Set<Integer> category = getCategoryByType(type);
-		if (category == null)
-		{
-			LOG.warn("{}: Can't find category type: {}", getClass().getSimpleName(), type);
-			return false;
-		}
-		return category.contains(id);
 	}
 	
 	@Override
@@ -115,6 +83,38 @@ public final class CategoryData implements IXmlReader
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Checks if ID is in category.
+	 * @param type The category type
+	 * @param id The id to be checked
+	 * @return {@code true} if id is in category, {@code false} if id is not in category or category was not found
+	 */
+	public boolean isInCategory(CategoryType type, int id)
+	{
+		final Set<Integer> category = getCategoryByType(type);
+		if (category == null)
+		{
+			LOG.warn("{}: Can't find category type: {}", getClass().getSimpleName(), type);
+			return false;
+		}
+		return category.contains(id);
+	}
+	
+	/**
+	 * Gets the category by category type.
+	 * @param type The category type
+	 * @return A {@code Set} containing all the IDs in category if category is found, {@code null} if category was not found
+	 */
+	public Set<Integer> getCategoryByType(CategoryType type)
+	{
+		return _categories.get(type);
+	}
+	
+	public static CategoryData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

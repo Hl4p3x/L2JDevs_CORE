@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -41,9 +41,9 @@ public class OnAttackableFactionCall implements IBaseEvent
 		_isSummon = isSummon;
 	}
 	
-	public L2PcInstance getAttacker()
+	public L2Npc getNpc()
 	{
-		return _attacker;
+		return _npc;
 	}
 	
 	public L2Npc getCaller()
@@ -51,19 +51,19 @@ public class OnAttackableFactionCall implements IBaseEvent
 		return _caller;
 	}
 	
-	public L2Npc getNpc()
+	public L2PcInstance getAttacker()
 	{
-		return _npc;
+		return _attacker;
+	}
+	
+	public boolean isSummon()
+	{
+		return _isSummon;
 	}
 	
 	@Override
 	public EventType getType()
 	{
 		return EventType.ON_ATTACKABLE_FACTION_CALL;
-	}
-	
-	public boolean isSummon()
-	{
-		return _isSummon;
 	}
 }

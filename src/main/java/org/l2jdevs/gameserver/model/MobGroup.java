@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -74,19 +74,6 @@ public final class MobGroup
 		return _mobs;
 	}
 	
-	public L2ControllableMobInstance getRandomMob()
-	{
-		removeDead();
-		
-		if (getActiveMobCount() == 0)
-		{
-			return null;
-		}
-		
-		int choice = Rnd.nextInt(getActiveMobCount());
-		return getMobs().get(choice);
-	}
-	
 	public String getStatus()
 	{
 		try
@@ -136,176 +123,6 @@ public final class MobGroup
 		}
 		
 		return false;
-	}
-	
-	public void killGroup(L2PcInstance activeChar)
-	{
-		removeDead();
-		
-		for (L2ControllableMobInstance mobInst : getMobs())
-		{
-			if (mobInst == null)
-			{
-				continue;
-			}
-			
-			if (!mobInst.isDead())
-			{
-				mobInst.reduceCurrentHp(mobInst.getMaxHp() + 1, activeChar, null);
-			}
-			
-			SpawnTable.getInstance().deleteSpawn(mobInst.getSpawn(), false);
-		}
-		
-		getMobs().clear();
-	}
-	
-	public void returnGroup(L2Character activeChar)
-	{
-		setIdleMode();
-		
-		for (L2ControllableMobInstance mobInst : getMobs())
-		{
-			if (mobInst == null)
-			{
-				continue;
-			}
-			
-			int signX = (Rnd.nextInt(2) == 0) ? -1 : 1;
-			int signY = (Rnd.nextInt(2) == 0) ? -1 : 1;
-			int randX = Rnd.nextInt(MobGroupTable.RANDOM_RANGE);
-			int randY = Rnd.nextInt(MobGroupTable.RANDOM_RANGE);
-			
-			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
-			ai.move(activeChar.getX() + (signX * randX), activeChar.getY() + (signY * randY), activeChar.getZ());
-		}
-	}
-	
-	public void setAttackGroup(MobGroup otherGrp)
-	{
-		removeDead();
-		
-		for (L2ControllableMobInstance mobInst : getMobs())
-		{
-			if (mobInst == null)
-			{
-				continue;
-			}
-			
-			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
-			ai.forceAttackGroup(otherGrp);
-			ai.setIntention(CtrlIntention.AI_INTENTION_ACTIVE);
-		}
-	}
-	
-	public void setAttackRandom()
-	{
-		removeDead();
-		
-		for (L2ControllableMobInstance mobInst : getMobs())
-		{
-			if (mobInst == null)
-			{
-				continue;
-			}
-			
-			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
-			ai.setAlternateAI(L2ControllableMobAI.AI_NORMAL);
-			ai.setIntention(CtrlIntention.AI_INTENTION_ACTIVE);
-		}
-	}
-	
-	public void setAttackTarget(L2Character target)
-	{
-		removeDead();
-		
-		for (L2ControllableMobInstance mobInst : getMobs())
-		{
-			if (mobInst == null)
-			{
-				continue;
-			}
-			
-			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
-			ai.forceAttack(target);
-		}
-	}
-	
-	public void setCastMode()
-	{
-		removeDead();
-		
-		for (L2ControllableMobInstance mobInst : getMobs())
-		{
-			if (mobInst == null)
-			{
-				continue;
-			}
-			
-			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
-			ai.setAlternateAI(L2ControllableMobAI.AI_CAST);
-		}
-	}
-	
-	public void setFollowMode(L2Character character)
-	{
-		removeDead();
-		
-		for (L2ControllableMobInstance mobInst : getMobs())
-		{
-			if (mobInst == null)
-			{
-				continue;
-			}
-			
-			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
-			ai.follow(character);
-		}
-	}
-	
-	public void setIdleMode()
-	{
-		removeDead();
-		
-		for (L2ControllableMobInstance mobInst : getMobs())
-		{
-			if (mobInst == null)
-			{
-				continue;
-			}
-			
-			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
-			ai.stop();
-		}
-	}
-	
-	public void setInvul(boolean invulState)
-	{
-		removeDead();
-		
-		for (L2ControllableMobInstance mobInst : getMobs())
-		{
-			if (mobInst != null)
-			{
-				mobInst.setInvul(invulState);
-			}
-		}
-	}
-	
-	public void setNoMoveMode(boolean enabled)
-	{
-		removeDead();
-		
-		for (L2ControllableMobInstance mobInst : getMobs())
-		{
-			if (mobInst == null)
-			{
-				continue;
-			}
-			
-			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
-			ai.setNotMoving(enabled);
-		}
 	}
 	
 	public void spawnGroup(int x, int y, int z)
@@ -371,6 +188,19 @@ public final class MobGroup
 		}
 	}
 	
+	public L2ControllableMobInstance getRandomMob()
+	{
+		removeDead();
+		
+		if (getActiveMobCount() == 0)
+		{
+			return null;
+		}
+		
+		int choice = Rnd.nextInt(getActiveMobCount());
+		return getMobs().get(choice);
+	}
+	
 	public void unspawnGroup()
 	{
 		removeDead();
@@ -398,6 +228,146 @@ public final class MobGroup
 		getMobs().clear();
 	}
 	
+	public void killGroup(L2PcInstance activeChar)
+	{
+		removeDead();
+		
+		for (L2ControllableMobInstance mobInst : getMobs())
+		{
+			if (mobInst == null)
+			{
+				continue;
+			}
+			
+			if (!mobInst.isDead())
+			{
+				mobInst.reduceCurrentHp(mobInst.getMaxHp() + 1, activeChar, null);
+			}
+			
+			SpawnTable.getInstance().deleteSpawn(mobInst.getSpawn(), false);
+		}
+		
+		getMobs().clear();
+	}
+	
+	public void setAttackRandom()
+	{
+		removeDead();
+		
+		for (L2ControllableMobInstance mobInst : getMobs())
+		{
+			if (mobInst == null)
+			{
+				continue;
+			}
+			
+			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
+			ai.setAlternateAI(L2ControllableMobAI.AI_NORMAL);
+			ai.setIntention(CtrlIntention.AI_INTENTION_ACTIVE);
+		}
+	}
+	
+	public void setAttackTarget(L2Character target)
+	{
+		removeDead();
+		
+		for (L2ControllableMobInstance mobInst : getMobs())
+		{
+			if (mobInst == null)
+			{
+				continue;
+			}
+			
+			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
+			ai.forceAttack(target);
+		}
+	}
+	
+	public void setIdleMode()
+	{
+		removeDead();
+		
+		for (L2ControllableMobInstance mobInst : getMobs())
+		{
+			if (mobInst == null)
+			{
+				continue;
+			}
+			
+			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
+			ai.stop();
+		}
+	}
+	
+	public void returnGroup(L2Character activeChar)
+	{
+		setIdleMode();
+		
+		for (L2ControllableMobInstance mobInst : getMobs())
+		{
+			if (mobInst == null)
+			{
+				continue;
+			}
+			
+			int signX = (Rnd.nextInt(2) == 0) ? -1 : 1;
+			int signY = (Rnd.nextInt(2) == 0) ? -1 : 1;
+			int randX = Rnd.nextInt(MobGroupTable.RANDOM_RANGE);
+			int randY = Rnd.nextInt(MobGroupTable.RANDOM_RANGE);
+			
+			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
+			ai.move(activeChar.getX() + (signX * randX), activeChar.getY() + (signY * randY), activeChar.getZ());
+		}
+	}
+	
+	public void setFollowMode(L2Character character)
+	{
+		removeDead();
+		
+		for (L2ControllableMobInstance mobInst : getMobs())
+		{
+			if (mobInst == null)
+			{
+				continue;
+			}
+			
+			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
+			ai.follow(character);
+		}
+	}
+	
+	public void setCastMode()
+	{
+		removeDead();
+		
+		for (L2ControllableMobInstance mobInst : getMobs())
+		{
+			if (mobInst == null)
+			{
+				continue;
+			}
+			
+			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
+			ai.setAlternateAI(L2ControllableMobAI.AI_CAST);
+		}
+	}
+	
+	public void setNoMoveMode(boolean enabled)
+	{
+		removeDead();
+		
+		for (L2ControllableMobInstance mobInst : getMobs())
+		{
+			if (mobInst == null)
+			{
+				continue;
+			}
+			
+			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
+			ai.setNotMoving(enabled);
+		}
+	}
+	
 	protected void removeDead()
 	{
 		List<L2ControllableMobInstance> deadMobs = new LinkedList<>();
@@ -410,5 +380,35 @@ public final class MobGroup
 		}
 		
 		getMobs().removeAll(deadMobs);
+	}
+	
+	public void setInvul(boolean invulState)
+	{
+		removeDead();
+		
+		for (L2ControllableMobInstance mobInst : getMobs())
+		{
+			if (mobInst != null)
+			{
+				mobInst.setInvul(invulState);
+			}
+		}
+	}
+	
+	public void setAttackGroup(MobGroup otherGrp)
+	{
+		removeDead();
+		
+		for (L2ControllableMobInstance mobInst : getMobs())
+		{
+			if (mobInst == null)
+			{
+				continue;
+			}
+			
+			L2ControllableMobAI ai = (L2ControllableMobAI) mobInst.getAI();
+			ai.forceAttackGroup(otherGrp);
+			ai.setIntention(CtrlIntention.AI_INTENTION_ACTIVE);
+		}
 	}
 }

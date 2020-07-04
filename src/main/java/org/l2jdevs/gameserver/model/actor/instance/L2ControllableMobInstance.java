@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -42,9 +42,33 @@ public class L2ControllableMobInstance extends L2MonsterInstance
 	}
 	
 	@Override
-	public void detachAI()
+	public boolean isAggressive()
 	{
-		// do nothing, AI of controllable mobs can't be detached automatically
+		return true;
+	}
+	
+	@Override
+	public int getAggroRange()
+	{
+		// force mobs to be aggro
+		return 500;
+	}
+	
+	@Override
+	protected L2CharacterAI initAI()
+	{
+		return new L2ControllableMobAI(this);
+	}
+	
+	@Override
+	public boolean isInvul()
+	{
+		return _isInvul;
+	}
+	
+	public void setInvul(boolean isInvul)
+	{
+		_isInvul = isInvul;
 	}
 	
 	@Override
@@ -60,32 +84,8 @@ public class L2ControllableMobInstance extends L2MonsterInstance
 	}
 	
 	@Override
-	public int getAggroRange()
+	public void detachAI()
 	{
-		// force mobs to be aggro
-		return 500;
-	}
-	
-	@Override
-	public boolean isAggressive()
-	{
-		return true;
-	}
-	
-	@Override
-	public boolean isInvul()
-	{
-		return _isInvul;
-	}
-	
-	public void setInvul(boolean isInvul)
-	{
-		_isInvul = isInvul;
-	}
-	
-	@Override
-	protected L2CharacterAI initAI()
-	{
-		return new L2ControllableMobAI(this);
+		// do nothing, AI of controllable mobs can't be detached automatically
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -40,9 +40,9 @@ import org.l2jdevs.util.data.xml.IXmlReader;
  */
 public final class InitialEquipmentData implements IXmlReader
 {
+	private final Map<ClassId, List<PcItemTemplate>> _initialEquipmentList = new HashMap<>();
 	private static final String NORMAL = "data/stats/initialEquipment.xml";
 	private static final String EVENT = "data/stats/initialEquipmentEvent.xml";
-	private final Map<ClassId, List<PcItemTemplate>> _initialEquipmentList = new HashMap<>();
 	
 	/**
 	 * Instantiates a new initial equipment data.
@@ -50,35 +50,6 @@ public final class InitialEquipmentData implements IXmlReader
 	protected InitialEquipmentData()
 	{
 		load();
-	}
-	
-	/**
-	 * Gets the single instance of InitialEquipmentData.
-	 * @return single instance of InitialEquipmentData
-	 */
-	public static InitialEquipmentData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Gets the equipment list.
-	 * @param cId the class Id for the required initial equipment.
-	 * @return the initial equipment for the given class Id.
-	 */
-	public List<PcItemTemplate> getEquipmentList(ClassId cId)
-	{
-		return _initialEquipmentList.get(cId);
-	}
-	
-	/**
-	 * Gets the equipment list.
-	 * @param cId the class Id for the required initial equipment.
-	 * @return the initial equipment for the given class Id.
-	 */
-	public List<PcItemTemplate> getEquipmentList(int cId)
-	{
-		return _initialEquipmentList.get(ClassId.getClassId(cId));
 	}
 	
 	@Override
@@ -131,6 +102,35 @@ public final class InitialEquipmentData implements IXmlReader
 			}
 		}
 		_initialEquipmentList.put(classId, equipList);
+	}
+	
+	/**
+	 * Gets the equipment list.
+	 * @param cId the class Id for the required initial equipment.
+	 * @return the initial equipment for the given class Id.
+	 */
+	public List<PcItemTemplate> getEquipmentList(ClassId cId)
+	{
+		return _initialEquipmentList.get(cId);
+	}
+	
+	/**
+	 * Gets the equipment list.
+	 * @param cId the class Id for the required initial equipment.
+	 * @return the initial equipment for the given class Id.
+	 */
+	public List<PcItemTemplate> getEquipmentList(int cId)
+	{
+		return _initialEquipmentList.get(ClassId.getClassId(cId));
+	}
+	
+	/**
+	 * Gets the single instance of InitialEquipmentData.
+	 * @return single instance of InitialEquipmentData
+	 */
+	public static InitialEquipmentData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

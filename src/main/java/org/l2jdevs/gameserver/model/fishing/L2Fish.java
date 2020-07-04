@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -79,115 +79,11 @@ public class L2Fish implements Cloneable
 	}
 	
 	/**
-	 * @return the fish Cheating prob.
-	 */
-	public double getCheatingProb()
-	{
-		return _cheatingProb;
-	}
-	
-	/**
-	 * @return the fish Combat duration.
-	 */
-	public int getCombatDuration()
-	{
-		return _combatDuration;
-	}
-	
-	/**
-	 * @return the fish Bite Rate.
-	 */
-	public double getFishBiteRate()
-	{
-		return _fishBiteRate;
-	}
-	
-	/**
-	 * @return the fish Grade.
-	 */
-	public int getFishGrade()
-	{
-		return _fishGrade;
-	}
-	
-	/**
-	 * @return the fish Group.
-	 */
-	public int getFishGroup()
-	{
-		return _fishGroup;
-	}
-	
-	/**
-	 * @return the fish Guts.
-	 */
-	public double getFishGuts()
-	{
-		return _fishGuts;
-	}
-	
-	/**
-	 * @return the fish Hp.
-	 */
-	public int getFishHp()
-	{
-		return _fishHp;
-	}
-	
-	/**
 	 * @return the fish Id.
 	 */
 	public int getFishId()
 	{
 		return _fishId;
-	}
-	
-	/**
-	 * @return the fish Length rate.
-	 */
-	public double getFishLengthRate()
-	{
-		return _fishLengthRate;
-	}
-	
-	/**
-	 * @return the fish Level.
-	 */
-	public int getFishLevel()
-	{
-		return _fishLevel;
-	}
-	
-	/**
-	 * @return the fish Max length.
-	 */
-	public int getFishMaxLength()
-	{
-		return _fishMaxLength;
-	}
-	
-	/**
-	 * @return the fish Guts Check probability.
-	 */
-	public double getGutsCheckProbability()
-	{
-		return _gutsCheckProbability;
-	}
-	
-	/**
-	 * @return the fish Guts check time.
-	 */
-	public int getGutsCheckTime()
-	{
-		return _gutsCheckTime;
-	}
-	
-	/**
-	 * @return the fish Hp regen.
-	 */
-	public double getHpRegen()
-	{
-		return _hpRegen;
 	}
 	
 	/**
@@ -207,6 +103,70 @@ public class L2Fish implements Cloneable
 	}
 	
 	/**
+	 * @return the fish Group.
+	 */
+	public int getFishGroup()
+	{
+		return _fishGroup;
+	}
+	
+	/**
+	 * @return the fish Level.
+	 */
+	public int getFishLevel()
+	{
+		return _fishLevel;
+	}
+	
+	/**
+	 * @return the fish Bite Rate.
+	 */
+	public double getFishBiteRate()
+	{
+		return _fishBiteRate;
+	}
+	
+	/**
+	 * @return the fish Guts.
+	 */
+	public double getFishGuts()
+	{
+		return _fishGuts;
+	}
+	
+	/**
+	 * @return the fish Hp.
+	 */
+	public int getFishHp()
+	{
+		return _fishHp;
+	}
+	
+	/**
+	 * @return the fish Max length.
+	 */
+	public int getFishMaxLength()
+	{
+		return _fishMaxLength;
+	}
+	
+	/**
+	 * @return the fish Length rate.
+	 */
+	public double getFishLengthRate()
+	{
+		return _fishLengthRate;
+	}
+	
+	/**
+	 * @return the fish Hp regen.
+	 */
+	public double getHpRegen()
+	{
+		return _hpRegen;
+	}
+	
+	/**
 	 * @return the fish start Combat time.
 	 */
 	public int getStartCombatTime()
@@ -215,29 +175,51 @@ public class L2Fish implements Cloneable
 	}
 	
 	/**
+	 * @return the fish Combat duration.
+	 */
+	public int getCombatDuration()
+	{
+		return _combatDuration;
+	}
+	
+	/**
+	 * @return the fish Guts check time.
+	 */
+	public int getGutsCheckTime()
+	{
+		return _gutsCheckTime;
+	}
+	
+	/**
+	 * @return the fish Guts Check probability.
+	 */
+	public double getGutsCheckProbability()
+	{
+		return _gutsCheckProbability;
+	}
+	
+	/**
+	 * @return the fish Cheating prob.
+	 */
+	public double getCheatingProb()
+	{
+		return _cheatingProb;
+	}
+	
+	/**
+	 * @return the fish Grade.
+	 */
+	public int getFishGrade()
+	{
+		return _fishGrade;
+	}
+	
+	/**
 	 * @param fg the fish Group.
 	 */
 	public void setFishGroup(int fg)
 	{
 		_fishGroup = fg;
-	}
-	
-	/**
-	 * @param name the Grade Name.
-	 * @return the fish Grade Id.
-	 */
-	private int getGradeId(String name)
-	{
-		switch (name)
-		{
-			case "fish_easy":
-				return 0;
-			case "fish_hard":
-				return 2;
-			case "fish_normal":
-			default:
-				return 1;
-		}
 	}
 	
 	/**
@@ -271,6 +253,24 @@ public class L2Fish implements Cloneable
 			case "wide":
 			default:
 				return 0;
+		}
+	}
+	
+	/**
+	 * @param name the Grade Name.
+	 * @return the fish Grade Id.
+	 */
+	private int getGradeId(String name)
+	{
+		switch (name)
+		{
+			case "fish_easy":
+				return 0;
+			case "fish_hard":
+				return 2;
+			case "fish_normal":
+			default:
+				return 1;
 		}
 	}
 }

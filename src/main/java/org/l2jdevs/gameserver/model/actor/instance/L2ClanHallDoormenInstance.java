@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -33,6 +33,10 @@ import org.l2jdevs.gameserver.util.Evolve;
 
 public class L2ClanHallDoormenInstance extends L2DoormenInstance
 {
+	private volatile boolean _init = false;
+	private ClanHall _clanHall = null;
+	private boolean _hasEvolve = false;
+	
 	// list of clan halls with evolve function, should be sorted
 	private static final int[] CH_WITH_EVOLVE =
 	{
@@ -50,10 +54,6 @@ public class L2ClanHallDoormenInstance extends L2DoormenInstance
 		56,
 		57
 	};
-	private volatile boolean _init = false;
-	private ClanHall _clanHall = null;
-	
-	private boolean _hasEvolve = false;
 	
 	/**
 	 * Creates a clan hall doorman.
@@ -162,34 +162,21 @@ public class L2ClanHallDoormenInstance extends L2DoormenInstance
 	}
 	
 	@Override
-	protected final void closeDoors(L2PcInstance player, String command)
-	{
-		getClanHall().openCloseDoors(false);
-		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
-		html.setFile(player.getHtmlPrefix(), "data/html/clanHallDoormen/doormen-closed.htm");
-		html.replace("%objectId%", String.valueOf(getObjectId()));
-		player.sendPacket(html);
-	}
-	
-	@Override
-	protected final boolean isOwnerClan(L2PcInstance player)
-	{
-		if ((player.getClan() != null) && (getClanHall() != null))
-		{
-			if (player.getClanId() == getClanHall().getOwnerId())
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	@Override
 	protected final void openDoors(L2PcInstance player, String command)
 	{
 		getClanHall().openCloseDoors(true);
 		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
 		html.setFile(player.getHtmlPrefix(), "data/html/clanHallDoormen/doormen-opened.htm");
+		html.replace("%objectId%", String.valueOf(getObjectId()));
+		player.sendPacket(html);
+	}
+	
+	@Override
+	protected final void closeDoors(L2PcInstance player, String command)
+	{
+		getClanHall().openCloseDoors(false);
+		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
+		html.setFile(player.getHtmlPrefix(), "data/html/clanHallDoormen/doormen-closed.htm");
 		html.replace("%objectId%", String.valueOf(getObjectId()));
 		player.sendPacket(html);
 	}
@@ -212,5 +199,18 @@ public class L2ClanHallDoormenInstance extends L2DoormenInstance
 			}
 		}
 		return _clanHall;
+	}
+	
+	@Override
+	protected final boolean isOwnerClan(L2PcInstance player)
+	{
+		if ((player.getClan() != null) && (getClanHall() != null))
+		{
+			if (player.getClanId() == getClanHall().getOwnerId())
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

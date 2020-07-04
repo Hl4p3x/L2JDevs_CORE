@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,21 +38,6 @@ public class StaticObject extends L2GameServerPacket
 	private final boolean _showHp;
 	private final int _damageGrade;
 	
-	public StaticObject(L2DoorInstance door, boolean targetable)
-	{
-		_staticObjectId = door.getId();
-		_objectId = door.getObjectId();
-		_type = 1;
-		_isTargetable = door.isTargetable() || targetable;
-		_meshIndex = door.getMeshIndex();
-		_isClosed = !door.getOpen();
-		_isEnemy = door.isEnemy();
-		_maxHp = door.getMaxHp();
-		_currentHp = (int) door.getCurrentHp();
-		_showHp = door.getIsShowHp();
-		_damageGrade = door.getDamage();
-	}
-	
 	public StaticObject(L2StaticObjectInstance staticObject)
 	{
 		_staticObjectId = staticObject.getId();
@@ -66,6 +51,21 @@ public class StaticObject extends L2GameServerPacket
 		_currentHp = 0;
 		_showHp = false;
 		_damageGrade = 0;
+	}
+	
+	public StaticObject(L2DoorInstance door, boolean targetable)
+	{
+		_staticObjectId = door.getId();
+		_objectId = door.getObjectId();
+		_type = 1;
+		_isTargetable = door.isTargetable() || targetable;
+		_meshIndex = door.getMeshIndex();
+		_isClosed = !door.getOpen();
+		_isEnemy = door.isEnemy();
+		_maxHp = door.getMaxHp();
+		_currentHp = (int) door.getCurrentHp();
+		_showHp = door.getIsShowHp();
+		_damageGrade = door.getDamage();
 	}
 	
 	@Override

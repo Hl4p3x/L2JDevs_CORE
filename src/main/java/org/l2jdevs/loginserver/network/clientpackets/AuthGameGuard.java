@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -34,6 +34,11 @@ public class AuthGameGuard extends L2LoginClientPacket
 	private int _data3;
 	private int _data4;
 	
+	public int getSessionId()
+	{
+		return _sessionId;
+	}
+	
 	public int getData1()
 	{
 		return _data1;
@@ -54,9 +59,19 @@ public class AuthGameGuard extends L2LoginClientPacket
 		return _data4;
 	}
 	
-	public int getSessionId()
+	@Override
+	protected boolean readImpl()
 	{
-		return _sessionId;
+		if (super._buf.remaining() >= 20)
+		{
+			_sessionId = readD();
+			_data1 = readD();
+			_data2 = readD();
+			_data3 = readD();
+			_data4 = readD();
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
@@ -71,20 +86,5 @@ public class AuthGameGuard extends L2LoginClientPacket
 		{
 			getClient().close(LoginFailReason.REASON_ACCESS_FAILED);
 		}
-	}
-	
-	@Override
-	protected boolean readImpl()
-	{
-		if (super._buf.remaining() >= 20)
-		{
-			_sessionId = readD();
-			_data1 = readD();
-			_data2 = readD();
-			_data3 = readD();
-			_data4 = readD();
-			return true;
-		}
-		return false;
 	}
 }

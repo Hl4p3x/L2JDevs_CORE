@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -45,40 +45,6 @@ public class CloseShieldedInputStream extends InputStream
 	public void close()
 	{
 		_in = null;
-	}
-	
-	/**
-	 * Gets the underlying stream.
-	 * @return the underlying stream
-	 */
-	public InputStream getUnderlyingStream()
-	{
-		return _in;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public synchronized void mark(int readlimit)
-	{
-		if (_in != null)
-		{
-			_in.mark(readlimit);
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean markSupported()
-	{
-		if (_in == null)
-		{
-			return false;
-		}
-		return _in.markSupported();
 	}
 	
 	/**
@@ -124,6 +90,44 @@ public class CloseShieldedInputStream extends InputStream
 	 * {@inheritDoc}
 	 */
 	@Override
+	public long skip(long n) throws IOException
+	{
+		if (_in == null)
+		{
+			throw new IOException("Stream is null!");
+		}
+		return _in.skip(n);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public synchronized void mark(int readlimit)
+	{
+		if (_in != null)
+		{
+			_in.mark(readlimit);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean markSupported()
+	{
+		if (_in == null)
+		{
+			return false;
+		}
+		return _in.markSupported();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public synchronized void reset() throws IOException
 	{
 		if (_in == null)
@@ -134,15 +138,11 @@ public class CloseShieldedInputStream extends InputStream
 	}
 	
 	/**
-	 * {@inheritDoc}
+	 * Gets the underlying stream.
+	 * @return the underlying stream
 	 */
-	@Override
-	public long skip(long n) throws IOException
+	public InputStream getUnderlyingStream()
 	{
-		if (_in == null)
-		{
-			throw new IOException("Stream is null!");
-		}
-		return _in.skip(n);
+		return _in;
 	}
 }

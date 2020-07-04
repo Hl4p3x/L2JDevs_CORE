@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -43,35 +43,6 @@ public final class ArmorSetsData implements IXmlReader
 	protected ArmorSetsData()
 	{
 		load();
-	}
-	
-	/**
-	 * Gets the single instance of ArmorSetsData.
-	 * @return single instance of ArmorSetsData
-	 */
-	public static ArmorSetsData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Gets the sets the.
-	 * @param chestId the chest Id identifying the armor set.
-	 * @return the armor set associated to the give chest Id.
-	 */
-	public L2ArmorSet getSet(int chestId)
-	{
-		return _armorSets.get(chestId);
-	}
-	
-	/**
-	 * Checks if is armor set.
-	 * @param chestId the chest Id to verify.
-	 * @return {@code true} if the chest Id belongs to a registered armor set, {@code false} otherwise.
-	 */
-	public boolean isArmorSet(int chestId)
-	{
-		return _armorSets.containsKey(chestId);
 	}
 	
 	@Override
@@ -187,6 +158,35 @@ public final class ArmorSetsData implements IXmlReader
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Checks if is armor set.
+	 * @param chestId the chest Id to verify.
+	 * @return {@code true} if the chest Id belongs to a registered armor set, {@code false} otherwise.
+	 */
+	public boolean isArmorSet(int chestId)
+	{
+		return _armorSets.containsKey(chestId);
+	}
+	
+	/**
+	 * Gets the sets the.
+	 * @param chestId the chest Id identifying the armor set.
+	 * @return the armor set associated to the give chest Id.
+	 */
+	public L2ArmorSet getSet(int chestId)
+	{
+		return _armorSets.get(chestId);
+	}
+	
+	/**
+	 * Gets the single instance of ArmorSetsData.
+	 * @return single instance of ArmorSetsData
+	 */
+	public static ArmorSetsData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

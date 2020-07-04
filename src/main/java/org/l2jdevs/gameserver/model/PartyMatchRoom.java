@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -52,9 +52,43 @@ public class PartyMatchRoom implements IIdentifiable
 		_members.add(owner);
 	}
 	
+	public List<L2PcInstance> getPartyMembers()
+	{
+		return _members;
+	}
+	
 	public void addMember(L2PcInstance player)
 	{
 		_members.add(player);
+	}
+	
+	public void deleteMember(L2PcInstance player)
+	{
+		if (player != getOwner())
+		{
+			_members.remove(player);
+			notifyMembersAboutExit(player);
+		}
+		else if (_members.size() == 1)
+		{
+			PartyMatchRoomList.getInstance().deleteRoom(_id);
+		}
+		else
+		{
+			changeLeader(_members.get(1));
+			deleteMember(player);
+		}
+	}
+	
+	public void notifyMembersAboutExit(L2PcInstance player)
+	{
+		for (L2PcInstance _member : _members)
+		{
+			SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.C1_LEFT_PARTY_ROOM);
+			sm.addCharName(player);
+			_member.sendPacket(sm);
+			_member.sendPacket(new ExManagePartyRoomMember(player, this, 2));
+		}
 	}
 	
 	public void changeLeader(L2PcInstance newLeader)
@@ -76,28 +110,25 @@ public class PartyMatchRoom implements IIdentifiable
 		}
 	}
 	
-	public void deleteMember(L2PcInstance player)
-	{
-		if (player != getOwner())
-		{
-			_members.remove(player);
-			notifyMembersAboutExit(player);
-		}
-		else if (_members.size() == 1)
-		{
-			PartyMatchRoomList.getInstance().deleteRoom(_id);
-		}
-		else
-		{
-			changeLeader(_members.get(1));
-			deleteMember(player);
-		}
-	}
-	
 	@Override
 	public int getId()
 	{
 		return _id;
+	}
+	
+	public int getLootType()
+	{
+		return _loot;
+	}
+	
+	public int getMinLvl()
+	{
+		return _minlvl;
+	}
+	
+	public int getMaxLvl()
+	{
+		return _maxlvl;
 	}
 	
 	/**
@@ -125,14 +156,9 @@ public class PartyMatchRoom implements IIdentifiable
 		return MapRegionManager.getInstance().getMapRegion(_members.get(0)).getBbs();
 	}
 	
-	public int getLootType()
+	public int getMembers()
 	{
-		return _loot;
-	}
-	
-	public int getMaxLvl()
-	{
-		return _maxlvl;
+		return _members.size();
 	}
 	
 	public int getMaxMembers()
@@ -140,14 +166,9 @@ public class PartyMatchRoom implements IIdentifiable
 		return _maxmem;
 	}
 	
-	public int getMembers()
+	public String getTitle()
 	{
-		return _members.size();
-	}
-	
-	public int getMinLvl()
-	{
-		return _minlvl;
+		return _title;
 	}
 	
 	public L2PcInstance getOwner()
@@ -155,32 +176,11 @@ public class PartyMatchRoom implements IIdentifiable
 		return _members.get(0);
 	}
 	
-	public List<L2PcInstance> getPartyMembers()
-	{
-		return _members;
-	}
-	
-	public String getTitle()
-	{
-		return _title;
-	}
-	
-	public void notifyMembersAboutExit(L2PcInstance player)
-	{
-		for (L2PcInstance _member : _members)
-		{
-			SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.C1_LEFT_PARTY_ROOM);
-			sm.addCharName(player);
-			_member.sendPacket(sm);
-			_member.sendPacket(new ExManagePartyRoomMember(player, this, 2));
-		}
-	}
-	
 	/* SET */
 	
-	public void setLootType(int loot)
+	public void setMinLvl(int minlvl)
 	{
-		_loot = loot;
+		_minlvl = minlvl;
 	}
 	
 	public void setMaxLvl(int maxlvl)
@@ -188,14 +188,14 @@ public class PartyMatchRoom implements IIdentifiable
 		_maxlvl = maxlvl;
 	}
 	
+	public void setLootType(int loot)
+	{
+		_loot = loot;
+	}
+	
 	public void setMaxMembers(int maxmem)
 	{
 		_maxmem = maxmem;
-	}
-	
-	public void setMinLvl(int minlvl)
-	{
-		_minlvl = minlvl;
 	}
 	
 	public void setTitle(String title)

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,6 +38,8 @@ import org.l2jdevs.commons.database.pool.impl.ConnectionFactory;
  */
 public abstract class IdFactory
 {
+	protected final Logger _log = Logger.getLogger(getClass().getName());
+	
 	@Deprecated
 	protected static final String[] ID_UPDATES =
 	{
@@ -125,35 +127,13 @@ public abstract class IdFactory
 		"DELETE FROM character_skills_save WHERE restore_type = 1 AND systime <= ?"
 	};
 	
-	public static final int FIRST_OID = 0x10000000;
-	
-	public static final int LAST_OID = 0x7FFFFFFF;
-	
-	public static final int FREE_OBJECT_ID_SIZE = LAST_OID - FIRST_OID;
-	protected static final IdFactory _instance;
-	static
-	{
-		switch (Config.IDFACTORY_TYPE)
-		{
-			case Compaction:
-				throw new UnsupportedOperationException("Compaction IdFactory is disabled.");
-			// _instance = new CompactionIDFactory();
-			// break;
-			case BitSet:
-				_instance = new BitSetIDFactory();
-				break;
-			case Stack:
-				_instance = new StackIDFactory();
-				break;
-			default:
-				_instance = null;
-				break;
-		}
-	}
-	
-	protected final Logger _log = Logger.getLogger(getClass().getName());
-	
 	protected boolean _initialized;
+	
+	public static final int FIRST_OID = 0x10000000;
+	public static final int LAST_OID = 0x7FFFFFFF;
+	public static final int FREE_OBJECT_ID_SIZE = LAST_OID - FIRST_OID;
+	
+	protected static final IdFactory _instance;
 	
 	protected IdFactory()
 	{
@@ -169,70 +149,40 @@ public abstract class IdFactory
 		cleanUpTimeStamps();
 	}
 	
-	public static IdFactory getInstance()
+	static
 	{
-		return _instance;
-	}
-	
-	public abstract int getNextId();
-	
-	public boolean isInitialized()
-	{
-		return _initialized;
-	}
-	
-	/**
-	 * return a used Object ID back to the pool
-	 * @param id
-	 */
-	public abstract void releaseId(int id);
-	
-	public abstract int size();
-	
-	/**
-	 * @return
-	 * @throws Exception
-	 * @throws SQLException
-	 */
-	protected final Integer[] extractUsedObjectIDTable() throws Exception
-	{
-		final List<Integer> temp = new ArrayList<>();
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement s = con.createStatement())
+		switch (Config.IDFACTORY_TYPE)
 		{
-			
-			String extractUsedObjectIdsQuery = "";
-			
-			for (String[] tblClmn : ID_EXTRACTS)
-			{
-				extractUsedObjectIdsQuery += "SELECT " + tblClmn[1] + " FROM " + tblClmn[0] + " UNION ";
-			}
-			
-			extractUsedObjectIdsQuery = extractUsedObjectIdsQuery.substring(0, extractUsedObjectIdsQuery.length() - 7); // Remove the last " UNION "
-			try (ResultSet rs = s.executeQuery(extractUsedObjectIdsQuery))
-			{
-				while (rs.next())
-				{
-					temp.add(rs.getInt(1));
-				}
-			}
+			case Compaction:
+				throw new UnsupportedOperationException("Compaction IdFactory is disabled.");
+				// _instance = new CompactionIDFactory();
+				// break;
+			case BitSet:
+				_instance = new BitSetIDFactory();
+				break;
+			case Stack:
+				_instance = new StackIDFactory();
+				break;
+			default:
+				_instance = null;
+				break;
 		}
-		Collections.sort(temp);
-		return temp.toArray(new Integer[temp.size()]);
 	}
 	
-	private void cleanInvalidWeddings()
+	/**
+	 * Sets all character offline
+	 */
+	private void setAllCharacterOffline()
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
 			Statement s = con.createStatement())
 		{
-			s.executeUpdate("DELETE FROM mods_wedding WHERE player1Id NOT IN (SELECT charId FROM characters)");
-			s.executeUpdate("DELETE FROM mods_wedding WHERE player2Id NOT IN (SELECT charId FROM characters)");
-			_log.info("Cleaned up invalid Weddings.");
+			s.executeUpdate("UPDATE characters SET online = 0");
+			_log.info("Updated characters online status.");
 		}
 		catch (SQLException e)
 		{
-			_log.log(Level.WARNING, "Could not clean up invalid Weddings: " + e.getMessage(), e);
+			_log.log(Level.WARNING, "Could not update characters online status: " + e.getMessage(), e);
 		}
 	}
 	
@@ -353,6 +303,21 @@ public abstract class IdFactory
 		}
 	}
 	
+	private void cleanInvalidWeddings()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement s = con.createStatement())
+		{
+			s.executeUpdate("DELETE FROM mods_wedding WHERE player1Id NOT IN (SELECT charId FROM characters)");
+			s.executeUpdate("DELETE FROM mods_wedding WHERE player2Id NOT IN (SELECT charId FROM characters)");
+			_log.info("Cleaned up invalid Weddings.");
+		}
+		catch (SQLException e)
+		{
+			_log.log(Level.WARNING, "Could not clean up invalid Weddings: " + e.getMessage(), e);
+		}
+	}
+	
 	private void cleanUpTimeStamps()
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection())
@@ -374,19 +339,54 @@ public abstract class IdFactory
 	}
 	
 	/**
-	 * Sets all character offline
+	 * @return
+	 * @throws Exception
+	 * @throws SQLException
 	 */
-	private void setAllCharacterOffline()
+	protected final Integer[] extractUsedObjectIDTable() throws Exception
 	{
+		final List<Integer> temp = new ArrayList<>();
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
 			Statement s = con.createStatement())
 		{
-			s.executeUpdate("UPDATE characters SET online = 0");
-			_log.info("Updated characters online status.");
+			
+			String extractUsedObjectIdsQuery = "";
+			
+			for (String[] tblClmn : ID_EXTRACTS)
+			{
+				extractUsedObjectIdsQuery += "SELECT " + tblClmn[1] + " FROM " + tblClmn[0] + " UNION ";
+			}
+			
+			extractUsedObjectIdsQuery = extractUsedObjectIdsQuery.substring(0, extractUsedObjectIdsQuery.length() - 7); // Remove the last " UNION "
+			try (ResultSet rs = s.executeQuery(extractUsedObjectIdsQuery))
+			{
+				while (rs.next())
+				{
+					temp.add(rs.getInt(1));
+				}
+			}
 		}
-		catch (SQLException e)
-		{
-			_log.log(Level.WARNING, "Could not update characters online status: " + e.getMessage(), e);
-		}
+		Collections.sort(temp);
+		return temp.toArray(new Integer[temp.size()]);
 	}
+	
+	public boolean isInitialized()
+	{
+		return _initialized;
+	}
+	
+	public static IdFactory getInstance()
+	{
+		return _instance;
+	}
+	
+	public abstract int getNextId();
+	
+	/**
+	 * return a used Object ID back to the pool
+	 * @param id
+	 */
+	public abstract void releaseId(int id);
+	
+	public abstract int size();
 }

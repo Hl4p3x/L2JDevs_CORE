@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -64,35 +64,19 @@ public class L2Henna
 	}
 	
 	/**
-	 * @return the list with the allowed classes to wear this dye.
-	 */
-	public List<ClassId> getAllowedWearClass()
-	{
-		return _wear_class;
-	}
-	
-	/**
-	 * @return the cancel count, the retrieved amount of dye items after removing the dye.
-	 */
-	public int getCancelCount()
-	{
-		return _cancel_count;
-	}
-	
-	/**
-	 * @return the cancel fee, cost for removing this dye from the player.
-	 */
-	public int getCancelFee()
-	{
-		return _cancel_fee;
-	}
-	
-	/**
 	 * @return the dye Id.
 	 */
 	public int getDyeId()
 	{
 		return _dyeId;
+	}
+	
+	/**
+	 * @return the dye server-side name.
+	 */
+	public String getDyeName()
+	{
+		return _dyeName;
 	}
 	
 	/**
@@ -104,11 +88,11 @@ public class L2Henna
 	}
 	
 	/**
-	 * @return the dye server-side name.
+	 * @return the STR stat.
 	 */
-	public String getDyeName()
+	public int getStatSTR()
 	{
-		return _dyeName;
+		return _str;
 	}
 	
 	/**
@@ -144,19 +128,19 @@ public class L2Henna
 	}
 	
 	/**
-	 * @return the STR stat.
-	 */
-	public int getStatSTR()
-	{
-		return _str;
-	}
-	
-	/**
 	 * @return the WIT stat.
 	 */
 	public int getStatWIT()
 	{
 		return _wit;
+	}
+	
+	/**
+	 * @return the wear fee, cost for adding this dye to the player.
+	 */
+	public int getWearFee()
+	{
+		return _wear_fee;
 	}
 	
 	/**
@@ -168,11 +152,27 @@ public class L2Henna
 	}
 	
 	/**
-	 * @return the wear fee, cost for adding this dye to the player.
+	 * @return the cancel fee, cost for removing this dye from the player.
 	 */
-	public int getWearFee()
+	public int getCancelFee()
 	{
-		return _wear_fee;
+		return _cancel_fee;
+	}
+	
+	/**
+	 * @return the cancel count, the retrieved amount of dye items after removing the dye.
+	 */
+	public int getCancelCount()
+	{
+		return _cancel_count;
+	}
+	
+	/**
+	 * @return the list with the allowed classes to wear this dye.
+	 */
+	public List<ClassId> getAllowedWearClass()
+	{
+		return _wear_class;
 	}
 	
 	/**

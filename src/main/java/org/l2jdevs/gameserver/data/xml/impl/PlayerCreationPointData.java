@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -44,9 +44,12 @@ public class PlayerCreationPointData implements IXmlReader
 		load();
 	}
 	
-	public static final PlayerCreationPointData getInstance()
+	@Override
+	public void load()
 	{
-		return SingletonHolder._instance;
+		_creationPointData.clear();
+		parseDatapackFile("data/stats/chars/pcCreationPoints.xml");
+		LOG.info("{}: Loaded {} character creation points.", getClass().getSimpleName(), _creationPointData.values().stream().mapToInt(array -> array.length).sum());
 	}
 	
 	/**
@@ -55,14 +58,6 @@ public class PlayerCreationPointData implements IXmlReader
 	public Location getCreationPoint(ClassId classId)
 	{
 		return Rnd.randomElement(_creationPointData.get(classId));
-	}
-	
-	@Override
-	public void load()
-	{
-		_creationPointData.clear();
-		parseDatapackFile("data/stats/chars/pcCreationPoints.xml");
-		LOG.info("{}: Loaded {} character creation points.", getClass().getSimpleName(), _creationPointData.values().stream().mapToInt(array -> array.length).sum());
 	}
 	
 	@Override
@@ -94,6 +89,11 @@ public class PlayerCreationPointData implements IXmlReader
 				}
 			}
 		}
+	}
+	
+	public static final PlayerCreationPointData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

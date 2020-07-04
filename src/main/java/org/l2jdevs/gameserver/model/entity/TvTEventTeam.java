@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -75,6 +75,23 @@ public class TvTEventTeam
 	}
 	
 	/**
+	 * Removes a player from the team
+	 * @param playerObjectId
+	 */
+	public void removePlayer(int playerObjectId)
+	{
+		_participatedPlayers.remove(playerObjectId);
+	}
+	
+	/**
+	 * Increases the points of the team<br>
+	 */
+	public void increasePoints()
+	{
+		++_points;
+	}
+	
+	/**
 	 * Cleanup the team and make it ready for adding players again<br>
 	 */
 	public void cleanMe()
@@ -94,16 +111,6 @@ public class TvTEventTeam
 	}
 	
 	/**
-	 * Returns the coordinates of the team spot<br>
-	 * <br>
-	 * @return int[]: team coordinates<br>
-	 */
-	public int[] getCoordinates()
-	{
-		return _coordinates;
-	}
-	
-	/**
 	 * Returns the name of the team<br>
 	 * <br>
 	 * @return String: name of the team<br>
@@ -114,23 +121,13 @@ public class TvTEventTeam
 	}
 	
 	/**
-	 * Returns player count of this team<br>
+	 * Returns the coordinates of the team spot<br>
 	 * <br>
-	 * @return int: number of players in team<br>
+	 * @return int[]: team coordinates<br>
 	 */
-	public int getParticipatedPlayerCount()
+	public int[] getCoordinates()
 	{
-		return _participatedPlayers.size();
-	}
-	
-	/**
-	 * Returns name and instance of all participated players in Map<br>
-	 * <br>
-	 * @return Map<String, L2PcInstance>: map of players in this team<br>
-	 */
-	public Map<Integer, L2PcInstance> getParticipatedPlayers()
-	{
-		return _participatedPlayers;
+		return _coordinates;
 	}
 	
 	/**
@@ -144,19 +141,22 @@ public class TvTEventTeam
 	}
 	
 	/**
-	 * Increases the points of the team<br>
+	 * Returns name and instance of all participated players in Map<br>
+	 * <br>
+	 * @return Map<String, L2PcInstance>: map of players in this team<br>
 	 */
-	public void increasePoints()
+	public Map<Integer, L2PcInstance> getParticipatedPlayers()
 	{
-		++_points;
+		return _participatedPlayers;
 	}
 	
 	/**
-	 * Removes a player from the team
-	 * @param playerObjectId
+	 * Returns player count of this team<br>
+	 * <br>
+	 * @return int: number of players in team<br>
 	 */
-	public void removePlayer(int playerObjectId)
+	public int getParticipatedPlayerCount()
 	{
-		_participatedPlayers.remove(playerObjectId);
+		return _participatedPlayers.size();
 	}
 }

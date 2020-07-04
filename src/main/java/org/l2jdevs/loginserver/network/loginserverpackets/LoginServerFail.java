@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -26,15 +26,6 @@ import org.l2jdevs.util.network.BaseSendablePacket;
 public class LoginServerFail extends BaseSendablePacket
 {
 	
-	public static final int REASON_IP_BANNED = 1;
-	
-	public static final int REASON_IP_RESERVED = 2;
-	
-	public static final int REASON_WRONG_HEXID = 3;
-	public static final int REASON_ID_RESERVED = 4;
-	public static final int REASON_NO_FREE_ID = 5;
-	public static final int NOT_AUTHED = 6;
-	public static final int REASON_ALREADY_LOGGED8IN = 7;
 	/**
 	 * @param reason
 	 */
@@ -43,10 +34,19 @@ public class LoginServerFail extends BaseSendablePacket
 		writeC(0x01);
 		writeC(reason);
 	}
+	
 	@Override
 	public byte[] getContent()
 	{
 		return getBytes();
 	}
+	
+	public static final int REASON_IP_BANNED = 1;
+	public static final int REASON_IP_RESERVED = 2;
+	public static final int REASON_WRONG_HEXID = 3;
+	public static final int REASON_ID_RESERVED = 4;
+	public static final int REASON_NO_FREE_ID = 5;
+	public static final int NOT_AUTHED = 6;
+	public static final int REASON_ALREADY_LOGGED8IN = 7;
 	
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -60,51 +60,14 @@ public class OlympiadGameManager implements Runnable
 		return SingletonHolder._instance;
 	}
 	
-	public final int getNumberOfStadiums()
+	protected final boolean isBattleStarted()
 	{
-		return _tasks.length;
+		return _battleStarted;
 	}
 	
-	public final OlympiadGameTask getOlympiadTask(int id)
+	protected final void startBattle()
 	{
-		if ((id < 0) || (id >= _tasks.length))
-		{
-			return null;
-		}
-		
-		return _tasks[id];
-	}
-	
-	public final boolean isAllTasksFinished()
-	{
-		for (OlympiadGameTask task : _tasks)
-		{
-			if (task.isRunning())
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	public final void notifyCompetitorDamage(L2PcInstance player, int damage)
-	{
-		if (player == null)
-		{
-			return;
-		}
-		
-		final int id = player.getOlympiadGameId();
-		if ((id < 0) || (id >= _tasks.length))
-		{
-			return;
-		}
-		
-		final AbstractOlympiadGame game = _tasks[id].getGame();
-		if (game != null)
-		{
-			game.addDamage(player, damage);
-		}
+		_battleStarted = true;
 	}
 	
 	@Override
@@ -196,14 +159,51 @@ public class OlympiadGameManager implements Runnable
 		}
 	}
 	
-	protected final boolean isBattleStarted()
+	public final boolean isAllTasksFinished()
 	{
-		return _battleStarted;
+		for (OlympiadGameTask task : _tasks)
+		{
+			if (task.isRunning())
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 	
-	protected final void startBattle()
+	public final OlympiadGameTask getOlympiadTask(int id)
 	{
-		_battleStarted = true;
+		if ((id < 0) || (id >= _tasks.length))
+		{
+			return null;
+		}
+		
+		return _tasks[id];
+	}
+	
+	public final int getNumberOfStadiums()
+	{
+		return _tasks.length;
+	}
+	
+	public final void notifyCompetitorDamage(L2PcInstance player, int damage)
+	{
+		if (player == null)
+		{
+			return;
+		}
+		
+		final int id = player.getOlympiadGameId();
+		if ((id < 0) || (id >= _tasks.length))
+		{
+			return;
+		}
+		
+		final AbstractOlympiadGame game = _tasks[id].getGame();
+		if (game != null)
+		{
+			game.addDamage(player, damage);
+		}
 	}
 	
 	private static class SingletonHolder

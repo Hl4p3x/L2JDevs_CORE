@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,18 +38,6 @@ public final class Participant
 	public String clanName;
 	public int clanId;
 	
-	public Participant(int objId, int olympiadSide)
-	{
-		objectId = objId;
-		player = null;
-		name = "-";
-		side = olympiadSide;
-		baseClass = 0;
-		stats = null;
-		clanName = "";
-		clanId = 0;
-	}
-	
 	public Participant(L2PcInstance plr, int olympiadSide)
 	{
 		objectId = plr.getObjectId();
@@ -62,108 +50,16 @@ public final class Participant
 		clanId = plr.getClanId();
 	}
 	
-	/**
-	 * @return the baseClass
-	 */
-	public int getBaseClass()
+	public Participant(int objId, int olympiadSide)
 	{
-		return baseClass;
-	}
-	
-	/**
-	 * @return the name the player's id.
-	 */
-	public int getClanId()
-	{
-		return clanId;
-	}
-	
-	/**
-	 * @return the name the player's clan name.
-	 */
-	public String getClanName()
-	{
-		return clanName;
-	}
-	
-	/**
-	 * @return the name the player's name.
-	 */
-	public String getName()
-	{
-		return name;
-	}
-	
-	/**
-	 * @return the objectId
-	 */
-	public int getObjectId()
-	{
-		return objectId;
-	}
-	
-	/**
-	 * @return the player
-	 */
-	public L2PcInstance getPlayer()
-	{
-		return player;
-	}
-	
-	/**
-	 * @return the side
-	 */
-	public int getSide()
-	{
-		return side;
-	}
-	
-	/**
-	 * @return the stats
-	 */
-	public StatsSet getStats()
-	{
-		return stats;
-	}
-	
-	/**
-	 * @return the defaulted
-	 */
-	public boolean isDefaulted()
-	{
-		return defaulted;
-	}
-	
-	/**
-	 * @return the disconnected
-	 */
-	public boolean isDisconnected()
-	{
-		return disconnected;
-	}
-	
-	/**
-	 * @param val the value to set.
-	 */
-	public void setDefaulted(boolean val)
-	{
-		defaulted = val;
-	}
-	
-	/**
-	 * @param val the disconnected to set
-	 */
-	public void setDisconnected(boolean val)
-	{
-		disconnected = val;
-	}
-	
-	/**
-	 * @param noble the player to set
-	 */
-	public void setPlayer(L2PcInstance noble)
-	{
-		player = noble;
+		objectId = objId;
+		player = null;
+		name = "-";
+		side = olympiadSide;
+		baseClass = 0;
+		stats = null;
+		clanName = "";
+		clanId = 0;
 	}
 	
 	/**
@@ -186,5 +82,109 @@ public final class Participant
 	public final void updateStat(String statName, int increment)
 	{
 		stats.set(statName, Math.max(stats.getInt(statName) + increment, 0));
+	}
+	
+	/**
+	 * @return the name the player's name.
+	 */
+	public String getName()
+	{
+		return name;
+	}
+	
+	/**
+	 * @return the name the player's clan name.
+	 */
+	public String getClanName()
+	{
+		return clanName;
+	}
+	
+	/**
+	 * @return the name the player's id.
+	 */
+	public int getClanId()
+	{
+		return clanId;
+	}
+	
+	/**
+	 * @return the player
+	 */
+	public L2PcInstance getPlayer()
+	{
+		return player;
+	}
+	
+	/**
+	 * @return the objectId
+	 */
+	public int getObjectId()
+	{
+		return objectId;
+	}
+	
+	/**
+	 * @return the stats
+	 */
+	public StatsSet getStats()
+	{
+		return stats;
+	}
+	
+	/**
+	 * @param noble the player to set
+	 */
+	public void setPlayer(L2PcInstance noble)
+	{
+		player = noble;
+	}
+	
+	/**
+	 * @return the side
+	 */
+	public int getSide()
+	{
+		return side;
+	}
+	
+	/**
+	 * @return the baseClass
+	 */
+	public int getBaseClass()
+	{
+		return baseClass;
+	}
+	
+	/**
+	 * @return the disconnected
+	 */
+	public boolean isDisconnected()
+	{
+		return disconnected;
+	}
+	
+	/**
+	 * @param val the disconnected to set
+	 */
+	public void setDisconnected(boolean val)
+	{
+		disconnected = val;
+	}
+	
+	/**
+	 * @return the defaulted
+	 */
+	public boolean isDefaulted()
+	{
+		return defaulted;
+	}
+	
+	/**
+	 * @param val the value to set.
+	 */
+	public void setDefaulted(boolean val)
+	{
+		defaulted = val;
 	}
 }

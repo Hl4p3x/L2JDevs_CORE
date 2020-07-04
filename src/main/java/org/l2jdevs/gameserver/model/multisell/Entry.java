@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -46,9 +46,14 @@ public class Entry
 	{
 	}
 	
-	public final void addIngredient(Ingredient ingredient)
+	public final void setEntryId(int id)
 	{
-		_ingredients.add(ingredient);
+		_entryId = id;
+	}
+	
+	public final int getEntryId()
+	{
+		return _entryId;
 	}
 	
 	public final void addProduct(Ingredient product)
@@ -61,9 +66,14 @@ public class Entry
 		}
 	}
 	
-	public final int getEntryId()
+	public final List<Ingredient> getProducts()
 	{
-		return _entryId;
+		return _products;
+	}
+	
+	public final void addIngredient(Ingredient ingredient)
+	{
+		_ingredients.add(ingredient);
 	}
 	
 	public final List<Ingredient> getIngredients()
@@ -71,23 +81,13 @@ public class Entry
 		return _ingredients;
 	}
 	
-	public final List<Ingredient> getProducts()
-	{
-		return _products;
-	}
-	
-	public long getTaxAmount()
-	{
-		return 0;
-	}
-	
 	public final boolean isStackable()
 	{
 		return _stackable;
 	}
 	
-	public final void setEntryId(int id)
+	public long getTaxAmount()
 	{
-		_entryId = id;
+		return 0;
 	}
 }

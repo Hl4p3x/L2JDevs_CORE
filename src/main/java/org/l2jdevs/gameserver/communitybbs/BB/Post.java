@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -36,6 +36,17 @@ import org.l2jdevs.gameserver.communitybbs.Manager.PostBBSManager;
 public class Post
 {
 	private static final Logger LOG = LoggerFactory.getLogger(Post.class);
+	
+	public static class CPost
+	{
+		public int postId;
+		public String postOwner;
+		public int postOwnerId;
+		public long postDate;
+		public int postTopicId;
+		public int postForumId;
+		public String postTxt;
+	}
 	
 	private final List<CPost> _post = new ArrayList<>();
 	
@@ -67,27 +78,6 @@ public class Post
 		load(t);
 	}
 	
-	public void deleteme(Topic t)
-	{
-		PostBBSManager.getInstance().delPostByTopic(t);
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM posts WHERE post_forum_id=? AND post_topic_id=?"))
-		{
-			ps.setInt(1, t.getForumID());
-			ps.setInt(2, t.getID());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.warn("Unable to delete post for topic ID {} in forum ID {} from database!", t.getForumID(), t.getID(), e);
-		}
-	}
-	
-	public CPost getCPost(int id)
-	{
-		return _post.get(id);
-	}
-	
 	public void insertindb(CPost cp)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -108,24 +98,24 @@ public class Post
 		}
 	}
 	
-	/**
-	 * @param i
-	 */
-	public void updatetxt(int i)
+	public CPost getCPost(int id)
 	{
-		final CPost cp = getCPost(i);
+		return _post.get(id);
+	}
+	
+	public void deleteme(Topic t)
+	{
+		PostBBSManager.getInstance().delPostByTopic(t);
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("UPDATE posts SET post_txt=? WHERE post_id=? AND post_topic_id=? AND post_forum_id=?"))
+			PreparedStatement ps = con.prepareStatement("DELETE FROM posts WHERE post_forum_id=? AND post_topic_id=?"))
 		{
-			ps.setString(1, cp.postTxt);
-			ps.setInt(2, cp.postId);
-			ps.setInt(3, cp.postTopicId);
-			ps.setInt(4, cp.postForumId);
+			ps.setInt(1, t.getForumID());
+			ps.setInt(2, t.getID());
 			ps.execute();
 		}
 		catch (Exception e)
 		{
-			LOG.warn("Unable to store post ID {} in database!", cp.postId, e);
+			LOG.warn("Unable to delete post for topic ID {} in forum ID {} from database!", t.getForumID(), t.getID(), e);
 		}
 	}
 	
@@ -161,14 +151,24 @@ public class Post
 		}
 	}
 	
-	public static class CPost
+	/**
+	 * @param i
+	 */
+	public void updatetxt(int i)
 	{
-		public int postId;
-		public String postOwner;
-		public int postOwnerId;
-		public long postDate;
-		public int postTopicId;
-		public int postForumId;
-		public String postTxt;
+		final CPost cp = getCPost(i);
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("UPDATE posts SET post_txt=? WHERE post_id=? AND post_topic_id=? AND post_forum_id=?"))
+		{
+			ps.setString(1, cp.postTxt);
+			ps.setInt(2, cp.postId);
+			ps.setInt(3, cp.postTopicId);
+			ps.setInt(4, cp.postForumId);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.warn("Unable to store post ID {} in database!", cp.postId, e);
+		}
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -41,25 +41,9 @@ public abstract class PathFinding
 		return CellPathFinding.getInstance();
 	}
 	
-	/**
-	 * Convert pathnode x to World x position
-	 * @param node_x rx
-	 * @return
-	 */
-	public int calculateWorldX(short node_x)
-	{
-		return L2World.MAP_MIN_X + (node_x * 128) + 48;
-	}
+	public abstract boolean pathNodesExist(short regionoffset);
 	
-	/**
-	 * Convert pathnode y to World y position
-	 * @param node_y
-	 * @return
-	 */
-	public int calculateWorldY(short node_y)
-	{
-		return L2World.MAP_MIN_Y + (node_y * 128) + 48;
-	}
+	public abstract List<AbstractNodeLoc> findPath(int x, int y, int z, int tx, int ty, int tz, int instanceId, boolean playable);
 	
 	// @formatter:off
 	/*
@@ -166,18 +150,6 @@ public abstract class PathFinding
 	 */
 	// @formatter:on
 	
-	public abstract List<AbstractNodeLoc> findPath(int x, int y, int z, int tx, int ty, int tz, int instanceId, boolean playable);
-	
-	/**
-	 * Convert node position to pathnode block position
-	 * @param node_pos
-	 * @return pathnode block position (0...255)
-	 */
-	public short getNodeBlock(int node_pos)
-	{
-		return (short) (node_pos % 256);
-	}
-	
 	/**
 	 * Convert geodata position to pathnode position
 	 * @param geo_pos
@@ -188,9 +160,14 @@ public abstract class PathFinding
 		return (short) (geo_pos >> 3); // OK?
 	}
 	
-	public short getRegionOffset(byte rx, byte ry)
+	/**
+	 * Convert node position to pathnode block position
+	 * @param node_pos
+	 * @return pathnode block position (0...255)
+	 */
+	public short getNodeBlock(int node_pos)
 	{
-		return (short) ((rx << 5) + ry);
+		return (short) (node_pos % 256);
 	}
 	
 	public byte getRegionX(int node_pos)
@@ -203,10 +180,33 @@ public abstract class PathFinding
 		return (byte) ((node_pos >> 8) + L2World.TILE_Y_MIN);
 	}
 	
+	public short getRegionOffset(byte rx, byte ry)
+	{
+		return (short) ((rx << 5) + ry);
+	}
+	
+	/**
+	 * Convert pathnode x to World x position
+	 * @param node_x rx
+	 * @return
+	 */
+	public int calculateWorldX(short node_x)
+	{
+		return L2World.MAP_MIN_X + (node_x * 128) + 48;
+	}
+	
+	/**
+	 * Convert pathnode y to World y position
+	 * @param node_y
+	 * @return
+	 */
+	public int calculateWorldY(short node_y)
+	{
+		return L2World.MAP_MIN_Y + (node_y * 128) + 48;
+	}
+	
 	public String[] getStat()
 	{
 		return null;
 	}
-	
-	public abstract boolean pathNodesExist(short regionoffset);
 }

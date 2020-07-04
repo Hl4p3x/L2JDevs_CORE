@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -48,120 +48,14 @@ public final class QuestManager extends ScriptManager<Quest>
 		// Prevent initialization.
 	}
 	
-	/**
-	 * Gets the single instance of {@code QuestManager}.
-	 * @return single instance of {@code QuestManager}
-	 */
-	public static QuestManager getInstance()
+	public boolean reload(String questFolder)
 	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Adds a new quest.
-	 * @param quest the quest to be added
-	 */
-	public void addQuest(Quest quest)
-	{
-		if (quest == null)
+		final Quest q = getQuest(questFolder);
+		if (q == null)
 		{
-			throw new IllegalArgumentException("Quest argument cannot be null");
+			return false;
 		}
-		
-		// FIXME: unloading the old quest at this point is a tad too late.
-		// the new quest has already initialized itself and read the data, starting
-		// an unpredictable number of tasks with that data. The old quest will now
-		// save data which will never be read.
-		// However, requesting the newQuest to re-read the data is not necessarily a
-		// good option, since the newQuest may have already started timers, spawned NPCs
-		// or taken any other action which it might re-take by re-reading the data.
-		// the current solution properly closes the running tasks of the old quest but
-		// ignores the data; perhaps the least of all evils...
-		final Quest old = _quests.put(quest.getName(), quest);
-		if (old != null)
-		{
-			old.unload();
-			_log.info(getClass().getSimpleName() + ": Replaced quest " + old.getName() + " (" + old.getId() + ") with a new version!");
-			
-		}
-		
-		if (Config.ALT_DEV_SHOW_QUESTS_LOAD_IN_LOGS)
-		{
-			final String questName = quest.getName().contains("_") ? quest.getName().substring(quest.getName().indexOf('_') + 1) : quest.getName();
-			_log.info("Loaded quest " + Util.splitWords(questName) + ".");
-		}
-	}
-	
-	/**
-	 * Adds a script.
-	 * @param script the script to be added
-	 */
-	public void addScript(Quest script)
-	{
-		final Quest old = _scripts.put(script.getClass().getSimpleName(), script);
-		if (old != null)
-		{
-			old.unload();
-			_log.info(getClass().getSimpleName() + ": Replaced script " + old.getName() + " with a new version!");
-		}
-		
-		if (Config.ALT_DEV_SHOW_SCRIPTS_LOAD_IN_LOGS)
-		{
-			_log.info("Loaded script " + Util.splitWords(script.getClass().getSimpleName()) + ".");
-		}
-	}
-	
-	/**
-	 * Gets a quest by ID.
-	 * @param questId the ID of the quest to get
-	 * @return if found, the quest, {@code null} otherwise
-	 */
-	public Quest getQuest(int questId)
-	{
-		for (Quest q : _quests.values())
-		{
-			if (q.getId() == questId)
-			{
-				return q;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * Gets a quest by name.<br>
-	 * <i>For backwards compatibility, verifies scripts with the given name if the quest is not found.</i>
-	 * @param name the quest name
-	 * @return the quest
-	 */
-	public Quest getQuest(String name)
-	{
-		if (_quests.containsKey(name))
-		{
-			return _quests.get(name);
-		}
-		return _scripts.get(name);
-	}
-	
-	public Map<String, Quest> getQuests()
-	{
-		return _quests;
-	}
-	
-	@Override
-	public String getScriptManagerName()
-	{
-		return getClass().getSimpleName();
-	}
-	
-	/**
-	 * Gets all the registered scripts.
-	 * @return all the scripts
-	 */
-	@Override
-	public Map<String, Quest> getScripts()
-	{
-		return _scripts;
+		return q.reload();
 	}
 	
 	/**
@@ -172,16 +66,6 @@ public final class QuestManager extends ScriptManager<Quest>
 	public boolean reload(int questId)
 	{
 		final Quest q = getQuest(questId);
-		if (q == null)
-		{
-			return false;
-		}
-		return q.reload();
-	}
-	
-	public boolean reload(String questFolder)
-	{
-		final Quest q = getQuest(questFolder);
 		if (q == null)
 		{
 			return false;
@@ -231,26 +115,6 @@ public final class QuestManager extends ScriptManager<Quest>
 	}
 	
 	/**
-	 * Removes a script.
-	 * @param script the script to remove
-	 * @return {@code true} if the script was removed, {@code false} otherwise
-	 */
-	public boolean removeScript(Quest script)
-	{
-		if (_quests.containsKey(script.getName()))
-		{
-			_quests.remove(script.getName());
-			return true;
-		}
-		else if (_scripts.containsKey(script.getName()))
-		{
-			_scripts.remove(script.getName());
-			return true;
-		}
-		return false;
-	}
-	
-	/**
 	 * Logs how many quests and scripts are loaded.
 	 */
 	public void report()
@@ -277,11 +141,147 @@ public final class QuestManager extends ScriptManager<Quest>
 		}
 	}
 	
+	/**
+	 * Gets a quest by name.<br>
+	 * <i>For backwards compatibility, verifies scripts with the given name if the quest is not found.</i>
+	 * @param name the quest name
+	 * @return the quest
+	 */
+	public Quest getQuest(String name)
+	{
+		if (_quests.containsKey(name))
+		{
+			return _quests.get(name);
+		}
+		return _scripts.get(name);
+	}
+	
+	/**
+	 * Gets a quest by ID.
+	 * @param questId the ID of the quest to get
+	 * @return if found, the quest, {@code null} otherwise
+	 */
+	public Quest getQuest(int questId)
+	{
+		for (Quest q : _quests.values())
+		{
+			if (q.getId() == questId)
+			{
+				return q;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Adds a new quest.
+	 * @param quest the quest to be added
+	 */
+	public void addQuest(Quest quest)
+	{
+		if (quest == null)
+		{
+			throw new IllegalArgumentException("Quest argument cannot be null");
+		}
+		
+		// FIXME: unloading the old quest at this point is a tad too late.
+		// the new quest has already initialized itself and read the data, starting
+		// an unpredictable number of tasks with that data. The old quest will now
+		// save data which will never be read.
+		// However, requesting the newQuest to re-read the data is not necessarily a
+		// good option, since the newQuest may have already started timers, spawned NPCs
+		// or taken any other action which it might re-take by re-reading the data.
+		// the current solution properly closes the running tasks of the old quest but
+		// ignores the data; perhaps the least of all evils...
+		final Quest old = _quests.put(quest.getName(), quest);
+		if (old != null)
+		{
+			old.unload();
+			_log.info(getClass().getSimpleName() + ": Replaced quest " + old.getName() + " (" + old.getId() + ") with a new version!");
+			
+		}
+		
+		if (Config.ALT_DEV_SHOW_QUESTS_LOAD_IN_LOGS)
+		{
+			final String questName = quest.getName().contains("_") ? quest.getName().substring(quest.getName().indexOf('_') + 1) : quest.getName();
+			_log.info("Loaded quest " + Util.splitWords(questName) + ".");
+		}
+	}
+	
+	/**
+	 * Removes a script.
+	 * @param script the script to remove
+	 * @return {@code true} if the script was removed, {@code false} otherwise
+	 */
+	public boolean removeScript(Quest script)
+	{
+		if (_quests.containsKey(script.getName()))
+		{
+			_quests.remove(script.getName());
+			return true;
+		}
+		else if (_scripts.containsKey(script.getName()))
+		{
+			_scripts.remove(script.getName());
+			return true;
+		}
+		return false;
+	}
+	
+	public Map<String, Quest> getQuests()
+	{
+		return _quests;
+	}
+	
 	@Override
 	public boolean unload(Quest ms)
 	{
 		ms.saveGlobalData();
 		return removeScript(ms);
+	}
+	
+	@Override
+	public String getScriptManagerName()
+	{
+		return getClass().getSimpleName();
+	}
+	
+	/**
+	 * Gets all the registered scripts.
+	 * @return all the scripts
+	 */
+	@Override
+	public Map<String, Quest> getScripts()
+	{
+		return _scripts;
+	}
+	
+	/**
+	 * Adds a script.
+	 * @param script the script to be added
+	 */
+	public void addScript(Quest script)
+	{
+		final Quest old = _scripts.put(script.getClass().getSimpleName(), script);
+		if (old != null)
+		{
+			old.unload();
+			_log.info(getClass().getSimpleName() + ": Replaced script " + old.getName() + " with a new version!");
+		}
+		
+		if (Config.ALT_DEV_SHOW_SCRIPTS_LOAD_IN_LOGS)
+		{
+			_log.info("Loaded script " + Util.splitWords(script.getClass().getSimpleName()) + ".");
+		}
+	}
+	
+	/**
+	 * Gets the single instance of {@code QuestManager}.
+	 * @return single instance of {@code QuestManager}
+	 */
+	public static QuestManager getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

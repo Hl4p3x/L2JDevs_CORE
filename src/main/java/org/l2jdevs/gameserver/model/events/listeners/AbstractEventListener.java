@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -40,27 +40,20 @@ public abstract class AbstractEventListener implements Comparable<AbstractEventL
 		_owner = owner;
 	}
 	
-	@Override
-	public int compareTo(AbstractEventListener o)
-	{
-		return Integer.compare(o.getPriority(), getPriority());
-	}
-	
-	/**
-	 * Method invoked by EventDispatcher that will use the callback.
-	 * @param <R>
-	 * @param event
-	 * @param returnBackClass
-	 * @return
-	 */
-	public abstract <R extends AbstractEventReturn> R executeEvent(IBaseEvent event, Class<R> returnBackClass);
-	
 	/**
 	 * @return the container on which this listener is being registered (Used to unregister when unloading scripts)
 	 */
 	public ListenersContainer getContainer()
 	{
 		return _container;
+	}
+	
+	/**
+	 * @return the type of event which listener is listening for.
+	 */
+	public EventType getType()
+	{
+		return _type;
 	}
 	
 	/**
@@ -80,14 +73,6 @@ public abstract class AbstractEventListener implements Comparable<AbstractEventL
 	}
 	
 	/**
-	 * @return the type of event which listener is listening for.
-	 */
-	public EventType getType()
-	{
-		return _type;
-	}
-	
-	/**
 	 * Sets priority of execution.
 	 * @param priority
 	 */
@@ -97,10 +82,25 @@ public abstract class AbstractEventListener implements Comparable<AbstractEventL
 	}
 	
 	/**
+	 * Method invoked by EventDispatcher that will use the callback.
+	 * @param <R>
+	 * @param event
+	 * @param returnBackClass
+	 * @return
+	 */
+	public abstract <R extends AbstractEventReturn> R executeEvent(IBaseEvent event, Class<R> returnBackClass);
+	
+	/**
 	 * Unregisters detaches and unregisters current listener.
 	 */
 	public void unregisterMe()
 	{
 		getContainer().removeListener(this);
+	}
+	
+	@Override
+	public int compareTo(AbstractEventListener o)
+	{
+		return Integer.compare(o.getPriority(), getPriority());
 	}
 }

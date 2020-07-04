@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -25217,20 +25217,51 @@ public final class NpcStringId
 		buildFastLookupTable();
 	}
 	
-	private final int _id;
-	
-	private String _name;
-	
-	private byte _params;
-	
-	private NSLocalisation[] _localisations;
-	
-	private ExShowScreenMessage _staticScreenMessage;
-	
-	private NpcStringId(final int id)
+	private static final void buildFastLookupTable()
 	{
-		_id = id;
-		_localisations = EMPTY_NSL_ARRAY;
+		final Field[] fields = NpcStringId.class.getDeclaredFields();
+		
+		int mod;
+		NpcStringId nsId;
+		for (final Field field : fields)
+		{
+			mod = field.getModifiers();
+			if (Modifier.isStatic(mod) && Modifier.isPublic(mod) && Modifier.isFinal(mod) && field.getType().equals(NpcStringId.class))
+			{
+				try
+				{
+					nsId = (NpcStringId) field.get(null);
+					nsId.setName(field.getName());
+					nsId.setParamCount(parseMessageParameters(field.getName()));
+					
+					VALUES.put(nsId.getId(), nsId);
+				}
+				catch (final Exception e)
+				{
+					_log.log(Level.WARNING, "NpcStringId: Failed field access for '" + field.getName() + "'", e);
+				}
+			}
+		}
+	}
+	
+	private static final int parseMessageParameters(final String name)
+	{
+		int paramCount = 0;
+		char c1, c2;
+		for (int i = 0; i < (name.length() - 1); i++)
+		{
+			c1 = name.charAt(i);
+			if ((c1 == 'C') || (c1 == 'S'))
+			{
+				c2 = name.charAt(i + 1);
+				if (Character.isDigit(c2))
+				{
+					paramCount = Math.max(paramCount, Character.getNumericValue(c2));
+					i++;
+				}
+			}
+		}
+		return paramCount;
 	}
 	
 	public static final NpcStringId getNpcStringId(final int id)
@@ -25238,6 +25269,12 @@ public final class NpcStringId
 		final NpcStringId nsi = getNpcStringIdInternal(id);
 		return nsi == null ? new NpcStringId(id) : nsi;
 	}
+	
+	private static final NpcStringId getNpcStringIdInternal(final int id)
+	{
+		return VALUES.get(id);
+	}
+	
 	public static final NpcStringId getNpcStringId(final String name)
 	{
 		try
@@ -25249,6 +25286,7 @@ public final class NpcStringId
 			return null;
 		}
 	}
+	
 	public static final void reloadLocalisations()
 	{
 		for (final NpcStringId nsId : VALUES.values())
@@ -25345,63 +25383,17 @@ public final class NpcStringId
 			}
 		}
 	}
-	private static final void buildFastLookupTable()
-	{
-		final Field[] fields = NpcStringId.class.getDeclaredFields();
-		
-		int mod;
-		NpcStringId nsId;
-		for (final Field field : fields)
-		{
-			mod = field.getModifiers();
-			if (Modifier.isStatic(mod) && Modifier.isPublic(mod) && Modifier.isFinal(mod) && field.getType().equals(NpcStringId.class))
-			{
-				try
-				{
-					nsId = (NpcStringId) field.get(null);
-					nsId.setName(field.getName());
-					nsId.setParamCount(parseMessageParameters(field.getName()));
-					
-					VALUES.put(nsId.getId(), nsId);
-				}
-				catch (final Exception e)
-				{
-					_log.log(Level.WARNING, "NpcStringId: Failed field access for '" + field.getName() + "'", e);
-				}
-			}
-		}
-	}
-	private static final NpcStringId getNpcStringIdInternal(final int id)
-	{
-		return VALUES.get(id);
-	}
 	
-	private static final int parseMessageParameters(final String name)
-	{
-		int paramCount = 0;
-		char c1, c2;
-		for (int i = 0; i < (name.length() - 1); i++)
-		{
-			c1 = name.charAt(i);
-			if ((c1 == 'C') || (c1 == 'S'))
-			{
-				c2 = name.charAt(i + 1);
-				if (Character.isDigit(c2))
-				{
-					paramCount = Math.max(paramCount, Character.getNumericValue(c2));
-					i++;
-				}
-			}
-		}
-		return paramCount;
-	}
+	private final int _id;
+	private String _name;
+	private byte _params;
+	private NSLocalisation[] _localisations;
+	private ExShowScreenMessage _staticScreenMessage;
 	
-	public final void attachLocalizedText(final String lang, final String text)
+	private NpcStringId(final int id)
 	{
-		final int length = _localisations.length;
-		final NSLocalisation[] localisations = Arrays.copyOf(_localisations, length + 1);
-		localisations[length] = new NSLocalisation(lang, text);
-		_localisations = localisations;
+		_id = id;
+		_localisations = EMPTY_NSL_ARRAY;
 	}
 	
 	public final int getId()
@@ -25409,18 +25401,9 @@ public final class NpcStringId
 		return _id;
 	}
 	
-	public final NSLocalisation getLocalisation(final String lang)
+	private final void setName(final String name)
 	{
-		NSLocalisation nsl;
-		for (int i = _localisations.length; i-- > 0;)
-		{
-			nsl = _localisations[i];
-			if (nsl.getLanguage().hashCode() == lang.hashCode())
-			{
-				return nsl;
-			}
-		}
-		return null;
+		_name = name;
 	}
 	
 	public final String getName()
@@ -25431,16 +25414,6 @@ public final class NpcStringId
 	public final int getParamCount()
 	{
 		return _params;
-	}
-	
-	public final ExShowScreenMessage getStaticScreenMessage()
-	{
-		return _staticScreenMessage;
-	}
-	
-	public final void removeAllLocalisations()
-	{
-		_localisations = EMPTY_NSL_ARRAY;
 	}
 	
 	/**
@@ -25467,6 +25440,38 @@ public final class NpcStringId
 		_params = (byte) params;
 	}
 	
+	public final NSLocalisation getLocalisation(final String lang)
+	{
+		NSLocalisation nsl;
+		for (int i = _localisations.length; i-- > 0;)
+		{
+			nsl = _localisations[i];
+			if (nsl.getLanguage().hashCode() == lang.hashCode())
+			{
+				return nsl;
+			}
+		}
+		return null;
+	}
+	
+	public final void attachLocalizedText(final String lang, final String text)
+	{
+		final int length = _localisations.length;
+		final NSLocalisation[] localisations = Arrays.copyOf(_localisations, length + 1);
+		localisations[length] = new NSLocalisation(lang, text);
+		_localisations = localisations;
+	}
+	
+	public final void removeAllLocalisations()
+	{
+		_localisations = EMPTY_NSL_ARRAY;
+	}
+	
+	public final ExShowScreenMessage getStaticScreenMessage()
+	{
+		return _staticScreenMessage;
+	}
+	
 	public final void setStaticSystemMessage(final ExShowScreenMessage ns)
 	{
 		_staticScreenMessage = ns;
@@ -25476,11 +25481,6 @@ public final class NpcStringId
 	public final String toString()
 	{
 		return "NS[" + getId() + ":" + getName() + "]";
-	}
-	
-	private final void setName(final String name)
-	{
-		_name = name;
 	}
 	
 	public static final class NSLocalisation

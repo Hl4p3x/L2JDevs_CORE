@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -101,6 +101,42 @@ public class PcKnownList extends PlayableKnownList
 		return true;
 	}
 	
+	/**
+	 * Remove a L2Object from L2PcInstance _knownObjects and _knownPlayer (if necessary) and send Server-Client Packet DeleteObject to the L2PcInstance.<BR>
+	 * <BR>
+	 * @param object The L2Object to remove from _knownObjects and _knownPlayer
+	 */
+	@Override
+	protected boolean removeKnownObject(L2Object object, boolean forget)
+	{
+		if (!super.removeKnownObject(object, forget))
+		{
+			return false;
+		}
+		
+		if (object instanceof L2AirShipInstance)
+		{
+			if ((((L2AirShipInstance) object).getCaptainId() != 0) && (((L2AirShipInstance) object).getCaptainId() != getActiveChar().getObjectId()))
+			{
+				getActiveChar().sendPacket(new DeleteObject(((L2AirShipInstance) object).getCaptainId()));
+			}
+			if (((L2AirShipInstance) object).getHelmObjectId() != 0)
+			{
+				getActiveChar().sendPacket(new DeleteObject(((L2AirShipInstance) object).getHelmObjectId()));
+			}
+		}
+		
+		// Send Server-Client Packet DeleteObject to the L2PcInstance
+		getActiveChar().sendPacket(new DeleteObject(object));
+		
+		if (Config.CHECK_KNOWN && (object instanceof L2Npc) && getActiveChar().isGM())
+		{
+			getActiveChar().sendMessage(LanguageData.getInstance().getMsg(getActiveChar(), "gm_remove_object").replace("%s%", object.getName() + ""));
+		}
+		
+		return true;
+	}
+	
 	@Override
 	public final L2PcInstance getActiveChar()
 	{
@@ -156,41 +192,5 @@ public class PcKnownList extends PlayableKnownList
 			return 2300;
 		}
 		return 1700; // Siege, TOI, city
-	}
-	
-	/**
-	 * Remove a L2Object from L2PcInstance _knownObjects and _knownPlayer (if necessary) and send Server-Client Packet DeleteObject to the L2PcInstance.<BR>
-	 * <BR>
-	 * @param object The L2Object to remove from _knownObjects and _knownPlayer
-	 */
-	@Override
-	protected boolean removeKnownObject(L2Object object, boolean forget)
-	{
-		if (!super.removeKnownObject(object, forget))
-		{
-			return false;
-		}
-		
-		if (object instanceof L2AirShipInstance)
-		{
-			if ((((L2AirShipInstance) object).getCaptainId() != 0) && (((L2AirShipInstance) object).getCaptainId() != getActiveChar().getObjectId()))
-			{
-				getActiveChar().sendPacket(new DeleteObject(((L2AirShipInstance) object).getCaptainId()));
-			}
-			if (((L2AirShipInstance) object).getHelmObjectId() != 0)
-			{
-				getActiveChar().sendPacket(new DeleteObject(((L2AirShipInstance) object).getHelmObjectId()));
-			}
-		}
-		
-		// Send Server-Client Packet DeleteObject to the L2PcInstance
-		getActiveChar().sendPacket(new DeleteObject(object));
-		
-		if (Config.CHECK_KNOWN && (object instanceof L2Npc) && getActiveChar().isGM())
-		{
-			getActiveChar().sendMessage(LanguageData.getInstance().getMsg(getActiveChar(), "gm_remove_object").replace("%s%", object.getName() + ""));
-		}
-		
-		return true;
 	}
 }

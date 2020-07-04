@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -114,6 +114,40 @@ public class RegisterDialog extends JDialog implements ActionListener
 		setLocationRelativeTo(owner.getFrame());
 	}
 	
+	class ComboServer
+	{
+		private final int _id;
+		private final String _name;
+		
+		public ComboServer(int id, String name)
+		{
+			_id = id;
+			_name = name;
+		}
+		
+		/**
+		 * @return Returns the id.
+		 */
+		public int getId()
+		{
+			return _id;
+		}
+		
+		/**
+		 * @return Returns the name.
+		 */
+		public String getName()
+		{
+			return _name;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return getName();
+		}
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -160,40 +194,6 @@ public class RegisterDialog extends JDialog implements ActionListener
 		else if (cmd.equals("cancel"))
 		{
 			setVisible(false);
-		}
-	}
-	
-	class ComboServer
-	{
-		private final int _id;
-		private final String _name;
-		
-		public ComboServer(int id, String name)
-		{
-			_id = id;
-			_name = name;
-		}
-		
-		/**
-		 * @return Returns the id.
-		 */
-		public int getId()
-		{
-			return _id;
-		}
-		
-		/**
-		 * @return Returns the name.
-		 */
-		public String getName()
-		{
-			return _name;
-		}
-		
-		@Override
-		public String toString()
-		{
-			return getName();
 		}
 	}
 }

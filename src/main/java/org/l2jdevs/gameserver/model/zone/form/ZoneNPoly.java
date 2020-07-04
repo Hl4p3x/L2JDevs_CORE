@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -50,6 +50,18 @@ public class ZoneNPoly extends L2ZoneForm
 	}
 	
 	@Override
+	public boolean isInsideZone(int x, int y, int z)
+	{
+		return (_p.contains(x, y) && (z >= _z1) && (z <= _z2));
+	}
+	
+	@Override
+	public boolean intersectsRectangle(int ax1, int ax2, int ay1, int ay2)
+	{
+		return (_p.intersects(Math.min(ax1, ax2), Math.min(ay1, ay2), Math.abs(ax2 - ax1), Math.abs(ay2 - ay1)));
+	}
+	
+	@Override
 	public double getDistanceToZone(int x, int y)
 	{
 		int[] _x = _p.xpoints;
@@ -68,17 +80,43 @@ public class ZoneNPoly extends L2ZoneForm
 		return Math.sqrt(shortestDist);
 	}
 	
+	// getLowZ() / getHighZ() - These two functions were added to cope with the demand of the new fishing algorithms, wich are now able to correctly place the hook in the water, thanks to getHighZ(). getLowZ() was added, considering potential future modifications.
+	@Override
+	public int getLowZ()
+	{
+		return _z1;
+	}
+	
 	@Override
 	public int getHighZ()
 	{
 		return _z2;
 	}
 	
-	// getLowZ() / getHighZ() - These two functions were added to cope with the demand of the new fishing algorithms, wich are now able to correctly place the hook in the water, thanks to getHighZ(). getLowZ() was added, considering potential future modifications.
 	@Override
-	public int getLowZ()
+	public void visualizeZone(int z)
 	{
-		return _z1;
+		int[] _x = _p.xpoints;
+		int[] _y = _p.ypoints;
+		
+		for (int i = 0; i < _p.npoints; i++)
+		{
+			int nextIndex = i + 1;
+			// ending point to first one
+			if (nextIndex == _x.length)
+			{
+				nextIndex = 0;
+			}
+			int vx = _x[nextIndex] - _x[i];
+			int vy = _y[nextIndex] - _y[i];
+			float lenght = (float) Math.sqrt((vx * vx) + (vy * vy));
+			lenght /= STEP;
+			for (int o = 1; o <= lenght; o++)
+			{
+				float k = o / lenght;
+				dropDebugItem(Inventory.ADENA_ID, 1, (int) (_x[i] + (k * vx)), (int) (_y[i] + (k * vy)), z);
+			}
+		}
 	}
 	
 	@Override
@@ -107,43 +145,5 @@ public class ZoneNPoly extends L2ZoneForm
 			y,
 			GeoData.getInstance().getHeight(x, y, _z1)
 		};
-	}
-	
-	@Override
-	public boolean intersectsRectangle(int ax1, int ax2, int ay1, int ay2)
-	{
-		return (_p.intersects(Math.min(ax1, ax2), Math.min(ay1, ay2), Math.abs(ax2 - ax1), Math.abs(ay2 - ay1)));
-	}
-	
-	@Override
-	public boolean isInsideZone(int x, int y, int z)
-	{
-		return (_p.contains(x, y) && (z >= _z1) && (z <= _z2));
-	}
-	
-	@Override
-	public void visualizeZone(int z)
-	{
-		int[] _x = _p.xpoints;
-		int[] _y = _p.ypoints;
-		
-		for (int i = 0; i < _p.npoints; i++)
-		{
-			int nextIndex = i + 1;
-			// ending point to first one
-			if (nextIndex == _x.length)
-			{
-				nextIndex = 0;
-			}
-			int vx = _x[nextIndex] - _x[i];
-			int vy = _y[nextIndex] - _y[i];
-			float lenght = (float) Math.sqrt((vx * vx) + (vy * vy));
-			lenght /= STEP;
-			for (int o = 1; o <= lenght; o++)
-			{
-				float k = o / lenght;
-				dropDebugItem(Inventory.ADENA_ID, 1, (int) (_x[i] + (k * vx)), (int) (_y[i] + (k * vy)), z);
-			}
-		}
 	}
 }

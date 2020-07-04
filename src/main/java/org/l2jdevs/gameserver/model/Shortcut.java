@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -52,15 +52,6 @@ public class Shortcut
 	}
 	
 	/**
-	 * Gets the shortcut character type.
-	 * @return the character type
-	 */
-	public int getCharacterType()
-	{
-		return _characterType;
-	}
-	
-	/**
 	 * Gets the shortcut ID.
 	 * @return the ID
 	 */
@@ -88,15 +79,6 @@ public class Shortcut
 	}
 	
 	/**
-	 * Gets the shared reuse group.
-	 * @return the shared reuse group
-	 */
-	public int getSharedReuseGroup()
-	{
-		return _sharedReuseGroup;
-	}
-	
-	/**
 	 * Gets the shortcut slot.
 	 * @return the slot
 	 */
@@ -112,6 +94,24 @@ public class Shortcut
 	public ShortcutType getType()
 	{
 		return _type;
+	}
+	
+	/**
+	 * Gets the shortcut character type.
+	 * @return the character type
+	 */
+	public int getCharacterType()
+	{
+		return _characterType;
+	}
+	
+	/**
+	 * Gets the shared reuse group.
+	 * @return the shared reuse group
+	 */
+	public int getSharedReuseGroup()
+	{
+		return _sharedReuseGroup;
 	}
 	
 	/**

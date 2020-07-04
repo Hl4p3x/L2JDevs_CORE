@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -109,22 +109,6 @@ public enum SkillOperateType
 	}
 	
 	/**
-	 * Verifies if the operative type correspond to a channeling skill.
-	 * @return {@code true} if the operative skill type is channeling, {@code false} otherwise
-	 */
-	public boolean isChanneling()
-	{
-		switch (this)
-		{
-			case CA1:
-			case CA5:
-				return true;
-			default:
-				return false;
-		}
-	}
-	
-	/**
 	 * Verifies if the operative type correspond to a continuous skill.
 	 * @return {@code true} if the operative skill type is continuous, {@code false} otherwise
 	 */
@@ -135,6 +119,49 @@ public enum SkillOperateType
 			case A2:
 			case A4:
 			case DA2:
+				return true;
+			default:
+				return false;
+		}
+	}
+	
+	/**
+	 * Verifies if the operative type correspond to a continuous skill.
+	 * @return {@code true} if the operative skill type is continuous, {@code false} otherwise
+	 */
+	public boolean isSelfContinuous()
+	{
+		return (this == A3);
+	}
+	
+	/**
+	 * Verifies if the operative type correspond to a passive skill.
+	 * @return {@code true} if the operative skill type is passive, {@code false} otherwise
+	 */
+	public boolean isPassive()
+	{
+		return (this == P);
+	}
+	
+	/**
+	 * Verifies if the operative type correspond to a toggle skill.
+	 * @return {@code true} if the operative skill type is toggle, {@code false} otherwise
+	 */
+	public boolean isToggle()
+	{
+		return (this == T);
+	}
+	
+	/**
+	 * Verifies if the operative type correspond to a channeling skill.
+	 * @return {@code true} if the operative skill type is channeling, {@code false} otherwise
+	 */
+	public boolean isChanneling()
+	{
+		switch (this)
+		{
+			case CA1:
+			case CA5:
 				return true;
 			default:
 				return false;
@@ -155,32 +182,5 @@ public enum SkillOperateType
 			default:
 				return false;
 		}
-	}
-	
-	/**
-	 * Verifies if the operative type correspond to a passive skill.
-	 * @return {@code true} if the operative skill type is passive, {@code false} otherwise
-	 */
-	public boolean isPassive()
-	{
-		return (this == P);
-	}
-	
-	/**
-	 * Verifies if the operative type correspond to a continuous skill.
-	 * @return {@code true} if the operative skill type is continuous, {@code false} otherwise
-	 */
-	public boolean isSelfContinuous()
-	{
-		return (this == A3);
-	}
-	
-	/**
-	 * Verifies if the operative type correspond to a toggle skill.
-	 * @return {@code true} if the operative skill type is toggle, {@code false} otherwise
-	 */
-	public boolean isToggle()
-	{
-		return (this == T);
 	}
 }

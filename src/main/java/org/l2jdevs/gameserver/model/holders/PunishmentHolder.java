@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -45,30 +45,6 @@ public final class PunishmentHolder
 	}
 	
 	/**
-	 * @param key
-	 * @param type
-	 * @return {@link PunishmentTask} by specified key and type if exists, null otherwise.
-	 */
-	public PunishmentTask getPunishment(String key, PunishmentType type)
-	{
-		if (_holder.containsKey(key))
-		{
-			return _holder.get(key).get(type);
-		}
-		return null;
-	}
-	
-	/**
-	 * @param key
-	 * @param type
-	 * @return {@code true} if Map contains the current key and type, {@code false} otherwise.
-	 */
-	public boolean hasPunishment(String key, PunishmentType type)
-	{
-		return getPunishment(key, type) != null;
-	}
-	
-	/**
 	 * Removes previously stopped task from the Map.
 	 * @param task
 	 */
@@ -85,5 +61,29 @@ public final class PunishmentHolder
 				_holder.remove(key);
 			}
 		}
+	}
+	
+	/**
+	 * @param key
+	 * @param type
+	 * @return {@code true} if Map contains the current key and type, {@code false} otherwise.
+	 */
+	public boolean hasPunishment(String key, PunishmentType type)
+	{
+		return getPunishment(key, type) != null;
+	}
+	
+	/**
+	 * @param key
+	 * @param type
+	 * @return {@link PunishmentTask} by specified key and type if exists, null otherwise.
+	 */
+	public PunishmentTask getPunishment(String key, PunishmentType type)
+	{
+		if (_holder.containsKey(key))
+		{
+			return _holder.get(key).get(type);
+		}
+		return null;
 	}
 }

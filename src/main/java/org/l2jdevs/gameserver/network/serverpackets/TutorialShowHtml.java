@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -26,6 +26,11 @@ import org.l2jdevs.gameserver.enums.HtmlActionScope;
  */
 public final class TutorialShowHtml extends AbstractHtmlPacket
 {
+	public TutorialShowHtml(String html)
+	{
+		super(html);
+	}
+	
 	/**
 	 * This constructor is just here to be able to show a tutorial html<br>
 	 * window bound to an npc.
@@ -37,21 +42,16 @@ public final class TutorialShowHtml extends AbstractHtmlPacket
 		super(npcObjId, html);
 	}
 	
-	public TutorialShowHtml(String html)
+	@Override
+	protected void writeImpl()
 	{
-		super(html);
+		writeC(0xA6);
+		writeS(getHtml());
 	}
 	
 	@Override
 	public HtmlActionScope getScope()
 	{
 		return HtmlActionScope.TUTORIAL_HTML;
-	}
-	
-	@Override
-	protected void writeImpl()
-	{
-		writeC(0xA6);
-		writeS(getHtml());
 	}
 }

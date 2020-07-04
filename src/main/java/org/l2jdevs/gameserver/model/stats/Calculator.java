@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -107,6 +107,15 @@ public final class Calculator
 	}
 	
 	/**
+	 * Return the number of Funcs in the Calculator.
+	 * @return
+	 */
+	public int size()
+	{
+		return _functions.length;
+	}
+	
+	/**
 	 * Adds a function to the Calculator.
 	 * @param function the function
 	 */
@@ -131,33 +140,6 @@ public final class Calculator
 		}
 		
 		_functions = tmp;
-	}
-	
-	/**
-	 * Run each function of the Calculator.
-	 * @param caster the caster
-	 * @param target the target
-	 * @param skill the skill
-	 * @param initVal the initial value
-	 * @return the calculated value
-	 */
-	public double calc(L2Character caster, L2Character target, Skill skill, double initVal)
-	{
-		double value = initVal;
-		for (AbstractFunction func : _functions)
-		{
-			value = func.calc(caster, target, skill, value);
-		}
-		return value;
-	}
-	
-	/**
-	 * Get array of all function, dont use for add/remove
-	 * @return
-	 */
-	public AbstractFunction[] getFunctions()
-	{
-		return _functions;
 	}
 	
 	/**
@@ -216,11 +198,29 @@ public final class Calculator
 	}
 	
 	/**
-	 * Return the number of Funcs in the Calculator.
+	 * Run each function of the Calculator.
+	 * @param caster the caster
+	 * @param target the target
+	 * @param skill the skill
+	 * @param initVal the initial value
+	 * @return the calculated value
+	 */
+	public double calc(L2Character caster, L2Character target, Skill skill, double initVal)
+	{
+		double value = initVal;
+		for (AbstractFunction func : _functions)
+		{
+			value = func.calc(caster, target, skill, value);
+		}
+		return value;
+	}
+	
+	/**
+	 * Get array of all function, dont use for add/remove
 	 * @return
 	 */
-	public int size()
+	public AbstractFunction[] getFunctions()
 	{
-		return _functions.length;
+		return _functions;
 	}
 }

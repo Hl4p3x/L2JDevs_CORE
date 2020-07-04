@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -54,29 +54,14 @@ public final class Util
 	private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
 	private static final NumberFormat ADENA_FORMATTER = NumberFormat.getIntegerInstance(Locale.ENGLISH);
 	
-	/**
-	 * Builds the html action cache for the specified scope.<br>
-	 * An {@code npcObjId} of 0 means, the cached actions can be clicked<br>
-	 * without beeing near an npc which is spawned in the world.
-	 * @param player the player to build the html action cache for
-	 * @param scope the scope to build the html action cache for
-	 * @param npcObjId the npc object id the html actions are cached for
-	 * @param html the html code to parse
-	 */
-	public static void buildHtmlActionCache(L2PcInstance player, HtmlActionScope scope, int npcObjId, String html)
+	public static void handleIllegalPlayerAction(L2PcInstance actor, String message, IllegalActionPunishmentType punishment)
 	{
-		if ((player == null) || (scope == null) || (npcObjId < 0) || (html == null))
-		{
-			throw new IllegalArgumentException();
-		}
-		
-		if (Config.HTML_ACTION_CACHE_DEBUG)
-		{
-			LOGGER.info("Set html action npc(" + scope.toString() + "): " + npcObjId);
-		}
-		player.setHtmlActionOriginObjectId(scope, npcObjId);
-		buildHtmlBypassCache(player, scope, html);
-		buildHtmlLinkCache(player, scope, html);
+		ThreadPoolManager.getInstance().scheduleGeneral(new IllegalPlayerActionTask(actor, message, punishment), 5000);
+	}
+	
+	public static String getRelativePath(File base, File file)
+	{
+		return file.toURI().getPath().substring(base.toURI().getPath().length());
 	}
 	
 	/**
@@ -104,6 +89,45 @@ public final class Util
 			angleTarget = 360 + angleTarget;
 		}
 		return angleTarget;
+	}
+	
+	public static final double convertHeadingToDegree(int clientHeading)
+	{
+		return clientHeading / 182.044444444;
+	}
+	
+	public static final int convertDegreeToClientHeading(double degree)
+	{
+		if (degree < 0)
+		{
+			degree = 360 + degree;
+		}
+		return (int) (degree * 182.044444444);
+	}
+	
+	public static final int calculateHeadingFrom(ILocational from, ILocational to)
+	{
+		return calculateHeadingFrom(from.getX(), from.getY(), to.getX(), to.getY());
+	}
+	
+	public static final int calculateHeadingFrom(int fromX, int fromY, int toX, int toY)
+	{
+		double angleTarget = Math.toDegrees(Math.atan2(toY - fromY, toX - fromX));
+		if (angleTarget < 0)
+		{
+			angleTarget = 360 + angleTarget;
+		}
+		return (int) (angleTarget * 182.044444444);
+	}
+	
+	public static final int calculateHeadingFrom(double dx, double dy)
+	{
+		double angleTarget = Math.toDegrees(Math.atan2(dy, dx));
+		if (angleTarget < 0)
+		{
+			angleTarget = 360 + angleTarget;
+		}
+		return (int) (angleTarget * 182.044444444);
 	}
 	
 	/**
@@ -135,31 +159,6 @@ public final class Util
 	public static double calculateDistance(ILocational loc1, ILocational loc2, boolean includeZAxis, boolean squared)
 	{
 		return calculateDistance(loc1.getX(), loc1.getY(), loc1.getZ(), loc2.getX(), loc2.getY(), loc2.getZ(), includeZAxis, squared);
-	}
-	
-	public static final int calculateHeadingFrom(double dx, double dy)
-	{
-		double angleTarget = Math.toDegrees(Math.atan2(dy, dx));
-		if (angleTarget < 0)
-		{
-			angleTarget = 360 + angleTarget;
-		}
-		return (int) (angleTarget * 182.044444444);
-	}
-	
-	public static final int calculateHeadingFrom(ILocational from, ILocational to)
-	{
-		return calculateHeadingFrom(from.getX(), from.getY(), to.getX(), to.getY());
-	}
-	
-	public static final int calculateHeadingFrom(int fromX, int fromY, int toX, int toY)
-	{
-		double angleTarget = Math.toDegrees(Math.atan2(toY - fromY, toX - fromX));
-		if (angleTarget < 0)
-		{
-			angleTarget = 360 + angleTarget;
-		}
-		return (int) (angleTarget * 182.044444444);
 	}
 	
 	/**
@@ -283,109 +282,6 @@ public final class Util
 	}
 	
 	/**
-	 * Constrains a number to be within a range.
-	 * @param input the number to constrain, all data types
-	 * @param min the lower end of the range, all data types
-	 * @param max the upper end of the range, all data types
-	 * @return input: if input is between min and max, min: if input is less than min, max: if input is greater than max
-	 */
-	public static double constrain(double input, double min, double max)
-	{
-		return (input < min) ? min : (input > max) ? max : input;
-	}
-	
-	/**
-	 * Constrains a number to be within a range.
-	 * @param input the number to constrain, all data types
-	 * @param min the lower end of the range, all data types
-	 * @param max the upper end of the range, all data types
-	 * @return input: if input is between min and max, min: if input is less than min, max: if input is greater than max
-	 */
-	public static int constrain(int input, int min, int max)
-	{
-		return (input < min) ? min : (input > max) ? max : input;
-	}
-	
-	/**
-	 * Constrains a number to be within a range.
-	 * @param input the number to constrain, all data types
-	 * @param min the lower end of the range, all data types
-	 * @param max the upper end of the range, all data types
-	 * @return input: if input is between min and max, min: if input is less than min, max: if input is greater than max
-	 */
-	public static long constrain(long input, long min, long max)
-	{
-		return (input < min) ? min : (input > max) ? max : input;
-	}
-	
-	/**
-	 * @param array - the array to look into
-	 * @param obj - the integer to search for
-	 * @return {@code true} if the {@code array} contains the {@code obj}, {@code false} otherwise
-	 */
-	public static boolean contains(int[] array, int obj)
-	{
-		for (int element : array)
-		{
-			if (element == obj)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * @param array - the array to look into
-	 * @param obj - the object to search for
-	 * @param ignoreCase
-	 * @return {@code true} if the {@code array} contains the {@code obj}, {@code false} otherwise.
-	 */
-	public static boolean contains(String[] array, String obj, boolean ignoreCase)
-	{
-		for (String element : array)
-		{
-			if (element.equals(obj) || (ignoreCase && element.equalsIgnoreCase(obj)))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * @param <T>
-	 * @param array - the array to look into
-	 * @param obj - the object to search for
-	 * @return {@code true} if the {@code array} contains the {@code obj}, {@code false} otherwise.
-	 */
-	public static <T> boolean contains(T[] array, T obj)
-	{
-		for (T element : array)
-		{
-			if (element == obj)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public static final int convertDegreeToClientHeading(double degree)
-	{
-		if (degree < 0)
-		{
-			degree = 360 + degree;
-		}
-		return (int) (degree * 182.044444444);
-	}
-	
-	public static final double convertHeadingToDegree(int clientHeading)
-	{
-		return clientHeading / 182.044444444;
-	}
-	
-	/**
 	 * @param str - the String to count
 	 * @return the number of "words" in a given string.
 	 */
@@ -395,142 +291,16 @@ public final class Util
 	}
 	
 	/**
-	 * Fills the community board's multiedit window with text. Must send after sendCBHtml
-	 * @param activeChar
-	 * @param text
+	 * (Based on implode() in PHP)
+	 * @param strings an array of strings to concatenate
+	 * @param delimiter the delimiter to put between the strings
+	 * @return a delimited string for a given array of string elements.
 	 */
-	public static void fillMultiEditContent(L2PcInstance activeChar, String text)
+	public static String implodeString(Iterable<String> strings, String delimiter)
 	{
-		activeChar.sendPacket(new ShowBoard(Arrays.asList("0", "0", "0", "0", "0", "0", activeChar.getName(), Integer.toString(activeChar.getObjectId()), activeChar.getAccountName(), "9", " ", " ", text.replaceAll("<br>", Config.EOL), "0", "0", "0", "0")));
-	}
-	
-	/**
-	 * Format the specified digit using the digit grouping symbol "," (comma).<br>
-	 * For example, 123456789 becomes 123,456,789.
-	 * @param amount - the amount of adena
-	 * @return the formatted adena amount
-	 */
-	public static String formatAdena(long amount)
-	{
-		synchronized (ADENA_FORMATTER)
-		{
-			return ADENA_FORMATTER.format(amount);
-		}
-	}
-	
-	/**
-	 * Format the given date on the given format
-	 * @param date : the date to format.
-	 * @param format : the format to correct by.
-	 * @return a string representation of the formatted date.
-	 */
-	public static String formatDate(Date date, String format)
-	{
-		if (date == null)
-		{
-			return null;
-		}
-		final DateFormat dateFormat = new SimpleDateFormat(format);
-		return dateFormat.format(date);
-	}
-	
-	/**
-	 * @param val
-	 * @param format
-	 * @return formatted double value by specified format.
-	 */
-	public static String formatDouble(double val, String format)
-	{
-		final DecimalFormat formatter = new DecimalFormat(format, new DecimalFormatSymbols(Locale.ENGLISH));
-		return formatter.format(val);
-	}
-	
-	public static File[] getDatapackFiles(String dirname, String extention)
-	{
-		File dir = new File(Config.DATAPACK_ROOT, "data/" + dirname);
-		if (!dir.exists())
-		{
-			return null;
-		}
-		return dir.listFiles(new ExtFilter(extention));
-	}
-	
-	public static String getDateString(Date date)
-	{
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		return dateFormat.format(date.getTime());
-	}
-	
-	public static int getIndexOfMaxValue(int... array)
-	{
-		int index = 0;
-		for (int i = 1; i < array.length; i++)
-		{
-			if (array[i] > array[index])
-			{
-				index = i;
-			}
-		}
-		return index;
-	}
-	
-	public static int getIndexOfMinValue(int... array)
-	{
-		int index = 0;
-		for (int i = 1; i < array.length; i++)
-		{
-			if (array[i] < array[index])
-			{
-				index = i;
-			}
-		}
-		return index;
-	}
-	
-	/**
-	 * Return the number of playable characters in a defined radius around the specified object.
-	 * @param range : the radius in which to look for players
-	 * @param npc : the object whose knownlist to check
-	 * @param playable : if {@code true}, count summons and pets aswell
-	 * @param invisible : if {@code true}, count invisible characters aswell
-	 * @return the number of targets found
-	 */
-	public static int getPlayersCountInRadius(int range, L2Object npc, boolean playable, boolean invisible)
-	{
-		int count = 0;
-		final Collection<L2Object> objs = npc.getKnownList().getKnownObjects().values();
-		for (L2Object obj : objs)
-		{
-			if ((obj != null) && (playable && (obj.isPlayable() || obj.isPet())))
-			{
-				if (!invisible && obj.isInvisible())
-				{
-					continue;
-				}
-				
-				final L2Character cha = (L2Character) obj;
-				if (((cha.getZ() < (npc.getZ() - 100)) && (cha.getZ() > (npc.getZ() + 100))) || !(GeoData.getInstance().canSeeTarget(cha.getX(), cha.getY(), cha.getZ(), npc.getX(), npc.getY(), npc.getZ())))
-				{
-					continue;
-				}
-				
-				if (Util.checkIfInRange(range, npc, obj, true) && !cha.isDead())
-				{
-					count++;
-				}
-			}
-		}
-		return count;
-	}
-	
-	public static String getRelativePath(File base, File file)
-	{
-		return file.toURI().getPath().substring(base.toURI().getPath().length());
-	}
-	
-	public static void handleIllegalPlayerAction(L2PcInstance actor, String message, IllegalActionPunishmentType punishment)
-	{
-		ThreadPoolManager.getInstance().scheduleGeneral(new IllegalPlayerActionTask(actor, message, punishment), 5000);
+		final StringJoiner sj = new StringJoiner(delimiter);
+		strings.forEach(sj::add);
+		return sj.toString();
 	}
 	
 	/**
@@ -555,16 +325,40 @@ public final class Util
 	}
 	
 	/**
-	 * (Based on implode() in PHP)
-	 * @param strings an array of strings to concatenate
-	 * @param delimiter the delimiter to put between the strings
-	 * @return a delimited string for a given array of string elements.
+	 * (Based on round() in PHP)
+	 * @param number - the number to round
+	 * @param numPlaces - how many digits after decimal point to leave intact
+	 * @return the value of {@code number} rounded to specified number of digits after the decimal point.
 	 */
-	public static String implodeString(Iterable<String> strings, String delimiter)
+	public static float roundTo(float number, int numPlaces)
 	{
-		final StringJoiner sj = new StringJoiner(delimiter);
-		strings.forEach(sj::add);
-		return sj.toString();
+		if (numPlaces <= 1)
+		{
+			return Math.round(number);
+		}
+		
+		float exponent = (float) Math.pow(10, numPlaces);
+		return Math.round(number * exponent) / exponent;
+	}
+	
+	/**
+	 * @param text - the text to check
+	 * @return {@code true} if {@code text} contains only numbers, {@code false} otherwise
+	 */
+	public static boolean isDigit(String text)
+	{
+		if ((text == null) || text.isEmpty())
+		{
+			return false;
+		}
+		for (char c : text.toCharArray())
+		{
+			if (!Character.isDigit(c))
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	/**
@@ -588,205 +382,211 @@ public final class Util
 	}
 	
 	/**
-	 * @param text - the text to check
-	 * @return {@code true} if {@code text} contains only numbers, {@code false} otherwise
+	 * Format the specified digit using the digit grouping symbol "," (comma).<br>
+	 * For example, 123456789 becomes 123,456,789.
+	 * @param amount - the amount of adena
+	 * @return the formatted adena amount
 	 */
-	public static boolean isDigit(String text)
+	public static String formatAdena(long amount)
 	{
-		if ((text == null) || text.isEmpty())
+		synchronized (ADENA_FORMATTER)
 		{
-			return false;
+			return ADENA_FORMATTER.format(amount);
 		}
-		for (char c : text.toCharArray())
-		{
-			if (!Character.isDigit(c))
-			{
-				return false;
-			}
-		}
-		return true;
 	}
 	
-	public static boolean isInsideRangeOfObjectId(L2Object obj, int targetObjId, int radius)
+	/**
+	 * @param val
+	 * @param format
+	 * @return formatted double value by specified format.
+	 */
+	public static String formatDouble(double val, String format)
 	{
-		L2Object target = obj.getKnownList().getKnownObjects().get(targetObjId);
-		if (target == null)
+		final DecimalFormat formatter = new DecimalFormat(format, new DecimalFormatSymbols(Locale.ENGLISH));
+		return formatter.format(val);
+	}
+	
+	/**
+	 * Format the given date on the given format
+	 * @param date : the date to format.
+	 * @param format : the format to correct by.
+	 * @return a string representation of the formatted date.
+	 */
+	public static String formatDate(Date date, String format)
+	{
+		if (date == null)
 		{
-			return false;
+			return null;
+		}
+		final DateFormat dateFormat = new SimpleDateFormat(format);
+		return dateFormat.format(date);
+	}
+	
+	/**
+	 * @param <T>
+	 * @param array - the array to look into
+	 * @param obj - the object to search for
+	 * @return {@code true} if the {@code array} contains the {@code obj}, {@code false} otherwise.
+	 */
+	public static <T> boolean contains(T[] array, T obj)
+	{
+		for (T element : array)
+		{
+			if (element == obj)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * @param array - the array to look into
+	 * @param obj - the integer to search for
+	 * @return {@code true} if the {@code array} contains the {@code obj}, {@code false} otherwise
+	 */
+	public static boolean contains(int[] array, int obj)
+	{
+		for (int element : array)
+		{
+			if (element == obj)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static File[] getDatapackFiles(String dirname, String extention)
+	{
+		File dir = new File(Config.DATAPACK_ROOT, "data/" + dirname);
+		if (!dir.exists())
+		{
+			return null;
+		}
+		return dir.listFiles(new ExtFilter(extention));
+	}
+	
+	public static String getDateString(Date date)
+	{
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		return dateFormat.format(date.getTime());
+	}
+	
+	private static final void buildHtmlBypassCache(L2PcInstance player, HtmlActionScope scope, String html)
+	{
+		String htmlLower = html.toLowerCase(Locale.ENGLISH);
+		int bypassEnd = 0;
+		int bypassStart = htmlLower.indexOf("=\"bypass ", bypassEnd);
+		int bypassStartEnd;
+		while (bypassStart != -1)
+		{
+			bypassStartEnd = bypassStart + 9;
+			bypassEnd = htmlLower.indexOf("\"", bypassStartEnd);
+			if (bypassEnd == -1)
+			{
+				break;
+			}
+			
+			int hParamPos = htmlLower.indexOf("-h ", bypassStartEnd);
+			String bypass;
+			if ((hParamPos != -1) && (hParamPos < bypassEnd))
+			{
+				bypass = html.substring(hParamPos + 3, bypassEnd).trim();
+			}
+			else
+			{
+				bypass = html.substring(bypassStartEnd, bypassEnd).trim();
+			}
+			
+			int firstParameterStart = bypass.indexOf(AbstractHtmlPacket.VAR_PARAM_START_CHAR);
+			if (firstParameterStart != -1)
+			{
+				bypass = bypass.substring(0, firstParameterStart + 1);
+			}
+			
+			if (Config.HTML_ACTION_CACHE_DEBUG)
+			{
+				LOGGER.info("Cached html bypass(" + scope.toString() + "): '" + bypass + "'");
+			}
+			player.addHtmlAction(scope, bypass);
+			bypassStart = htmlLower.indexOf("=\"bypass ", bypassEnd);
+		}
+	}
+	
+	private static final void buildHtmlLinkCache(L2PcInstance player, HtmlActionScope scope, String html)
+	{
+		String htmlLower = html.toLowerCase(Locale.ENGLISH);
+		int linkEnd = 0;
+		int linkStart = htmlLower.indexOf("=\"link ", linkEnd);
+		int linkStartEnd;
+		while (linkStart != -1)
+		{
+			linkStartEnd = linkStart + 7;
+			linkEnd = htmlLower.indexOf("\"", linkStartEnd);
+			if (linkEnd == -1)
+			{
+				break;
+			}
+			
+			String htmlLink = html.substring(linkStartEnd, linkEnd).trim();
+			if (htmlLink.isEmpty())
+			{
+				LOGGER.warning("Html link path is empty!");
+				continue;
+			}
+			
+			if (htmlLink.contains(".."))
+			{
+				LOGGER.warning("Html link path is invalid: " + htmlLink);
+				continue;
+			}
+			
+			if (Config.HTML_ACTION_CACHE_DEBUG)
+			{
+				LOGGER.info("Cached html link(" + scope.toString() + "): '" + htmlLink + "'");
+			}
+			// let's keep an action cache with "link " lowercase literal kept
+			player.addHtmlAction(scope, "link " + htmlLink);
+			linkStart = htmlLower.indexOf("=\"link ", linkEnd);
+		}
+	}
+	
+	/**
+	 * Builds the html action cache for the specified scope.<br>
+	 * An {@code npcObjId} of 0 means, the cached actions can be clicked<br>
+	 * without beeing near an npc which is spawned in the world.
+	 * @param player the player to build the html action cache for
+	 * @param scope the scope to build the html action cache for
+	 * @param npcObjId the npc object id the html actions are cached for
+	 * @param html the html code to parse
+	 */
+	public static void buildHtmlActionCache(L2PcInstance player, HtmlActionScope scope, int npcObjId, String html)
+	{
+		if ((player == null) || (scope == null) || (npcObjId < 0) || (html == null))
+		{
+			throw new IllegalArgumentException();
 		}
 		
-		if (obj.calculateDistance(target, false, false) > radius)
+		if (Config.HTML_ACTION_CACHE_DEBUG)
 		{
-			return false;
+			LOGGER.info("Set html action npc(" + scope.toString() + "): " + npcObjId);
 		}
-		
-		return true;
+		player.setHtmlActionOriginObjectId(scope, npcObjId);
+		buildHtmlBypassCache(player, scope, html);
+		buildHtmlLinkCache(player, scope, html);
 	}
 	
 	/**
-	 * Re-Maps a value from one range to another.
-	 * @param input
-	 * @param inputMin
-	 * @param inputMax
-	 * @param outputMin
-	 * @param outputMax
-	 * @return The mapped value
+	 * Helper method to send a NpcHtmlMessage to the specified player.
+	 * @param activeChar the player to send the html content to
+	 * @param html the html content
 	 */
-	public static double map(double input, double inputMin, double inputMax, double outputMin, double outputMax)
+	public static void sendHtml(L2PcInstance activeChar, String html)
 	{
-		input = constrain(input, inputMin, inputMax);
-		return (((input - inputMin) * (outputMax - outputMin)) / (inputMax - inputMin)) + outputMin;
-	}
-	
-	/**
-	 * Re-Maps a value from one range to another.
-	 * @param input
-	 * @param inputMin
-	 * @param inputMax
-	 * @param outputMin
-	 * @param outputMax
-	 * @return The mapped value
-	 */
-	public static int map(int input, int inputMin, int inputMax, int outputMin, int outputMax)
-	{
-		input = constrain(input, inputMin, inputMax);
-		return (((input - inputMin) * (outputMax - outputMin)) / (inputMax - inputMin)) + outputMin;
-	}
-	
-	/**
-	 * Re-Maps a value from one range to another.
-	 * @param input
-	 * @param inputMin
-	 * @param inputMax
-	 * @param outputMin
-	 * @param outputMax
-	 * @return The mapped value
-	 */
-	public static long map(long input, long inputMin, long inputMax, long outputMin, long outputMax)
-	{
-		input = constrain(input, inputMin, inputMax);
-		return (((input - inputMin) * (outputMax - outputMin)) / (inputMax - inputMin)) + outputMin;
-	}
-	
-	public static double max(double value1, double value2, double... values)
-	{
-		double max = Math.max(value1, value2);
-		for (double value : values)
-		{
-			if (max < value)
-			{
-				max = value;
-			}
-		}
-		return max;
-	}
-	
-	public static float max(float value1, float value2, float... values)
-	{
-		float max = Math.max(value1, value2);
-		for (float value : values)
-		{
-			if (max < value)
-			{
-				max = value;
-			}
-		}
-		return max;
-	}
-	
-	public static int max(int value1, int value2, int... values)
-	{
-		int max = Math.max(value1, value2);
-		for (int value : values)
-		{
-			if (max < value)
-			{
-				max = value;
-			}
-		}
-		return max;
-	}
-	
-	public static long max(long value1, long value2, long... values)
-	{
-		long max = Math.max(value1, value2);
-		for (long value : values)
-		{
-			if (max < value)
-			{
-				max = value;
-			}
-		}
-		return max;
-	}
-	
-	public static double min(double value1, double value2, double... values)
-	{
-		double min = Math.min(value1, value2);
-		for (double value : values)
-		{
-			if (min > value)
-			{
-				min = value;
-			}
-		}
-		return min;
-	}
-	
-	public static float min(float value1, float value2, float... values)
-	{
-		float min = Math.min(value1, value2);
-		for (float value : values)
-		{
-			if (min > value)
-			{
-				min = value;
-			}
-		}
-		return min;
-	}
-	
-	public static int min(int value1, int value2, int... values)
-	{
-		int min = Math.min(value1, value2);
-		for (int value : values)
-		{
-			if (min > value)
-			{
-				min = value;
-			}
-		}
-		return min;
-	}
-	
-	public static long min(long value1, long value2, long... values)
-	{
-		long min = Math.min(value1, value2);
-		for (long value : values)
-		{
-			if (min > value)
-			{
-				min = value;
-			}
-		}
-		return min;
-	}
-	
-	/**
-	 * (Based on round() in PHP)
-	 * @param number - the number to round
-	 * @param numPlaces - how many digits after decimal point to leave intact
-	 * @return the value of {@code number} rounded to specified number of digits after the decimal point.
-	 */
-	public static float roundTo(float number, int numPlaces)
-	{
-		if (numPlaces <= 1)
-		{
-			return Math.round(number);
-		}
-		
-		float exponent = (float) Math.pow(10, numPlaces);
-		return Math.round(number * exponent) / exponent;
+		final NpcHtmlMessage npcHtml = new NpcHtmlMessage();
+		npcHtml.setHtml(html);
+		activeChar.sendPacket(npcHtml);
 	}
 	
 	/**
@@ -889,15 +689,276 @@ public final class Util
 	}
 	
 	/**
-	 * Helper method to send a NpcHtmlMessage to the specified player.
-	 * @param activeChar the player to send the html content to
-	 * @param html the html content
+	 * Fills the community board's multiedit window with text. Must send after sendCBHtml
+	 * @param activeChar
+	 * @param text
 	 */
-	public static void sendHtml(L2PcInstance activeChar, String html)
+	public static void fillMultiEditContent(L2PcInstance activeChar, String text)
 	{
-		final NpcHtmlMessage npcHtml = new NpcHtmlMessage();
-		npcHtml.setHtml(html);
-		activeChar.sendPacket(npcHtml);
+		activeChar.sendPacket(new ShowBoard(Arrays.asList("0", "0", "0", "0", "0", "0", activeChar.getName(), Integer.toString(activeChar.getObjectId()), activeChar.getAccountName(), "9", " ", " ", text.replaceAll("<br>", Config.EOL), "0", "0", "0", "0")));
+	}
+	
+	/**
+	 * Return the number of playable characters in a defined radius around the specified object.
+	 * @param range : the radius in which to look for players
+	 * @param npc : the object whose knownlist to check
+	 * @param playable : if {@code true}, count summons and pets aswell
+	 * @param invisible : if {@code true}, count invisible characters aswell
+	 * @return the number of targets found
+	 */
+	public static int getPlayersCountInRadius(int range, L2Object npc, boolean playable, boolean invisible)
+	{
+		int count = 0;
+		final Collection<L2Object> objs = npc.getKnownList().getKnownObjects().values();
+		for (L2Object obj : objs)
+		{
+			if ((obj != null) && (playable && (obj.isPlayable() || obj.isPet())))
+			{
+				if (!invisible && obj.isInvisible())
+				{
+					continue;
+				}
+				
+				final L2Character cha = (L2Character) obj;
+				if (((cha.getZ() < (npc.getZ() - 100)) && (cha.getZ() > (npc.getZ() + 100))) || !(GeoData.getInstance().canSeeTarget(cha.getX(), cha.getY(), cha.getZ(), npc.getX(), npc.getY(), npc.getZ())))
+				{
+					continue;
+				}
+				
+				if (Util.checkIfInRange(range, npc, obj, true) && !cha.isDead())
+				{
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+	
+	public static boolean isInsideRangeOfObjectId(L2Object obj, int targetObjId, int radius)
+	{
+		L2Object target = obj.getKnownList().getKnownObjects().get(targetObjId);
+		if (target == null)
+		{
+			return false;
+		}
+		
+		if (obj.calculateDistance(target, false, false) > radius)
+		{
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public static int min(int value1, int value2, int... values)
+	{
+		int min = Math.min(value1, value2);
+		for (int value : values)
+		{
+			if (min > value)
+			{
+				min = value;
+			}
+		}
+		return min;
+	}
+	
+	public static int max(int value1, int value2, int... values)
+	{
+		int max = Math.max(value1, value2);
+		for (int value : values)
+		{
+			if (max < value)
+			{
+				max = value;
+			}
+		}
+		return max;
+	}
+	
+	public static long min(long value1, long value2, long... values)
+	{
+		long min = Math.min(value1, value2);
+		for (long value : values)
+		{
+			if (min > value)
+			{
+				min = value;
+			}
+		}
+		return min;
+	}
+	
+	public static long max(long value1, long value2, long... values)
+	{
+		long max = Math.max(value1, value2);
+		for (long value : values)
+		{
+			if (max < value)
+			{
+				max = value;
+			}
+		}
+		return max;
+	}
+	
+	public static float min(float value1, float value2, float... values)
+	{
+		float min = Math.min(value1, value2);
+		for (float value : values)
+		{
+			if (min > value)
+			{
+				min = value;
+			}
+		}
+		return min;
+	}
+	
+	public static float max(float value1, float value2, float... values)
+	{
+		float max = Math.max(value1, value2);
+		for (float value : values)
+		{
+			if (max < value)
+			{
+				max = value;
+			}
+		}
+		return max;
+	}
+	
+	public static double min(double value1, double value2, double... values)
+	{
+		double min = Math.min(value1, value2);
+		for (double value : values)
+		{
+			if (min > value)
+			{
+				min = value;
+			}
+		}
+		return min;
+	}
+	
+	public static double max(double value1, double value2, double... values)
+	{
+		double max = Math.max(value1, value2);
+		for (double value : values)
+		{
+			if (max < value)
+			{
+				max = value;
+			}
+		}
+		return max;
+	}
+	
+	public static int getIndexOfMaxValue(int... array)
+	{
+		int index = 0;
+		for (int i = 1; i < array.length; i++)
+		{
+			if (array[i] > array[index])
+			{
+				index = i;
+			}
+		}
+		return index;
+	}
+	
+	public static int getIndexOfMinValue(int... array)
+	{
+		int index = 0;
+		for (int i = 1; i < array.length; i++)
+		{
+			if (array[i] < array[index])
+			{
+				index = i;
+			}
+		}
+		return index;
+	}
+	
+	/**
+	 * Re-Maps a value from one range to another.
+	 * @param input
+	 * @param inputMin
+	 * @param inputMax
+	 * @param outputMin
+	 * @param outputMax
+	 * @return The mapped value
+	 */
+	public static int map(int input, int inputMin, int inputMax, int outputMin, int outputMax)
+	{
+		input = constrain(input, inputMin, inputMax);
+		return (((input - inputMin) * (outputMax - outputMin)) / (inputMax - inputMin)) + outputMin;
+	}
+	
+	/**
+	 * Re-Maps a value from one range to another.
+	 * @param input
+	 * @param inputMin
+	 * @param inputMax
+	 * @param outputMin
+	 * @param outputMax
+	 * @return The mapped value
+	 */
+	public static long map(long input, long inputMin, long inputMax, long outputMin, long outputMax)
+	{
+		input = constrain(input, inputMin, inputMax);
+		return (((input - inputMin) * (outputMax - outputMin)) / (inputMax - inputMin)) + outputMin;
+	}
+	
+	/**
+	 * Re-Maps a value from one range to another.
+	 * @param input
+	 * @param inputMin
+	 * @param inputMax
+	 * @param outputMin
+	 * @param outputMax
+	 * @return The mapped value
+	 */
+	public static double map(double input, double inputMin, double inputMax, double outputMin, double outputMax)
+	{
+		input = constrain(input, inputMin, inputMax);
+		return (((input - inputMin) * (outputMax - outputMin)) / (inputMax - inputMin)) + outputMin;
+	}
+	
+	/**
+	 * Constrains a number to be within a range.
+	 * @param input the number to constrain, all data types
+	 * @param min the lower end of the range, all data types
+	 * @param max the upper end of the range, all data types
+	 * @return input: if input is between min and max, min: if input is less than min, max: if input is greater than max
+	 */
+	public static int constrain(int input, int min, int max)
+	{
+		return (input < min) ? min : (input > max) ? max : input;
+	}
+	
+	/**
+	 * Constrains a number to be within a range.
+	 * @param input the number to constrain, all data types
+	 * @param min the lower end of the range, all data types
+	 * @param max the upper end of the range, all data types
+	 * @return input: if input is between min and max, min: if input is less than min, max: if input is greater than max
+	 */
+	public static long constrain(long input, long min, long max)
+	{
+		return (input < min) ? min : (input > max) ? max : input;
+	}
+	
+	/**
+	 * Constrains a number to be within a range.
+	 * @param input the number to constrain, all data types
+	 * @param min the lower end of the range, all data types
+	 * @param max the upper end of the range, all data types
+	 * @return input: if input is between min and max, min: if input is less than min, max: if input is greater than max
+	 */
+	public static double constrain(double input, double min, double max)
+	{
+		return (input < min) ? min : (input > max) ? max : input;
 	}
 	
 	/**
@@ -917,82 +978,21 @@ public final class Util
 		return false;
 	}
 	
-	private static final void buildHtmlBypassCache(L2PcInstance player, HtmlActionScope scope, String html)
+	/**
+	 * @param array - the array to look into
+	 * @param obj - the object to search for
+	 * @param ignoreCase
+	 * @return {@code true} if the {@code array} contains the {@code obj}, {@code false} otherwise.
+	 */
+	public static boolean contains(String[] array, String obj, boolean ignoreCase)
 	{
-		String htmlLower = html.toLowerCase(Locale.ENGLISH);
-		int bypassEnd = 0;
-		int bypassStart = htmlLower.indexOf("=\"bypass ", bypassEnd);
-		int bypassStartEnd;
-		while (bypassStart != -1)
+		for (String element : array)
 		{
-			bypassStartEnd = bypassStart + 9;
-			bypassEnd = htmlLower.indexOf("\"", bypassStartEnd);
-			if (bypassEnd == -1)
+			if (element.equals(obj) || (ignoreCase && element.equalsIgnoreCase(obj)))
 			{
-				break;
+				return true;
 			}
-			
-			int hParamPos = htmlLower.indexOf("-h ", bypassStartEnd);
-			String bypass;
-			if ((hParamPos != -1) && (hParamPos < bypassEnd))
-			{
-				bypass = html.substring(hParamPos + 3, bypassEnd).trim();
-			}
-			else
-			{
-				bypass = html.substring(bypassStartEnd, bypassEnd).trim();
-			}
-			
-			int firstParameterStart = bypass.indexOf(AbstractHtmlPacket.VAR_PARAM_START_CHAR);
-			if (firstParameterStart != -1)
-			{
-				bypass = bypass.substring(0, firstParameterStart + 1);
-			}
-			
-			if (Config.HTML_ACTION_CACHE_DEBUG)
-			{
-				LOGGER.info("Cached html bypass(" + scope.toString() + "): '" + bypass + "'");
-			}
-			player.addHtmlAction(scope, bypass);
-			bypassStart = htmlLower.indexOf("=\"bypass ", bypassEnd);
 		}
-	}
-	
-	private static final void buildHtmlLinkCache(L2PcInstance player, HtmlActionScope scope, String html)
-	{
-		String htmlLower = html.toLowerCase(Locale.ENGLISH);
-		int linkEnd = 0;
-		int linkStart = htmlLower.indexOf("=\"link ", linkEnd);
-		int linkStartEnd;
-		while (linkStart != -1)
-		{
-			linkStartEnd = linkStart + 7;
-			linkEnd = htmlLower.indexOf("\"", linkStartEnd);
-			if (linkEnd == -1)
-			{
-				break;
-			}
-			
-			String htmlLink = html.substring(linkStartEnd, linkEnd).trim();
-			if (htmlLink.isEmpty())
-			{
-				LOGGER.warning("Html link path is empty!");
-				continue;
-			}
-			
-			if (htmlLink.contains(".."))
-			{
-				LOGGER.warning("Html link path is invalid: " + htmlLink);
-				continue;
-			}
-			
-			if (Config.HTML_ACTION_CACHE_DEBUG)
-			{
-				LOGGER.info("Cached html link(" + scope.toString() + "): '" + htmlLink + "'");
-			}
-			// let's keep an action cache with "link " lowercase literal kept
-			player.addHtmlAction(scope, "link " + htmlLink);
-			linkStart = htmlLower.indexOf("=\"link ", linkEnd);
-		}
+		return false;
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -75,125 +75,6 @@ public class Lottery
 		return SingletonHolder._instance;
 	}
 	
-	public long[] checkTicket(int id, int enchant, int type2)
-	{
-		long res[] =
-		{
-			0,
-			0
-		};
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(SELECT_LOTTERY_TICKET))
-		{
-			ps.setInt(1, id);
-			try (ResultSet rs = ps.executeQuery())
-			{
-				if (rs.next())
-				{
-					int curenchant = rs.getInt("number1") & enchant;
-					int curtype2 = rs.getInt("number2") & type2;
-					
-					if ((curenchant == 0) && (curtype2 == 0))
-					{
-						return res;
-					}
-					
-					int count = 0;
-					
-					for (int i = 1; i <= 16; i++)
-					{
-						int val = curenchant / 2;
-						if (val != Math.round((double) curenchant / 2))
-						{
-							count++;
-						}
-						int val2 = curtype2 / 2;
-						if (val2 != ((double) curtype2 / 2))
-						{
-							count++;
-						}
-						curenchant = val;
-						curtype2 = val2;
-					}
-					
-					switch (count)
-					{
-						case 0:
-							break;
-						case 5:
-							res[0] = 1;
-							res[1] = rs.getLong("prize1");
-							break;
-						case 4:
-							res[0] = 2;
-							res[1] = rs.getLong("prize2");
-							break;
-						case 3:
-							res[0] = 3;
-							res[1] = rs.getLong("prize3");
-							break;
-						default:
-							res[0] = 4;
-							res[1] = Config.ALT_LOTTERY_2_AND_1_NUMBER_PRIZE;
-					}
-					
-					if (Config.DEBUG)
-					{
-						_log.warning("count: " + count + ", id: " + id + ", enchant: " + enchant + ", type2: " + type2);
-					}
-				}
-			}
-		}
-		catch (SQLException e)
-		{
-			_log.log(Level.WARNING, "Lottery: Could not check lottery ticket #" + id + ": " + e.getMessage(), e);
-		}
-		return res;
-	}
-	
-	public long[] checkTicket(L2ItemInstance item)
-	{
-		return checkTicket(item.getCustomType1(), item.getEnchantLevel(), item.getCustomType2());
-	}
-	
-	public int[] decodeNumbers(int enchant, int type2)
-	{
-		int res[] = new int[5];
-		int id = 0;
-		int nr = 1;
-		
-		while (enchant > 0)
-		{
-			int val = enchant / 2;
-			if (val != Math.round((double) enchant / 2))
-			{
-				res[id++] = nr;
-			}
-			enchant /= 2;
-			nr++;
-		}
-		
-		nr = 17;
-		
-		while (type2 > 0)
-		{
-			int val = type2 / 2;
-			if (val != ((double) type2 / 2))
-			{
-				res[id++] = nr;
-			}
-			type2 /= 2;
-			nr++;
-		}
-		
-		return res;
-	}
-	
-	public long getEndDate()
-	{
-		return _enddate;
-	}
-	
 	public int getId()
 	{
 		return _number;
@@ -202,6 +83,11 @@ public class Lottery
 	public long getPrize()
 	{
 		return _prize;
+	}
+	
+	public long getEndDate()
+	{
+		return _enddate;
 	}
 	
 	public void increasePrize(long count)
@@ -229,6 +115,127 @@ public class Lottery
 	public boolean isStarted()
 	{
 		return _isStarted;
+	}
+	
+	private class startLottery implements Runnable
+	{
+		protected startLottery()
+		{
+			// Do nothing
+		}
+		
+		@Override
+		public void run()
+		{
+			
+			try (Connection con = ConnectionFactory.getInstance().getConnection();
+				Statement statement = con.createStatement();
+				ResultSet rset = statement.executeQuery(SELECT_LAST_LOTTERY))
+			{
+				if (rset.next())
+				{
+					_number = rset.getInt("idnr");
+					
+					if (rset.getInt("finished") == 1)
+					{
+						_number++;
+						_prize = rset.getLong("newprize");
+					}
+					else
+					{
+						_prize = rset.getLong("prize");
+						_enddate = rset.getLong("enddate");
+						
+						if (_enddate <= (System.currentTimeMillis() + (2 * MINUTE)))
+						{
+							(new finishLottery()).run();
+							return;
+						}
+						
+						if (_enddate > System.currentTimeMillis())
+						{
+							_isStarted = true;
+							ThreadPoolManager.getInstance().scheduleGeneral(new finishLottery(), _enddate - System.currentTimeMillis());
+							
+							if (_enddate > (System.currentTimeMillis() + (12 * MINUTE)))
+							{
+								_isSellingTickets = true;
+								ThreadPoolManager.getInstance().scheduleGeneral(new stopSellingTickets(), _enddate - System.currentTimeMillis() - (10 * MINUTE));
+							}
+							return;
+						}
+					}
+				}
+			}
+			catch (SQLException e)
+			{
+				_log.log(Level.WARNING, "Lottery: Could not restore lottery data: " + e.getMessage(), e);
+			}
+			
+			if (Config.DEBUG)
+			{
+				_log.info("Lottery: Starting ticket sell for lottery #" + getId() + ".");
+			}
+			_isSellingTickets = true;
+			_isStarted = true;
+			
+			Broadcast.toAllOnlinePlayers("Lottery tickets are now available for Lucky Lottery #" + getId() + ".");
+			Calendar finishtime = Calendar.getInstance();
+			finishtime.setTimeInMillis(_enddate);
+			finishtime.set(Calendar.MINUTE, 0);
+			finishtime.set(Calendar.SECOND, 0);
+			
+			if (finishtime.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
+			{
+				finishtime.set(Calendar.HOUR_OF_DAY, 19);
+				_enddate = finishtime.getTimeInMillis();
+				_enddate += 604800000;
+			}
+			else
+			{
+				finishtime.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+				finishtime.set(Calendar.HOUR_OF_DAY, 19);
+				_enddate = finishtime.getTimeInMillis();
+			}
+			
+			ThreadPoolManager.getInstance().scheduleGeneral(new stopSellingTickets(), _enddate - System.currentTimeMillis() - (10 * MINUTE));
+			ThreadPoolManager.getInstance().scheduleGeneral(new finishLottery(), _enddate - System.currentTimeMillis());
+			
+			try (Connection con = ConnectionFactory.getInstance().getConnection();
+				PreparedStatement ps = con.prepareStatement(INSERT_LOTTERY))
+			{
+				ps.setInt(1, 1);
+				ps.setInt(2, getId());
+				ps.setLong(3, getEndDate());
+				ps.setLong(4, getPrize());
+				ps.setLong(5, getPrize());
+				ps.execute();
+			}
+			catch (SQLException e)
+			{
+				_log.log(Level.WARNING, "Lottery: Could not store new lottery data: " + e.getMessage(), e);
+			}
+		}
+	}
+	
+	private class stopSellingTickets implements Runnable
+	{
+		protected stopSellingTickets()
+		{
+			// Do nothing
+		}
+		
+		@Override
+		public void run()
+		{
+			if (Config.DEBUG)
+			{
+				_log.info("Lottery: Stopping ticket sell for lottery #" + getId() + ".");
+			}
+			_isSellingTickets = false;
+			
+			Broadcast.toAllOnlinePlayers(SystemMessage.getSystemMessage(SystemMessageId.LOTTERY_TICKET_SALES_TEMP_SUSPENDED));
+		}
 	}
 	
 	private class finishLottery implements Runnable
@@ -440,129 +447,122 @@ public class Lottery
 		}
 	}
 	
-	private static class SingletonHolder
+	public int[] decodeNumbers(int enchant, int type2)
 	{
-		protected static final Lottery _instance = new Lottery();
-	}
-	
-	private class startLottery implements Runnable
-	{
-		protected startLottery()
+		int res[] = new int[5];
+		int id = 0;
+		int nr = 1;
+		
+		while (enchant > 0)
 		{
-			// Do nothing
+			int val = enchant / 2;
+			if (val != Math.round((double) enchant / 2))
+			{
+				res[id++] = nr;
+			}
+			enchant /= 2;
+			nr++;
 		}
 		
-		@Override
-		public void run()
+		nr = 17;
+		
+		while (type2 > 0)
 		{
-			
-			try (Connection con = ConnectionFactory.getInstance().getConnection();
-				Statement statement = con.createStatement();
-				ResultSet rset = statement.executeQuery(SELECT_LAST_LOTTERY))
+			int val = type2 / 2;
+			if (val != ((double) type2 / 2))
 			{
-				if (rset.next())
+				res[id++] = nr;
+			}
+			type2 /= 2;
+			nr++;
+		}
+		
+		return res;
+	}
+	
+	public long[] checkTicket(L2ItemInstance item)
+	{
+		return checkTicket(item.getCustomType1(), item.getEnchantLevel(), item.getCustomType2());
+	}
+	
+	public long[] checkTicket(int id, int enchant, int type2)
+	{
+		long res[] =
+		{
+			0,
+			0
+		};
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(SELECT_LOTTERY_TICKET))
+		{
+			ps.setInt(1, id);
+			try (ResultSet rs = ps.executeQuery())
+			{
+				if (rs.next())
 				{
-					_number = rset.getInt("idnr");
+					int curenchant = rs.getInt("number1") & enchant;
+					int curtype2 = rs.getInt("number2") & type2;
 					
-					if (rset.getInt("finished") == 1)
+					if ((curenchant == 0) && (curtype2 == 0))
 					{
-						_number++;
-						_prize = rset.getLong("newprize");
+						return res;
 					}
-					else
+					
+					int count = 0;
+					
+					for (int i = 1; i <= 16; i++)
 					{
-						_prize = rset.getLong("prize");
-						_enddate = rset.getLong("enddate");
-						
-						if (_enddate <= (System.currentTimeMillis() + (2 * MINUTE)))
+						int val = curenchant / 2;
+						if (val != Math.round((double) curenchant / 2))
 						{
-							(new finishLottery()).run();
-							return;
+							count++;
 						}
-						
-						if (_enddate > System.currentTimeMillis())
+						int val2 = curtype2 / 2;
+						if (val2 != ((double) curtype2 / 2))
 						{
-							_isStarted = true;
-							ThreadPoolManager.getInstance().scheduleGeneral(new finishLottery(), _enddate - System.currentTimeMillis());
-							
-							if (_enddate > (System.currentTimeMillis() + (12 * MINUTE)))
-							{
-								_isSellingTickets = true;
-								ThreadPoolManager.getInstance().scheduleGeneral(new stopSellingTickets(), _enddate - System.currentTimeMillis() - (10 * MINUTE));
-							}
-							return;
+							count++;
 						}
+						curenchant = val;
+						curtype2 = val2;
+					}
+					
+					switch (count)
+					{
+						case 0:
+							break;
+						case 5:
+							res[0] = 1;
+							res[1] = rs.getLong("prize1");
+							break;
+						case 4:
+							res[0] = 2;
+							res[1] = rs.getLong("prize2");
+							break;
+						case 3:
+							res[0] = 3;
+							res[1] = rs.getLong("prize3");
+							break;
+						default:
+							res[0] = 4;
+							res[1] = Config.ALT_LOTTERY_2_AND_1_NUMBER_PRIZE;
+					}
+					
+					if (Config.DEBUG)
+					{
+						_log.warning("count: " + count + ", id: " + id + ", enchant: " + enchant + ", type2: " + type2);
 					}
 				}
 			}
-			catch (SQLException e)
-			{
-				_log.log(Level.WARNING, "Lottery: Could not restore lottery data: " + e.getMessage(), e);
-			}
-			
-			if (Config.DEBUG)
-			{
-				_log.info("Lottery: Starting ticket sell for lottery #" + getId() + ".");
-			}
-			_isSellingTickets = true;
-			_isStarted = true;
-			
-			Broadcast.toAllOnlinePlayers("Lottery tickets are now available for Lucky Lottery #" + getId() + ".");
-			Calendar finishtime = Calendar.getInstance();
-			finishtime.setTimeInMillis(_enddate);
-			finishtime.set(Calendar.MINUTE, 0);
-			finishtime.set(Calendar.SECOND, 0);
-			
-			if (finishtime.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
-			{
-				finishtime.set(Calendar.HOUR_OF_DAY, 19);
-				_enddate = finishtime.getTimeInMillis();
-				_enddate += 604800000;
-			}
-			else
-			{
-				finishtime.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-				finishtime.set(Calendar.HOUR_OF_DAY, 19);
-				_enddate = finishtime.getTimeInMillis();
-			}
-			
-			ThreadPoolManager.getInstance().scheduleGeneral(new stopSellingTickets(), _enddate - System.currentTimeMillis() - (10 * MINUTE));
-			ThreadPoolManager.getInstance().scheduleGeneral(new finishLottery(), _enddate - System.currentTimeMillis());
-			
-			try (Connection con = ConnectionFactory.getInstance().getConnection();
-				PreparedStatement ps = con.prepareStatement(INSERT_LOTTERY))
-			{
-				ps.setInt(1, 1);
-				ps.setInt(2, getId());
-				ps.setLong(3, getEndDate());
-				ps.setLong(4, getPrize());
-				ps.setLong(5, getPrize());
-				ps.execute();
-			}
-			catch (SQLException e)
-			{
-				_log.log(Level.WARNING, "Lottery: Could not store new lottery data: " + e.getMessage(), e);
-			}
 		}
+		catch (SQLException e)
+		{
+			_log.log(Level.WARNING, "Lottery: Could not check lottery ticket #" + id + ": " + e.getMessage(), e);
+		}
+		return res;
 	}
 	
-	private class stopSellingTickets implements Runnable
+	private static class SingletonHolder
 	{
-		protected stopSellingTickets()
-		{
-			// Do nothing
-		}
-		
-		@Override
-		public void run()
-		{
-			if (Config.DEBUG)
-			{
-				_log.info("Lottery: Stopping ticket sell for lottery #" + getId() + ".");
-			}
-			_isSellingTickets = false;
-			
-			Broadcast.toAllOnlinePlayers(SystemMessage.getSystemMessage(SystemMessageId.LOTTERY_TICKET_SALES_TEMP_SUSPENDED));
-		}
+		protected static final Lottery _instance = new Lottery();
 	}
 }

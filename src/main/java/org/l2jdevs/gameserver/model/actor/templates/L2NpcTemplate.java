@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -107,419 +107,6 @@ public final class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 		super(set);
 	}
 	
-	public static boolean isAssignableTo(Class<?> sub, Class<?> clazz)
-	{
-		// If clazz represents an interface
-		if (clazz.isInterface())
-		{
-			// check if obj implements the clazz interface
-			Class<?>[] interfaces = sub.getInterfaces();
-			for (Class<?> interface1 : interfaces)
-			{
-				if (clazz.getName().equals(interface1.getName()))
-				{
-					return true;
-				}
-			}
-		}
-		else
-		{
-			do
-			{
-				if (sub.getName().equals(clazz.getName()))
-				{
-					return true;
-				}
-				
-				sub = sub.getSuperclass();
-			}
-			while (sub != null);
-		}
-		return false;
-	}
-	
-	/**
-	 * Checks if obj can be assigned to the Class represented by clazz.<br>
-	 * This is true if, and only if, obj is the same class represented by clazz, or a subclass of it or obj implements the interface represented by clazz.
-	 * @param obj
-	 * @param clazz
-	 * @return {@code true} if the object can be assigned to the class, {@code false} otherwise
-	 */
-	public static boolean isAssignableTo(Object obj, Class<?> clazz)
-	{
-		return L2NpcTemplate.isAssignableTo(obj.getClass(), clazz);
-	}
-	
-	public void addTeachInfo(List<ClassId> teachInfo)
-	{
-		_teachInfo.addAll(teachInfo);
-	}
-	
-	public Collection<ItemHolder> calculateDrops(DropListScope dropListScope, L2Character victim, L2Character killer)
-	{
-		List<IDropItem> dropList = getDropList(dropListScope);
-		if (dropList == null)
-		{
-			return null;
-		}
-		
-		Collection<ItemHolder> calculatedDrops = null;
-		for (IDropItem dropItem : dropList)
-		{
-			final Collection<ItemHolder> drops = dropItem.calculateDrops(victim, killer);
-			if ((drops == null) || drops.isEmpty())
-			{
-				continue;
-			}
-			
-			if (calculatedDrops == null)
-			{
-				calculatedDrops = new LinkedList<>();
-			}
-			
-			calculatedDrops.addAll(drops);
-		}
-		
-		return calculatedDrops;
-	}
-	
-	public boolean canBeSown()
-	{
-		return _canBeSown;
-	}
-	
-	public boolean canMove()
-	{
-		return _canMove;
-	}
-	
-	public boolean canTeach(ClassId classId)
-	{
-		// If the player is on a third class, fetch the class teacher
-		// information for its parent class.
-		if (classId.level() == 3)
-		{
-			return _teachInfo.contains(classId.getParent());
-		}
-		return _teachInfo.contains(classId);
-	}
-	
-	public int getAggroRange()
-	{
-		return _aggroRange;
-	}
-	
-	public List<Skill> getAISkills(AISkillScope aiSkillScope)
-	{
-		return _aiSkillLists.getOrDefault(aiSkillScope, Collections.emptyList());
-	}
-	
-	public AIType getAIType()
-	{
-		return _aiType;
-	}
-	
-	public int getChestId()
-	{
-		return _chestId;
-	}
-	
-	public int getClanHelpRange()
-	{
-		return _clanHelpRange;
-	}
-	
-	public Set<Integer> getClans()
-	{
-		return _clans;
-	}
-	
-	public double getCollisionHeightGrown()
-	{
-		return _collisionHeightGrown;
-	}
-	
-	public double getCollisionRadiusGrown()
-	{
-		return _collisionRadiusGrown;
-	}
-	
-	public int getCorpseTime()
-	{
-		return _corpseTime;
-	}
-	
-	public int getDisplayId()
-	{
-		return _displayId;
-	}
-	
-	public int getDodge()
-	{
-		return _dodge;
-	}
-	
-	public List<IDropItem> getDropList(DropListScope dropListScope)
-	{
-		Map<DropListScope, List<IDropItem>> dropLists = _dropLists;
-		return dropLists != null ? dropLists.get(dropListScope) : null;
-	}
-	
-	public Map<DropListScope, List<IDropItem>> getDropLists()
-	{
-		return _dropLists;
-	}
-	
-	public double getExpRate()
-	{
-		return _expRate;
-	}
-	
-	@Override
-	public int getId()
-	{
-		return _id;
-	}
-	
-	public Set<Integer> getIgnoreClanNpcIds()
-	{
-		return _ignoreClanNpcIds;
-	}
-	
-	public byte getLevel()
-	{
-		return _level;
-	}
-	
-	public int getLHandId()
-	{
-		return _lhandId;
-	}
-	
-	public int getMaxSkillChance()
-	{
-		return _maxSkillChance;
-	}
-	
-	public int getMinSkillChance()
-	{
-		return _minSkillChance;
-	}
-	
-	public String getName()
-	{
-		return _name;
-	}
-	
-	public StatsSet getParameters()
-	{
-		return _parameters;
-	}
-	
-	public double getRaidPoints()
-	{
-		return _raidPoints;
-	}
-	
-	public int getRHandId()
-	{
-		return _rhandId;
-	}
-	
-	public Sex getSex()
-	{
-		return _sex;
-	}
-	
-	@Override
-	public Map<Integer, Skill> getSkills()
-	{
-		return _skills;
-	}
-	
-	public int getSoulShot()
-	{
-		return _soulShot;
-	}
-	
-	public int getSoulShotChance()
-	{
-		return _soulShotChance;
-	}
-	
-	public double getSP()
-	{
-		return _sp;
-	}
-	
-	public int getSpiritShot()
-	{
-		return _spiritShot;
-	}
-	
-	public int getSpiritShotChance()
-	{
-		return _spiritShotChance;
-	}
-	
-	public List<ClassId> getTeachInfo()
-	{
-		return _teachInfo;
-	}
-	
-	public String getTitle()
-	{
-		return _title;
-	}
-	
-	public String getType()
-	{
-		return _type;
-	}
-	
-	public int getWeaponEnchant()
-	{
-		return _weaponEnchant;
-	}
-	
-	public boolean hasSummoner()
-	{
-		return _hasSummoner;
-	}
-	
-	public boolean isAggressive()
-	{
-		return _isAggressive;
-	}
-	
-	public boolean isAttackable()
-	{
-		return _attackable;
-	}
-	
-	public boolean isChaos()
-	{
-		return _isChaos;
-	}
-	
-	/**
-	 * @param clans A set of clan names to check if they belong to this NPC template clans.
-	 * @return {@code true} if at least one of the clan names belong to this NPC template clans, {@code false} otherwise.
-	 */
-	public boolean isClan(Set<Integer> clans)
-	{
-		// Using local variable for the sake of reloading since it can be turned to null.
-		final Set<Integer> clanSet = _clans;
-		
-		if ((clanSet == null) || (clans == null))
-		{
-			return false;
-		}
-		
-		int clanId = NpcData.getInstance().getClanId("ALL");
-		if (clanSet.contains(clanId))
-		{
-			return true;
-		}
-		
-		for (Integer id : clans)
-		{
-			if (clanSet.contains(id))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * @param clanName clan name to check if it belongs to this NPC template clans.
-	 * @param clanNames clan names to check if they belong to this NPC template clans.
-	 * @return {@code true} if at least one of the clan names belong to this NPC template clans, {@code false} otherwise.
-	 */
-	public boolean isClan(String clanName, String... clanNames)
-	{
-		// Using local variable for the sake of reloading since it can be turned to null.
-		final Set<Integer> clans = _clans;
-		
-		if (clans == null)
-		{
-			return false;
-		}
-		
-		int clanId = NpcData.getInstance().getClanId("ALL");
-		if (clans.contains(clanId))
-		{
-			return true;
-		}
-		
-		clanId = NpcData.getInstance().getClanId(clanName);
-		if (clans.contains(clanId))
-		{
-			return true;
-		}
-		
-		for (String name : clanNames)
-		{
-			clanId = NpcData.getInstance().getClanId(name);
-			if (clans.contains(clanId))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public boolean isFlying()
-	{
-		return _flying;
-	}
-	
-	public boolean isNoSleepMode()
-	{
-		return _noSleepMode;
-	}
-	
-	public boolean isPassableDoor()
-	{
-		return _passableDoor;
-	}
-	
-	public boolean isShowName()
-	{
-		return _showName;
-	}
-	
-	public boolean isTargetable()
-	{
-		return _targetable;
-	}
-	
-	public boolean isType(String type)
-	{
-		return getType().equalsIgnoreCase(type);
-	}
-	
-	public boolean isUndying()
-	{
-		return _undying;
-	}
-	
-	public boolean isUnique()
-	{
-		return _unique;
-	}
-	
-	public boolean isUsingServerSideName()
-	{
-		return _usingServerSideName;
-	}
-	
-	public boolean isUsingServerSideTitle()
-	{
-		return _usingServerSideTitle;
-	}
-	
 	@Override
 	public void set(StatsSet set)
 	{
@@ -577,9 +164,246 @@ public final class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 		_collisionHeightGrown = set.getDouble("collisionHeightGrown", 0);
 	}
 	
+	@Override
+	public int getId()
+	{
+		return _id;
+	}
+	
+	public int getDisplayId()
+	{
+		return _displayId;
+	}
+	
+	public byte getLevel()
+	{
+		return _level;
+	}
+	
+	public String getType()
+	{
+		return _type;
+	}
+	
+	public boolean isType(String type)
+	{
+		return getType().equalsIgnoreCase(type);
+	}
+	
+	public String getName()
+	{
+		return _name;
+	}
+	
+	public boolean isUsingServerSideName()
+	{
+		return _usingServerSideName;
+	}
+	
+	public String getTitle()
+	{
+		return _title;
+	}
+	
+	public boolean isUsingServerSideTitle()
+	{
+		return _usingServerSideTitle;
+	}
+	
+	public StatsSet getParameters()
+	{
+		return _parameters;
+	}
+	
+	public void setParameters(StatsSet set)
+	{
+		_parameters = set;
+	}
+	
+	public Sex getSex()
+	{
+		return _sex;
+	}
+	
+	public int getChestId()
+	{
+		return _chestId;
+	}
+	
+	public int getRHandId()
+	{
+		return _rhandId;
+	}
+	
+	public int getLHandId()
+	{
+		return _lhandId;
+	}
+	
+	public int getWeaponEnchant()
+	{
+		return _weaponEnchant;
+	}
+	
+	public double getExpRate()
+	{
+		return _expRate;
+	}
+	
+	public double getSP()
+	{
+		return _sp;
+	}
+	
+	public double getRaidPoints()
+	{
+		return _raidPoints;
+	}
+	
+	public boolean isUnique()
+	{
+		return _unique;
+	}
+	
+	public boolean isAttackable()
+	{
+		return _attackable;
+	}
+	
+	public boolean isTargetable()
+	{
+		return _targetable;
+	}
+	
+	public boolean isUndying()
+	{
+		return _undying;
+	}
+	
+	public boolean isShowName()
+	{
+		return _showName;
+	}
+	
+	public boolean isFlying()
+	{
+		return _flying;
+	}
+	
+	public boolean canMove()
+	{
+		return _canMove;
+	}
+	
+	public boolean isNoSleepMode()
+	{
+		return _noSleepMode;
+	}
+	
+	public boolean isPassableDoor()
+	{
+		return _passableDoor;
+	}
+	
+	public boolean hasSummoner()
+	{
+		return _hasSummoner;
+	}
+	
+	public boolean canBeSown()
+	{
+		return _canBeSown;
+	}
+	
+	public int getCorpseTime()
+	{
+		return _corpseTime;
+	}
+	
+	public AIType getAIType()
+	{
+		return _aiType;
+	}
+	
+	public int getAggroRange()
+	{
+		return _aggroRange;
+	}
+	
+	public int getClanHelpRange()
+	{
+		return _clanHelpRange;
+	}
+	
+	public int getDodge()
+	{
+		return _dodge;
+	}
+	
+	public boolean isChaos()
+	{
+		return _isChaos;
+	}
+	
+	public boolean isAggressive()
+	{
+		return _isAggressive;
+	}
+	
+	public int getSoulShot()
+	{
+		return _soulShot;
+	}
+	
+	public int getSpiritShot()
+	{
+		return _spiritShot;
+	}
+	
+	public int getSoulShotChance()
+	{
+		return _soulShotChance;
+	}
+	
+	public int getSpiritShotChance()
+	{
+		return _spiritShotChance;
+	}
+	
+	public int getMinSkillChance()
+	{
+		return _minSkillChance;
+	}
+	
+	public int getMaxSkillChance()
+	{
+		return _maxSkillChance;
+	}
+	
+	@Override
+	public Map<Integer, Skill> getSkills()
+	{
+		return _skills;
+	}
+	
+	public void setSkills(Map<Integer, Skill> skills)
+	{
+		_skills = skills != null ? Collections.unmodifiableMap(skills) : Collections.emptyMap();
+	}
+	
+	public List<Skill> getAISkills(AISkillScope aiSkillScope)
+	{
+		return _aiSkillLists.getOrDefault(aiSkillScope, Collections.emptyList());
+	}
+	
 	public void setAISkillLists(Map<AISkillScope, List<Skill>> aiSkillLists)
 	{
 		_aiSkillLists = aiSkillLists != null ? Collections.unmodifiableMap(aiSkillLists) : Collections.emptyMap();
+	}
+	
+	public Set<Integer> getClans()
+	{
+		return _clans;
 	}
 	
 	/**
@@ -590,9 +414,77 @@ public final class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 		_clans = clans != null ? Collections.unmodifiableSet(clans) : null;
 	}
 	
-	public void setDropLists(Map<DropListScope, List<IDropItem>> dropLists)
+	/**
+	 * @param clanName clan name to check if it belongs to this NPC template clans.
+	 * @param clanNames clan names to check if they belong to this NPC template clans.
+	 * @return {@code true} if at least one of the clan names belong to this NPC template clans, {@code false} otherwise.
+	 */
+	public boolean isClan(String clanName, String... clanNames)
 	{
-		_dropLists = dropLists != null ? Collections.unmodifiableMap(dropLists) : null;
+		// Using local variable for the sake of reloading since it can be turned to null.
+		final Set<Integer> clans = _clans;
+		
+		if (clans == null)
+		{
+			return false;
+		}
+		
+		int clanId = NpcData.getInstance().getClanId("ALL");
+		if (clans.contains(clanId))
+		{
+			return true;
+		}
+		
+		clanId = NpcData.getInstance().getClanId(clanName);
+		if (clans.contains(clanId))
+		{
+			return true;
+		}
+		
+		for (String name : clanNames)
+		{
+			clanId = NpcData.getInstance().getClanId(name);
+			if (clans.contains(clanId))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * @param clans A set of clan names to check if they belong to this NPC template clans.
+	 * @return {@code true} if at least one of the clan names belong to this NPC template clans, {@code false} otherwise.
+	 */
+	public boolean isClan(Set<Integer> clans)
+	{
+		// Using local variable for the sake of reloading since it can be turned to null.
+		final Set<Integer> clanSet = _clans;
+		
+		if ((clanSet == null) || (clans == null))
+		{
+			return false;
+		}
+		
+		int clanId = NpcData.getInstance().getClanId("ALL");
+		if (clanSet.contains(clanId))
+		{
+			return true;
+		}
+		
+		for (Integer id : clans)
+		{
+			if (clanSet.contains(id))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public Set<Integer> getIgnoreClanNpcIds()
+	{
+		return _ignoreClanNpcIds;
 	}
 	
 	/**
@@ -603,13 +495,121 @@ public final class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 		_ignoreClanNpcIds = ignoreClanNpcIds != null ? Collections.unmodifiableSet(ignoreClanNpcIds) : null;
 	}
 	
-	public void setParameters(StatsSet set)
+	public Map<DropListScope, List<IDropItem>> getDropLists()
 	{
-		_parameters = set;
+		return _dropLists;
 	}
 	
-	public void setSkills(Map<Integer, Skill> skills)
+	public void setDropLists(Map<DropListScope, List<IDropItem>> dropLists)
 	{
-		_skills = skills != null ? Collections.unmodifiableMap(skills) : Collections.emptyMap();
+		_dropLists = dropLists != null ? Collections.unmodifiableMap(dropLists) : null;
+	}
+	
+	public List<IDropItem> getDropList(DropListScope dropListScope)
+	{
+		Map<DropListScope, List<IDropItem>> dropLists = _dropLists;
+		return dropLists != null ? dropLists.get(dropListScope) : null;
+	}
+	
+	public Collection<ItemHolder> calculateDrops(DropListScope dropListScope, L2Character victim, L2Character killer)
+	{
+		List<IDropItem> dropList = getDropList(dropListScope);
+		if (dropList == null)
+		{
+			return null;
+		}
+		
+		Collection<ItemHolder> calculatedDrops = null;
+		for (IDropItem dropItem : dropList)
+		{
+			final Collection<ItemHolder> drops = dropItem.calculateDrops(victim, killer);
+			if ((drops == null) || drops.isEmpty())
+			{
+				continue;
+			}
+			
+			if (calculatedDrops == null)
+			{
+				calculatedDrops = new LinkedList<>();
+			}
+			
+			calculatedDrops.addAll(drops);
+		}
+		
+		return calculatedDrops;
+	}
+	
+	public double getCollisionRadiusGrown()
+	{
+		return _collisionRadiusGrown;
+	}
+	
+	public double getCollisionHeightGrown()
+	{
+		return _collisionHeightGrown;
+	}
+	
+	public static boolean isAssignableTo(Class<?> sub, Class<?> clazz)
+	{
+		// If clazz represents an interface
+		if (clazz.isInterface())
+		{
+			// check if obj implements the clazz interface
+			Class<?>[] interfaces = sub.getInterfaces();
+			for (Class<?> interface1 : interfaces)
+			{
+				if (clazz.getName().equals(interface1.getName()))
+				{
+					return true;
+				}
+			}
+		}
+		else
+		{
+			do
+			{
+				if (sub.getName().equals(clazz.getName()))
+				{
+					return true;
+				}
+				
+				sub = sub.getSuperclass();
+			}
+			while (sub != null);
+		}
+		return false;
+	}
+	
+	/**
+	 * Checks if obj can be assigned to the Class represented by clazz.<br>
+	 * This is true if, and only if, obj is the same class represented by clazz, or a subclass of it or obj implements the interface represented by clazz.
+	 * @param obj
+	 * @param clazz
+	 * @return {@code true} if the object can be assigned to the class, {@code false} otherwise
+	 */
+	public static boolean isAssignableTo(Object obj, Class<?> clazz)
+	{
+		return L2NpcTemplate.isAssignableTo(obj.getClass(), clazz);
+	}
+	
+	public boolean canTeach(ClassId classId)
+	{
+		// If the player is on a third class, fetch the class teacher
+		// information for its parent class.
+		if (classId.level() == 3)
+		{
+			return _teachInfo.contains(classId.getParent());
+		}
+		return _teachInfo.contains(classId);
+	}
+	
+	public List<ClassId> getTeachInfo()
+	{
+		return _teachInfo;
+	}
+	
+	public void addTeachInfo(List<ClassId> teachInfo)
+	{
+		_teachInfo.addAll(teachInfo);
 	}
 }

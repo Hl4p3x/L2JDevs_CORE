@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -50,45 +50,6 @@ public class BackgroundTaskRunner<T> implements Runnable, ComponentListener
 	}
 	
 	@Override
-	public void componentHidden(ComponentEvent e)
-	{
-	}
-	
-	@Override
-	public void componentMoved(ComponentEvent e)
-	{
-	}
-	
-	@Override
-	public void componentResized(ComponentEvent e)
-	{
-	}
-	
-	@Override
-	public void componentShown(ComponentEvent e)
-	{
-		try
-		{
-			_thread.start();
-		}
-		catch (Throwable t)
-		{
-			_thrown = t;
-			finishDialog();
-		}
-	}
-	
-	public T getResult()
-	{
-		return _result;
-	}
-	
-	public Throwable getThrown()
-	{
-		return _thrown;
-	}
-	
-	@Override
 	public void run()
 	{
 		try
@@ -112,5 +73,44 @@ public class BackgroundTaskRunner<T> implements Runnable, ComponentListener
 			_dialog.removeComponentListener(this);
 			_dialog.setVisible(false);
 		}
+	}
+	
+	public Throwable getThrown()
+	{
+		return _thrown;
+	}
+	
+	public T getResult()
+	{
+		return _result;
+	}
+	
+	@Override
+	public void componentResized(ComponentEvent e)
+	{
+	}
+	
+	@Override
+	public void componentMoved(ComponentEvent e)
+	{
+	}
+	
+	@Override
+	public void componentShown(ComponentEvent e)
+	{
+		try
+		{
+			_thread.start();
+		}
+		catch (Throwable t)
+		{
+			_thrown = t;
+			finishDialog();
+		}
+	}
+	
+	@Override
+	public void componentHidden(ComponentEvent e)
+	{
 	}
 }

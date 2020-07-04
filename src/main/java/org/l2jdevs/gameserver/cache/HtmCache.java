@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -51,53 +51,32 @@ public class HtmCache
 		reload();
 	}
 	
-	public static HtmCache getInstance()
+	public void reload()
 	{
-		return SingletonHolder._instance;
+		reload(Config.DATAPACK_ROOT);
 	}
 	
-	public boolean contains(String path)
+	public void reload(File f)
 	{
-		return _cache.containsKey(path);
-	}
-	
-	public String getHtm(String prefix, String path)
-	{
-		String newPath = null;
-		String content;
-		if ((prefix != null) && !prefix.isEmpty())
+		if (!Config.LAZY_CACHE)
 		{
-			newPath = prefix + path;
-			content = getHtm(newPath);
-			if (content != null)
-			{
-				return content;
-			}
+			LOG.info("Html cache start...");
+			parseDir(f);
+			LOG.info("Cache[HTML]: " + String.format("%.3f", getMemoryUsage()) + " megabytes on " + getLoadedFiles() + " files loaded");
 		}
-		
-		content = getHtm(path);
-		if ((content != null) && (newPath != null))
+		else
 		{
-			_cache.put(newPath, content);
+			_cache.clear();
+			_loadedFiles = 0;
+			_bytesBuffLen = 0;
+			LOG.info("Cache[HTML]: Running lazy cache");
 		}
-		
-		return content;
 	}
 	
-	public String getHtmForce(String prefix, String path)
+	public void reloadPath(File f)
 	{
-		String content = getHtm(prefix, path);
-		if (content == null)
-		{
-			content = "<html><body>My text is missing:<br>" + path + "</body></html>";
-			LOG.warn("Cache[HTML]: Missing HTML page: " + path);
-		}
-		return content;
-	}
-	
-	public int getLoadedFiles()
-	{
-		return _loadedFiles;
+		parseDir(f);
+		LOG.info("Cache[HTML]: Reloaded specified path.");
 	}
 	
 	public double getMemoryUsage()
@@ -105,13 +84,28 @@ public class HtmCache
 		return ((float) _bytesBuffLen / 1048576);
 	}
 	
-	/**
-	 * @param path The path to the HTM
-	 * @return {@code true} if the path targets a HTM or HTML file, {@code false} otherwise.
-	 */
-	public boolean isLoadable(String path)
+	public int getLoadedFiles()
 	{
-		return HTML_FILTER.accept(new File(Config.DATAPACK_ROOT, path));
+		return _loadedFiles;
+	}
+	
+	private void parseDir(File dir)
+	{
+		final File[] files = dir.listFiles();
+		if (files != null)
+		{
+			for (File file : files)
+			{
+				if (!file.isDirectory())
+				{
+					loadFile(file);
+				}
+				else
+				{
+					parseDir(file);
+				}
+			}
+		}
 	}
 	
 	public String loadFile(File file)
@@ -151,32 +145,38 @@ public class HtmCache
 		return content;
 	}
 	
-	public void reload()
+	public String getHtmForce(String prefix, String path)
 	{
-		reload(Config.DATAPACK_ROOT);
+		String content = getHtm(prefix, path);
+		if (content == null)
+		{
+			content = "<html><body>My text is missing:<br>" + path + "</body></html>";
+			LOG.warn("Cache[HTML]: Missing HTML page: " + path);
+		}
+		return content;
 	}
 	
-	public void reload(File f)
+	public String getHtm(String prefix, String path)
 	{
-		if (!Config.LAZY_CACHE)
+		String newPath = null;
+		String content;
+		if ((prefix != null) && !prefix.isEmpty())
 		{
-			LOG.info("Html cache start...");
-			parseDir(f);
-			LOG.info("Cache[HTML]: " + String.format("%.3f", getMemoryUsage()) + " megabytes on " + getLoadedFiles() + " files loaded");
+			newPath = prefix + path;
+			content = getHtm(newPath);
+			if (content != null)
+			{
+				return content;
+			}
 		}
-		else
+		
+		content = getHtm(path);
+		if ((content != null) && (newPath != null))
 		{
-			_cache.clear();
-			_loadedFiles = 0;
-			_bytesBuffLen = 0;
-			LOG.info("Cache[HTML]: Running lazy cache");
+			_cache.put(newPath, content);
 		}
-	}
-	
-	public void reloadPath(File f)
-	{
-		parseDir(f);
-		LOG.info("Cache[HTML]: Reloaded specified path.");
+		
+		return content;
 	}
 	
 	private String getHtm(String path)
@@ -194,23 +194,23 @@ public class HtmCache
 		return content;
 	}
 	
-	private void parseDir(File dir)
+	public boolean contains(String path)
 	{
-		final File[] files = dir.listFiles();
-		if (files != null)
-		{
-			for (File file : files)
-			{
-				if (!file.isDirectory())
-				{
-					loadFile(file);
-				}
-				else
-				{
-					parseDir(file);
-				}
-			}
-		}
+		return _cache.containsKey(path);
+	}
+	
+	/**
+	 * @param path The path to the HTM
+	 * @return {@code true} if the path targets a HTM or HTML file, {@code false} otherwise.
+	 */
+	public boolean isLoadable(String path)
+	{
+		return HTML_FILTER.accept(new File(Config.DATAPACK_ROOT, path));
+	}
+	
+	public static HtmCache getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

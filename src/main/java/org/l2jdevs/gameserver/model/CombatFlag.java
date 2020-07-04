@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -45,6 +45,25 @@ public class CombatFlag
 		_fortId = fort_id;
 		_location = new Location(x, y, z, heading);
 		_itemId = item_id;
+	}
+	
+	public synchronized void spawnMe()
+	{
+		// Init the dropped L2ItemInstance and add it in the world as a visible object at the position where mob was last
+		_itemInstance = ItemTable.getInstance().createItem("Combat", _itemId, 1, null, null);
+		_itemInstance.dropMe(null, _location.getX(), _location.getY(), _location.getZ());
+	}
+	
+	public synchronized void unSpawnMe()
+	{
+		if (_player != null)
+		{
+			dropIt();
+		}
+		if (_itemInstance != null)
+		{
+			_itemInstance.decayMe();
+		}
 	}
 	
 	public boolean activate(L2PcInstance player, L2ItemInstance item)
@@ -97,32 +116,13 @@ public class CombatFlag
 		_playerId = 0;
 	}
 	
-	public L2ItemInstance getCombatFlagInstance()
-	{
-		return _itemInstance;
-	}
-	
 	public int getPlayerObjectId()
 	{
 		return _playerId;
 	}
 	
-	public synchronized void spawnMe()
+	public L2ItemInstance getCombatFlagInstance()
 	{
-		// Init the dropped L2ItemInstance and add it in the world as a visible object at the position where mob was last
-		_itemInstance = ItemTable.getInstance().createItem("Combat", _itemId, 1, null, null);
-		_itemInstance.dropMe(null, _location.getX(), _location.getY(), _location.getZ());
-	}
-	
-	public synchronized void unSpawnMe()
-	{
-		if (_player != null)
-		{
-			dropIt();
-		}
-		if (_itemInstance != null)
-		{
-			_itemInstance.decayMe();
-		}
+		return _itemInstance;
 	}
 }

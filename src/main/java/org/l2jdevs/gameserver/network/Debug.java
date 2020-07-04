@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -35,26 +35,6 @@ import org.l2jdevs.gameserver.network.serverpackets.TutorialShowHtml;
  */
 public class Debug
 {
-	public static void sendItemDebug(L2PcInstance player, L2ItemInstance item, StatsSet set)
-	{
-		final StringBuilder sb = new StringBuilder();
-		for (Entry<String, Object> entry : set.getSet().entrySet())
-		{
-			sb.append("<tr><td>" + entry.getKey() + "</td><td><font color=\"LEVEL\">" + entry.getValue() + "</font></td></tr>");
-		}
-		
-		final NpcHtmlMessage msg = new NpcHtmlMessage();
-		msg.setFile(player.getHtmlPrefix(), "data/html/admin/itemdebug.htm");
-		msg.replace("%itemName%", item.getName());
-		msg.replace("%itemSlot%", getBodyPart(item.getItem().getBodyPart()));
-		msg.replace("%itemType%", item.isArmor() ? "Armor" : item.isWeapon() ? "Weapon" : "Etc");
-		msg.replace("%enchantLevel%", item.getEnchantLevel());
-		msg.replace("%isMagicWeapon%", item.getItem().isMagicWeapon());
-		msg.replace("%item%", item.toString());
-		msg.replace("%details%", sb.toString());
-		player.sendPacket(new TutorialShowHtml(msg.getHtml()));
-	}
-	
 	public static void sendSkillDebug(L2Character attacker, L2Character target, Skill skill, StatsSet set)
 	{
 		if (!attacker.isPlayer())
@@ -97,6 +77,26 @@ public class Debug
 		msg.replace("%skill%", skill.toString());
 		msg.replace("%details%", sb.toString());
 		attacker.sendPacket(new TutorialShowHtml(msg.getHtml()));
+	}
+	
+	public static void sendItemDebug(L2PcInstance player, L2ItemInstance item, StatsSet set)
+	{
+		final StringBuilder sb = new StringBuilder();
+		for (Entry<String, Object> entry : set.getSet().entrySet())
+		{
+			sb.append("<tr><td>" + entry.getKey() + "</td><td><font color=\"LEVEL\">" + entry.getValue() + "</font></td></tr>");
+		}
+		
+		final NpcHtmlMessage msg = new NpcHtmlMessage();
+		msg.setFile(player.getHtmlPrefix(), "data/html/admin/itemdebug.htm");
+		msg.replace("%itemName%", item.getName());
+		msg.replace("%itemSlot%", getBodyPart(item.getItem().getBodyPart()));
+		msg.replace("%itemType%", item.isArmor() ? "Armor" : item.isWeapon() ? "Weapon" : "Etc");
+		msg.replace("%enchantLevel%", item.getEnchantLevel());
+		msg.replace("%isMagicWeapon%", item.getItem().isMagicWeapon());
+		msg.replace("%item%", item.toString());
+		msg.replace("%details%", sb.toString());
+		player.sendPacket(new TutorialShowHtml(msg.getHtml()));
 	}
 	
 	private static String getBodyPart(int bodyPart)

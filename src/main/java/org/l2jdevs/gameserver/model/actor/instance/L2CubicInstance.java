@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -159,122 +159,6 @@ public final class L2CubicInstance implements IIdentifiable
 		_disappearTask = ThreadPoolManager.getInstance().scheduleGeneral(new CubicDisappear(this), cubicDuration * 1000); // disappear
 	}
 	
-	/**
-	 * @param owner
-	 * @param target
-	 * @return true if the target is inside of the owner's max Cubic range
-	 */
-	public static boolean isInCubicRange(L2Character owner, L2Character target)
-	{
-		if ((owner == null) || (target == null))
-		{
-			return false;
-		}
-		
-		int x, y, z;
-		// temporary range check until real behavior of cubics is known/coded
-		int range = MAX_MAGIC_RANGE;
-		
-		x = (owner.getX() - target.getX());
-		y = (owner.getY() - target.getY());
-		z = (owner.getZ() - target.getZ());
-		
-		return (((x * x) + (y * y) + (z * z)) <= (range * range));
-	}
-	
-	public void cancelDisappear()
-	{
-		if (_disappearTask != null)
-		{
-			_disappearTask.cancel(true);
-			_disappearTask = null;
-		}
-	}
-	
-	/** this sets the friendly target for a cubic */
-	public void cubicTargetForHeal()
-	{
-		L2Character target = null;
-		double percentleft = 100.0;
-		L2Party party = _owner.getParty();
-		
-		// if owner is in a duel but not in a party duel, then it is the same as he does not have a party
-		if (_owner.isInDuel())
-		{
-			if (!DuelManager.getInstance().getDuel(_owner.getDuelId()).isPartyDuel())
-			{
-				party = null;
-			}
-		}
-		
-		if ((party != null) && !_owner.isInOlympiadMode())
-		{
-			// Get all visible objects in a spheric area near the L2Character
-			// Get a list of Party Members
-			for (L2Character partyMember : party.getMembers())
-			{
-				if (!partyMember.isDead())
-				{
-					// if party member not dead, check if he is in cast range of heal cubic
-					if (isInCubicRange(_owner, partyMember))
-					{
-						// member is in cubic casting range, check if he need heal and if he have
-						// the lowest HP
-						if (partyMember.getCurrentHp() < partyMember.getMaxHp())
-						{
-							if (percentleft > (partyMember.getCurrentHp() / partyMember.getMaxHp()))
-							{
-								percentleft = (partyMember.getCurrentHp() / partyMember.getMaxHp());
-								target = partyMember;
-							}
-						}
-					}
-				}
-				if (partyMember.getSummon() != null)
-				{
-					if (partyMember.getSummon().isDead())
-					{
-						continue;
-					}
-					
-					// If party member's pet not dead, check if it is in cast range of heal cubic.
-					if (!isInCubicRange(_owner, partyMember.getSummon()))
-					{
-						continue;
-					}
-					
-					// member's pet is in cubic casting range, check if he need heal and if he have
-					// the lowest HP
-					if (partyMember.getSummon().getCurrentHp() < partyMember.getSummon().getMaxHp())
-					{
-						if (percentleft > (partyMember.getSummon().getCurrentHp() / partyMember.getSummon().getMaxHp()))
-						{
-							percentleft = (partyMember.getSummon().getCurrentHp() / partyMember.getSummon().getMaxHp());
-							target = partyMember.getSummon();
-						}
-					}
-				}
-			}
-		}
-		else
-		{
-			if (_owner.getCurrentHp() < _owner.getMaxHp())
-			{
-				percentleft = (_owner.getCurrentHp() / _owner.getMaxHp());
-				target = _owner;
-			}
-			if (_owner.hasSummon())
-			{
-				if (!_owner.getSummon().isDead() && (_owner.getSummon().getCurrentHp() < _owner.getSummon().getMaxHp()) && (percentleft > (_owner.getSummon().getCurrentHp() / _owner.getSummon().getMaxHp())) && isInCubicRange(_owner, _owner.getSummon()))
-				{
-					target = _owner.getSummon();
-				}
-			}
-		}
-		
-		_target = target;
-	}
-	
 	public synchronized void doAction()
 	{
 		if (_active)
@@ -306,14 +190,60 @@ public final class L2CubicInstance implements IIdentifiable
 		}
 	}
 	
-	public int getCubicMaxCount()
+	@Override
+	public int getId()
 	{
-		return _cubicMaxCount;
+		return _cubicId;
+	}
+	
+	public L2PcInstance getOwner()
+	{
+		return _owner;
 	}
 	
 	public int getCubicPower()
 	{
 		return _cubicPower;
+	}
+	
+	public L2Character getTarget()
+	{
+		return _target;
+	}
+	
+	public void setTarget(L2Character target)
+	{
+		_target = target;
+	}
+	
+	public List<Skill> getSkills()
+	{
+		return _skills;
+	}
+	
+	public int getCubicMaxCount()
+	{
+		return _cubicMaxCount;
+	}
+	
+	public void stopAction()
+	{
+		_target = null;
+		if (_actionTask != null)
+		{
+			_actionTask.cancel(true);
+			_actionTask = null;
+		}
+		_active = false;
+	}
+	
+	public void cancelDisappear()
+	{
+		if (_disappearTask != null)
+		{
+			_disappearTask.cancel(true);
+			_disappearTask = null;
+		}
 	}
 	
 	/** this sets the enemy target for a cubic */
@@ -531,48 +461,6 @@ public final class L2CubicInstance implements IIdentifiable
 		}
 	}
 	
-	@Override
-	public int getId()
-	{
-		return _cubicId;
-	}
-	
-	public L2PcInstance getOwner()
-	{
-		return _owner;
-	}
-	
-	public List<Skill> getSkills()
-	{
-		return _skills;
-	}
-	
-	public L2Character getTarget()
-	{
-		return _target;
-	}
-	
-	public boolean givenByOther()
-	{
-		return _givenByOther;
-	}
-	
-	public void setTarget(L2Character target)
-	{
-		_target = target;
-	}
-	
-	public void stopAction()
-	{
-		_target = null;
-		if (_actionTask != null)
-		{
-			_actionTask.cancel(true);
-			_actionTask = null;
-		}
-		_active = false;
-	}
-	
 	public void useCubicContinuous(Skill skill, L2Object[] targets)
 	{
 		for (L2Character target : (L2Character[]) targets)
@@ -596,91 +484,6 @@ public final class L2CubicInstance implements IIdentifiable
 			
 			// Apply effects
 			skill.applyEffects(_owner, target, false, false, true, 0);
-		}
-	}
-	
-	public void useCubicDisabler(Skill skill, L2Object[] targets)
-	{
-		if (Config.DEBUG)
-		{
-			LOG.debug("Disablers: useCubicSkill() skill : {}", skill);
-		}
-		
-		for (L2Character target : (L2Character[]) targets)
-		{
-			if ((target == null) || target.isDead())
-			{
-				continue;
-			}
-			
-			byte shld = Formulas.calcShldUse(_owner, target, skill);
-			
-			if (skill.hasEffectType(L2EffectType.STUN, L2EffectType.PARALYZE, L2EffectType.ROOT, L2EffectType.AGGRESSION))
-			{
-				if (Formulas.calcCubicSkillSuccess(this, target, skill, shld))
-				{
-					// Apply effects
-					skill.applyEffects(_owner, target, false, false, true, 0);
-					
-					if (Config.DEBUG)
-					{
-						LOG.debug("Disablers: useCubicSkill() -> success");
-					}
-				}
-				else
-				{
-					if (Config.DEBUG)
-					{
-						LOG.debug("Disablers: useCubicSkill() -> failed");
-					}
-				}
-			}
-		}
-	}
-	
-	public void useCubicDrain(Skill skill, L2Object[] targets)
-	{
-		if (Config.DEBUG)
-		{
-			LOG.debug("L2SkillDrain: useCubicSkill()");
-		}
-		
-		for (L2Character target : (L2Character[]) targets)
-		{
-			if (target.isAlikeDead())
-			{
-				continue;
-			}
-			
-			boolean mcrit = Formulas.calcMCrit(_owner.getMCriticalHit(target, skill));
-			byte shld = Formulas.calcShldUse(_owner, target, skill);
-			
-			double damage = Formulas.calcMagicDam(this, target, skill, mcrit, shld);
-			if (Config.DEBUG)
-			{
-				LOG.debug("L2SkillDrain: useCubicSkill() -> damage = " + damage);
-			}
-			
-			// TODO: Unhardcode fixed value
-			double hpAdd = (0.4 * damage);
-			L2PcInstance owner = _owner;
-			double hp = ((owner.getCurrentHp() + hpAdd) > owner.getMaxHp() ? owner.getMaxHp() : (owner.getCurrentHp() + hpAdd));
-			
-			owner.setCurrentHp(hp);
-			
-			// Check to see if we should damage the target
-			if ((damage > 0) && !target.isDead())
-			{
-				target.reduceCurrentHp(damage, _owner, skill);
-				
-				// Manage attack or cast break of the target (calculating rate, sending message...)
-				if (!target.isRaid() && Formulas.calcAtkBreak(target, damage))
-				{
-					target.breakAttack();
-					target.breakCast();
-				}
-				owner.sendDamageMessage(target, (int) damage, mcrit, false, false);
-			}
 		}
 	}
 	
@@ -739,5 +542,202 @@ public final class L2CubicInstance implements IIdentifiable
 				}
 			}
 		}
+	}
+	
+	public void useCubicDrain(Skill skill, L2Object[] targets)
+	{
+		if (Config.DEBUG)
+		{
+			LOG.debug("L2SkillDrain: useCubicSkill()");
+		}
+		
+		for (L2Character target : (L2Character[]) targets)
+		{
+			if (target.isAlikeDead())
+			{
+				continue;
+			}
+			
+			boolean mcrit = Formulas.calcMCrit(_owner.getMCriticalHit(target, skill));
+			byte shld = Formulas.calcShldUse(_owner, target, skill);
+			
+			double damage = Formulas.calcMagicDam(this, target, skill, mcrit, shld);
+			if (Config.DEBUG)
+			{
+				LOG.debug("L2SkillDrain: useCubicSkill() -> damage = " + damage);
+			}
+			
+			// TODO: Unhardcode fixed value
+			double hpAdd = (0.4 * damage);
+			L2PcInstance owner = _owner;
+			double hp = ((owner.getCurrentHp() + hpAdd) > owner.getMaxHp() ? owner.getMaxHp() : (owner.getCurrentHp() + hpAdd));
+			
+			owner.setCurrentHp(hp);
+			
+			// Check to see if we should damage the target
+			if ((damage > 0) && !target.isDead())
+			{
+				target.reduceCurrentHp(damage, _owner, skill);
+				
+				// Manage attack or cast break of the target (calculating rate, sending message...)
+				if (!target.isRaid() && Formulas.calcAtkBreak(target, damage))
+				{
+					target.breakAttack();
+					target.breakCast();
+				}
+				owner.sendDamageMessage(target, (int) damage, mcrit, false, false);
+			}
+		}
+	}
+	
+	public void useCubicDisabler(Skill skill, L2Object[] targets)
+	{
+		if (Config.DEBUG)
+		{
+			LOG.debug("Disablers: useCubicSkill() skill : {}", skill);
+		}
+		
+		for (L2Character target : (L2Character[]) targets)
+		{
+			if ((target == null) || target.isDead())
+			{
+				continue;
+			}
+			
+			byte shld = Formulas.calcShldUse(_owner, target, skill);
+			
+			if (skill.hasEffectType(L2EffectType.STUN, L2EffectType.PARALYZE, L2EffectType.ROOT, L2EffectType.AGGRESSION))
+			{
+				if (Formulas.calcCubicSkillSuccess(this, target, skill, shld))
+				{
+					// Apply effects
+					skill.applyEffects(_owner, target, false, false, true, 0);
+					
+					if (Config.DEBUG)
+					{
+						LOG.debug("Disablers: useCubicSkill() -> success");
+					}
+				}
+				else
+				{
+					if (Config.DEBUG)
+					{
+						LOG.debug("Disablers: useCubicSkill() -> failed");
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * @param owner
+	 * @param target
+	 * @return true if the target is inside of the owner's max Cubic range
+	 */
+	public static boolean isInCubicRange(L2Character owner, L2Character target)
+	{
+		if ((owner == null) || (target == null))
+		{
+			return false;
+		}
+		
+		int x, y, z;
+		// temporary range check until real behavior of cubics is known/coded
+		int range = MAX_MAGIC_RANGE;
+		
+		x = (owner.getX() - target.getX());
+		y = (owner.getY() - target.getY());
+		z = (owner.getZ() - target.getZ());
+		
+		return (((x * x) + (y * y) + (z * z)) <= (range * range));
+	}
+	
+	/** this sets the friendly target for a cubic */
+	public void cubicTargetForHeal()
+	{
+		L2Character target = null;
+		double percentleft = 100.0;
+		L2Party party = _owner.getParty();
+		
+		// if owner is in a duel but not in a party duel, then it is the same as he does not have a party
+		if (_owner.isInDuel())
+		{
+			if (!DuelManager.getInstance().getDuel(_owner.getDuelId()).isPartyDuel())
+			{
+				party = null;
+			}
+		}
+		
+		if ((party != null) && !_owner.isInOlympiadMode())
+		{
+			// Get all visible objects in a spheric area near the L2Character
+			// Get a list of Party Members
+			for (L2Character partyMember : party.getMembers())
+			{
+				if (!partyMember.isDead())
+				{
+					// if party member not dead, check if he is in cast range of heal cubic
+					if (isInCubicRange(_owner, partyMember))
+					{
+						// member is in cubic casting range, check if he need heal and if he have
+						// the lowest HP
+						if (partyMember.getCurrentHp() < partyMember.getMaxHp())
+						{
+							if (percentleft > (partyMember.getCurrentHp() / partyMember.getMaxHp()))
+							{
+								percentleft = (partyMember.getCurrentHp() / partyMember.getMaxHp());
+								target = partyMember;
+							}
+						}
+					}
+				}
+				if (partyMember.getSummon() != null)
+				{
+					if (partyMember.getSummon().isDead())
+					{
+						continue;
+					}
+					
+					// If party member's pet not dead, check if it is in cast range of heal cubic.
+					if (!isInCubicRange(_owner, partyMember.getSummon()))
+					{
+						continue;
+					}
+					
+					// member's pet is in cubic casting range, check if he need heal and if he have
+					// the lowest HP
+					if (partyMember.getSummon().getCurrentHp() < partyMember.getSummon().getMaxHp())
+					{
+						if (percentleft > (partyMember.getSummon().getCurrentHp() / partyMember.getSummon().getMaxHp()))
+						{
+							percentleft = (partyMember.getSummon().getCurrentHp() / partyMember.getSummon().getMaxHp());
+							target = partyMember.getSummon();
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			if (_owner.getCurrentHp() < _owner.getMaxHp())
+			{
+				percentleft = (_owner.getCurrentHp() / _owner.getMaxHp());
+				target = _owner;
+			}
+			if (_owner.hasSummon())
+			{
+				if (!_owner.getSummon().isDead() && (_owner.getSummon().getCurrentHp() < _owner.getSummon().getMaxHp()) && (percentleft > (_owner.getSummon().getCurrentHp() / _owner.getSummon().getMaxHp())) && isInCubicRange(_owner, _owner.getSummon()))
+				{
+					target = _owner.getSummon();
+				}
+			}
+		}
+		
+		_target = target;
+	}
+	
+	public boolean givenByOther()
+	{
+		return _givenByOther;
 	}
 }

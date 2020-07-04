@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -53,14 +53,53 @@ public final class CHSiegeManager
 		loadClanHalls();
 	}
 	
-	public static CHSiegeManager getInstance()
+	private final void loadClanHalls()
 	{
-		return SingletonHolder._instance;
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement s = con.createStatement();
+			ResultSet rs = s.executeQuery(SQL_LOAD_HALLS))
+		{
+			_siegableHalls.clear();
+			
+			while (rs.next())
+			{
+				final int id = rs.getInt("clanHallId");
+				
+				StatsSet set = new StatsSet();
+				
+				set.set("id", id);
+				set.set("name", rs.getString("name"));
+				set.set("ownerId", rs.getInt("ownerId"));
+				set.set("desc", rs.getString("desc"));
+				set.set("location", rs.getString("location"));
+				set.set("nextSiege", rs.getLong("nextSiege"));
+				set.set("siegeLenght", rs.getLong("siegeLenght"));
+				set.set("scheduleConfig", rs.getString("schedule_config"));
+				SiegableHall hall = new SiegableHall(set);
+				_siegableHalls.put(id, hall);
+				ClanHallManager.addClanHall(hall);
+			}
+			_log.info(getClass().getSimpleName() + ": Loaded " + _siegableHalls.size() + " conquerable clan halls.");
+		}
+		catch (Exception e)
+		{
+			_log.warning("CHSiegeManager: Could not load siegable clan halls!:" + e.getMessage());
+		}
 	}
 	
 	public Map<Integer, SiegableHall> getConquerableHalls()
 	{
 		return _siegableHalls;
+	}
+	
+	public SiegableHall getSiegableHall(int clanHall)
+	{
+		return getConquerableHalls().get(clanHall);
+	}
+	
+	public final SiegableHall getNearbyClanHall(L2Character activeChar)
+	{
+		return getNearbyClanHall(activeChar.getX(), activeChar.getY(), 10000);
 	}
 	
 	public final SiegableHall getNearbyClanHall(int x, int y, int maxDist)
@@ -78,16 +117,6 @@ public final class CHSiegeManager
 		return null;
 	}
 	
-	public final SiegableHall getNearbyClanHall(L2Character activeChar)
-	{
-		return getNearbyClanHall(activeChar.getX(), activeChar.getY(), 10000);
-	}
-	
-	public SiegableHall getSiegableHall(int clanHall)
-	{
-		return getConquerableHalls().get(clanHall);
-	}
-	
 	public final ClanHallSiegeEngine getSiege(L2Character character)
 	{
 		SiegableHall hall = getNearbyClanHall(character);
@@ -96,32 +125,6 @@ public final class CHSiegeManager
 			return null;
 		}
 		return hall.getSiege();
-	}
-	
-	public final boolean isClanParticipating(L2Clan clan)
-	{
-		for (SiegableHall hall : getConquerableHalls().values())
-		{
-			if ((hall.getSiege() != null) && hall.getSiege().checkIsAttacker(clan))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public final void onServerShutDown()
-	{
-		for (SiegableHall hall : getConquerableHalls().values())
-		{
-			// Rainbow springs has his own attackers table
-			if ((hall.getId() == 62) || (hall.getSiege() == null))
-			{
-				continue;
-			}
-			
-			hall.getSiege().saveAttackers();
-		}
 	}
 	
 	public final void registerClan(L2Clan clan, SiegableHall hall, L2PcInstance player)
@@ -175,38 +178,35 @@ public final class CHSiegeManager
 		hall.removeAttacker(clan);
 	}
 	
-	private final void loadClanHalls()
+	public final boolean isClanParticipating(L2Clan clan)
 	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement s = con.createStatement();
-			ResultSet rs = s.executeQuery(SQL_LOAD_HALLS))
+		for (SiegableHall hall : getConquerableHalls().values())
 		{
-			_siegableHalls.clear();
-			
-			while (rs.next())
+			if ((hall.getSiege() != null) && hall.getSiege().checkIsAttacker(clan))
 			{
-				final int id = rs.getInt("clanHallId");
-				
-				StatsSet set = new StatsSet();
-				
-				set.set("id", id);
-				set.set("name", rs.getString("name"));
-				set.set("ownerId", rs.getInt("ownerId"));
-				set.set("desc", rs.getString("desc"));
-				set.set("location", rs.getString("location"));
-				set.set("nextSiege", rs.getLong("nextSiege"));
-				set.set("siegeLenght", rs.getLong("siegeLenght"));
-				set.set("scheduleConfig", rs.getString("schedule_config"));
-				SiegableHall hall = new SiegableHall(set);
-				_siegableHalls.put(id, hall);
-				ClanHallManager.addClanHall(hall);
+				return true;
 			}
-			_log.info(getClass().getSimpleName() + ": Loaded " + _siegableHalls.size() + " conquerable clan halls.");
 		}
-		catch (Exception e)
+		return false;
+	}
+	
+	public final void onServerShutDown()
+	{
+		for (SiegableHall hall : getConquerableHalls().values())
 		{
-			_log.warning("CHSiegeManager: Could not load siegable clan halls!:" + e.getMessage());
+			// Rainbow springs has his own attackers table
+			if ((hall.getId() == 62) || (hall.getSiege() == null))
+			{
+				continue;
+			}
+			
+			hall.getSiege().saveAttackers();
 		}
+	}
+	
+	public static CHSiegeManager getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static final class SingletonHolder

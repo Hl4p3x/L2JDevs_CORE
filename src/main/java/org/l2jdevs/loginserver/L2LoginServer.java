@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -31,6 +31,9 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import org.l2jdevs.mmocore.SelectorConfig;
+import org.l2jdevs.mmocore.SelectorThread;
+
 import org.l2jdevs.Config;
 import org.l2jdevs.Server;
 import org.l2jdevs.UPnPService;
@@ -38,8 +41,6 @@ import org.l2jdevs.commons.database.pool.impl.ConnectionFactory;
 import org.l2jdevs.loginserver.mail.MailSystem;
 import org.l2jdevs.loginserver.network.L2LoginClient;
 import org.l2jdevs.loginserver.network.L2LoginPacketHandler;
-import org.l2jdevs.mmocore.SelectorConfig;
-import org.l2jdevs.mmocore.SelectorThread;
 import org.l2jdevs.status.Status;
 
 /**
@@ -47,14 +48,24 @@ import org.l2jdevs.status.Status;
  */
 public final class L2LoginServer
 {
-	public static final int PROTOCOL_REV = 0x0106;
-	
-	private static L2LoginServer _instance;
 	private final Logger _log = Logger.getLogger(L2LoginServer.class.getName());
+	
+	public static final int PROTOCOL_REV = 0x0106;
+	private static L2LoginServer _instance;
 	private GameServerListener _gameServerListener;
 	private SelectorThread<L2LoginClient> _selectorThread;
 	private Status _statusServer;
 	private Thread _restartLoginServer;
+	
+	public static void main(String[] args)
+	{
+		new L2LoginServer();
+	}
+	
+	public static L2LoginServer getInstance()
+	{
+		return _instance;
+	}
 	
 	private L2LoginServer()
 	{
@@ -180,29 +191,14 @@ public final class L2LoginServer
 		UPnPService.getInstance();
 	}
 	
-	public static L2LoginServer getInstance()
-	{
-		return _instance;
-	}
-	
-	public static void main(String[] args)
-	{
-		new L2LoginServer();
-	}
-	
-	public GameServerListener getGameServerListener()
-	{
-		return _gameServerListener;
-	}
-	
 	public Status getStatusServer()
 	{
 		return _statusServer;
 	}
 	
-	public void shutdown(boolean restart)
+	public GameServerListener getGameServerListener()
 	{
-		Runtime.getRuntime().exit(restart ? 2 : 0);
+		return _gameServerListener;
 	}
 	
 	private void loadBanFile()
@@ -292,5 +288,10 @@ public final class L2LoginServer
 				shutdown(true);
 			}
 		}
+	}
+	
+	public void shutdown(boolean restart)
+	{
+		Runtime.getRuntime().exit(restart ? 2 : 0);
 	}
 }

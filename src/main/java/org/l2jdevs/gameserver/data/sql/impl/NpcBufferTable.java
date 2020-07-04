@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -37,6 +37,55 @@ public class NpcBufferTable
 	private static final Logger LOGGER = Logger.getLogger(NpcBufferTable.class.getName());
 	
 	private final Map<Integer, NpcBufferSkills> _buffers = new HashMap<>();
+	
+	public static class NpcBufferData
+	{
+		private final SkillHolder _skill;
+		private final ItemHolder _fee;
+		
+		protected NpcBufferData(int skillId, int skillLevel, int feeId, int feeAmount)
+		{
+			_skill = new SkillHolder(skillId, skillLevel);
+			_fee = new ItemHolder(feeId, feeAmount);
+		}
+		
+		public SkillHolder getSkill()
+		{
+			return _skill;
+		}
+		
+		public ItemHolder getFee()
+		{
+			return _fee;
+		}
+	}
+	
+	private static class NpcBufferSkills
+	{
+		private final int _npcId;
+		private final Map<Integer, NpcBufferData> _skills = new HashMap<>();
+		
+		protected NpcBufferSkills(int npcId)
+		{
+			_npcId = npcId;
+		}
+		
+		public void addSkill(int skillId, int skillLevel, int skillFeeId, int skillFeeAmount, int buffGroup)
+		{
+			_skills.put(buffGroup, new NpcBufferData(skillId, skillLevel, skillFeeId, skillFeeAmount));
+		}
+		
+		public NpcBufferData getSkillGroupInfo(int buffGroup)
+		{
+			return _skills.get(buffGroup);
+		}
+		
+		@SuppressWarnings("unused")
+		public int getNpcId()
+		{
+			return _npcId;
+		}
+	}
 	
 	protected NpcBufferTable()
 	{
@@ -134,11 +183,6 @@ public class NpcBufferTable
 		LOGGER.info(getClass().getSimpleName() + ": Loaded " + _buffers.size() + " buffers and " + skillCount + " skills.");
 	}
 	
-	public static NpcBufferTable getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
 	public NpcBufferData getSkillInfo(int npcId, int buffGroup)
 	{
 		final NpcBufferSkills skills = _buffers.get(npcId);
@@ -149,53 +193,9 @@ public class NpcBufferTable
 		return null;
 	}
 	
-	public static class NpcBufferData
+	public static NpcBufferTable getInstance()
 	{
-		private final SkillHolder _skill;
-		private final ItemHolder _fee;
-		
-		protected NpcBufferData(int skillId, int skillLevel, int feeId, int feeAmount)
-		{
-			_skill = new SkillHolder(skillId, skillLevel);
-			_fee = new ItemHolder(feeId, feeAmount);
-		}
-		
-		public ItemHolder getFee()
-		{
-			return _fee;
-		}
-		
-		public SkillHolder getSkill()
-		{
-			return _skill;
-		}
-	}
-	
-	private static class NpcBufferSkills
-	{
-		private final int _npcId;
-		private final Map<Integer, NpcBufferData> _skills = new HashMap<>();
-		
-		protected NpcBufferSkills(int npcId)
-		{
-			_npcId = npcId;
-		}
-		
-		public void addSkill(int skillId, int skillLevel, int skillFeeId, int skillFeeAmount, int buffGroup)
-		{
-			_skills.put(buffGroup, new NpcBufferData(skillId, skillLevel, skillFeeId, skillFeeAmount));
-		}
-		
-		@SuppressWarnings("unused")
-		public int getNpcId()
-		{
-			return _npcId;
-		}
-		
-		public NpcBufferData getSkillGroupInfo(int buffGroup)
-		{
-			return _skills.get(buffGroup);
-		}
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

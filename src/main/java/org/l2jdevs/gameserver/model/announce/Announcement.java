@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -60,35 +60,6 @@ public class Announcement implements IAnnouncement
 	}
 	
 	@Override
-	public boolean deleteMe()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(DELETE_QUERY))
-		{
-			ps.setInt(1, _id);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, getClass().getSimpleName() + ": Couldn't remove announcement: ", e);
-			return false;
-		}
-		return true;
-	}
-	
-	@Override
-	public String getAuthor()
-	{
-		return _author;
-	}
-	
-	@Override
-	public String getContent()
-	{
-		return _content;
-	}
-	
-	@Override
 	public int getId()
 	{
 		return _id;
@@ -101,15 +72,15 @@ public class Announcement implements IAnnouncement
 	}
 	
 	@Override
-	public boolean isValid()
+	public void setType(AnnouncementType type)
 	{
-		return true;
+		_type = type;
 	}
 	
 	@Override
-	public void setAuthor(String author)
+	public String getContent()
 	{
-		_author = author;
+		return _content;
 	}
 	
 	@Override
@@ -119,9 +90,21 @@ public class Announcement implements IAnnouncement
 	}
 	
 	@Override
-	public void setType(AnnouncementType type)
+	public String getAuthor()
 	{
-		_type = type;
+		return _author;
+	}
+	
+	@Override
+	public void setAuthor(String author)
+	{
+		_author = author;
+	}
+	
+	@Override
+	public boolean isValid()
+	{
+		return true;
 	}
 	
 	@Override
@@ -165,6 +148,23 @@ public class Announcement implements IAnnouncement
 		catch (Exception e)
 		{
 			_log.log(Level.WARNING, getClass().getSimpleName() + ": Couldn't store announcement: ", e);
+			return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public boolean deleteMe()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(DELETE_QUERY))
+		{
+			ps.setInt(1, _id);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, getClass().getSimpleName() + ": Couldn't remove announcement: ", e);
 			return false;
 		}
 		return true;

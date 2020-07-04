@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -30,9 +30,12 @@ public final class FlyToLocation extends L2GameServerPacket
 	private final int _chaObjId, _chaX, _chaY, _chaZ;
 	private final FlyType _type;
 	
-	public FlyToLocation(L2Character cha, ILocational dest, FlyType type)
+	public enum FlyType
 	{
-		this(cha, dest.getX(), dest.getY(), dest.getZ(), type);
+		THROW_UP,
+		THROW_HORIZONTAL,
+		DUMMY, // no effect
+		CHARGE;
 	}
 	
 	public FlyToLocation(L2Character cha, int destX, int destY, int destZ, FlyType type)
@@ -47,6 +50,11 @@ public final class FlyToLocation extends L2GameServerPacket
 		_type = type;
 	}
 	
+	public FlyToLocation(L2Character cha, ILocational dest, FlyType type)
+	{
+		this(cha, dest.getX(), dest.getY(), dest.getZ(), type);
+	}
+	
 	@Override
 	protected void writeImpl()
 	{
@@ -59,13 +67,5 @@ public final class FlyToLocation extends L2GameServerPacket
 		writeD(_chaY);
 		writeD(_chaZ);
 		writeD(_type.ordinal());
-	}
-	
-	public enum FlyType
-	{
-		THROW_UP,
-		THROW_HORIZONTAL,
-		DUMMY, // no effect
-		CHARGE;
 	}
 }

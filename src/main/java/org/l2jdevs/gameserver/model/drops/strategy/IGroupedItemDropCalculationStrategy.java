@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  *
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  *
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -42,6 +42,14 @@ public interface IGroupedItemDropCalculationStrategy
 	public static final IGroupedItemDropCalculationStrategy DEFAULT_STRATEGY = new IGroupedItemDropCalculationStrategy()
 	{
 		private final Map<GroupedGeneralDropItem, GeneralDropItem> singleItemCache = new ConcurrentHashMap<>();
+		
+		private GeneralDropItem getSingleItem(GroupedGeneralDropItem dropItem)
+		{
+			final GeneralDropItem item1 = dropItem.getItems().iterator().next();
+			singleItemCache.putIfAbsent(dropItem, new GeneralDropItem(item1.getItemId(), item1.getMin(), item1.getMax(), (item1.getChance() * dropItem.getChance())
+				/ 100, item1.getAmountStrategy(), item1.getChanceStrategy(), dropItem.getPreciseStrategy(), dropItem.getKillerChanceModifierStrategy(), item1.getDropCalculationStrategy()));
+			return singleItemCache.get(dropItem);
+		}
 		
 		@Override
 		public List<ItemHolder> calculateDrops(GroupedGeneralDropItem dropItem, L2Character victim, L2Character killer)
@@ -77,14 +85,6 @@ public interface IGroupedItemDropCalculationStrategy
 				}
 			}
 			return null;
-		}
-		
-		private GeneralDropItem getSingleItem(GroupedGeneralDropItem dropItem)
-		{
-			final GeneralDropItem item1 = dropItem.getItems().iterator().next();
-			singleItemCache.putIfAbsent(dropItem, new GeneralDropItem(item1.getItemId(), item1.getMin(), item1.getMax(), (item1.getChance() * dropItem.getChance())
-				/ 100, item1.getAmountStrategy(), item1.getChanceStrategy(), dropItem.getPreciseStrategy(), dropItem.getKillerChanceModifierStrategy(), item1.getDropCalculationStrategy()));
-			return singleItemCache.get(dropItem);
 		}
 	};
 	

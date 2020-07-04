@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -105,50 +105,6 @@ public class Couple
 		}
 	}
 	
-	public void divorce()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM mods_wedding WHERE id=?"))
-		{
-			ps.setInt(1, _Id);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.SEVERE, "Exception: Couple.divorce(): " + e.getMessage(), e);
-		}
-	}
-	
-	public final Calendar getAffiancedDate()
-	{
-		return _affiancedDate;
-	}
-	
-	public final int getId()
-	{
-		return _Id;
-	}
-	
-	public final boolean getMaried()
-	{
-		return _maried;
-	}
-	
-	public final int getPlayer1Id()
-	{
-		return _player1Id;
-	}
-	
-	public final int getPlayer2Id()
-	{
-		return _player2Id;
-	}
-	
-	public final Calendar getWeddingDate()
-	{
-		return _weddingDate;
-	}
-	
 	public void marry()
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -165,5 +121,49 @@ public class Couple
 		{
 			_log.log(Level.SEVERE, "Could not marry: " + e.getMessage(), e);
 		}
+	}
+	
+	public void divorce()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM mods_wedding WHERE id=?"))
+		{
+			ps.setInt(1, _Id);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.SEVERE, "Exception: Couple.divorce(): " + e.getMessage(), e);
+		}
+	}
+	
+	public final int getId()
+	{
+		return _Id;
+	}
+	
+	public final int getPlayer1Id()
+	{
+		return _player1Id;
+	}
+	
+	public final int getPlayer2Id()
+	{
+		return _player2Id;
+	}
+	
+	public final boolean getMaried()
+	{
+		return _maried;
+	}
+	
+	public final Calendar getAffiancedDate()
+	{
+		return _affiancedDate;
+	}
+	
+	public final Calendar getWeddingDate()
+	{
+		return _weddingDate;
 	}
 }

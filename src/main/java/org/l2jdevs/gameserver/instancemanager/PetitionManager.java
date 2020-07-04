@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -53,13 +53,20 @@ public final class PetitionManager
 		_completedPetitions = new HashMap<>();
 	}
 	
-	/**
-	 * Gets the single instance of {@code PetitionManager}.
-	 * @return single instance of {@code PetitionManager}
-	 */
-	public static final PetitionManager getInstance()
+	public void clearCompletedPetitions()
 	{
-		return SingletonHolder._instance;
+		final int numPetitions = getPendingPetitionCount();
+		
+		getCompletedPetitions().clear();
+		_log.info(getClass().getSimpleName() + ": Completed petition data cleared. " + numPetitions + " petition(s) removed.");
+	}
+	
+	public void clearPendingPetitions()
+	{
+		final int numPetitions = getPendingPetitionCount();
+		
+		getPendingPetitions().clear();
+		_log.info(getClass().getSimpleName() + ": Pending petition queue cleared. " + numPetitions + " petition(s) removed.");
 	}
 	
 	public boolean acceptPetition(L2PcInstance respondingAdmin, int petitionId)
@@ -139,22 +146,6 @@ public final class PetitionManager
 		}
 	}
 	
-	public void clearCompletedPetitions()
-	{
-		final int numPetitions = getPendingPetitionCount();
-		
-		getCompletedPetitions().clear();
-		_log.info(getClass().getSimpleName() + ": Completed petition data cleared. " + numPetitions + " petition(s) removed.");
-	}
-	
-	public void clearPendingPetitions()
-	{
-		final int numPetitions = getPendingPetitionCount();
-		
-		getPendingPetitions().clear();
-		_log.info(getClass().getSimpleName() + ": Pending petition queue cleared. " + numPetitions + " petition(s) removed.");
-	}
-	
 	public boolean endActivePetition(L2PcInstance player)
 	{
 		if (!player.isGM())
@@ -183,14 +174,14 @@ public final class PetitionManager
 		return _completedPetitions;
 	}
 	
-	public int getPendingPetitionCount()
-	{
-		return getPendingPetitions().size();
-	}
-	
 	public Map<Integer, Petition> getPendingPetitions()
 	{
 		return _pendingPetitions;
+	}
+	
+	public int getPendingPetitionCount()
+	{
+		return getPendingPetitions().size();
 	}
 	
 	public int getPlayerTotalPetitionCount(L2PcInstance player)
@@ -229,11 +220,6 @@ public final class PetitionManager
 		}
 		
 		return petitionCount;
-	}
-	
-	public boolean isPetitioningAllowed()
-	{
-		return Config.PETITIONING_ALLOWED;
 	}
 	
 	public boolean isPetitionInProcess()
@@ -291,6 +277,11 @@ public final class PetitionManager
 		return false;
 	}
 	
+	public boolean isPetitioningAllowed()
+	{
+		return Config.PETITIONING_ALLOWED;
+	}
+	
 	public boolean isPlayerPetitionPending(L2PcInstance petitioner)
 	{
 		if (petitioner != null)
@@ -310,6 +301,11 @@ public final class PetitionManager
 		}
 		
 		return false;
+	}
+	
+	private boolean isValidPetition(int petitionId)
+	{
+		return getPendingPetitions().containsKey(petitionId);
 	}
 	
 	public boolean rejectPetition(L2PcInstance respondingAdmin, int petitionId)
@@ -466,9 +462,13 @@ public final class PetitionManager
 		activeChar.sendPacket(html);
 	}
 	
-	private boolean isValidPetition(int petitionId)
+	/**
+	 * Gets the single instance of {@code PetitionManager}.
+	 * @return single instance of {@code PetitionManager}
+	 */
+	public static final PetitionManager getInstance()
 	{
-		return getPendingPetitions().containsKey(petitionId);
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

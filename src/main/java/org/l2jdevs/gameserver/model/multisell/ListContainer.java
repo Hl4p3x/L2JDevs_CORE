@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -41,20 +41,6 @@ public class ListContainer
 		_listId = listId;
 	}
 	
-	public void allowNpc(int npcId)
-	{
-		if (_npcsAllowed == null)
-		{
-			_npcsAllowed = new HashSet<>();
-		}
-		_npcsAllowed.add(npcId);
-	}
-	
-	public final boolean getApplyTaxes()
-	{
-		return _applyTaxes;
-	}
-	
 	public final List<Entry> getEntries()
 	{
 		return _entries;
@@ -65,34 +51,24 @@ public class ListContainer
 		return _listId;
 	}
 	
-	public final boolean getMaintainEnchantment()
-	{
-		return _maintainEnchantment;
-	}
-	
-	public double getUseRate()
-	{
-		return _useRate;
-	}
-	
-	public boolean isNpcAllowed(int npcId)
-	{
-		return (_npcsAllowed == null) || _npcsAllowed.contains(npcId);
-	}
-	
-	public boolean isNpcOnly()
-	{
-		return _npcsAllowed != null;
-	}
-	
 	public final void setApplyTaxes(boolean applyTaxes)
 	{
 		_applyTaxes = applyTaxes;
 	}
 	
+	public final boolean getApplyTaxes()
+	{
+		return _applyTaxes;
+	}
+	
 	public final void setMaintainEnchantment(boolean maintainEnchantment)
 	{
 		_maintainEnchantment = maintainEnchantment;
+	}
+	
+	public double getUseRate()
+	{
+		return _useRate;
 	}
 	
 	/**
@@ -103,5 +79,29 @@ public class ListContainer
 	public void setUseRate(double rate)
 	{
 		_useRate = rate;
+	}
+	
+	public final boolean getMaintainEnchantment()
+	{
+		return _maintainEnchantment;
+	}
+	
+	public void allowNpc(int npcId)
+	{
+		if (_npcsAllowed == null)
+		{
+			_npcsAllowed = new HashSet<>();
+		}
+		_npcsAllowed.add(npcId);
+	}
+	
+	public boolean isNpcAllowed(int npcId)
+	{
+		return (_npcsAllowed == null) || _npcsAllowed.contains(npcId);
+	}
+	
+	public boolean isNpcOnly()
+	{
+		return _npcsAllowed != null;
 	}
 }

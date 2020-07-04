@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -36,16 +36,34 @@ public class PlaySound extends L2GameServerPacket
 	// Only for Music and Voice
 	private final int _delay;
 	
-	private PlaySound(int type, String soundFile, int radius)
+	public static PlaySound createSound(String soundName)
 	{
-		_type = type;
-		_soundFile = soundFile;
-		_bindToObject = 0;
-		_objectId = 0;
-		_locX = 0;
-		_locY = 0;
-		_locZ = 0;
-		_delay = radius;
+		return new PlaySound(soundName);
+	}
+	
+	public static PlaySound createSound(String soundName, L2Object obj)
+	{
+		return new PlaySound(soundName, obj);
+	}
+	
+	public static PlaySound createMusic(String soundName)
+	{
+		return createMusic(soundName, 0);
+	}
+	
+	public static PlaySound createMusic(String soundName, int delay)
+	{
+		return new PlaySound(1, soundName, delay);
+	}
+	
+	public static PlaySound createVoice(String soundName)
+	{
+		return createVoice(soundName, 0);
+	}
+	
+	public static PlaySound createVoice(String soundName, int delay)
+	{
+		return new PlaySound(2, soundName, delay);
 	}
 	
 	private PlaySound(String soundFile)
@@ -83,34 +101,16 @@ public class PlaySound extends L2GameServerPacket
 		_delay = 0;
 	}
 	
-	public static PlaySound createMusic(String soundName)
+	private PlaySound(int type, String soundFile, int radius)
 	{
-		return createMusic(soundName, 0);
-	}
-	
-	public static PlaySound createMusic(String soundName, int delay)
-	{
-		return new PlaySound(1, soundName, delay);
-	}
-	
-	public static PlaySound createSound(String soundName)
-	{
-		return new PlaySound(soundName);
-	}
-	
-	public static PlaySound createSound(String soundName, L2Object obj)
-	{
-		return new PlaySound(soundName, obj);
-	}
-	
-	public static PlaySound createVoice(String soundName)
-	{
-		return createVoice(soundName, 0);
-	}
-	
-	public static PlaySound createVoice(String soundName, int delay)
-	{
-		return new PlaySound(2, soundName, delay);
+		_type = type;
+		_soundFile = soundFile;
+		_bindToObject = 0;
+		_objectId = 0;
+		_locX = 0;
+		_locY = 0;
+		_locZ = 0;
+		_delay = radius;
 	}
 	
 	public String getSoundName()

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -57,6 +57,32 @@ public final class ConditionSiegeZone extends Condition
 	{
 		_value = value;
 		_self = self;
+	}
+	
+	@Override
+	public boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item)
+	{
+		L2Character target = _self ? effector : effected;
+		Castle castle = CastleManager.getInstance().getCastle(target);
+		Fort fort = FortManager.getInstance().getFort(target);
+		
+		if (((_value & COND_TW_PROGRESS) != 0) && !TerritoryWarManager.getInstance().isTWInProgress())
+		{
+			return false;
+		}
+		else if (((_value & COND_TW_CHANNEL) != 0) && !TerritoryWarManager.getInstance().isTWChannelOpen())
+		{
+			return false;
+		}
+		else if ((castle == null) && (fort == null))
+		{
+			return (_value & COND_NOT_ZONE) != 0;
+		}
+		if (castle != null)
+		{
+			return checkIfOk(target, castle, _value);
+		}
+		return checkIfOk(target, fort, _value);
 	}
 	
 	/**
@@ -149,32 +175,6 @@ public final class ConditionSiegeZone extends Condition
 		}
 		
 		return false;
-	}
-	
-	@Override
-	public boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item)
-	{
-		L2Character target = _self ? effector : effected;
-		Castle castle = CastleManager.getInstance().getCastle(target);
-		Fort fort = FortManager.getInstance().getFort(target);
-		
-		if (((_value & COND_TW_PROGRESS) != 0) && !TerritoryWarManager.getInstance().isTWInProgress())
-		{
-			return false;
-		}
-		else if (((_value & COND_TW_CHANNEL) != 0) && !TerritoryWarManager.getInstance().isTWChannelOpen())
-		{
-			return false;
-		}
-		else if ((castle == null) && (fort == null))
-		{
-			return (_value & COND_NOT_ZONE) != 0;
-		}
-		if (castle != null)
-		{
-			return checkIfOk(target, castle, _value);
-		}
-		return checkIfOk(target, fort, _value);
 	}
 	
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -195,21 +195,6 @@ public final class StringUtil
 	}
 	
 	/**
-	 * Appends strings to existing string builder.
-	 * @param sbString string builder
-	 * @param strings strings to be appended
-	 */
-	public static void append(final StringBuilder sbString, final String... strings)
-	{
-		sbString.ensureCapacity(sbString.length() + getLength(strings));
-		
-		for (final String string : strings)
-		{
-			sbString.append(string);
-		}
-	}
-	
-	/**
 	 * Concatenates strings.
 	 * @param strings strings to be concatenated
 	 * @return concatenated string
@@ -222,6 +207,38 @@ public final class StringUtil
 			sbString.append(string);
 		}
 		return sbString.toString();
+	}
+	
+	/**
+	 * Creates new string builder with size initializated to <code>sizeHint</code>, unless total length of strings is greater than <code>sizeHint</code>.
+	 * @param sizeHint hint for string builder size allocation
+	 * @param strings strings to be appended
+	 * @return created string builder
+	 */
+	public static StringBuilder startAppend(final int sizeHint, final String... strings)
+	{
+		final int length = getLength(strings);
+		final StringBuilder sbString = new StringBuilder(sizeHint > length ? sizeHint : length);
+		for (final String string : strings)
+		{
+			sbString.append(string);
+		}
+		return sbString;
+	}
+	
+	/**
+	 * Appends strings to existing string builder.
+	 * @param sbString string builder
+	 * @param strings strings to be appended
+	 */
+	public static void append(final StringBuilder sbString, final String... strings)
+	{
+		sbString.ensureCapacity(sbString.length() + getLength(strings));
+		
+		for (final String string : strings)
+		{
+			sbString.append(string);
+		}
 	}
 	
 	public static int getLength(final Iterable<String> strings)
@@ -257,22 +274,5 @@ public final class StringUtil
 			sbString.append(element.toString()).append(Config.EOL);
 		}
 		return sbString.toString();
-	}
-	
-	/**
-	 * Creates new string builder with size initializated to <code>sizeHint</code>, unless total length of strings is greater than <code>sizeHint</code>.
-	 * @param sizeHint hint for string builder size allocation
-	 * @param strings strings to be appended
-	 * @return created string builder
-	 */
-	public static StringBuilder startAppend(final int sizeHint, final String... strings)
-	{
-		final int length = getLength(strings);
-		final StringBuilder sbString = new StringBuilder(sizeHint > length ? sizeHint : length);
-		for (final String string : strings)
-		{
-			sbString.append(string);
-		}
-		return sbString;
 	}
 }

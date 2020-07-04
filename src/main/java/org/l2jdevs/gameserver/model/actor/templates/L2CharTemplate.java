@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -92,365 +92,6 @@ public class L2CharTemplate extends ListenersContainer
 		set(set);
 	}
 	
-	/**
-	 * @return the baseAtkRange
-	 */
-	public int getBaseAttackRange()
-	{
-		return _baseAttackRange;
-	}
-	
-	/**
-	 * @return the base attack type (Sword, Fist, Blunt, etc..)
-	 */
-	public WeaponType getBaseAttackType()
-	{
-		return _baseAttackType;
-	}
-	
-	/**
-	 * @return the baseBreath
-	 */
-	public int getBaseBreath()
-	{
-		return _baseBreath;
-	}
-	
-	/**
-	 * @return the baseCON
-	 */
-	public int getBaseCON()
-	{
-		return _baseCON;
-	}
-	
-	/**
-	 * @return the baseCpMax
-	 */
-	public float getBaseCpMax()
-	{
-		return _baseCpMax;
-	}
-	
-	/**
-	 * @return the baseCritRate
-	 */
-	public int getBaseCritRate()
-	{
-		return _baseCritRate;
-	}
-	
-	/**
-	 * @return the _baseDark
-	 */
-	public int getBaseDark()
-	{
-		return _baseDark;
-	}
-	
-	/**
-	 * @return the _baseDarkRes
-	 */
-	public double getBaseDarkRes()
-	{
-		return _baseDarkRes;
-	}
-	
-	/**
-	 * @return the baseDEX
-	 */
-	public int getBaseDEX()
-	{
-		return _baseDEX;
-	}
-	
-	/**
-	 * @return the _baseEarth
-	 */
-	public int getBaseEarth()
-	{
-		return _baseEarth;
-	}
-	
-	/**
-	 * @return the _baseEarthRes
-	 */
-	public double getBaseEarthRes()
-	{
-		return _baseEarthRes;
-	}
-	
-	/**
-	 * @return the _baseElementRes
-	 */
-	public double getBaseElementRes()
-	{
-		return _baseElementRes;
-	}
-	
-	/**
-	 * @return the _baseFire
-	 */
-	public int getBaseFire()
-	{
-		return _baseFire;
-	}
-	
-	/**
-	 * @return the _baseFireRes
-	 */
-	public double getBaseFireRes()
-	{
-		return _baseFireRes;
-	}
-	
-	/**
-	 * @return the _baseHoly
-	 */
-	public int getBaseHoly()
-	{
-		return _baseHoly;
-	}
-	
-	/**
-	 * @return the _baseHolyRes
-	 */
-	public double getBaseHolyRes()
-	{
-		return _baseHolyRes;
-	}
-	
-	/**
-	 * @return the baseHpMax
-	 */
-	public float getBaseHpMax()
-	{
-		return _baseHpMax;
-	}
-	
-	/**
-	 * @return the baseHpReg
-	 */
-	public float getBaseHpReg()
-	{
-		return _baseHpReg;
-	}
-	
-	/**
-	 * @return the baseINT
-	 */
-	public int getBaseINT()
-	{
-		return _baseINT;
-	}
-	
-	/**
-	 * @return the baseMAtk
-	 */
-	public int getBaseMAtk()
-	{
-		return _baseMAtk;
-	}
-	
-	/**
-	 * @return the baseMAtkSpd
-	 */
-	public int getBaseMAtkSpd()
-	{
-		return _baseMAtkSpd;
-	}
-	
-	/**
-	 * @return the baseMCritRate
-	 */
-	public int getBaseMCritRate()
-	{
-		return _baseMCritRate;
-	}
-	
-	/**
-	 * @return the baseMDef
-	 */
-	public int getBaseMDef()
-	{
-		return _baseMDef;
-	}
-	
-	/**
-	 * @return the baseMEN
-	 */
-	public int getBaseMEN()
-	{
-		return _baseMEN;
-	}
-	
-	public double getBaseMoveSpeed(MoveType mt)
-	{
-		return _moveType[mt.ordinal()];
-	}
-	
-	/**
-	 * @return the baseMpMax
-	 */
-	public float getBaseMpMax()
-	{
-		return _baseMpMax;
-	}
-	
-	/**
-	 * @return the baseMpReg
-	 */
-	public float getBaseMpReg()
-	{
-		return _baseMpReg;
-	}
-	
-	/**
-	 * @return the basePAtk
-	 */
-	public int getBasePAtk()
-	{
-		return _basePAtk;
-	}
-	
-	/**
-	 * @return the basePAtkSpd
-	 */
-	public int getBasePAtkSpd()
-	{
-		return _basePAtkSpd;
-	}
-	
-	/**
-	 * @return the basePDef
-	 */
-	public int getBasePDef()
-	{
-		return _basePDef;
-	}
-	
-	/**
-	 * @return the baseShldDef
-	 */
-	public int getBaseShldDef()
-	{
-		return _baseShldDef;
-	}
-	
-	/**
-	 * @return the baseShldRate
-	 */
-	public int getBaseShldRate()
-	{
-		return _baseShldRate;
-	}
-	
-	/**
-	 * @return the baseSTR
-	 */
-	public int getBaseSTR()
-	{
-		return _baseSTR;
-	}
-	
-	/**
-	 * @return the _baseWater
-	 */
-	public int getBaseWater()
-	{
-		return _baseWater;
-	}
-	
-	/**
-	 * @return the _baseWaterRes
-	 */
-	public double getBaseWaterRes()
-	{
-		return _baseWaterRes;
-	}
-	
-	/**
-	 * @return the _baseWind
-	 */
-	public int getBaseWind()
-	{
-		return _baseWind;
-	}
-	
-	/**
-	 * @return the _baseWindRes
-	 */
-	public double getBaseWindRes()
-	{
-		return _baseWindRes;
-	}
-	
-	/**
-	 * @return the baseWIT
-	 */
-	public int getBaseWIT()
-	{
-		return _baseWIT;
-	}
-	
-	/**
-	 * @return the collisionHeight
-	 */
-	public int getCollisionHeight()
-	{
-		return _collisionHeight;
-	}
-	
-	/**
-	 * @return the collisionRadius
-	 */
-	public int getCollisionRadius()
-	{
-		return _collisionRadius;
-	}
-	
-	/**
-	 * @return the fCollisionHeight
-	 */
-	public double getfCollisionHeight()
-	{
-		return _fCollisionHeight;
-	}
-	
-	/**
-	 * @return the fCollisionRadius
-	 */
-	public double getfCollisionRadius()
-	{
-		return _fCollisionRadius;
-	}
-	
-	/**
-	 * Gets the craeture's race.
-	 * @return the race
-	 */
-	public Race getRace()
-	{
-		return _race;
-	}
-	
-	/**
-	 * @return the random damage
-	 */
-	public int getRandomDamage()
-	{
-		return _randomDamage;
-	}
-	
-	/**
-	 * Overridden in L2NpcTemplate
-	 * @return the characters skills
-	 */
-	public Map<Integer, Skill> getSkills()
-	{
-		return Collections.emptyMap();
-	}
-	
 	public void set(StatsSet set)
 	{
 		// Base stats
@@ -512,12 +153,445 @@ public class L2CharTemplate extends ListenersContainer
 	}
 	
 	/**
-	 * Sets base attack range.
-	 * @param val
+	 * @return the baseHpMax
 	 */
-	public void setBaseAttackRange(int val)
+	public float getBaseHpMax()
 	{
-		_baseAttackRange = val;
+		return _baseHpMax;
+	}
+	
+	/**
+	 * @return the _baseFire
+	 */
+	public int getBaseFire()
+	{
+		return _baseFire;
+	}
+	
+	/**
+	 * @return the _baseWind
+	 */
+	public int getBaseWind()
+	{
+		return _baseWind;
+	}
+	
+	/**
+	 * @return the _baseWater
+	 */
+	public int getBaseWater()
+	{
+		return _baseWater;
+	}
+	
+	/**
+	 * @return the _baseEarth
+	 */
+	public int getBaseEarth()
+	{
+		return _baseEarth;
+	}
+	
+	/**
+	 * @return the _baseHoly
+	 */
+	public int getBaseHoly()
+	{
+		return _baseHoly;
+	}
+	
+	/**
+	 * @return the _baseDark
+	 */
+	public int getBaseDark()
+	{
+		return _baseDark;
+	}
+	
+	/**
+	 * @return the _baseFireRes
+	 */
+	public double getBaseFireRes()
+	{
+		return _baseFireRes;
+	}
+	
+	/**
+	 * @return the _baseWindRes
+	 */
+	public double getBaseWindRes()
+	{
+		return _baseWindRes;
+	}
+	
+	/**
+	 * @return the _baseWaterRes
+	 */
+	public double getBaseWaterRes()
+	{
+		return _baseWaterRes;
+	}
+	
+	/**
+	 * @return the _baseEarthRes
+	 */
+	public double getBaseEarthRes()
+	{
+		return _baseEarthRes;
+	}
+	
+	/**
+	 * @return the _baseHolyRes
+	 */
+	public double getBaseHolyRes()
+	{
+		return _baseHolyRes;
+	}
+	
+	/**
+	 * @return the _baseDarkRes
+	 */
+	public double getBaseDarkRes()
+	{
+		return _baseDarkRes;
+	}
+	
+	/**
+	 * @return the _baseElementRes
+	 */
+	public double getBaseElementRes()
+	{
+		return _baseElementRes;
+	}
+	
+	/**
+	 * @return the baseSTR
+	 */
+	public int getBaseSTR()
+	{
+		return _baseSTR;
+	}
+	
+	/**
+	 * @return the baseCON
+	 */
+	public int getBaseCON()
+	{
+		return _baseCON;
+	}
+	
+	/**
+	 * @return the baseDEX
+	 */
+	public int getBaseDEX()
+	{
+		return _baseDEX;
+	}
+	
+	/**
+	 * @return the baseINT
+	 */
+	public int getBaseINT()
+	{
+		return _baseINT;
+	}
+	
+	/**
+	 * @return the baseWIT
+	 */
+	public int getBaseWIT()
+	{
+		return _baseWIT;
+	}
+	
+	/**
+	 * @return the baseMEN
+	 */
+	public int getBaseMEN()
+	{
+		return _baseMEN;
+	}
+	
+	/**
+	 * @return the baseCpMax
+	 */
+	public float getBaseCpMax()
+	{
+		return _baseCpMax;
+	}
+	
+	/**
+	 * @return the baseMpMax
+	 */
+	public float getBaseMpMax()
+	{
+		return _baseMpMax;
+	}
+	
+	/**
+	 * @return the baseHpReg
+	 */
+	public float getBaseHpReg()
+	{
+		return _baseHpReg;
+	}
+	
+	/**
+	 * @return the baseMpReg
+	 */
+	public float getBaseMpReg()
+	{
+		return _baseMpReg;
+	}
+	
+	/**
+	 * @return the basePAtk
+	 */
+	public int getBasePAtk()
+	{
+		return _basePAtk;
+	}
+	
+	/**
+	 * @return the baseMAtk
+	 */
+	public int getBaseMAtk()
+	{
+		return _baseMAtk;
+	}
+	
+	/**
+	 * @return the basePDef
+	 */
+	public int getBasePDef()
+	{
+		return _basePDef;
+	}
+	
+	/**
+	 * @return the baseMDef
+	 */
+	public int getBaseMDef()
+	{
+		return _baseMDef;
+	}
+	
+	/**
+	 * @return the basePAtkSpd
+	 */
+	public int getBasePAtkSpd()
+	{
+		return _basePAtkSpd;
+	}
+	
+	/**
+	 * @return the baseMAtkSpd
+	 */
+	public int getBaseMAtkSpd()
+	{
+		return _baseMAtkSpd;
+	}
+	
+	/**
+	 * @return the random damage
+	 */
+	public int getRandomDamage()
+	{
+		return _randomDamage;
+	}
+	
+	/**
+	 * @return the baseShldDef
+	 */
+	public int getBaseShldDef()
+	{
+		return _baseShldDef;
+	}
+	
+	/**
+	 * @return the baseShldRate
+	 */
+	public int getBaseShldRate()
+	{
+		return _baseShldRate;
+	}
+	
+	/**
+	 * @return the baseCritRate
+	 */
+	public int getBaseCritRate()
+	{
+		return _baseCritRate;
+	}
+	
+	/**
+	 * @return the baseMCritRate
+	 */
+	public int getBaseMCritRate()
+	{
+		return _baseMCritRate;
+	}
+	
+	public void setBaseMoveSpeed(MoveType type, double val)
+	{
+		_moveType[type.ordinal()] = val;
+	}
+	
+	public double getBaseMoveSpeed(MoveType mt)
+	{
+		return _moveType[mt.ordinal()];
+	}
+	
+	/**
+	 * @return the baseBreath
+	 */
+	public int getBaseBreath()
+	{
+		return _baseBreath;
+	}
+	
+	/**
+	 * @return the collisionRadius
+	 */
+	public int getCollisionRadius()
+	{
+		return _collisionRadius;
+	}
+	
+	/**
+	 * @return the collisionHeight
+	 */
+	public int getCollisionHeight()
+	{
+		return _collisionHeight;
+	}
+	
+	/**
+	 * @return the fCollisionRadius
+	 */
+	public double getfCollisionRadius()
+	{
+		return _fCollisionRadius;
+	}
+	
+	/**
+	 * @return the fCollisionHeight
+	 */
+	public double getfCollisionHeight()
+	{
+		return _fCollisionHeight;
+	}
+	
+	/**
+	 * @param baseFire the baseFire to set
+	 */
+	public void setBaseFire(int baseFire)
+	{
+		_baseFire = baseFire;
+	}
+	
+	/**
+	 * @param baseWater the baseWater to set
+	 */
+	public void setBaseWater(int baseWater)
+	{
+		_baseWater = baseWater;
+	}
+	
+	/**
+	 * @param baseEarth the baseEarth to set
+	 */
+	public void setBaseEarth(int baseEarth)
+	{
+		_baseEarth = baseEarth;
+	}
+	
+	/**
+	 * @param baseWind the baseWind to set
+	 */
+	public void setBaseWind(int baseWind)
+	{
+		_baseWind = baseWind;
+	}
+	
+	/**
+	 * @param baseHoly the baseHoly to set
+	 */
+	public void setBaseHoly(int baseHoly)
+	{
+		_baseHoly = baseHoly;
+	}
+	
+	/**
+	 * @param baseDark the baseDark to set
+	 */
+	public void setBaseDark(int baseDark)
+	{
+		_baseDark = baseDark;
+	}
+	
+	/**
+	 * @param baseFireRes the baseFireRes to set
+	 */
+	public void setBaseFireRes(double baseFireRes)
+	{
+		_baseFireRes = baseFireRes;
+	}
+	
+	/**
+	 * @param baseWaterRes the baseWaterRes to set
+	 */
+	public void setBaseWaterRes(double baseWaterRes)
+	{
+		_baseWaterRes = baseWaterRes;
+	}
+	
+	/**
+	 * @param baseEarthRes the baseEarthRes to set
+	 */
+	public void setBaseEarthRes(double baseEarthRes)
+	{
+		_baseEarthRes = baseEarthRes;
+	}
+	
+	/**
+	 * @param baseWindRes the baseWindRes to set
+	 */
+	public void setBaseWindRes(double baseWindRes)
+	{
+		_baseWindRes = baseWindRes;
+	}
+	
+	/**
+	 * @param baseHolyRes the baseHolyRes to set
+	 */
+	public void setBaseHolyRes(double baseHolyRes)
+	{
+		_baseHolyRes = baseHolyRes;
+	}
+	
+	/**
+	 * @param baseDarkRes the baseDarkRes to set
+	 */
+	public void setBaseDarkRes(double baseDarkRes)
+	{
+		_baseDarkRes = baseDarkRes;
+	}
+	
+	/**
+	 * @param baseElementRes
+	 */
+	public void setBaseElementRes(double baseElementRes)
+	{
+		_baseElementRes = baseElementRes;
+	}
+	
+	/**
+	 * @return the base attack type (Sword, Fist, Blunt, etc..)
+	 */
+	public WeaponType getBaseAttackType()
+	{
+		return _baseAttackType;
 	}
 	
 	/**
@@ -530,112 +604,38 @@ public class L2CharTemplate extends ListenersContainer
 	}
 	
 	/**
-	 * @param baseDark the baseDark to set
+	 * @return the baseAtkRange
 	 */
-	public void setBaseDark(int baseDark)
+	public int getBaseAttackRange()
 	{
-		_baseDark = baseDark;
+		return _baseAttackRange;
 	}
 	
 	/**
-	 * @param baseDarkRes the baseDarkRes to set
+	 * Sets base attack range.
+	 * @param val
 	 */
-	public void setBaseDarkRes(double baseDarkRes)
+	public void setBaseAttackRange(int val)
 	{
-		_baseDarkRes = baseDarkRes;
+		_baseAttackRange = val;
 	}
 	
 	/**
-	 * @param baseEarth the baseEarth to set
+	 * Overridden in L2NpcTemplate
+	 * @return the characters skills
 	 */
-	public void setBaseEarth(int baseEarth)
+	public Map<Integer, Skill> getSkills()
 	{
-		_baseEarth = baseEarth;
+		return Collections.emptyMap();
 	}
 	
 	/**
-	 * @param baseEarthRes the baseEarthRes to set
+	 * Gets the craeture's race.
+	 * @return the race
 	 */
-	public void setBaseEarthRes(double baseEarthRes)
+	public Race getRace()
 	{
-		_baseEarthRes = baseEarthRes;
-	}
-	
-	/**
-	 * @param baseElementRes
-	 */
-	public void setBaseElementRes(double baseElementRes)
-	{
-		_baseElementRes = baseElementRes;
-	}
-	
-	/**
-	 * @param baseFire the baseFire to set
-	 */
-	public void setBaseFire(int baseFire)
-	{
-		_baseFire = baseFire;
-	}
-	
-	/**
-	 * @param baseFireRes the baseFireRes to set
-	 */
-	public void setBaseFireRes(double baseFireRes)
-	{
-		_baseFireRes = baseFireRes;
-	}
-	
-	/**
-	 * @param baseHoly the baseHoly to set
-	 */
-	public void setBaseHoly(int baseHoly)
-	{
-		_baseHoly = baseHoly;
-	}
-	
-	/**
-	 * @param baseHolyRes the baseHolyRes to set
-	 */
-	public void setBaseHolyRes(double baseHolyRes)
-	{
-		_baseHolyRes = baseHolyRes;
-	}
-	
-	public void setBaseMoveSpeed(MoveType type, double val)
-	{
-		_moveType[type.ordinal()] = val;
-	}
-	
-	/**
-	 * @param baseWater the baseWater to set
-	 */
-	public void setBaseWater(int baseWater)
-	{
-		_baseWater = baseWater;
-	}
-	
-	/**
-	 * @param baseWaterRes the baseWaterRes to set
-	 */
-	public void setBaseWaterRes(double baseWaterRes)
-	{
-		_baseWaterRes = baseWaterRes;
-	}
-	
-	/**
-	 * @param baseWind the baseWind to set
-	 */
-	public void setBaseWind(int baseWind)
-	{
-		_baseWind = baseWind;
-	}
-	
-	/**
-	 * @param baseWindRes the baseWindRes to set
-	 */
-	public void setBaseWindRes(double baseWindRes)
-	{
-		_baseWindRes = baseWindRes;
+		return _race;
 	}
 	
 	/**

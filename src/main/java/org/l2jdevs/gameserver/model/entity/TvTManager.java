@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -67,18 +67,6 @@ public class TvTManager
 	}
 	
 	/**
-	 * Method to end the event and reward
-	 */
-	public void endEvent()
-	{
-		Broadcast.toAllOnlinePlayers(TvTEvent.calculateRewards());
-		TvTEvent.sysMsgToAllParticipants("TvT Event: Teleporting back to the registration npc in " + Config.TVT_EVENT_START_LEAVE_TELEPORT_DELAY + " second(s).");
-		TvTEvent.stopFight();
-		
-		scheduleEventStart();
-	}
-	
-	/**
 	 * Starts TvTStartTask
 	 */
 	public void scheduleEventStart()
@@ -119,11 +107,24 @@ public class TvTManager
 		}
 	}
 	
-	public void skipDelay()
+	/**
+	 * Method to start participation
+	 */
+	public void startReg()
 	{
-		if (_task.nextRun.cancel(false))
+		if (!TvTEvent.startParticipation())
 		{
-			_task.setStartTime(System.currentTimeMillis());
+			Broadcast.toAllOnlinePlayers("TvT Event: Event was cancelled.");
+			_log.warning("TvTEventEngine[TvTManager.run()]: Error spawning event npc for participation.");
+			
+			scheduleEventStart();
+		}
+		else
+		{
+			Broadcast.toAllOnlinePlayers("TvT Event: Registration opened for " + Config.TVT_EVENT_PARTICIPATION_TIME + " minute(s).");
+			
+			// schedule registration end
+			_task.setStartTime(System.currentTimeMillis() + (60000L * Config.TVT_EVENT_PARTICIPATION_TIME));
 			ThreadPoolManager.getInstance().executeGeneral(_task);
 		}
 	}
@@ -149,23 +150,22 @@ public class TvTManager
 	}
 	
 	/**
-	 * Method to start participation
+	 * Method to end the event and reward
 	 */
-	public void startReg()
+	public void endEvent()
 	{
-		if (!TvTEvent.startParticipation())
+		Broadcast.toAllOnlinePlayers(TvTEvent.calculateRewards());
+		TvTEvent.sysMsgToAllParticipants("TvT Event: Teleporting back to the registration npc in " + Config.TVT_EVENT_START_LEAVE_TELEPORT_DELAY + " second(s).");
+		TvTEvent.stopFight();
+		
+		scheduleEventStart();
+	}
+	
+	public void skipDelay()
+	{
+		if (_task.nextRun.cancel(false))
 		{
-			Broadcast.toAllOnlinePlayers("TvT Event: Event was cancelled.");
-			_log.warning("TvTEventEngine[TvTManager.run()]: Error spawning event npc for participation.");
-			
-			scheduleEventStart();
-		}
-		else
-		{
-			Broadcast.toAllOnlinePlayers("TvT Event: Registration opened for " + Config.TVT_EVENT_PARTICIPATION_TIME + " minute(s).");
-			
-			// schedule registration end
-			_task.setStartTime(System.currentTimeMillis() + (60000L * Config.TVT_EVENT_PARTICIPATION_TIME));
+			_task.setStartTime(System.currentTimeMillis());
 			ThreadPoolManager.getInstance().executeGeneral(_task);
 		}
 	}
@@ -179,6 +179,11 @@ public class TvTManager
 		public ScheduledFuture<?> nextRun;
 		
 		public TvTStartTask(long startTime)
+		{
+			_startTime = startTime;
+		}
+		
+		public void setStartTime(long startTime)
 		{
 			_startTime = startTime;
 		}
@@ -247,11 +252,6 @@ public class TvTManager
 			{
 				nextRun = ThreadPoolManager.getInstance().scheduleGeneral(this, nextMsg * 1000);
 			}
-		}
-		
-		public void setStartTime(long startTime)
-		{
-			_startTime = startTime;
 		}
 		
 		private void announce(long time)

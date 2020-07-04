@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -34,6 +34,21 @@ public class BitSetIDFactory extends IdFactory
 	private AtomicInteger _freeIdCount;
 	private AtomicInteger _nextFreeId;
 	
+	protected class BitSetCapacityCheck implements Runnable
+	{
+		@Override
+		public void run()
+		{
+			synchronized (BitSetIDFactory.this)
+			{
+				if (reachingBitSetCapacity())
+				{
+					increaseBitSetCapacity();
+				}
+			}
+		}
+	}
+	
 	protected BitSetIDFactory()
 	{
 		super();
@@ -44,36 +59,6 @@ public class BitSetIDFactory extends IdFactory
 			initialize();
 		}
 		_log.info(getClass().getSimpleName() + ": " + _freeIds.size() + " id's available.");
-	}
-	
-	@Override
-	public synchronized int getNextId()
-	{
-		int newID = _nextFreeId.get();
-		_freeIds.set(newID);
-		_freeIdCount.decrementAndGet();
-		
-		int nextFree = _freeIds.nextClearBit(newID);
-		
-		if (nextFree < 0)
-		{
-			nextFree = _freeIds.nextClearBit(0);
-		}
-		if (nextFree < 0)
-		{
-			if (_freeIds.size() < FREE_OBJECT_ID_SIZE)
-			{
-				increaseBitSetCapacity();
-			}
-			else
-			{
-				throw new NullPointerException("Ran out of valid Id's.");
-			}
-		}
-		
-		_nextFreeId.set(nextFree);
-		
-		return newID + FIRST_OID;
 	}
 	
 	public void initialize()
@@ -121,24 +106,39 @@ public class BitSetIDFactory extends IdFactory
 	}
 	
 	@Override
+	public synchronized int getNextId()
+	{
+		int newID = _nextFreeId.get();
+		_freeIds.set(newID);
+		_freeIdCount.decrementAndGet();
+		
+		int nextFree = _freeIds.nextClearBit(newID);
+		
+		if (nextFree < 0)
+		{
+			nextFree = _freeIds.nextClearBit(0);
+		}
+		if (nextFree < 0)
+		{
+			if (_freeIds.size() < FREE_OBJECT_ID_SIZE)
+			{
+				increaseBitSetCapacity();
+			}
+			else
+			{
+				throw new NullPointerException("Ran out of valid Id's.");
+			}
+		}
+		
+		_nextFreeId.set(nextFree);
+		
+		return newID + FIRST_OID;
+	}
+	
+	@Override
 	public synchronized int size()
 	{
 		return _freeIdCount.get();
-	}
-	
-	protected synchronized void increaseBitSetCapacity()
-	{
-		BitSet newBitSet = new BitSet(PrimeFinder.nextPrime((usedIdCount() * 11) / 10));
-		newBitSet.or(_freeIds);
-		_freeIds = newBitSet;
-	}
-	
-	/**
-	 * @return
-	 */
-	protected synchronized boolean reachingBitSetCapacity()
-	{
-		return PrimeFinder.nextPrime((usedIdCount() * 11) / 10) > _freeIds.size();
 	}
 	
 	/**
@@ -149,18 +149,18 @@ public class BitSetIDFactory extends IdFactory
 		return (size() - FIRST_OID);
 	}
 	
-	protected class BitSetCapacityCheck implements Runnable
+	/**
+	 * @return
+	 */
+	protected synchronized boolean reachingBitSetCapacity()
 	{
-		@Override
-		public void run()
-		{
-			synchronized (BitSetIDFactory.this)
-			{
-				if (reachingBitSetCapacity())
-				{
-					increaseBitSetCapacity();
-				}
-			}
-		}
+		return PrimeFinder.nextPrime((usedIdCount() * 11) / 10) > _freeIds.size();
+	}
+	
+	protected synchronized void increaseBitSetCapacity()
+	{
+		BitSet newBitSet = new BitSet(PrimeFinder.nextPrime((usedIdCount() * 11) / 10));
+		newBitSet.or(_freeIds);
+		_freeIds = newBitSet;
 	}
 }

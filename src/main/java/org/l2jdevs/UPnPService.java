@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -52,9 +52,45 @@ public class UPnPService
 		}
 	}
 	
-	public static UPnPService getInstance()
+	private void load() throws Exception
 	{
-		return SingletonHolder._instance;
+		if (!Config.ENABLE_UPNP)
+		{
+			LOG.info("UPnP Service is disabled.");
+			return;
+		}
+		
+		LOG.info("Looking for UPnP Gateway Devices...");
+		
+		final Map<InetAddress, GatewayDevice> gateways = _gatewayDiscover.discover();
+		if (gateways.isEmpty())
+		{
+			LOG.info("No UPnP gateways found.");
+			return;
+		}
+		
+		// choose the first active gateway for the tests
+		_activeGW = _gatewayDiscover.getValidGateway();
+		if (_activeGW != null)
+		{
+			LOG.info("Using UPnP gateway: {}", _activeGW.getFriendlyName());
+		}
+		else
+		{
+			LOG.info("No active UPnP gateway found.");
+			return;
+		}
+		
+		LOG.info("Using local address: {} External address: {}", _activeGW.getLocalAddress().getHostAddress(), _activeGW.getExternalIPAddress());
+		
+		if (Server.serverMode == Server.MODE_GAMESERVER)
+		{
+			addPortMapping(Config.PORT_GAME, "L2j Game Server");
+		}
+		else if (Server.serverMode == Server.MODE_LOGINSERVER)
+		{
+			addPortMapping(Config.PORT_LOGIN, "L2j Login Server");
+		}
 	}
 	
 	public void removeAllPorts() throws Exception
@@ -101,45 +137,9 @@ public class UPnPService
 		}
 	}
 	
-	private void load() throws Exception
+	public static UPnPService getInstance()
 	{
-		if (!Config.ENABLE_UPNP)
-		{
-			LOG.info("UPnP Service is disabled.");
-			return;
-		}
-		
-		LOG.info("Looking for UPnP Gateway Devices...");
-		
-		final Map<InetAddress, GatewayDevice> gateways = _gatewayDiscover.discover();
-		if (gateways.isEmpty())
-		{
-			LOG.info("No UPnP gateways found.");
-			return;
-		}
-		
-		// choose the first active gateway for the tests
-		_activeGW = _gatewayDiscover.getValidGateway();
-		if (_activeGW != null)
-		{
-			LOG.info("Using UPnP gateway: {}", _activeGW.getFriendlyName());
-		}
-		else
-		{
-			LOG.info("No active UPnP gateway found.");
-			return;
-		}
-		
-		LOG.info("Using local address: {} External address: {}", _activeGW.getLocalAddress().getHostAddress(), _activeGW.getExternalIPAddress());
-		
-		if (Server.serverMode == Server.MODE_GAMESERVER)
-		{
-			addPortMapping(Config.PORT_GAME, "L2j Game Server");
-		}
-		else if (Server.serverMode == Server.MODE_LOGINSERVER)
-		{
-			addPortMapping(Config.PORT_LOGIN, "L2j Login Server");
-		}
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

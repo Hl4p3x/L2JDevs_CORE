@@ -7,7 +7,7 @@ bin/
 
 # Idea
 *.iml
-*/.idea/
+**/.idea/
 
 # Gradle
 /.gradle/
@@ -20,3 +20,8 @@ gradle.properties
 # Cache folders
 */.cache/
 build
+
+*.orig
+*.rej
+*~
+

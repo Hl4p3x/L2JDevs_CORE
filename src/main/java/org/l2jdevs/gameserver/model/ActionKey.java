@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -68,34 +68,14 @@ public class ActionKey
 		return _cmd;
 	}
 	
-	public int getKeyId()
-	{
-		return _key;
-	}
-	
-	public int getShowStatus()
-	{
-		return _show;
-	}
-	
-	public String getSqlSaveString(int playerId, int order)
-	{
-		return "(" + playerId + ", " + _cat + ", " + order + ", " + _cmd + "," + _key + ", " + _tgKey1 + ", " + _tgKey2 + ", " + _show + ")";
-	}
-	
-	public int getToogleKey1()
-	{
-		return _tgKey1;
-	}
-	
-	public int getToogleKey2()
-	{
-		return _tgKey2;
-	}
-	
 	public void setCommandId(int cmd)
 	{
 		_cmd = cmd;
+	}
+	
+	public int getKeyId()
+	{
+		return _key;
 	}
 	
 	public void setKeyId(int key)
@@ -103,9 +83,9 @@ public class ActionKey
 		_key = key;
 	}
 	
-	public void setShowStatus(int show)
+	public int getToogleKey1()
 	{
-		_show = show;
+		return _tgKey1;
 	}
 	
 	public void setToogleKey1(int tKey1)
@@ -113,8 +93,28 @@ public class ActionKey
 		_tgKey1 = tKey1;
 	}
 	
+	public int getToogleKey2()
+	{
+		return _tgKey2;
+	}
+	
 	public void setToogleKey2(int tKey2)
 	{
 		_tgKey2 = tKey2;
+	}
+	
+	public int getShowStatus()
+	{
+		return _show;
+	}
+	
+	public void setShowStatus(int show)
+	{
+		_show = show;
+	}
+	
+	public String getSqlSaveString(int playerId, int order)
+	{
+		return "(" + playerId + ", " + _cat + ", " + order + ", " + _cmd + "," + _key + ", " + _tgKey1 + ", " + _tgKey2 + ", " + _show + ")";
 	}
 }

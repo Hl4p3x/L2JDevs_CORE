@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -29,17 +29,13 @@ import org.l2jdevs.gameserver.model.items.instance.L2ItemInstance;
  */
 public interface PetDAO
 {
+	void updateFood(L2PcInstance player, int petId);
+	
 	/**
 	 * Deletes a pet by item object ID.
 	 * @param pet the pet
 	 */
 	void delete(L2PetInstance pet);
-	
-	/**
-	 * Stores a pet into the database.
-	 * @param pet the pet
-	 */
-	void insert(L2PetInstance pet);
 	
 	/**
 	 * Restores a pet from the database.
@@ -51,10 +47,14 @@ public interface PetDAO
 	L2PetInstance load(L2ItemInstance control, L2NpcTemplate template, L2PcInstance owner);
 	
 	/**
+	 * Stores a pet into the database.
+	 * @param pet the pet
+	 */
+	void insert(L2PetInstance pet);
+	
+	/**
 	 * Updates a pet in the database.
 	 * @param pet the pet
 	 */
 	void update(L2PetInstance pet);
-	
-	void updateFood(L2PcInstance player, int petId);
 }

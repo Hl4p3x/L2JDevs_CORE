@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -40,16 +40,6 @@ public class L2WalkRoute
 		_repeatWalk = ((_repeatType >= 0) && (_repeatType <= 2)) ? repeat : false;
 	}
 	
-	public boolean doOnce()
-	{
-		return _stopAfterCycle;
-	}
-	
-	public L2NpcWalkerNode getLastNode()
-	{
-		return _nodeList.get(_nodeList.size() - 1);
-	}
-	
 	public String getName()
 	{
 		return _name;
@@ -60,9 +50,19 @@ public class L2WalkRoute
 		return _nodeList;
 	}
 	
-	public int getNodesCount()
+	public L2NpcWalkerNode getLastNode()
 	{
-		return _nodeList.size();
+		return _nodeList.get(_nodeList.size() - 1);
+	}
+	
+	public boolean repeatWalk()
+	{
+		return _repeatWalk;
+	}
+	
+	public boolean doOnce()
+	{
+		return _stopAfterCycle;
 	}
 	
 	public byte getRepeatType()
@@ -70,8 +70,8 @@ public class L2WalkRoute
 		return _repeatType;
 	}
 	
-	public boolean repeatWalk()
+	public int getNodesCount()
 	{
-		return _repeatWalk;
+		return _nodeList.size();
 	}
 }

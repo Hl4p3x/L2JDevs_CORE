@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -67,12 +67,6 @@ public final class Fort extends AbstractResidence
 {
 	protected static final Logger _log = Logger.getLogger(Fort.class.getName());
 	
-	/** Fortress Functions */
-	public static final int FUNC_TELEPORT = 1;
-	public static final int FUNC_RESTORE_HP = 2;
-	public static final int FUNC_RESTORE_MP = 3;
-	public static final int FUNC_RESTORE_EXP = 4;
-	public static final int FUNC_SUPPORT = 5;
 	private final List<L2DoorInstance> _doors = new ArrayList<>();
 	private L2StaticObjectInstance _flagPole = null;
 	private volatile FortSiege _siege = null;
@@ -81,21 +75,169 @@ public final class Fort extends AbstractResidence
 	private L2SiegeZone _zone;
 	private L2Clan _fortOwner = null;
 	private int _fortType = 0;
-	
 	private int _state = 0;
 	private int _castleId = 0;
 	private int _supplyLvL = 0;
 	private final Map<Integer, FortFunction> _function;
-	
 	private final ScheduledFuture<?>[] _FortUpdater = new ScheduledFuture<?>[2];
+	
 	// Spawn Data
 	private boolean _isSuspiciousMerchantSpawned = false;
-	
 	private final List<L2Spawn> _siegeNpcs = new CopyOnWriteArrayList<>();
 	private final List<L2Spawn> _npcCommanders = new CopyOnWriteArrayList<>();
 	private final List<L2Spawn> _specialEnvoys = new CopyOnWriteArrayList<>();
+	
 	private final Map<Integer, Integer> _envoyCastles = new HashMap<>(2);
 	private final Set<Integer> _availableCastles = new HashSet<>(1);
+	
+	/** Fortress Functions */
+	public static final int FUNC_TELEPORT = 1;
+	public static final int FUNC_RESTORE_HP = 2;
+	public static final int FUNC_RESTORE_MP = 3;
+	public static final int FUNC_RESTORE_EXP = 4;
+	public static final int FUNC_SUPPORT = 5;
+	
+	public class FortFunction
+	{
+		private final int _type;
+		private int _lvl;
+		protected int _fee;
+		protected int _tempFee;
+		private final long _rate;
+		private long _endDate;
+		protected boolean _inDebt;
+		public boolean _cwh;
+		
+		public FortFunction(int type, int lvl, int lease, int tempLease, long rate, long time, boolean cwh)
+		{
+			_type = type;
+			_lvl = lvl;
+			_fee = lease;
+			_tempFee = tempLease;
+			_rate = rate;
+			_endDate = time;
+			initializeTask(cwh);
+		}
+		
+		public int getType()
+		{
+			return _type;
+		}
+		
+		public int getLvl()
+		{
+			return _lvl;
+		}
+		
+		public int getLease()
+		{
+			return _fee;
+		}
+		
+		public long getRate()
+		{
+			return _rate;
+		}
+		
+		public long getEndTime()
+		{
+			return _endDate;
+		}
+		
+		public void setLvl(int lvl)
+		{
+			_lvl = lvl;
+		}
+		
+		public void setLease(int lease)
+		{
+			_fee = lease;
+		}
+		
+		public void setEndTime(long time)
+		{
+			_endDate = time;
+		}
+		
+		private void initializeTask(boolean cwh)
+		{
+			if (getOwnerClan() == null)
+			{
+				return;
+			}
+			long currentTime = System.currentTimeMillis();
+			if (_endDate > currentTime)
+			{
+				ThreadPoolManager.getInstance().scheduleGeneral(new FunctionTask(cwh), _endDate - currentTime);
+			}
+			else
+			{
+				ThreadPoolManager.getInstance().scheduleGeneral(new FunctionTask(cwh), 0);
+			}
+		}
+		
+		private class FunctionTask implements Runnable
+		{
+			public FunctionTask(boolean cwh)
+			{
+				_cwh = cwh;
+			}
+			
+			@Override
+			public void run()
+			{
+				try
+				{
+					if (getOwnerClan() == null)
+					{
+						return;
+					}
+					if ((getOwnerClan().getWarehouse().getAdena() >= _fee) || !_cwh)
+					{
+						int fee = _fee;
+						if (getEndTime() == -1)
+						{
+							fee = _tempFee;
+						}
+						
+						setEndTime(System.currentTimeMillis() + getRate());
+						dbSave();
+						if (_cwh)
+						{
+							getOwnerClan().getWarehouse().destroyItemByItemId("CS_function_fee", Inventory.ADENA_ID, fee, null, null);
+						}
+						ThreadPoolManager.getInstance().scheduleGeneral(new FunctionTask(true), getRate());
+					}
+					else
+					{
+						removeFunction(getType());
+					}
+				}
+				catch (Throwable t)
+				{
+				}
+			}
+		}
+		
+		public void dbSave()
+		{
+			try (Connection con = ConnectionFactory.getInstance().getConnection();
+				PreparedStatement ps = con.prepareStatement("REPLACE INTO fort_functions (fort_id, type, lvl, lease, rate, endTime) VALUES (?,?,?,?,?,?)"))
+			{
+				ps.setInt(1, getResidenceId());
+				ps.setInt(2, getType());
+				ps.setInt(3, getLvl());
+				ps.setInt(4, getLease());
+				ps.setLong(5, getRate());
+				ps.setLong(6, getEndTime());
+				ps.execute();
+			}
+			catch (Exception e)
+			{
+				_log.log(Level.SEVERE, "Exception: Fort.updateFunctions(int type, int lvl, int lease, long rate, long time, boolean addNew): " + e.getMessage(), e);
+			}
+		}
+	}
 	
 	public Fort(int fortId)
 	{
@@ -121,9 +263,19 @@ public final class Fort extends AbstractResidence
 		}
 	}
 	
-	public void activateInstance()
+	/**
+	 * Return function with id
+	 * @param type
+	 * @return
+	 */
+	public FortFunction getFunction(int type)
 	{
-		loadDoor();
+		return _function.get(type);
+	}
+	
+	public void endOfSiege(L2Clan clan)
+	{
+		ThreadPoolManager.getInstance().executeAi(new endFortressSiege(this, clan));
 	}
 	
 	/**
@@ -146,214 +298,6 @@ public final class Fort extends AbstractResidence
 		return getZone().isInsideZone(x, y, z);
 	}
 	
-	public void closeDoor(L2PcInstance activeChar, int doorId)
-	{
-		openCloseDoor(activeChar, doorId, false);
-	}
-	
-	public void despawnNpcCommanders()
-	{
-		for (L2Spawn spawnDat : _npcCommanders)
-		{
-			spawnDat.stopRespawn();
-			spawnDat.getLastSpawn().deleteMe();
-		}
-	}
-	
-	public void despawnSuspiciousMerchant()
-	{
-		if (!_isSuspiciousMerchantSpawned)
-		{
-			return;
-		}
-		_isSuspiciousMerchantSpawned = false;
-		
-		for (L2Spawn spawnDat : _siegeNpcs)
-		{
-			spawnDat.stopRespawn();
-			spawnDat.getLastSpawn().deleteMe();
-		}
-	}
-	
-	public void endOfSiege(L2Clan clan)
-	{
-		ThreadPoolManager.getInstance().executeAi(new endFortressSiege(this, clan));
-	}
-	
-	/**
-	 * @param npcId the Id of the ambassador NPC
-	 * @return the castle this ambassador represents
-	 */
-	public final Castle getCastleByAmbassador(int npcId)
-	{
-		return CastleManager.getInstance().getCastleById(getCastleIdByAmbassador(npcId));
-	}
-	
-	/**
-	 * @param npcId the Id of the ambassador NPC
-	 * @return the Id of the castle this ambassador represents
-	 */
-	public final int getCastleIdByAmbassador(int npcId)
-	{
-		return _envoyCastles.get(npcId);
-	}
-	
-	/**
-	 * @return the castle contracted with this fortress ({@code null} if no contract with any castle)
-	 */
-	public final Castle getContractedCastle()
-	{
-		return CastleManager.getInstance().getCastleById(getContractedCastleId());
-	}
-	
-	/**
-	 * @return the Id of the castle contracted with this fortress
-	 */
-	public final int getContractedCastleId()
-	{
-		return _castleId;
-	}
-	
-	/**
-	 * Get the objects distance to this fort
-	 * @param obj
-	 * @return
-	 */
-	public double getDistance(L2Object obj)
-	{
-		return getZone().getDistanceToZone(obj);
-	}
-	
-	public final L2DoorInstance getDoor(int doorId)
-	{
-		if (doorId <= 0)
-		{
-			return null;
-		}
-		
-		for (L2DoorInstance door : getDoors())
-		{
-			if (door.getId() == doorId)
-			{
-				return door;
-			}
-		}
-		return null;
-	}
-	
-	public final List<L2DoorInstance> getDoors()
-	{
-		return _doors;
-	}
-	
-	public final L2StaticObjectInstance getFlagPole()
-	{
-		return _flagPole;
-	}
-	
-	/**
-	 * @return the amount of barracks in this fortress
-	 */
-	public final int getFortSize()
-	{
-		return getFortType() == 0 ? 3 : 5;
-	}
-	
-	/**
-	 * @return Returns state of fortress.<BR>
-	 *         <BR>
-	 *         0 - not decided yet<BR>
-	 *         1 - independent<BR>
-	 *         2 - contracted with castle<BR>
-	 */
-	public final int getFortState()
-	{
-		return _state;
-	}
-	
-	/**
-	 * @return the fortress type (0 - small (3 commanders), 1 - big (4 commanders + control room))
-	 */
-	public final int getFortType()
-	{
-		return _fortType;
-	}
-	
-	/**
-	 * Return function with id
-	 * @param type
-	 * @return
-	 */
-	public FortFunction getFunction(int type)
-	{
-		return _function.get(type);
-	}
-	
-	public final int getOwnedTime()
-	{
-		if (_lastOwnedTime.getTimeInMillis() == 0)
-		{
-			return 0;
-		}
-		
-		return (int) ((System.currentTimeMillis() - _lastOwnedTime.getTimeInMillis()) / 1000);
-	}
-	
-	public final L2Clan getOwnerClan()
-	{
-		return _fortOwner;
-	}
-	
-	@Override
-	public L2FortZone getResidenceZone()
-	{
-		return (L2FortZone) super.getResidenceZone();
-	}
-	
-	public final FortSiege getSiege()
-	{
-		if (_siege == null)
-		{
-			synchronized (this)
-			{
-				if (_siege == null)
-				{
-					_siege = new FortSiege(this);
-				}
-			}
-		}
-		return _siege;
-	}
-	
-	public final Calendar getSiegeDate()
-	{
-		return _siegeDate;
-	}
-	
-	public int getSupplyLvL()
-	{
-		return _supplyLvL;
-	}
-	
-	public final long getTimeTillNextFortUpdate()
-	{
-		if (_FortUpdater[0] == null)
-		{
-			return 0;
-		}
-		return _FortUpdater[0].getDelay(TimeUnit.SECONDS);
-	}
-	
-	public final int getTimeTillRebelArmy()
-	{
-		if (_lastOwnedTime.getTimeInMillis() == 0)
-		{
-			return 0;
-		}
-		
-		return (int) (((_lastOwnedTime.getTimeInMillis() + (Config.FS_MAX_OWN_TIME * 3600000L)) - System.currentTimeMillis()) / 1000L);
-	}
-	
 	public L2SiegeZone getZone()
 	{
 		if (_zone == null)
@@ -370,13 +314,30 @@ public final class Fort extends AbstractResidence
 		return _zone;
 	}
 	
-	/**
-	 * Check if this is a border fortress (associated with multiple castles).
-	 * @return {@code true} if this is a border fortress (associated with more than one castle), {@code false} otherwise
-	 */
-	public final boolean isBorderFortress()
+	@Override
+	public L2FortZone getResidenceZone()
 	{
-		return _availableCastles.size() > 1;
+		return (L2FortZone) super.getResidenceZone();
+	}
+	
+	/**
+	 * Get the objects distance to this fort
+	 * @param obj
+	 * @return
+	 */
+	public double getDistance(L2Object obj)
+	{
+		return getZone().getDistanceToZone(obj);
+	}
+	
+	public void closeDoor(L2PcInstance activeChar, int doorId)
+	{
+		openCloseDoor(activeChar, doorId, false);
+	}
+	
+	public void openDoor(L2PcInstance activeChar, int doorId)
+	{
+		openCloseDoor(activeChar, doorId, true);
 	}
 	
 	public void openCloseDoor(L2PcInstance activeChar, int doorId, boolean open)
@@ -400,133 +361,10 @@ public final class Fort extends AbstractResidence
 		}
 	}
 	
-	public void openDoor(L2PcInstance activeChar, int doorId)
-	{
-		openCloseDoor(activeChar, doorId, true);
-	}
-	
-	public void raiseSupplyLvL()
-	{
-		_supplyLvL++;
-		if (_supplyLvL > Config.FS_MAX_SUPPLY_LEVEL)
-		{
-			_supplyLvL = Config.FS_MAX_SUPPLY_LEVEL;
-		}
-	}
-	
-	/**
-	 * Remove function In List and in DB
-	 * @param functionType
-	 */
-	public void removeFunction(int functionType)
-	{
-		_function.remove(functionType);
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM fort_functions WHERE fort_id=? AND type=?"))
-		{
-			ps.setInt(1, getResidenceId());
-			ps.setInt(2, functionType);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.SEVERE, "Exception: Fort.removeFunctions(int functionType): " + e.getMessage(), e);
-		}
-	}
-	
-	public void removeOwner(boolean updateDB)
-	{
-		L2Clan clan = getOwnerClan();
-		if (clan != null)
-		{
-			for (L2PcInstance member : clan.getOnlineMembers(0))
-			{
-				removeResidentialSkills(member);
-				member.sendSkillList();
-			}
-			clan.setFortId(0);
-			clan.broadcastToOnlineMembers(new PledgeShowInfoUpdate(clan));
-			setOwnerClan(null);
-			setSupplyLvL(0);
-			saveFortVariables();
-			removeAllFunctions();
-			if (updateDB)
-			{
-				updateOwnerInDB();
-			}
-		}
-	}
-	
 	// This method is used to begin removing all fort upgrades
 	public void removeUpgrade()
 	{
 		removeDoorUpgrade();
-	}
-	
-	/**
-	 * Respawn all doors on fort grounds<BR>
-	 * <BR>
-	 */
-	public void resetDoors()
-	{
-		for (L2DoorInstance door : _doors)
-		{
-			if (door.getOpen())
-			{
-				door.closeMe();
-			}
-			if (door.isDead())
-			{
-				door.doRevive();
-			}
-			if (door.getCurrentHp() < door.getMaxHp())
-			{
-				door.setCurrentHp(door.getMaxHp());
-			}
-		}
-		loadDoorUpgrade(); // Check for any upgrade the doors may have
-	}
-	
-	public void saveFortVariables()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("UPDATE fort SET supplyLvL=? WHERE id = ?"))
-		{
-			ps.setInt(1, _supplyLvL);
-			ps.setInt(2, getResidenceId());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Exception: saveFortVariables(): " + e.getMessage(), e);
-		}
-	}
-	
-	/**
-	 * @param state
-	 *            <ul>
-	 *            <li>0 - not decided yet</li>
-	 *            <li>1 - independent</li>
-	 *            <li>2 - contracted with castle</li>
-	 *            </ul>
-	 * @param castleId the Id of the contracted castle (0 if no contract with any castle)
-	 */
-	public final void setFortState(int state, int castleId)
-	{
-		_state = state;
-		_castleId = castleId;
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("UPDATE fort SET state=?,castleId=? WHERE id = ?"))
-		{
-			ps.setInt(1, getFortState());
-			ps.setInt(2, getContractedCastleId());
-			ps.setInt(3, getResidenceId());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Exception: setFortState(int state, int castleId): " + e.getMessage(), e);
-		}
 	}
 	
 	/**
@@ -609,15 +447,36 @@ public final class Fort extends AbstractResidence
 		return true;
 	}
 	
-	public final void setOwnerClan(L2Clan clan)
+	public void removeOwner(boolean updateDB)
 	{
-		setVisibleFlag(clan != null);
-		_fortOwner = clan;
+		L2Clan clan = getOwnerClan();
+		if (clan != null)
+		{
+			for (L2PcInstance member : clan.getOnlineMembers(0))
+			{
+				removeResidentialSkills(member);
+				member.sendSkillList();
+			}
+			clan.setFortId(0);
+			clan.broadcastToOnlineMembers(new PledgeShowInfoUpdate(clan));
+			setOwnerClan(null);
+			setSupplyLvL(0);
+			saveFortVariables();
+			removeAllFunctions();
+			if (updateDB)
+			{
+				updateOwnerInDB();
+			}
+		}
 	}
 	
-	public final void setSiegeDate(Calendar siegeDate)
+	public void raiseSupplyLvL()
 	{
-		_siegeDate = siegeDate;
+		_supplyLvL++;
+		if (_supplyLvL > Config.FS_MAX_SUPPLY_LEVEL)
+		{
+			_supplyLvL = Config.FS_MAX_SUPPLY_LEVEL;
+		}
 	}
 	
 	public void setSupplyLvL(int val)
@@ -625,6 +484,26 @@ public final class Fort extends AbstractResidence
 		if (val <= Config.FS_MAX_SUPPLY_LEVEL)
 		{
 			_supplyLvL = val;
+		}
+	}
+	
+	public int getSupplyLvL()
+	{
+		return _supplyLvL;
+	}
+	
+	public void saveFortVariables()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("UPDATE fort SET supplyLvL=? WHERE id = ?"))
+		{
+			ps.setInt(1, _supplyLvL);
+			ps.setInt(2, getResidenceId());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Exception: saveFortVariables(): " + e.getMessage(), e);
 		}
 	}
 	
@@ -641,93 +520,28 @@ public final class Fort extends AbstractResidence
 		}
 	}
 	
-	public void spawnNpcCommanders()
+	/**
+	 * Respawn all doors on fort grounds<BR>
+	 * <BR>
+	 */
+	public void resetDoors()
 	{
-		for (L2Spawn spawnDat : _npcCommanders)
+		for (L2DoorInstance door : _doors)
 		{
-			spawnDat.doSpawn();
-			spawnDat.startRespawn();
-		}
-	}
-	
-	public void spawnSpecialEnvoys()
-	{
-		for (L2Spawn spawnDat : _specialEnvoys)
-		{
-			spawnDat.doSpawn();
-		}
-	}
-	
-	public void spawnSuspiciousMerchant()
-	{
-		if (_isSuspiciousMerchantSpawned)
-		{
-			return;
-		}
-		_isSuspiciousMerchantSpawned = true;
-		
-		for (L2Spawn spawnDat : _siegeNpcs)
-		{
-			spawnDat.doSpawn();
-			spawnDat.startRespawn();
-		}
-	}
-	
-	public void updateClansReputation(L2Clan owner, boolean removePoints)
-	{
-		if (owner != null)
-		{
-			if (removePoints)
+			if (door.getOpen())
 			{
-				owner.takeReputationScore(Config.LOOSE_FORT_POINTS, true);
+				door.closeMe();
 			}
-			else
+			if (door.isDead())
 			{
-				owner.addReputationScore(Config.TAKE_FORT_POINTS, true);
+				door.doRevive();
+			}
+			if (door.getCurrentHp() < door.getMaxHp())
+			{
+				door.setCurrentHp(door.getMaxHp());
 			}
 		}
-	}
-	
-	public boolean updateFunctions(L2PcInstance player, int type, int lvl, int lease, long rate, boolean addNew)
-	{
-		if (player == null)
-		{
-			return false;
-		}
-		if (lease > 0)
-		{
-			if (!player.destroyItemByItemId("Consume", Inventory.ADENA_ID, lease, null, true))
-			{
-				return false;
-			}
-		}
-		if (addNew)
-		{
-			_function.put(type, new FortFunction(type, lvl, lease, 0, rate, 0, false));
-		}
-		else
-		{
-			if ((lvl == 0) && (lease == 0))
-			{
-				removeFunction(type);
-			}
-			else
-			{
-				int diffLease = lease - _function.get(type).getLease();
-				if (diffLease > 0)
-				{
-					_function.remove(type);
-					_function.put(type, new FortFunction(type, lvl, lease, 0, rate, -1, false));
-				}
-				else
-				{
-					_function.get(type).setLease(lease);
-					_function.get(type).setLvl(lvl);
-					_function.get(type).dbSave();
-				}
-			}
-		}
-		return true;
+		loadDoorUpgrade(); // Check for any upgrade the doors may have
 	}
 	
 	// This method upgrade door
@@ -740,19 +554,6 @@ public final class Fort extends AbstractResidence
 			
 			saveDoorUpgrade(doorId, hp, pDef, mDef);
 			return;
-		}
-	}
-	
-	@Override
-	protected void initResidenceZone()
-	{
-		for (L2FortZone zone : ZoneManager.getInstance().getAllZones(L2FortZone.class))
-		{
-			if (zone.getResidenceId() == getResidenceId())
-			{
-				setResidenceZone(zone);
-				break;
-			}
 		}
 	}
 	
@@ -819,179 +620,6 @@ public final class Fort extends AbstractResidence
 		}
 	}
 	
-	private void initNpcCommanders()
-	{
-		_npcCommanders.clear();
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT id, npcId, x, y, z, heading FROM fort_spawnlist WHERE fortId = ? AND spawnType = ? ORDER BY id"))
-		{
-			ps.setInt(1, getResidenceId());
-			ps.setInt(2, 1);
-			try (ResultSet rs = ps.executeQuery())
-			{
-				while (rs.next())
-				{
-					final L2Spawn spawnDat = new L2Spawn(rs.getInt("npcId"));
-					spawnDat.setAmount(1);
-					spawnDat.setX(rs.getInt("x"));
-					spawnDat.setY(rs.getInt("y"));
-					spawnDat.setZ(rs.getInt("z"));
-					spawnDat.setHeading(rs.getInt("heading"));
-					spawnDat.setRespawnDelay(60);
-					_npcCommanders.add(spawnDat);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			// problem with initializing spawn, go to next one
-			_log.log(Level.WARNING, "Fort " + getResidenceId() + " initNpcCommanders: Spawn could not be initialized: " + e.getMessage(), e);
-		}
-	}
-	
-	private void initNpcs()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM fort_spawnlist WHERE fortId = ? AND spawnType = ?"))
-		{
-			ps.setInt(1, getResidenceId());
-			ps.setInt(2, 0);
-			try (ResultSet rs = ps.executeQuery())
-			{
-				while (rs.next())
-				{
-					L2Spawn spawnDat = new L2Spawn(rs.getInt("npcId"));
-					spawnDat.setAmount(1);
-					spawnDat.setX(rs.getInt("x"));
-					spawnDat.setY(rs.getInt("y"));
-					spawnDat.setZ(rs.getInt("z"));
-					spawnDat.setHeading(rs.getInt("heading"));
-					spawnDat.setRespawnDelay(60);
-					SpawnTable.getInstance().addNewSpawn(spawnDat, false);
-					spawnDat.doSpawn();
-					spawnDat.startRespawn();
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Fort " + getResidenceId() + " initNpcs: Spawn could not be initialized: " + e.getMessage(), e);
-		}
-	}
-	
-	private void initSiegeNpcs()
-	{
-		_siegeNpcs.clear();
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT id, npcId, x, y, z, heading FROM fort_spawnlist WHERE fortId = ? AND spawnType = ? ORDER BY id"))
-		{
-			ps.setInt(1, getResidenceId());
-			ps.setInt(2, 2);
-			try (ResultSet rs = ps.executeQuery())
-			{
-				while (rs.next())
-				{
-					final L2Spawn spawnDat = new L2Spawn(rs.getInt("npcId"));
-					spawnDat.setAmount(1);
-					spawnDat.setX(rs.getInt("x"));
-					spawnDat.setY(rs.getInt("y"));
-					spawnDat.setZ(rs.getInt("z"));
-					spawnDat.setHeading(rs.getInt("heading"));
-					spawnDat.setRespawnDelay(60);
-					_siegeNpcs.add(spawnDat);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Fort " + getResidenceId() + " initSiegeNpcs: Spawn could not be initialized: " + e.getMessage(), e);
-		}
-	}
-	
-	private void initSpecialEnvoys()
-	{
-		_specialEnvoys.clear();
-		_envoyCastles.clear();
-		_availableCastles.clear();
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT id, npcId, x, y, z, heading, castleId FROM fort_spawnlist WHERE fortId = ? AND spawnType = ? ORDER BY id"))
-		{
-			ps.setInt(1, getResidenceId());
-			ps.setInt(2, 3);
-			try (ResultSet rs = ps.executeQuery())
-			{
-				while (rs.next())
-				{
-					final int castleId = rs.getInt("castleId");
-					final L2Spawn spawnDat = new L2Spawn(rs.getInt("npcId"));
-					spawnDat.setAmount(1);
-					spawnDat.setX(rs.getInt("x"));
-					spawnDat.setY(rs.getInt("y"));
-					spawnDat.setZ(rs.getInt("z"));
-					spawnDat.setHeading(rs.getInt("heading"));
-					spawnDat.setRespawnDelay(60);
-					_specialEnvoys.add(spawnDat);
-					_envoyCastles.put(spawnDat.getId(), castleId);
-					_availableCastles.add(castleId);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			// problem with initializing spawn, go to next one
-			_log.log(Level.WARNING, "Fort " + getResidenceId() + " initSpecialEnvoys: Spawn could not be initialized: " + e.getMessage(), e);
-		}
-	}
-	
-	// This method loads fort door data from database
-	private void loadDoor()
-	{
-		for (L2DoorInstance door : DoorData.getInstance().getDoors())
-		{
-			if ((door.getFort() != null) && (door.getFort().getResidenceId() == getResidenceId()))
-			{
-				_doors.add(door);
-			}
-		}
-	}
-	
-	// This method loads fort door upgrade data from database
-	private void loadDoorUpgrade()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM fort_doorupgrade WHERE fortId = ?"))
-		{
-			ps.setInt(1, getResidenceId());
-			try (ResultSet rs = ps.executeQuery())
-			{
-				while (rs.next())
-				{
-					upgradeDoor(rs.getInt("id"), rs.getInt("hp"), rs.getInt("pDef"), rs.getInt("mDef"));
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Exception: loadFortDoorUpgrade(): " + e.getMessage(), e);
-		}
-	}
-	
-	private void loadFlagPoles()
-	{
-		for (L2StaticObjectInstance obj : StaticObjectData.getInstance().getStaticObjects())
-		{
-			if ((obj.getType() == 3) && obj.getName().startsWith(getName()))
-			{
-				_flagPole = obj;
-				break;
-			}
-		}
-		if (_flagPole == null)
-		{
-			throw new NullPointerException("Can't find flagpole for Fort " + this);
-		}
-	}
-	
 	/** Load All Functions */
 	private void loadFunctions()
 	{
@@ -1014,6 +642,26 @@ public final class Fort extends AbstractResidence
 	}
 	
 	/**
+	 * Remove function In List and in DB
+	 * @param functionType
+	 */
+	public void removeFunction(int functionType)
+	{
+		_function.remove(functionType);
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM fort_functions WHERE fort_id=? AND type=?"))
+		{
+			ps.setInt(1, getResidenceId());
+			ps.setInt(2, functionType);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.SEVERE, "Exception: Fort.removeFunctions(int functionType): " + e.getMessage(), e);
+		}
+	}
+	
+	/**
 	 * Remove all fort functions.
 	 */
 	private void removeAllFunctions()
@@ -1021,6 +669,102 @@ public final class Fort extends AbstractResidence
 		for (int id : _function.keySet())
 		{
 			removeFunction(id);
+		}
+	}
+	
+	public boolean updateFunctions(L2PcInstance player, int type, int lvl, int lease, long rate, boolean addNew)
+	{
+		if (player == null)
+		{
+			return false;
+		}
+		if (lease > 0)
+		{
+			if (!player.destroyItemByItemId("Consume", Inventory.ADENA_ID, lease, null, true))
+			{
+				return false;
+			}
+		}
+		if (addNew)
+		{
+			_function.put(type, new FortFunction(type, lvl, lease, 0, rate, 0, false));
+		}
+		else
+		{
+			if ((lvl == 0) && (lease == 0))
+			{
+				removeFunction(type);
+			}
+			else
+			{
+				int diffLease = lease - _function.get(type).getLease();
+				if (diffLease > 0)
+				{
+					_function.remove(type);
+					_function.put(type, new FortFunction(type, lvl, lease, 0, rate, -1, false));
+				}
+				else
+				{
+					_function.get(type).setLease(lease);
+					_function.get(type).setLvl(lvl);
+					_function.get(type).dbSave();
+				}
+			}
+		}
+		return true;
+	}
+	
+	public void activateInstance()
+	{
+		loadDoor();
+	}
+	
+	// This method loads fort door data from database
+	private void loadDoor()
+	{
+		for (L2DoorInstance door : DoorData.getInstance().getDoors())
+		{
+			if ((door.getFort() != null) && (door.getFort().getResidenceId() == getResidenceId()))
+			{
+				_doors.add(door);
+			}
+		}
+	}
+	
+	private void loadFlagPoles()
+	{
+		for (L2StaticObjectInstance obj : StaticObjectData.getInstance().getStaticObjects())
+		{
+			if ((obj.getType() == 3) && obj.getName().startsWith(getName()))
+			{
+				_flagPole = obj;
+				break;
+			}
+		}
+		if (_flagPole == null)
+		{
+			throw new NullPointerException("Can't find flagpole for Fort " + this);
+		}
+	}
+	
+	// This method loads fort door upgrade data from database
+	private void loadDoorUpgrade()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM fort_doorupgrade WHERE fortId = ?"))
+		{
+			ps.setInt(1, getResidenceId());
+			try (ResultSet rs = ps.executeQuery())
+			{
+				while (rs.next())
+				{
+					upgradeDoor(rs.getInt("id"), rs.getInt("hp"), rs.getInt("pDef"), rs.getInt("mDef"));
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Exception: loadFortDoorUpgrade(): " + e.getMessage(), e);
 		}
 	}
 	
@@ -1124,144 +868,109 @@ public final class Fort extends AbstractResidence
 		}
 	}
 	
-	public class FortFunction
+	public final L2Clan getOwnerClan()
 	{
-		private final int _type;
-		private int _lvl;
-		protected int _fee;
-		protected int _tempFee;
-		private final long _rate;
-		private long _endDate;
-		protected boolean _inDebt;
-		public boolean _cwh;
-		
-		public FortFunction(int type, int lvl, int lease, int tempLease, long rate, long time, boolean cwh)
+		return _fortOwner;
+	}
+	
+	public final void setOwnerClan(L2Clan clan)
+	{
+		setVisibleFlag(clan != null);
+		_fortOwner = clan;
+	}
+	
+	public final L2DoorInstance getDoor(int doorId)
+	{
+		if (doorId <= 0)
 		{
-			_type = type;
-			_lvl = lvl;
-			_fee = lease;
-			_tempFee = tempLease;
-			_rate = rate;
-			_endDate = time;
-			initializeTask(cwh);
+			return null;
 		}
 		
-		public void dbSave()
+		for (L2DoorInstance door : getDoors())
 		{
-			try (Connection con = ConnectionFactory.getInstance().getConnection();
-				PreparedStatement ps = con.prepareStatement("REPLACE INTO fort_functions (fort_id, type, lvl, lease, rate, endTime) VALUES (?,?,?,?,?,?)"))
+			if (door.getId() == doorId)
 			{
-				ps.setInt(1, getResidenceId());
-				ps.setInt(2, getType());
-				ps.setInt(3, getLvl());
-				ps.setInt(4, getLease());
-				ps.setLong(5, getRate());
-				ps.setLong(6, getEndTime());
-				ps.execute();
-			}
-			catch (Exception e)
-			{
-				_log.log(Level.SEVERE, "Exception: Fort.updateFunctions(int type, int lvl, int lease, long rate, long time, boolean addNew): " + e.getMessage(), e);
+				return door;
 			}
 		}
-		
-		public long getEndTime()
+		return null;
+	}
+	
+	public final List<L2DoorInstance> getDoors()
+	{
+		return _doors;
+	}
+	
+	public final L2StaticObjectInstance getFlagPole()
+	{
+		return _flagPole;
+	}
+	
+	public final FortSiege getSiege()
+	{
+		if (_siege == null)
 		{
-			return _endDate;
-		}
-		
-		public int getLease()
-		{
-			return _fee;
-		}
-		
-		public int getLvl()
-		{
-			return _lvl;
-		}
-		
-		public long getRate()
-		{
-			return _rate;
-		}
-		
-		public int getType()
-		{
-			return _type;
-		}
-		
-		public void setEndTime(long time)
-		{
-			_endDate = time;
-		}
-		
-		public void setLease(int lease)
-		{
-			_fee = lease;
-		}
-		
-		public void setLvl(int lvl)
-		{
-			_lvl = lvl;
-		}
-		
-		private void initializeTask(boolean cwh)
-		{
-			if (getOwnerClan() == null)
+			synchronized (this)
 			{
-				return;
+				if (_siege == null)
+				{
+					_siege = new FortSiege(this);
+				}
 			}
-			long currentTime = System.currentTimeMillis();
-			if (_endDate > currentTime)
+		}
+		return _siege;
+	}
+	
+	public final Calendar getSiegeDate()
+	{
+		return _siegeDate;
+	}
+	
+	public final void setSiegeDate(Calendar siegeDate)
+	{
+		_siegeDate = siegeDate;
+	}
+	
+	public final int getOwnedTime()
+	{
+		if (_lastOwnedTime.getTimeInMillis() == 0)
+		{
+			return 0;
+		}
+		
+		return (int) ((System.currentTimeMillis() - _lastOwnedTime.getTimeInMillis()) / 1000);
+	}
+	
+	public final int getTimeTillRebelArmy()
+	{
+		if (_lastOwnedTime.getTimeInMillis() == 0)
+		{
+			return 0;
+		}
+		
+		return (int) (((_lastOwnedTime.getTimeInMillis() + (Config.FS_MAX_OWN_TIME * 3600000L)) - System.currentTimeMillis()) / 1000L);
+	}
+	
+	public final long getTimeTillNextFortUpdate()
+	{
+		if (_FortUpdater[0] == null)
+		{
+			return 0;
+		}
+		return _FortUpdater[0].getDelay(TimeUnit.SECONDS);
+	}
+	
+	public void updateClansReputation(L2Clan owner, boolean removePoints)
+	{
+		if (owner != null)
+		{
+			if (removePoints)
 			{
-				ThreadPoolManager.getInstance().scheduleGeneral(new FunctionTask(cwh), _endDate - currentTime);
+				owner.takeReputationScore(Config.LOOSE_FORT_POINTS, true);
 			}
 			else
 			{
-				ThreadPoolManager.getInstance().scheduleGeneral(new FunctionTask(cwh), 0);
-			}
-		}
-		
-		private class FunctionTask implements Runnable
-		{
-			public FunctionTask(boolean cwh)
-			{
-				_cwh = cwh;
-			}
-			
-			@Override
-			public void run()
-			{
-				try
-				{
-					if (getOwnerClan() == null)
-					{
-						return;
-					}
-					if ((getOwnerClan().getWarehouse().getAdena() >= _fee) || !_cwh)
-					{
-						int fee = _fee;
-						if (getEndTime() == -1)
-						{
-							fee = _tempFee;
-						}
-						
-						setEndTime(System.currentTimeMillis() + getRate());
-						dbSave();
-						if (_cwh)
-						{
-							getOwnerClan().getWarehouse().destroyItemByItemId("CS_function_fee", Inventory.ADENA_ID, fee, null, null);
-						}
-						ThreadPoolManager.getInstance().scheduleGeneral(new FunctionTask(true), getRate());
-					}
-					else
-					{
-						removeFunction(getType());
-					}
-				}
-				catch (Throwable t)
-				{
-				}
+				owner.addReputationScore(Config.TAKE_FORT_POINTS, true);
 			}
 		}
 	}
@@ -1290,5 +999,296 @@ public final class Fort extends AbstractResidence
 			}
 		}
 		
+	}
+	
+	/**
+	 * @return Returns state of fortress.<BR>
+	 *         <BR>
+	 *         0 - not decided yet<BR>
+	 *         1 - independent<BR>
+	 *         2 - contracted with castle<BR>
+	 */
+	public final int getFortState()
+	{
+		return _state;
+	}
+	
+	/**
+	 * @param state
+	 *            <ul>
+	 *            <li>0 - not decided yet</li>
+	 *            <li>1 - independent</li>
+	 *            <li>2 - contracted with castle</li>
+	 *            </ul>
+	 * @param castleId the Id of the contracted castle (0 if no contract with any castle)
+	 */
+	public final void setFortState(int state, int castleId)
+	{
+		_state = state;
+		_castleId = castleId;
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("UPDATE fort SET state=?,castleId=? WHERE id = ?"))
+		{
+			ps.setInt(1, getFortState());
+			ps.setInt(2, getContractedCastleId());
+			ps.setInt(3, getResidenceId());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Exception: setFortState(int state, int castleId): " + e.getMessage(), e);
+		}
+	}
+	
+	/**
+	 * @return the fortress type (0 - small (3 commanders), 1 - big (4 commanders + control room))
+	 */
+	public final int getFortType()
+	{
+		return _fortType;
+	}
+	
+	/**
+	 * @param npcId the Id of the ambassador NPC
+	 * @return the Id of the castle this ambassador represents
+	 */
+	public final int getCastleIdByAmbassador(int npcId)
+	{
+		return _envoyCastles.get(npcId);
+	}
+	
+	/**
+	 * @param npcId the Id of the ambassador NPC
+	 * @return the castle this ambassador represents
+	 */
+	public final Castle getCastleByAmbassador(int npcId)
+	{
+		return CastleManager.getInstance().getCastleById(getCastleIdByAmbassador(npcId));
+	}
+	
+	/**
+	 * @return the Id of the castle contracted with this fortress
+	 */
+	public final int getContractedCastleId()
+	{
+		return _castleId;
+	}
+	
+	/**
+	 * @return the castle contracted with this fortress ({@code null} if no contract with any castle)
+	 */
+	public final Castle getContractedCastle()
+	{
+		return CastleManager.getInstance().getCastleById(getContractedCastleId());
+	}
+	
+	/**
+	 * Check if this is a border fortress (associated with multiple castles).
+	 * @return {@code true} if this is a border fortress (associated with more than one castle), {@code false} otherwise
+	 */
+	public final boolean isBorderFortress()
+	{
+		return _availableCastles.size() > 1;
+	}
+	
+	/**
+	 * @return the amount of barracks in this fortress
+	 */
+	public final int getFortSize()
+	{
+		return getFortType() == 0 ? 3 : 5;
+	}
+	
+	public void spawnSuspiciousMerchant()
+	{
+		if (_isSuspiciousMerchantSpawned)
+		{
+			return;
+		}
+		_isSuspiciousMerchantSpawned = true;
+		
+		for (L2Spawn spawnDat : _siegeNpcs)
+		{
+			spawnDat.doSpawn();
+			spawnDat.startRespawn();
+		}
+	}
+	
+	public void despawnSuspiciousMerchant()
+	{
+		if (!_isSuspiciousMerchantSpawned)
+		{
+			return;
+		}
+		_isSuspiciousMerchantSpawned = false;
+		
+		for (L2Spawn spawnDat : _siegeNpcs)
+		{
+			spawnDat.stopRespawn();
+			spawnDat.getLastSpawn().deleteMe();
+		}
+	}
+	
+	public void spawnNpcCommanders()
+	{
+		for (L2Spawn spawnDat : _npcCommanders)
+		{
+			spawnDat.doSpawn();
+			spawnDat.startRespawn();
+		}
+	}
+	
+	public void despawnNpcCommanders()
+	{
+		for (L2Spawn spawnDat : _npcCommanders)
+		{
+			spawnDat.stopRespawn();
+			spawnDat.getLastSpawn().deleteMe();
+		}
+	}
+	
+	public void spawnSpecialEnvoys()
+	{
+		for (L2Spawn spawnDat : _specialEnvoys)
+		{
+			spawnDat.doSpawn();
+		}
+	}
+	
+	private void initNpcs()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM fort_spawnlist WHERE fortId = ? AND spawnType = ?"))
+		{
+			ps.setInt(1, getResidenceId());
+			ps.setInt(2, 0);
+			try (ResultSet rs = ps.executeQuery())
+			{
+				while (rs.next())
+				{
+					L2Spawn spawnDat = new L2Spawn(rs.getInt("npcId"));
+					spawnDat.setAmount(1);
+					spawnDat.setX(rs.getInt("x"));
+					spawnDat.setY(rs.getInt("y"));
+					spawnDat.setZ(rs.getInt("z"));
+					spawnDat.setHeading(rs.getInt("heading"));
+					spawnDat.setRespawnDelay(60);
+					SpawnTable.getInstance().addNewSpawn(spawnDat, false);
+					spawnDat.doSpawn();
+					spawnDat.startRespawn();
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Fort " + getResidenceId() + " initNpcs: Spawn could not be initialized: " + e.getMessage(), e);
+		}
+	}
+	
+	private void initSiegeNpcs()
+	{
+		_siegeNpcs.clear();
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT id, npcId, x, y, z, heading FROM fort_spawnlist WHERE fortId = ? AND spawnType = ? ORDER BY id"))
+		{
+			ps.setInt(1, getResidenceId());
+			ps.setInt(2, 2);
+			try (ResultSet rs = ps.executeQuery())
+			{
+				while (rs.next())
+				{
+					final L2Spawn spawnDat = new L2Spawn(rs.getInt("npcId"));
+					spawnDat.setAmount(1);
+					spawnDat.setX(rs.getInt("x"));
+					spawnDat.setY(rs.getInt("y"));
+					spawnDat.setZ(rs.getInt("z"));
+					spawnDat.setHeading(rs.getInt("heading"));
+					spawnDat.setRespawnDelay(60);
+					_siegeNpcs.add(spawnDat);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Fort " + getResidenceId() + " initSiegeNpcs: Spawn could not be initialized: " + e.getMessage(), e);
+		}
+	}
+	
+	private void initNpcCommanders()
+	{
+		_npcCommanders.clear();
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT id, npcId, x, y, z, heading FROM fort_spawnlist WHERE fortId = ? AND spawnType = ? ORDER BY id"))
+		{
+			ps.setInt(1, getResidenceId());
+			ps.setInt(2, 1);
+			try (ResultSet rs = ps.executeQuery())
+			{
+				while (rs.next())
+				{
+					final L2Spawn spawnDat = new L2Spawn(rs.getInt("npcId"));
+					spawnDat.setAmount(1);
+					spawnDat.setX(rs.getInt("x"));
+					spawnDat.setY(rs.getInt("y"));
+					spawnDat.setZ(rs.getInt("z"));
+					spawnDat.setHeading(rs.getInt("heading"));
+					spawnDat.setRespawnDelay(60);
+					_npcCommanders.add(spawnDat);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			// problem with initializing spawn, go to next one
+			_log.log(Level.WARNING, "Fort " + getResidenceId() + " initNpcCommanders: Spawn could not be initialized: " + e.getMessage(), e);
+		}
+	}
+	
+	private void initSpecialEnvoys()
+	{
+		_specialEnvoys.clear();
+		_envoyCastles.clear();
+		_availableCastles.clear();
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT id, npcId, x, y, z, heading, castleId FROM fort_spawnlist WHERE fortId = ? AND spawnType = ? ORDER BY id"))
+		{
+			ps.setInt(1, getResidenceId());
+			ps.setInt(2, 3);
+			try (ResultSet rs = ps.executeQuery())
+			{
+				while (rs.next())
+				{
+					final int castleId = rs.getInt("castleId");
+					final L2Spawn spawnDat = new L2Spawn(rs.getInt("npcId"));
+					spawnDat.setAmount(1);
+					spawnDat.setX(rs.getInt("x"));
+					spawnDat.setY(rs.getInt("y"));
+					spawnDat.setZ(rs.getInt("z"));
+					spawnDat.setHeading(rs.getInt("heading"));
+					spawnDat.setRespawnDelay(60);
+					_specialEnvoys.add(spawnDat);
+					_envoyCastles.put(spawnDat.getId(), castleId);
+					_availableCastles.add(castleId);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			// problem with initializing spawn, go to next one
+			_log.log(Level.WARNING, "Fort " + getResidenceId() + " initSpecialEnvoys: Spawn could not be initialized: " + e.getMessage(), e);
+		}
+	}
+	
+	@Override
+	protected void initResidenceZone()
+	{
+		for (L2FortZone zone : ZoneManager.getInstance().getAllZones(L2FortZone.class))
+		{
+			if (zone.getResidenceId() == getResidenceId())
+			{
+				setResidenceZone(zone);
+				break;
+			}
+		}
 	}
 }

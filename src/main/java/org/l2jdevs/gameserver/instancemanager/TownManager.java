@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -24,37 +24,6 @@ import org.l2jdevs.gameserver.model.zone.type.L2TownZone;
 
 public final class TownManager
 {
-	public static final L2TownZone getTown(int townId)
-	{
-		for (L2TownZone temp : ZoneManager.getInstance().getAllZones(L2TownZone.class))
-		{
-			if (temp.getTownId() == townId)
-			{
-				return temp;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * Returns the town at that position (if any)
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @return
-	 */
-	public static final L2TownZone getTown(int x, int y, int z)
-	{
-		for (L2ZoneType temp : ZoneManager.getInstance().getZones(x, y, z))
-		{
-			if (temp instanceof L2TownZone)
-			{
-				return (L2TownZone) temp;
-			}
-		}
-		return null;
-	}
-	
 	public static final int getTownCastle(int townId)
 	{
 		switch (townId)
@@ -100,5 +69,36 @@ public final class TownManager
 	public static final boolean townHasCastleInSiege(int x, int y)
 	{
 		return townHasCastleInSiege(MapRegionManager.getInstance().getMapRegionLocId(x, y));
+	}
+	
+	public static final L2TownZone getTown(int townId)
+	{
+		for (L2TownZone temp : ZoneManager.getInstance().getAllZones(L2TownZone.class))
+		{
+			if (temp.getTownId() == townId)
+			{
+				return temp;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the town at that position (if any)
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	public static final L2TownZone getTown(int x, int y, int z)
+	{
+		for (L2ZoneType temp : ZoneManager.getInstance().getZones(x, y, z))
+		{
+			if (temp instanceof L2TownZone)
+			{
+				return (L2TownZone) temp;
+			}
+		}
+		return null;
 	}
 }

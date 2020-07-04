@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -71,30 +71,6 @@ public final class RequestBypassToServer extends L2GameClientPacket
 	
 	// S
 	private String _command;
-	
-	/**
-	 * @param activeChar
-	 */
-	private static void comeHere(L2PcInstance activeChar)
-	{
-		L2Object obj = activeChar.getTarget();
-		if (obj == null)
-		{
-			return;
-		}
-		if (obj instanceof L2Npc)
-		{
-			L2Npc temp = (L2Npc) obj;
-			temp.setTarget(activeChar);
-			temp.getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, activeChar.getLocation());
-		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__23_REQUESTBYPASSTOSERVER;
-	}
 	
 	@Override
 	protected void readImpl()
@@ -349,5 +325,29 @@ public final class RequestBypassToServer extends L2GameClientPacket
 		}
 		
 		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerBypass(activeChar, _command), activeChar);
+	}
+	
+	/**
+	 * @param activeChar
+	 */
+	private static void comeHere(L2PcInstance activeChar)
+	{
+		L2Object obj = activeChar.getTarget();
+		if (obj == null)
+		{
+			return;
+		}
+		if (obj instanceof L2Npc)
+		{
+			L2Npc temp = (L2Npc) obj;
+			temp.setTarget(activeChar);
+			temp.getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, activeChar.getLocation());
+		}
+	}
+	
+	@Override
+	public String getType()
+	{
+		return _C__23_REQUESTBYPASSTOSERVER;
 	}
 }

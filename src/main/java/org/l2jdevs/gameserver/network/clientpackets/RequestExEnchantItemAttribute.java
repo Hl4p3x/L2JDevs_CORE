@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,47 +38,6 @@ public class RequestExEnchantItemAttribute extends L2GameClientPacket
 	private static final String _C__D0_35_REQUESTEXENCHANTITEMATTRIBUTE = "[C] D0:35 RequestExEnchantItemAttribute";
 	
 	private int _objectId;
-	
-	public int getLimit(L2ItemInstance item, int sotneId)
-	{
-		Elementals.ElementalItems elementItem = Elementals.getItemElemental(sotneId);
-		if (elementItem == null)
-		{
-			return 0;
-		}
-		
-		if (item.isWeapon())
-		{
-			return Elementals.WEAPON_VALUES[elementItem._type._maxLevel];
-		}
-		return Elementals.ARMOR_VALUES[elementItem._type._maxLevel];
-	}
-	
-	public int getPowerToAdd(int stoneId, int oldValue, L2ItemInstance item)
-	{
-		if (Elementals.getItemElement(stoneId) != Elementals.NONE)
-		{
-			if (item.isWeapon())
-			{
-				if (oldValue == 0)
-				{
-					return Elementals.FIRST_WEAPON_BONUS;
-				}
-				return Elementals.NEXT_WEAPON_BONUS;
-			}
-			else if (item.isArmor())
-			{
-				return Elementals.ARMOR_BONUS;
-			}
-		}
-		return 0;
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__D0_35_REQUESTEXENCHANTITEMATTRIBUTE;
-	}
 	
 	@Override
 	protected void readImpl()
@@ -296,5 +255,46 @@ public class RequestExEnchantItemAttribute extends L2GameClientPacket
 		player.sendPacket(new UserInfo(player));
 		player.sendPacket(new ExBrExtraUserInfo(player));
 		player.setActiveEnchantAttrItemId(L2PcInstance.ID_NONE);
+	}
+	
+	public int getLimit(L2ItemInstance item, int sotneId)
+	{
+		Elementals.ElementalItems elementItem = Elementals.getItemElemental(sotneId);
+		if (elementItem == null)
+		{
+			return 0;
+		}
+		
+		if (item.isWeapon())
+		{
+			return Elementals.WEAPON_VALUES[elementItem._type._maxLevel];
+		}
+		return Elementals.ARMOR_VALUES[elementItem._type._maxLevel];
+	}
+	
+	public int getPowerToAdd(int stoneId, int oldValue, L2ItemInstance item)
+	{
+		if (Elementals.getItemElement(stoneId) != Elementals.NONE)
+		{
+			if (item.isWeapon())
+			{
+				if (oldValue == 0)
+				{
+					return Elementals.FIRST_WEAPON_BONUS;
+				}
+				return Elementals.NEXT_WEAPON_BONUS;
+			}
+			else if (item.isArmor())
+			{
+				return Elementals.ARMOR_BONUS;
+			}
+		}
+		return 0;
+	}
+	
+	@Override
+	public String getType()
+	{
+		return _C__D0_35_REQUESTEXENCHANTITEMATTRIBUTE;
 	}
 }

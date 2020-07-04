@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -46,60 +46,6 @@ public final class HitConditionBonusData implements IXmlReader
 	protected HitConditionBonusData()
 	{
 		load();
-	}
-	
-	/**
-	 * Gets the single instance of HitConditionBonus.
-	 * @return single instance of HitConditionBonus
-	 */
-	public static HitConditionBonusData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Gets the condition bonus.
-	 * @param attacker the attacking character.
-	 * @param target the attacked character.
-	 * @return the bonus of the attacker against the target.
-	 */
-	public double getConditionBonus(L2Character attacker, L2Character target)
-	{
-		double mod = 100;
-		// Get high or low bonus
-		if ((attacker.getZ() - target.getZ()) > 50)
-		{
-			mod += highBonus;
-		}
-		else if ((attacker.getZ() - target.getZ()) < -50)
-		{
-			mod += lowBonus;
-		}
-		
-		// Get weather bonus
-		if (GameTimeController.getInstance().isNight())
-		{
-			mod += darkBonus;
-			// else if () No rain support yet.
-			// chance += hitConditionBonus.rainBonus;
-		}
-		
-		// Get side bonus
-		if (attacker.isBehindTarget())
-		{
-			mod += backBonus;
-		}
-		else if (attacker.isInFrontOfTarget())
-		{
-			mod += frontBonus;
-		}
-		else
-		{
-			mod += sideBonus;
-		}
-		
-		// If (mod / 100) is less than 0, return 0, because we can't lower more than 100%.
-		return Math.max(mod / 100, 0);
 	}
 	
 	@Override
@@ -161,6 +107,60 @@ public final class HitConditionBonusData implements IXmlReader
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Gets the condition bonus.
+	 * @param attacker the attacking character.
+	 * @param target the attacked character.
+	 * @return the bonus of the attacker against the target.
+	 */
+	public double getConditionBonus(L2Character attacker, L2Character target)
+	{
+		double mod = 100;
+		// Get high or low bonus
+		if ((attacker.getZ() - target.getZ()) > 50)
+		{
+			mod += highBonus;
+		}
+		else if ((attacker.getZ() - target.getZ()) < -50)
+		{
+			mod += lowBonus;
+		}
+		
+		// Get weather bonus
+		if (GameTimeController.getInstance().isNight())
+		{
+			mod += darkBonus;
+			// else if () No rain support yet.
+			// chance += hitConditionBonus.rainBonus;
+		}
+		
+		// Get side bonus
+		if (attacker.isBehindTarget())
+		{
+			mod += backBonus;
+		}
+		else if (attacker.isInFrontOfTarget())
+		{
+			mod += frontBonus;
+		}
+		else
+		{
+			mod += sideBonus;
+		}
+		
+		// If (mod / 100) is less than 0, return 0, because we can't lower more than 100%.
+		return Math.max(mod / 100, 0);
+	}
+	
+	/**
+	 * Gets the single instance of HitConditionBonus.
+	 * @return single instance of HitConditionBonus
+	 */
+	public static HitConditionBonusData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

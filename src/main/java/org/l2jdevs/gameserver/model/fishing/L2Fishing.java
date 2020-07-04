@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -51,6 +51,32 @@ public class L2Fishing implements Runnable
 	private int _fishCurHp;
 	private final double _regenHp;
 	private final boolean _isUpperGrade;
+	
+	@Override
+	public void run()
+	{
+		if (_fisher == null)
+		{
+			return;
+		}
+		
+		if (_fishCurHp >= (_fishMaxHp * 2))
+		{
+			// The fish got away
+			_fisher.sendPacket(SystemMessageId.BAIT_STOLEN_BY_FISH);
+			doDie(false);
+		}
+		else if (_time <= 0)
+		{
+			// Time is up, so that fish got away
+			_fisher.sendPacket(SystemMessageId.FISH_SPIT_THE_HOOK);
+			doDie(false);
+		}
+		else
+		{
+			aiTask();
+		}
+	}
 	
 	public L2Fishing(L2PcInstance Fisher, L2Fish fish, boolean isNoob, boolean isUpperGrade)
 	{
@@ -152,98 +178,64 @@ public class L2Fishing implements Runnable
 		_fisher = null;
 	}
 	
-	@Override
-	public void run()
+	protected void aiTask()
 	{
-		if (_fisher == null)
+		if (_thinking)
 		{
 			return;
 		}
+		_thinking = true;
+		_time--;
 		
-		if (_fishCurHp >= (_fishMaxHp * 2))
+		try
 		{
-			// The fish got away
-			_fisher.sendPacket(SystemMessageId.BAIT_STOLEN_BY_FISH);
-			doDie(false);
-		}
-		else if (_time <= 0)
-		{
-			// Time is up, so that fish got away
-			_fisher.sendPacket(SystemMessageId.FISH_SPIT_THE_HOOK);
-			doDie(false);
-		}
-		else
-		{
-			aiTask();
-		}
-	}
-	
-	public void usePumping(int dmg, int pen)
-	{
-		_anim = 1;
-		if (Rnd.get(100) > 90)
-		{
-			_fisher.sendPacket(SystemMessageId.FISH_RESISTED_ATTEMPT_TO_BRING_IT_IN);
-			_goodUse = 0;
-			changeHp(0, pen);
-			return;
-		}
-		if (_fisher == null)
-		{
-			return;
-		}
-		if (_mode == 0)
-		{
-			if (_deceptiveMode == 0)
+			if (_mode == 1)
 			{
-				// Pumping is successful. Damage: $s1
-				SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.PUMPING_SUCCESFUL_S1_DAMAGE);
-				sm.addInt(dmg);
-				_fisher.sendPacket(sm);
-				if (pen > 0)
+				if (_deceptiveMode == 0)
 				{
-					sm = SystemMessage.getSystemMessage(SystemMessageId.PUMPING_SUCCESSFUL_PENALTY_S1);
-					sm.addInt(pen);
-					_fisher.sendPacket(sm);
+					_fishCurHp += (int) _regenHp;
 				}
-				_goodUse = 1;
-				changeHp(dmg, pen);
 			}
 			else
 			{
-				// Pumping failed, Regained: $s1
-				SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.FISH_RESISTED_PUMPING_S1_HP_REGAINED);
-				sm.addInt(dmg);
-				_fisher.sendPacket(sm);
-				_goodUse = 2;
-				changeHp(-dmg, pen);
+				if (_deceptiveMode == 1)
+				{
+					_fishCurHp += (int) _regenHp;
+				}
 			}
-		}
-		else
-		{
-			if (_deceptiveMode == 0)
+			if (_stop == 0)
 			{
-				// Pumping failed, Regained: $s1
-				SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.FISH_RESISTED_PUMPING_S1_HP_REGAINED);
-				sm.addInt(dmg);
-				_fisher.sendPacket(sm);
-				_goodUse = 2;
-				changeHp(-dmg, pen);
+				_stop = 1;
+				int check = Rnd.get(100);
+				if (check >= 70)
+				{
+					_mode = _mode == 0 ? 1 : 0;
+				}
+				if (_isUpperGrade)
+				{
+					check = Rnd.get(100);
+					if (check >= 90)
+					{
+						_deceptiveMode = _deceptiveMode == 0 ? 1 : 0;
+					}
+				}
 			}
 			else
 			{
-				// Pumping is successful. Damage: $s1
-				SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.PUMPING_SUCCESFUL_S1_DAMAGE);
-				sm.addInt(dmg);
-				_fisher.sendPacket(sm);
-				if (pen > 0)
-				{
-					sm = SystemMessage.getSystemMessage(SystemMessageId.PUMPING_SUCCESSFUL_PENALTY_S1);
-					sm.addInt(pen);
-					_fisher.sendPacket(sm);
-				}
-				_goodUse = 1;
-				changeHp(dmg, pen);
+				_stop--;
+			}
+		}
+		finally
+		{
+			_thinking = false;
+			ExFishingHpRegen efhr = new ExFishingHpRegen(_fisher, _time, _fishCurHp, _mode, 0, _anim, 0, _deceptiveMode);
+			if (_anim != 0)
+			{
+				_fisher.broadcastPacket(efhr);
+			}
+			else
+			{
+				_fisher.sendPacket(efhr);
 			}
 		}
 	}
@@ -318,64 +310,72 @@ public class L2Fishing implements Runnable
 		}
 	}
 	
-	protected void aiTask()
+	public void usePumping(int dmg, int pen)
 	{
-		if (_thinking)
+		_anim = 1;
+		if (Rnd.get(100) > 90)
+		{
+			_fisher.sendPacket(SystemMessageId.FISH_RESISTED_ATTEMPT_TO_BRING_IT_IN);
+			_goodUse = 0;
+			changeHp(0, pen);
+			return;
+		}
+		if (_fisher == null)
 		{
 			return;
 		}
-		_thinking = true;
-		_time--;
-		
-		try
+		if (_mode == 0)
 		{
-			if (_mode == 1)
+			if (_deceptiveMode == 0)
 			{
-				if (_deceptiveMode == 0)
+				// Pumping is successful. Damage: $s1
+				SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.PUMPING_SUCCESFUL_S1_DAMAGE);
+				sm.addInt(dmg);
+				_fisher.sendPacket(sm);
+				if (pen > 0)
 				{
-					_fishCurHp += (int) _regenHp;
+					sm = SystemMessage.getSystemMessage(SystemMessageId.PUMPING_SUCCESSFUL_PENALTY_S1);
+					sm.addInt(pen);
+					_fisher.sendPacket(sm);
 				}
+				_goodUse = 1;
+				changeHp(dmg, pen);
 			}
 			else
 			{
-				if (_deceptiveMode == 1)
-				{
-					_fishCurHp += (int) _regenHp;
-				}
-			}
-			if (_stop == 0)
-			{
-				_stop = 1;
-				int check = Rnd.get(100);
-				if (check >= 70)
-				{
-					_mode = _mode == 0 ? 1 : 0;
-				}
-				if (_isUpperGrade)
-				{
-					check = Rnd.get(100);
-					if (check >= 90)
-					{
-						_deceptiveMode = _deceptiveMode == 0 ? 1 : 0;
-					}
-				}
-			}
-			else
-			{
-				_stop--;
+				// Pumping failed, Regained: $s1
+				SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.FISH_RESISTED_PUMPING_S1_HP_REGAINED);
+				sm.addInt(dmg);
+				_fisher.sendPacket(sm);
+				_goodUse = 2;
+				changeHp(-dmg, pen);
 			}
 		}
-		finally
+		else
 		{
-			_thinking = false;
-			ExFishingHpRegen efhr = new ExFishingHpRegen(_fisher, _time, _fishCurHp, _mode, 0, _anim, 0, _deceptiveMode);
-			if (_anim != 0)
+			if (_deceptiveMode == 0)
 			{
-				_fisher.broadcastPacket(efhr);
+				// Pumping failed, Regained: $s1
+				SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.FISH_RESISTED_PUMPING_S1_HP_REGAINED);
+				sm.addInt(dmg);
+				_fisher.sendPacket(sm);
+				_goodUse = 2;
+				changeHp(-dmg, pen);
 			}
 			else
 			{
-				_fisher.sendPacket(efhr);
+				// Pumping is successful. Damage: $s1
+				SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.PUMPING_SUCCESFUL_S1_DAMAGE);
+				sm.addInt(dmg);
+				_fisher.sendPacket(sm);
+				if (pen > 0)
+				{
+					sm = SystemMessage.getSystemMessage(SystemMessageId.PUMPING_SUCCESSFUL_PENALTY_S1);
+					sm.addInt(pen);
+					_fisher.sendPacket(sm);
+				}
+				_goodUse = 1;
+				changeHp(dmg, pen);
 			}
 		}
 	}

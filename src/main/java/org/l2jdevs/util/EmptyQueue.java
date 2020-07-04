@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,39 +38,9 @@ public final class EmptyQueue<E> implements Queue<E>
 	}
 	
 	@Override
-	public boolean add(E e)
+	public int size()
 	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean addAll(Collection<? extends E> c)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public void clear()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean contains(Object o)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean containsAll(Collection<?> c)
-	{
-		return false;
-	}
-	
-	@Override
-	public E element()
-	{
-		throw new UnsupportedOperationException();
+		return 0;
 	}
 	
 	@Override
@@ -80,37 +50,43 @@ public final class EmptyQueue<E> implements Queue<E>
 	}
 	
 	@Override
+	public boolean contains(Object o)
+	{
+		return false;
+	}
+	
+	@Override
 	public Iterator<E> iterator()
 	{
 		return Collections.<E> emptyIterator();
 	}
 	
 	@Override
-	public boolean offer(E e)
+	public Object[] toArray()
 	{
-		throw new UnsupportedOperationException();
+		return new Object[0];
 	}
 	
 	@Override
-	public E peek()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public E poll()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public E remove()
+	public <T> T[] toArray(T[] a)
 	{
 		throw new UnsupportedOperationException();
 	}
 	
 	@Override
 	public boolean remove(Object o)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public boolean containsAll(Collection<?> c)
+	{
+		return false;
+	}
+	
+	@Override
+	public boolean addAll(Collection<? extends E> c)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -128,19 +104,43 @@ public final class EmptyQueue<E> implements Queue<E>
 	}
 	
 	@Override
-	public int size()
+	public void clear()
 	{
-		return 0;
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	public Object[] toArray()
+	public boolean add(E e)
 	{
-		return new Object[0];
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	public <T> T[] toArray(T[] a)
+	public boolean offer(E e)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public E remove()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public E poll()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public E element()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public E peek()
 	{
 		throw new UnsupportedOperationException();
 	}

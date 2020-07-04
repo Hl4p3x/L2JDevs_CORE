@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -44,15 +44,15 @@ public class L2BoatInstance extends L2Vehicle
 	}
 	
 	@Override
-	public int getId()
-	{
-		return 0;
-	}
-	
-	@Override
 	public boolean isBoat()
 	{
 		return true;
+	}
+	
+	@Override
+	public int getId()
+	{
+		return 0;
 	}
 	
 	@Override
@@ -84,17 +84,17 @@ public class L2BoatInstance extends L2Vehicle
 	}
 	
 	@Override
-	public void sendInfo(L2PcInstance activeChar)
-	{
-		activeChar.sendPacket(new VehicleInfo(this));
-	}
-	
-	@Override
 	public void stopMove(Location loc, boolean updateKnownObjects)
 	{
 		super.stopMove(loc, updateKnownObjects);
 		
 		broadcastPacket(new VehicleStarted(this, 0));
 		broadcastPacket(new VehicleInfo(this));
+	}
+	
+	@Override
+	public void sendInfo(L2PcInstance activeChar)
+	{
+		activeChar.sendPacket(new VehicleInfo(this));
 	}
 }

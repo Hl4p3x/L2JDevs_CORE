@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -59,6 +59,53 @@ public final class HandysBlockCheckerManager
 	// Registration request penalty (10 seconds)
 	protected static Set<Integer> _registrationPenalty = Collections.synchronizedSet(new HashSet<Integer>());
 	
+	/**
+	 * Return the number of event-start votes for the specified arena id
+	 * @param arenaId
+	 * @return int (number of votes)
+	 */
+	public synchronized int getArenaVotes(int arenaId)
+	{
+		return _arenaVotes.get(arenaId);
+	}
+	
+	/**
+	 * Add a new vote to start the event for the specified arena id
+	 * @param arena
+	 */
+	public synchronized void increaseArenaVotes(int arena)
+	{
+		int newVotes = _arenaVotes.get(arena) + 1;
+		ArenaParticipantsHolder holder = _arenaPlayers[arena];
+		
+		if ((newVotes > (holder.getAllPlayers().size() / 2)) && !holder.getEvent().isStarted())
+		{
+			clearArenaVotes(arena);
+			if ((holder.getBlueTeamSize() == 0) || (holder.getRedTeamSize() == 0))
+			{
+				return;
+			}
+			if (Config.HBCE_FAIR_PLAY)
+			{
+				holder.checkAndShuffle();
+			}
+			ThreadPoolManager.getInstance().executeGeneral(holder.getEvent().new StartEvent());
+		}
+		else
+		{
+			_arenaVotes.put(arena, newVotes);
+		}
+	}
+	
+	/**
+	 * Will clear the votes queue (of event start) for the specified arena id
+	 * @param arena
+	 */
+	public synchronized void clearArenaVotes(int arena)
+	{
+		_arenaVotes.put(arena, 0);
+	}
+	
 	protected HandysBlockCheckerManager()
 	{
 		// Initialize arena status
@@ -75,12 +122,24 @@ public final class HandysBlockCheckerManager
 	}
 	
 	/**
-	 * Gets the single instance of {@code HandysBlockCheckerManager}.
-	 * @return single instance of {@code HandysBlockCheckerManager}
+	 * Returns the players holder
+	 * @param arena
+	 * @return ArenaParticipantsHolder
 	 */
-	public static HandysBlockCheckerManager getInstance()
+	public ArenaParticipantsHolder getHolder(int arena)
 	{
-		return SingletonHolder._instance;
+		return _arenaPlayers[arena];
+	}
+	
+	/**
+	 * Initializes the participants holder
+	 */
+	public void startUpParticipantsQueue()
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			_arenaPlayers[i] = new ArenaParticipantsHolder(i);
+		}
 	}
 	
 	/**
@@ -159,17 +218,31 @@ public final class HandysBlockCheckerManager
 	}
 	
 	/**
-	 * Returns true if arena is holding an event at this momment
+	 * Will remove the specified player from the specified team and arena and will send the needed packet to all his team mates / enemy team mates
+	 * @param player
 	 * @param arenaId
-	 * @return boolean
+	 * @param team
 	 */
-	public boolean arenaIsBeingUsed(int arenaId)
+	public void removePlayer(L2PcInstance player, int arenaId, int team)
 	{
-		if ((arenaId < 0) || (arenaId > 3))
+		ArenaParticipantsHolder holder = _arenaPlayers[arenaId];
+		synchronized (holder)
 		{
-			return false;
+			boolean isRed = team == 0 ? true : false;
+			
+			holder.removePlayer(player, team);
+			holder.broadCastPacketToTeam(new ExCubeGameRemovePlayer(player, isRed));
+			
+			// End event if theres an empty team
+			int teamSize = isRed ? holder.getRedTeamSize() : holder.getBlueTeamSize();
+			if (teamSize == 0)
+			{
+				holder.getEvent().endEventAbnormally();
+			}
+			
+			_registrationPenalty.add(player.getObjectId());
+			schedulePenaltyRemoval(player.getObjectId());
 		}
-		return _arenaStatus.get(arenaId);
 	}
 	
 	/**
@@ -213,15 +286,6 @@ public final class HandysBlockCheckerManager
 	}
 	
 	/**
-	 * Will clear the votes queue (of event start) for the specified arena id
-	 * @param arena
-	 */
-	public synchronized void clearArenaVotes(int arena)
-	{
-		_arenaVotes.put(arena, 0);
-	}
-	
-	/**
 	 * Will erase all participants from the specified holder
 	 * @param arenaId
 	 */
@@ -231,51 +295,35 @@ public final class HandysBlockCheckerManager
 	}
 	
 	/**
-	 * Return the number of event-start votes for the specified arena id
+	 * Returns true if arena is holding an event at this momment
 	 * @param arenaId
-	 * @return int (number of votes)
+	 * @return boolean
 	 */
-	public synchronized int getArenaVotes(int arenaId)
+	public boolean arenaIsBeingUsed(int arenaId)
 	{
-		return _arenaVotes.get(arenaId);
+		if ((arenaId < 0) || (arenaId > 3))
+		{
+			return false;
+		}
+		return _arenaStatus.get(arenaId);
 	}
 	
 	/**
-	 * Returns the players holder
-	 * @param arena
-	 * @return ArenaParticipantsHolder
+	 * Set the specified arena as being used
+	 * @param arenaId
 	 */
-	public ArenaParticipantsHolder getHolder(int arena)
+	public void setArenaBeingUsed(int arenaId)
 	{
-		return _arenaPlayers[arena];
+		_arenaStatus.put(arenaId, true);
 	}
 	
 	/**
-	 * Add a new vote to start the event for the specified arena id
-	 * @param arena
+	 * Set as free the specified arena for future events
+	 * @param arenaId
 	 */
-	public synchronized void increaseArenaVotes(int arena)
+	public void setArenaFree(int arenaId)
 	{
-		int newVotes = _arenaVotes.get(arena) + 1;
-		ArenaParticipantsHolder holder = _arenaPlayers[arena];
-		
-		if ((newVotes > (holder.getAllPlayers().size() / 2)) && !holder.getEvent().isStarted())
-		{
-			clearArenaVotes(arena);
-			if ((holder.getBlueTeamSize() == 0) || (holder.getRedTeamSize() == 0))
-			{
-				return;
-			}
-			if (Config.HBCE_FAIR_PLAY)
-			{
-				holder.checkAndShuffle();
-			}
-			ThreadPoolManager.getInstance().executeGeneral(holder.getEvent().new StartEvent());
-		}
-		else
-		{
-			_arenaVotes.put(arena, newVotes);
-		}
+		_arenaStatus.put(arenaId, false);
 	}
 	
 	/**
@@ -317,66 +365,18 @@ public final class HandysBlockCheckerManager
 		_registrationPenalty.remove(objectId);
 	}
 	
-	/**
-	 * Will remove the specified player from the specified team and arena and will send the needed packet to all his team mates / enemy team mates
-	 * @param player
-	 * @param arenaId
-	 * @param team
-	 */
-	public void removePlayer(L2PcInstance player, int arenaId, int team)
-	{
-		ArenaParticipantsHolder holder = _arenaPlayers[arenaId];
-		synchronized (holder)
-		{
-			boolean isRed = team == 0 ? true : false;
-			
-			holder.removePlayer(player, team);
-			holder.broadCastPacketToTeam(new ExCubeGameRemovePlayer(player, isRed));
-			
-			// End event if theres an empty team
-			int teamSize = isRed ? holder.getRedTeamSize() : holder.getBlueTeamSize();
-			if (teamSize == 0)
-			{
-				holder.getEvent().endEventAbnormally();
-			}
-			
-			_registrationPenalty.add(player.getObjectId());
-			schedulePenaltyRemoval(player.getObjectId());
-		}
-	}
-	
-	/**
-	 * Set the specified arena as being used
-	 * @param arenaId
-	 */
-	public void setArenaBeingUsed(int arenaId)
-	{
-		_arenaStatus.put(arenaId, true);
-	}
-	
-	/**
-	 * Set as free the specified arena for future events
-	 * @param arenaId
-	 */
-	public void setArenaFree(int arenaId)
-	{
-		_arenaStatus.put(arenaId, false);
-	}
-	
-	/**
-	 * Initializes the participants holder
-	 */
-	public void startUpParticipantsQueue()
-	{
-		for (int i = 0; i < 4; ++i)
-		{
-			_arenaPlayers[i] = new ArenaParticipantsHolder(i);
-		}
-	}
-	
 	private void schedulePenaltyRemoval(int objId)
 	{
 		ThreadPoolManager.getInstance().scheduleGeneral(new PenaltyRemoveTask(objId), 10000);
+	}
+	
+	/**
+	 * Gets the single instance of {@code HandysBlockCheckerManager}.
+	 * @return single instance of {@code HandysBlockCheckerManager}
+	 */
+	public static HandysBlockCheckerManager getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

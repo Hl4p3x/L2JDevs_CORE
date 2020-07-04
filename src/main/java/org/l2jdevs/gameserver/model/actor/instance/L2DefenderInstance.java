@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -59,48 +59,29 @@ public class L2DefenderInstance extends L2Attackable
 	}
 	
 	@Override
-	public void addDamageHate(L2Character attacker, int damage, long aggro)
-	{
-		if (attacker == null)
-		{
-			return;
-		}
-		
-		if (!(attacker instanceof L2DefenderInstance))
-		{
-			if ((damage == 0) && (aggro <= 1) && (attacker instanceof L2Playable))
-			{
-				L2PcInstance player = attacker.getActingPlayer();
-				// Check if siege is in progress
-				if (((_fort != null) && _fort.getZone().isActive()) || ((_castle != null) && _castle.getZone().isActive()) || ((_hall != null) && _hall.getSiegeZone().isActive()))
-				{
-					int activeSiegeId = (_fort != null ? _fort.getResidenceId() : (_castle != null ? _castle.getResidenceId() : (_hall != null ? _hall.getId() : 0)));
-					if ((player != null) && (((player.getSiegeState() == 2) && player.isRegisteredOnThisSiegeField(activeSiegeId)) || ((player.getSiegeState() == 1) && TerritoryWarManager.getInstance().isAllyField(player, activeSiegeId))))
-					{
-						return;
-					}
-				}
-			}
-			super.addDamageHate(attacker, damage, aggro);
-		}
-	}
-	
-	@Override
 	public DefenderKnownList getKnownList()
 	{
 		return (DefenderKnownList) super.getKnownList();
 	}
 	
 	@Override
-	public boolean hasRandomAnimation()
-	{
-		return false;
-	}
-	
-	@Override
 	public void initKnownList()
 	{
 		setKnownList(new DefenderKnownList(this));
+	}
+	
+	@Override
+	protected L2CharacterAI initAI()
+	{
+		if ((getConquerableHall() == null) && (getCastle(10000) == null))
+		{
+			return new L2FortSiegeGuardAI(this);
+		}
+		else if (getCastle(10000) != null)
+		{
+			return new L2SiegeGuardAI(this);
+		}
+		return new L2SpecialSiegeGuardAI(this);
 	}
 	
 	/**
@@ -130,6 +111,56 @@ public class L2DefenderInstance extends L2Attackable
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public boolean hasRandomAnimation()
+	{
+		return false;
+	}
+	
+	/**
+	 * This method forces guard to return to home location previously set
+	 */
+	@Override
+	public void returnHome()
+	{
+		if (getWalkSpeed() <= 0)
+		{
+			return;
+		}
+		if (getSpawn() == null)
+		{
+			return;
+		}
+		if (!isInsideRadius(getSpawn(), 40, false, false))
+		{
+			if (Config.DEBUG)
+			{
+				LOG.debug("{} moving home", getObjectId());
+			}
+			setisReturningToSpawnPoint(true);
+			clearAggroList();
+			
+			if (hasAI())
+			{
+				getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, getSpawn().getLocation());
+			}
+		}
+	}
+	
+	@Override
+	public void onSpawn()
+	{
+		super.onSpawn();
+		
+		_fort = FortManager.getInstance().getFort(getX(), getY(), getZ());
+		_castle = CastleManager.getInstance().getCastle(getX(), getY(), getZ());
+		_hall = getConquerableHall();
+		if ((_fort == null) && (_castle == null) && (_hall == null))
+		{
+			LOG.warn("L2DefenderInstance spawned outside of Fortress, Castle or Siegable hall Zone! NpcId: {} x={} y={} z={}", getId(), getX(), getY(), getZ());
+		}
 	}
 	
 	/**
@@ -178,60 +209,29 @@ public class L2DefenderInstance extends L2Attackable
 	}
 	
 	@Override
-	public void onSpawn()
+	public void addDamageHate(L2Character attacker, int damage, long aggro)
 	{
-		super.onSpawn();
+		if (attacker == null)
+		{
+			return;
+		}
 		
-		_fort = FortManager.getInstance().getFort(getX(), getY(), getZ());
-		_castle = CastleManager.getInstance().getCastle(getX(), getY(), getZ());
-		_hall = getConquerableHall();
-		if ((_fort == null) && (_castle == null) && (_hall == null))
+		if (!(attacker instanceof L2DefenderInstance))
 		{
-			LOG.warn("L2DefenderInstance spawned outside of Fortress, Castle or Siegable hall Zone! NpcId: {} x={} y={} z={}", getId(), getX(), getY(), getZ());
-		}
-	}
-	
-	/**
-	 * This method forces guard to return to home location previously set
-	 */
-	@Override
-	public void returnHome()
-	{
-		if (getWalkSpeed() <= 0)
-		{
-			return;
-		}
-		if (getSpawn() == null)
-		{
-			return;
-		}
-		if (!isInsideRadius(getSpawn(), 40, false, false))
-		{
-			if (Config.DEBUG)
+			if ((damage == 0) && (aggro <= 1) && (attacker instanceof L2Playable))
 			{
-				LOG.debug("{} moving home", getObjectId());
+				L2PcInstance player = attacker.getActingPlayer();
+				// Check if siege is in progress
+				if (((_fort != null) && _fort.getZone().isActive()) || ((_castle != null) && _castle.getZone().isActive()) || ((_hall != null) && _hall.getSiegeZone().isActive()))
+				{
+					int activeSiegeId = (_fort != null ? _fort.getResidenceId() : (_castle != null ? _castle.getResidenceId() : (_hall != null ? _hall.getId() : 0)));
+					if ((player != null) && (((player.getSiegeState() == 2) && player.isRegisteredOnThisSiegeField(activeSiegeId)) || ((player.getSiegeState() == 1) && TerritoryWarManager.getInstance().isAllyField(player, activeSiegeId))))
+					{
+						return;
+					}
+				}
 			}
-			setisReturningToSpawnPoint(true);
-			clearAggroList();
-			
-			if (hasAI())
-			{
-				getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, getSpawn().getLocation());
-			}
+			super.addDamageHate(attacker, damage, aggro);
 		}
-	}
-	
-	@Override
-	protected L2CharacterAI initAI()
-	{
-		if ((getConquerableHall() == null) && (getCastle(10000) == null))
-		{
-			return new L2FortSiegeGuardAI(this);
-		}
-		else if (getCastle(10000) != null)
-		{
-			return new L2SiegeGuardAI(this);
-		}
-		return new L2SpecialSiegeGuardAI(this);
 	}
 }

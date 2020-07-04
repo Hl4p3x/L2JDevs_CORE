@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -40,24 +40,6 @@ public class KarmaData implements IXmlReader
 		load();
 	}
 	
-	/**
-	 * Gets the single instance of KarmaData.
-	 * @return single instance of KarmaData
-	 */
-	public static KarmaData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * @param level
-	 * @return {@code double} modifier used to calculate karma lost upon death.
-	 */
-	public double getMultiplier(int level)
-	{
-		return _karmaTable.get(level);
-	}
-	
 	@Override
 	public synchronized void load()
 	{
@@ -83,6 +65,24 @@ public class KarmaData implements IXmlReader
 				}
 			}
 		}
+	}
+	
+	/**
+	 * @param level
+	 * @return {@code double} modifier used to calculate karma lost upon death.
+	 */
+	public double getMultiplier(int level)
+	{
+		return _karmaTable.get(level);
+	}
+	
+	/**
+	 * Gets the single instance of KarmaData.
+	 * @return single instance of KarmaData
+	 */
+	public static KarmaData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

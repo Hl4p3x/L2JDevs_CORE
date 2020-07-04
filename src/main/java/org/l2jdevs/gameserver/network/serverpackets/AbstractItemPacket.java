@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -28,21 +28,14 @@ import org.l2jdevs.gameserver.model.items.instance.L2ItemInstance;
  */
 public abstract class AbstractItemPacket extends L2GameServerPacket
 {
-	protected void writeInventoryBlock(PcInventory inventory)
+	protected void writeItem(TradeItem item)
 	{
-		if (inventory.hasInventoryBlock())
-		{
-			writeH(inventory.getBlockItems().length);
-			writeC(inventory.getBlockMode());
-			for (int i : inventory.getBlockItems())
-			{
-				writeD(i);
-			}
-		}
-		else
-		{
-			writeH(0x00);
-		}
+		writeItem(new ItemInfo(item));
+	}
+	
+	protected void writeItem(L2ItemInstance item)
+	{
+		writeItem(new ItemInfo(item));
 	}
 	
 	protected void writeItem(ItemInfo item)
@@ -63,16 +56,6 @@ public abstract class AbstractItemPacket extends L2GameServerPacket
 		writeItemElementalAndEnchant(item);
 	}
 	
-	protected void writeItem(L2ItemInstance item)
-	{
-		writeItem(new ItemInfo(item));
-	}
-	
-	protected void writeItem(TradeItem item)
-	{
-		writeItem(new ItemInfo(item));
-	}
-	
 	protected void writeItemElementalAndEnchant(ItemInfo item)
 	{
 		writeH(item.getAttackElementType());
@@ -85,6 +68,23 @@ public abstract class AbstractItemPacket extends L2GameServerPacket
 		for (int op : item.getEnchantOptions())
 		{
 			writeH(op);
+		}
+	}
+	
+	protected void writeInventoryBlock(PcInventory inventory)
+	{
+		if (inventory.hasInventoryBlock())
+		{
+			writeH(inventory.getBlockItems().length);
+			writeC(inventory.getBlockMode());
+			for (int i : inventory.getBlockItems())
+			{
+				writeD(i);
+			}
+		}
+		else
+		{
+			writeH(0x00);
 		}
 	}
 }

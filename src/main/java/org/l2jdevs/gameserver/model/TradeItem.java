@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -45,22 +45,6 @@ public class TradeItem
 	};
 	private final int[] _enchantOptions;
 	
-	public TradeItem(L2Item item, long count, long price)
-	{
-		_objectId = 0;
-		_item = item;
-		_location = 0;
-		_enchant = 0;
-		_type1 = 0;
-		_type2 = 0;
-		_count = count;
-		_storeCount = count;
-		_price = price;
-		_elemAtkType = Elementals.NONE;
-		_elemAtkPower = 0;
-		_enchantOptions = L2ItemInstance.DEFAULT_ENCHANT_OPTIONS;
-	}
-	
 	public TradeItem(L2ItemInstance item, long count, long price)
 	{
 		_objectId = item.getObjectId();
@@ -78,6 +62,22 @@ public class TradeItem
 			_elemDefAttr[i] = item.getElementDefAttr(i);
 		}
 		_enchantOptions = item.getEnchantOptions();
+	}
+	
+	public TradeItem(L2Item item, long count, long price)
+	{
+		_objectId = 0;
+		_item = item;
+		_location = 0;
+		_enchant = 0;
+		_type1 = 0;
+		_type2 = 0;
+		_count = count;
+		_storeCount = count;
+		_price = price;
+		_elemAtkType = Elementals.NONE;
+		_elemAtkPower = 0;
+		_enchantOptions = L2ItemInstance.DEFAULT_ENCHANT_OPTIONS;
 	}
 	
 	public TradeItem(TradeItem item, long count, long price)
@@ -100,44 +100,14 @@ public class TradeItem
 		_enchantOptions = item.getEnchantOptions();
 	}
 	
-	public int getAttackElementPower()
+	public void setObjectId(int objectId)
 	{
-		return _elemAtkPower;
+		_objectId = objectId;
 	}
 	
-	public byte getAttackElementType()
+	public int getObjectId()
 	{
-		return _elemAtkType;
-	}
-	
-	public long getCount()
-	{
-		return _count;
-	}
-	
-	public int getCustomType1()
-	{
-		return _type1;
-	}
-	
-	public int getCustomType2()
-	{
-		return _type2;
-	}
-	
-	public int getElementDefAttr(byte i)
-	{
-		return _elemDefAttr[i];
-	}
-	
-	public int getEnchant()
-	{
-		return _enchant;
-	}
-	
-	public int[] getEnchantOptions()
-	{
-		return _enchantOptions;
+		return _objectId;
 	}
 	
 	public L2Item getItem()
@@ -150,19 +120,24 @@ public class TradeItem
 		return _location;
 	}
 	
-	public int getObjectId()
+	public void setEnchant(int enchant)
 	{
-		return _objectId;
+		_enchant = enchant;
 	}
 	
-	public long getPrice()
+	public int getEnchant()
 	{
-		return _price;
+		return _enchant;
 	}
 	
-	public long getStoreCount()
+	public int getCustomType1()
 	{
-		return _storeCount;
+		return _type1;
+	}
+	
+	public int getCustomType2()
+	{
+		return _type2;
 	}
 	
 	public void setCount(long count)
@@ -170,18 +145,43 @@ public class TradeItem
 		_count = count;
 	}
 	
-	public void setEnchant(int enchant)
+	public long getCount()
 	{
-		_enchant = enchant;
+		return _count;
 	}
 	
-	public void setObjectId(int objectId)
+	public long getStoreCount()
 	{
-		_objectId = objectId;
+		return _storeCount;
 	}
 	
 	public void setPrice(long price)
 	{
 		_price = price;
+	}
+	
+	public long getPrice()
+	{
+		return _price;
+	}
+	
+	public byte getAttackElementType()
+	{
+		return _elemAtkType;
+	}
+	
+	public int getAttackElementPower()
+	{
+		return _elemAtkPower;
+	}
+	
+	public int getElementDefAttr(byte i)
+	{
+		return _elemDefAttr[i];
+	}
+	
+	public int[] getEnchantOptions()
+	{
+		return _enchantOptions;
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -33,10 +33,8 @@ import org.l2jdevs.gameserver.model.actor.L2Summon;
 import org.l2jdevs.gameserver.model.effects.AbstractEffect;
 import org.l2jdevs.gameserver.model.effects.EffectTaskInfo;
 import org.l2jdevs.gameserver.model.effects.EffectTickTask;
-import org.l2jdevs.gameserver.model.effects.L2EffectType;
 import org.l2jdevs.gameserver.model.stats.Formulas;
 import org.l2jdevs.gameserver.network.SystemMessageId;
-import org.l2jdevs.gameserver.network.serverpackets.MoveToLocation;
 import org.l2jdevs.gameserver.network.serverpackets.SystemMessage;
 
 /**
@@ -87,6 +85,15 @@ public final class BuffInfo
 	}
 	
 	/**
+	 * Gets the effects on this buff info.
+	 * @return the effects
+	 */
+	public List<AbstractEffect> getEffects()
+	{
+		return _effects;
+	}
+	
+	/**
 	 * Adds an effect to this buff info.
 	 * @param effect the effect to add
 	 */
@@ -96,11 +103,226 @@ public final class BuffInfo
 	}
 	
 	/**
-	 * Adds the buff stats.
+	 * Adds an effect task to this buff info.<br>
+	 * Uses double-checked locking to initialize the map if it's necessary.
+	 * @param effect the effect that owns the task
+	 * @param effectTaskInfo the task info
 	 */
-	public void addStats()
+	private void addTask(AbstractEffect effect, EffectTaskInfo effectTaskInfo)
 	{
-		_effects.forEach(effect -> _effected.addStatFuncs(effect.getStatFuncs(_effector, _effected, _skill)));
+		if (_tasks == null)
+		{
+			synchronized (this)
+			{
+				if (_tasks == null)
+				{
+					_tasks = new ConcurrentHashMap<>();
+				}
+			}
+		}
+		_tasks.put(effect, effectTaskInfo);
+	}
+	
+	/**
+	 * Gets the task for the given effect.
+	 * @param effect the effect
+	 * @return the task
+	 */
+	private EffectTaskInfo getEffectTask(AbstractEffect effect)
+	{
+		return (_tasks == null) ? null : _tasks.get(effect);
+	}
+	
+	/**
+	 * Gets the skill that created this buff info.
+	 * @return the skill
+	 */
+	public Skill getSkill()
+	{
+		return _skill;
+	}
+	
+	/**
+	 * Gets the calculated abnormal time.
+	 * @return the abnormal time
+	 */
+	public int getAbnormalTime()
+	{
+		return _abnormalTime;
+	}
+	
+	/**
+	 * Sets the abnormal time.
+	 * @param abnormalTime the abnormal time to set
+	 */
+	public void setAbnormalTime(int abnormalTime)
+	{
+		_abnormalTime = abnormalTime;
+	}
+	
+	/**
+	 * Gets the period start ticks.
+	 * @return the period start
+	 */
+	public int getPeriodStartTicks()
+	{
+		return _periodStartTicks;
+	}
+	
+	/**
+	 * Get the remaining time in seconds for this buff info.
+	 * @return the elapsed time
+	 */
+	public int getTime()
+	{
+		return _abnormalTime - ((GameTimeController.getInstance().getGameTicks() - _periodStartTicks) / GameTimeController.TICKS_PER_SECOND);
+	}
+	
+	/**
+	 * Verify if this buff info has been cancelled.
+	 * @return {@code true} if this buff info has been cancelled, {@code false} otherwise
+	 */
+	public boolean isRemoved()
+	{
+		return _isRemoved;
+	}
+	
+	/**
+	 * Set the buff info to removed.
+	 * @param val the value to set
+	 */
+	public void setRemoved(boolean val)
+	{
+		_isRemoved = val;
+	}
+	
+	/**
+	 * Verify if this buff info is in use.
+	 * @return {@code true} if this buff info is in use, {@code false} otherwise
+	 */
+	public boolean isInUse()
+	{
+		return _isInUse;
+	}
+	
+	/**
+	 * Set the buff info to in use.
+	 * @param val the value to set
+	 */
+	public void setInUse(boolean val)
+	{
+		_isInUse = val;
+	}
+	
+	/**
+	 * Gets the character that launched the buff.
+	 * @return the effector
+	 */
+	public L2Character getEffector()
+	{
+		return _effector;
+	}
+	
+	/**
+	 * Gets the target of the skill.
+	 * @return the effected
+	 */
+	public L2Character getEffected()
+	{
+		return _effected;
+	}
+	
+	/**
+	 * Stops all the effects for this buff info.<br>
+	 * Removes effects stats.<br>
+	 * <b>It will not remove the buff info from the effect list</b>.<br>
+	 * Instead call {@link CharEffectList#stopSkillEffects(boolean, Skill)}
+	 * @param removed if {@code true} the skill will be handled as removed
+	 */
+	public void stopAllEffects(boolean removed)
+	{
+		setRemoved(removed);
+		// Cancels the task that will end this buff info
+		if ((_scheduledFutureTimeTask != null) && !_scheduledFutureTimeTask.isCancelled())
+		{
+			_scheduledFutureTimeTask.cancel(true);
+		}
+		finishEffects();
+	}
+	
+	public void initializeEffects()
+	{
+		if ((_effected == null) || (_skill == null))
+		{
+			return;
+		}
+		
+		// When effects are initialized, the successfully landed.
+		if (_effected.isPlayer() && !_skill.isPassive())
+		{
+			final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.YOU_FEEL_S1_EFFECT);
+			sm.addSkillName(_skill);
+			_effected.sendPacket(sm);
+		}
+		
+		for (AbstractEffect effect : _effects)
+		{
+			if (effect.isInstant() || (_effected.isDead() && !_skill.isPassive()))
+			{
+				continue;
+			}
+			
+			// Call on start.
+			effect.onStart(this);
+			
+			// If it's a continuous effect, if has ticks schedule a task with period, otherwise schedule a simple task to end it.
+			if (effect.getTicks() > 0)
+			{
+				// The task for the effect ticks.
+				final EffectTickTask effectTask = new EffectTickTask(this, effect);
+				final ScheduledFuture<?> scheduledFuture = ThreadPoolManager.getInstance().scheduleEffectAtFixedRate(effectTask, effect.getTicks() * Config.EFFECT_TICK_RATIO, effect.getTicks() * Config.EFFECT_TICK_RATIO);
+				// Adds the task for ticking.
+				addTask(effect, new EffectTaskInfo(effectTask, scheduledFuture));
+			}
+			
+			// Add stats.
+			_effected.addStatFuncs(effect.getStatFuncs(_effector, _effected, _skill));
+		}
+		
+		addAbnormalVisualEffects();
+		
+		// Creates a task that will stop all the effects
+		if (_abnormalTime > 0)
+		{
+			_scheduledFutureTimeTask = ThreadPoolManager.getInstance().scheduleEffectAtFixedRate(new BuffTimeTask(this), 0, 1000L);
+		}
+	}
+	
+	/**
+	 * Called on each tick.<br>
+	 * Verify if the effect should end and the effect task should be cancelled.
+	 * @param effect the effect that is ticking
+	 * @param tickCount the tick count
+	 */
+	public void onTick(AbstractEffect effect, int tickCount)
+	{
+		boolean continueForever = false;
+		// If the effect is in use, allow it to affect the effected.
+		if (_isInUse)
+		{
+			// Callback for on action time event.
+			continueForever = effect.onActionTime(this);
+		}
+		
+		if (!continueForever && _skill.isToggle())
+		{
+			final EffectTaskInfo task = getEffectTask(effect);
+			if (task != null)
+			{
+				task.getScheduledFuture().cancel(true); // Don't allow to finish current run.
+				_effected.getEffectList().stopSkillEffects(true, getSkill()); // Remove the buff from the effect list.
+			}
+		}
 	}
 	
 	public void finishEffects()
@@ -158,65 +380,74 @@ public final class BuffInfo
 	}
 	
 	/**
-	 * Gets the calculated abnormal time.
-	 * @return the abnormal time
+	 * Applies all the abnormal visual effects to the effected.<br>
+	 * Prevents multiple updates.
 	 */
-	public int getAbnormalTime()
+	private void addAbnormalVisualEffects()
 	{
-		return _abnormalTime;
+		if (_skill.hasAbnormalVisualEffects())
+		{
+			_effected.startAbnormalVisualEffect(false, _skill.getAbnormalVisualEffects());
+		}
+		
+		if (_effected.isPlayer() && _skill.hasAbnormalVisualEffectsEvent())
+		{
+			_effected.startAbnormalVisualEffect(false, _skill.getAbnormalVisualEffectsEvent());
+		}
+		
+		if (_skill.hasAbnormalVisualEffectsSpecial())
+		{
+			_effected.startAbnormalVisualEffect(false, _skill.getAbnormalVisualEffectsSpecial());
+		}
+		
+		// Update abnormal visual effects.
+		_effected.updateAbnormalEffect();
 	}
 	
 	/**
-	 * @return the loaded charges
+	 * Removes all the abnormal visual effects from the effected.<br>
+	 * Prevents multiple updates.
 	 */
-	public int getCharges()
+	private void removeAbnormalVisualEffects()
 	{
-		return _charges;
+		if ((_effected == null) || (_skill == null))
+		{
+			return;
+		}
+		
+		if (_skill.hasAbnormalVisualEffects())
+		{
+			_effected.stopAbnormalVisualEffect(false, _skill.getAbnormalVisualEffects());
+		}
+		
+		if (_effected.isPlayer() && _skill.hasAbnormalVisualEffectsEvent())
+		{
+			_effected.stopAbnormalVisualEffect(false, _skill.getAbnormalVisualEffectsEvent());
+		}
+		
+		if (_skill.hasAbnormalVisualEffectsSpecial())
+		{
+			_effected.stopAbnormalVisualEffect(false, _skill.getAbnormalVisualEffectsSpecial());
+		}
+		
+		_effected.updateAbnormalEffect();
 	}
 	
 	/**
-	 * Gets the target of the skill.
-	 * @return the effected
+	 * Adds the buff stats.
 	 */
-	public L2Character getEffected()
+	public void addStats()
 	{
-		return _effected;
+		_effects.forEach(effect -> _effected.addStatFuncs(effect.getStatFuncs(_effector, _effected, _skill)));
 	}
 	
 	/**
-	 * Gets the character that launched the buff.
-	 * @return the effector
+	 * Removes the buff stats.
 	 */
-	public L2Character getEffector()
+	public void removeStats()
 	{
-		return _effector;
-	}
-	
-	/**
-	 * Gets the effects on this buff info.
-	 * @return the effects
-	 */
-	public List<AbstractEffect> getEffects()
-	{
-		return _effects;
-	}
-	
-	/**
-	 * Gets the period start ticks.
-	 * @return the period start
-	 */
-	public int getPeriodStartTicks()
-	{
-		return _periodStartTicks;
-	}
-	
-	/**
-	 * Gets the skill that created this buff info.
-	 * @return the skill
-	 */
-	public Skill getSkill()
-	{
-		return _skill;
+		_effects.forEach(_effected::removeStatsOwner);
+		_effected.removeStatsOwner(_skill);
 	}
 	
 	/**
@@ -238,123 +469,11 @@ public final class BuffInfo
 	}
 	
 	/**
-	 * Get the remaining time in seconds for this buff info.
-	 * @return the elapsed time
+	 * @return the loaded charges
 	 */
-	public int getTime()
+	public int getCharges()
 	{
-		return _abnormalTime - ((GameTimeController.getInstance().getGameTicks() - _periodStartTicks) / GameTimeController.TICKS_PER_SECOND);
-	}
-	
-	public void initializeEffects()
-	{
-		if ((_effected == null) || (_skill == null))
-		{
-			return;
-		}
-		
-		// When effects are initialized, the successfully landed.
-		if (_effected.isPlayer() && !_skill.isPassive())
-		{
-			final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.YOU_FEEL_S1_EFFECT);
-			sm.addSkillName(_skill);
-			_effected.sendPacket(sm);
-		}
-		
-		for (AbstractEffect effect : _effects)
-		{
-			if (effect.isInstant() || (_effected.isDead() && !_skill.isPassive()))
-			{
-				continue;
-			}
-			
-			// Call on start.
-			effect.onStart(this);
-			
-			// If it's a continuous effect, if has ticks schedule a task with period, otherwise schedule a simple task to end it.
-			if (effect.getTicks() > 0)
-			{
-				// The task for the effect ticks.
-				final EffectTickTask effectTask = new EffectTickTask(this, effect);
-				final ScheduledFuture<?> scheduledFuture = ThreadPoolManager.getInstance().scheduleEffectAtFixedRate(effectTask, effect.getTicks() * Config.EFFECT_TICK_RATIO, effect.getTicks() * Config.EFFECT_TICK_RATIO);
-				// Adds the task for ticking.
-				addTask(effect, new EffectTaskInfo(effectTask, scheduledFuture));
-			}
-			
-			// Add stats.
-			_effected.addStatFuncs(effect.getStatFuncs(_effector, _effected, _skill));
-		}
-		
-		addAbnormalVisualEffects();
-		
-		// Creates a task that will stop all the effects
-		if (_abnormalTime > 0)
-		{
-			_scheduledFutureTimeTask = ThreadPoolManager.getInstance().scheduleEffectAtFixedRate(new BuffTimeTask(this), 0, 1000L);
-		}
-	}
-	
-	/**
-	 * Verify if this buff info is in use.
-	 * @return {@code true} if this buff info is in use, {@code false} otherwise
-	 */
-	public boolean isInUse()
-	{
-		return _isInUse;
-	}
-	
-	/**
-	 * Verify if this buff info has been cancelled.
-	 * @return {@code true} if this buff info has been cancelled, {@code false} otherwise
-	 */
-	public boolean isRemoved()
-	{
-		return _isRemoved;
-	}
-	
-	/**
-	 * Called on each tick.<br>
-	 * Verify if the effect should end and the effect task should be cancelled.
-	 * @param effect the effect that is ticking
-	 * @param tickCount the tick count
-	 */
-	public void onTick(AbstractEffect effect, int tickCount)
-	{
-		boolean continueForever = false;
-		// If the effect is in use, allow it to affect the effected.
-		if (_isInUse)
-		{
-			// Callback for on action time event.
-			continueForever = effect.onActionTime(this);
-		}
-		
-		if (!continueForever && _skill.isToggle())
-		{
-			final EffectTaskInfo task = getEffectTask(effect);
-			if (task != null)
-			{
-				task.getScheduledFuture().cancel(true); // Don't allow to finish current run.
-				_effected.getEffectList().stopSkillEffects(true, getSkill()); // Remove the buff from the effect list.
-			}
-		}
-	}
-	
-	/**
-	 * Removes the buff stats.
-	 */
-	public void removeStats()
-	{
-		_effects.forEach(_effected::removeStatsOwner);
-		_effected.removeStatsOwner(_skill);
-	}
-	
-	/**
-	 * Sets the abnormal time.
-	 * @param abnormalTime the abnormal time to set
-	 */
-	public void setAbnormalTime(int abnormalTime)
-	{
-		_abnormalTime = abnormalTime;
+		return _charges;
 	}
 	
 	/**
@@ -365,150 +484,10 @@ public final class BuffInfo
 		_charges = charges;
 	}
 	
-	/**
-	 * Set the buff info to in use.
-	 * @param val the value to set
-	 */
-	public void setInUse(boolean val)
-	{
-		_isInUse = val;
-	}
-	
-	/**
-	 * Set the buff info to removed.
-	 * @param val the value to set
-	 */
-	public void setRemoved(boolean val)
-	{
-		_isRemoved = val;
-	}
-	
-	/**
-	 * Stops all the effects for this buff info.<br>
-	 * Removes effects stats.<br>
-	 * <b>It will not remove the buff info from the effect list</b>.<br>
-	 * Instead call {@link CharEffectList#stopSkillEffects(boolean, Skill)}
-	 * @param removed if {@code true} the skill will be handled as removed
-	 */
-	public void stopAllEffects(boolean removed)
-	{
-		setRemoved(removed);
-		// Cancels the task that will end this buff info
-		if ((_scheduledFutureTimeTask != null) && !_scheduledFutureTimeTask.isCancelled())
-		{
-			_scheduledFutureTimeTask.cancel(true);
-		}
-		finishEffects();
-	}
-	
 	@Override
 	public String toString()
 	{
 		return "BuffInfo [effector=" + _effector + ", effected=" + _effected + ", skill=" + _skill + ", effects=" + _effects + ", tasks=" + _tasks + ", scheduledFutureTimeTask=" + _scheduledFutureTimeTask + ", abnormalTime=" + _abnormalTime + ", periodStartTicks=" + _periodStartTicks
 			+ ", isRemoved=" + _isRemoved + ", isInUse=" + _isInUse + "]";
-	}
-	
-	/**
-	 * Applies all the abnormal visual effects to the effected.<br>
-	 * Prevents multiple updates.
-	 */
-	private void addAbnormalVisualEffects()
-	{
-		boolean UpdateAVE = false;
-		if (_skill.hasAbnormalVisualEffects())
-		{
-			_effected.startAbnormalVisualEffect(false, _skill.getAbnormalVisualEffects());
-			UpdateAVE = true;
-		}
-		
-		if (_effected.isPlayer() && _skill.hasAbnormalVisualEffectsEvent())
-		{
-			_effected.startAbnormalVisualEffect(false, _skill.getAbnormalVisualEffectsEvent());
-			UpdateAVE = true;
-		}
-		
-		if (_skill.hasAbnormalVisualEffectsSpecial())
-		{
-			_effected.startAbnormalVisualEffect(false, _skill.getAbnormalVisualEffectsSpecial());
-			UpdateAVE = true;
-		}
-		
-		// Update abnormal visual effects.
-		if (UpdateAVE)
-		{
-			_effected.updateAbnormalEffect();
-		}
-	}
-	
-	/**
-	 * Adds an effect task to this buff info.<br>
-	 * Uses double-checked locking to initialize the map if it's necessary.
-	 * @param effect the effect that owns the task
-	 * @param effectTaskInfo the task info
-	 */
-	private void addTask(AbstractEffect effect, EffectTaskInfo effectTaskInfo)
-	{
-		if (_tasks == null)
-		{
-			synchronized (this)
-			{
-				if (_tasks == null)
-				{
-					_tasks = new ConcurrentHashMap<>();
-				}
-			}
-		}
-		_tasks.put(effect, effectTaskInfo);
-	}
-	
-	/**
-	 * Gets the task for the given effect.
-	 * @param effect the effect
-	 * @return the task
-	 */
-	private EffectTaskInfo getEffectTask(AbstractEffect effect)
-	{
-		return (_tasks == null) ? null : _tasks.get(effect);
-	}
-	
-	/**
-	 * Removes all the abnormal visual effects from the effected.<br>
-	 * Prevents multiple updates.
-	 */
-	private void removeAbnormalVisualEffects()
-	{
-		if ((_effected == null) || (_skill == null))
-		{
-			return;
-		}
-		
-		boolean UpdateAVE = false;
-		
-		if (_skill.hasAbnormalVisualEffects())
-		{
-			_effected.stopAbnormalVisualEffect(false, _skill.getAbnormalVisualEffects());
-			UpdateAVE = true;
-		}
-		
-		if (_effected.isPlayer() && _skill.hasAbnormalVisualEffectsEvent())
-		{
-			_effected.stopAbnormalVisualEffect(false, _skill.getAbnormalVisualEffectsEvent());
-			UpdateAVE = true;
-		}
-		
-		if (_skill.hasAbnormalVisualEffectsSpecial())
-		{
-			_effected.stopAbnormalVisualEffect(false, _skill.getAbnormalVisualEffectsSpecial());
-			UpdateAVE = true;
-		}
-		
-		if (UpdateAVE)
-		{
-			_effected.updateAbnormalEffect();
-			if (_skill.hasEffectType(L2EffectType.FEAR) && _effected.isMoving())
-			{
-				_effected.broadcastPacket(new MoveToLocation(_effected));
-			}
-		}
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -42,9 +42,9 @@ import org.l2jdevs.util.data.xml.IXmlReader;
  */
 public class EnchantItemHPBonusData implements IXmlReader
 {
-	private static final float FULL_ARMOR_MODIFIER = 1.5f; // TODO: Move it to config!
-	
 	private final Map<CrystalType, List<Integer>> _armorHPBonuses = new EnumMap<>(CrystalType.class);
+	
+	private static final float FULL_ARMOR_MODIFIER = 1.5f; // TODO: Move it to config!
 	
 	/**
 	 * Instantiates a new enchant hp bonus data.
@@ -52,36 +52,6 @@ public class EnchantItemHPBonusData implements IXmlReader
 	protected EnchantItemHPBonusData()
 	{
 		load();
-	}
-	
-	/**
-	 * Gets the single instance of EnchantHPBonusData.
-	 * @return single instance of EnchantHPBonusData
-	 */
-	public static final EnchantItemHPBonusData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Gets the HP bonus.
-	 * @param item the item
-	 * @return the HP bonus
-	 */
-	public final int getHPBonus(L2ItemInstance item)
-	{
-		final List<Integer> values = _armorHPBonuses.get(item.getItem().getItemGradeSPlus());
-		if ((values == null) || values.isEmpty() || (item.getOlyEnchantLevel() <= 0))
-		{
-			return 0;
-		}
-		
-		final int bonus = values.get(Math.min(item.getOlyEnchantLevel(), values.size()) - 1);
-		if (item.getItem().getBodyPart() == L2Item.SLOT_FULL_ARMOR)
-		{
-			return (int) (bonus * FULL_ARMOR_MODIFIER);
-		}
-		return bonus;
 	}
 	
 	@Override
@@ -147,6 +117,36 @@ public class EnchantItemHPBonusData implements IXmlReader
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Gets the HP bonus.
+	 * @param item the item
+	 * @return the HP bonus
+	 */
+	public final int getHPBonus(L2ItemInstance item)
+	{
+		final List<Integer> values = _armorHPBonuses.get(item.getItem().getItemGradeSPlus());
+		if ((values == null) || values.isEmpty() || (item.getOlyEnchantLevel() <= 0))
+		{
+			return 0;
+		}
+		
+		final int bonus = values.get(Math.min(item.getOlyEnchantLevel(), values.size()) - 1);
+		if (item.getItem().getBodyPart() == L2Item.SLOT_FULL_ARMOR)
+		{
+			return (int) (bonus * FULL_ARMOR_MODIFIER);
+		}
+		return bonus;
+	}
+	
+	/**
+	 * Gets the single instance of EnchantHPBonusData.
+	 * @return single instance of EnchantHPBonusData
+	 */
+	public static final EnchantItemHPBonusData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

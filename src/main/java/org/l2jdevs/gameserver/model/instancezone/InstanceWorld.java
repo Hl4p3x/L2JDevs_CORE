@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -39,14 +39,24 @@ public class InstanceWorld
 	private final List<Integer> _allowed = new CopyOnWriteArrayList<>();
 	private final AtomicInteger _status = new AtomicInteger();
 	
+	public List<Integer> getAllowed()
+	{
+		return _allowed;
+	}
+	
+	public void removeAllowed(int id)
+	{
+		_allowed.remove(_allowed.indexOf(Integer.valueOf(id)));
+	}
+	
 	public void addAllowed(int id)
 	{
 		_allowed.add(id);
 	}
 	
-	public List<Integer> getAllowed()
+	public boolean isAllowed(int id)
 	{
-		return _allowed;
+		return _allowed.contains(id);
 	}
 	
 	/**
@@ -58,9 +68,13 @@ public class InstanceWorld
 		return _instanceId;
 	}
 	
-	public int getStatus()
+	/**
+	 * Sets the instance ID.
+	 * @param instanceId the instance ID
+	 */
+	public void setInstanceId(int instanceId)
 	{
-		return _status.get();
+		_instanceId = instanceId;
 	}
 	
 	/**
@@ -72,19 +86,33 @@ public class InstanceWorld
 		return _templateId;
 	}
 	
-	public void incStatus()
+	/**
+	 * Sets the template ID.
+	 * @param templateId the template ID
+	 */
+	public void setTemplateId(int templateId)
 	{
-		_status.incrementAndGet();
+		_templateId = templateId;
 	}
 	
-	public boolean isAllowed(int id)
+	public int getStatus()
 	{
-		return _allowed.contains(id);
+		return _status.get();
 	}
 	
 	public boolean isStatus(int status)
 	{
 		return _status.get() == status;
+	}
+	
+	public void setStatus(int status)
+	{
+		_status.set(status);
+	}
+	
+	public void incStatus()
+	{
+		_status.incrementAndGet();
 	}
 	
 	/**
@@ -104,33 +132,5 @@ public class InstanceWorld
 				instance.addEjectDeadTask(victim.getActingPlayer());
 			}
 		}
-	}
-	
-	public void removeAllowed(int id)
-	{
-		_allowed.remove(_allowed.indexOf(Integer.valueOf(id)));
-	}
-	
-	/**
-	 * Sets the instance ID.
-	 * @param instanceId the instance ID
-	 */
-	public void setInstanceId(int instanceId)
-	{
-		_instanceId = instanceId;
-	}
-	
-	public void setStatus(int status)
-	{
-		_status.set(status);
-	}
-	
-	/**
-	 * Sets the template ID.
-	 * @param templateId the template ID
-	 */
-	public void setTemplateId(int templateId)
-	{
-		_templateId = templateId;
 	}
 }

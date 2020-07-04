@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -36,6 +36,11 @@ public final class PropertiesParser
 	private final Properties _properties = new Properties();
 	private final File _file;
 	
+	public PropertiesParser(String name)
+	{
+		this(new File(name));
+	}
+	
 	public PropertiesParser(File file)
 	{
 		_file = file;
@@ -52,14 +57,15 @@ public final class PropertiesParser
 		}
 	}
 	
-	public PropertiesParser(String name)
-	{
-		this(new File(name));
-	}
-	
 	public boolean containskey(String key)
 	{
 		return _properties.containsKey(key);
+	}
+	
+	private String getValue(String key)
+	{
+		String value = _properties.getProperty(key);
+		return value != null ? value.trim() : null;
 	}
 	
 	public boolean getBoolean(String key, boolean defaultValue)
@@ -106,7 +112,7 @@ public final class PropertiesParser
 		}
 	}
 	
-	public double getDouble(String key, double defaultValue)
+	public short getShort(String key, short defaultValue)
 	{
 		String value = getValue(key);
 		if (value == null)
@@ -117,51 +123,11 @@ public final class PropertiesParser
 		
 		try
 		{
-			return Double.parseDouble(value);
+			return Short.parseShort(value);
 		}
 		catch (NumberFormatException e)
 		{
-			_log.warning("[" + _file.getName() + "] Invalid value specified for key: " + key + " specified value: " + value + " should be \"double\" using default value: " + defaultValue);
-			return defaultValue;
-		}
-	}
-	
-	public <T extends Enum<T>> T getEnum(String key, Class<T> clazz, T defaultValue)
-	{
-		String value = getValue(key);
-		if (value == null)
-		{
-			_log.warning("[" + _file.getName() + "] missing property for key: " + key + " using default value: " + defaultValue);
-			return defaultValue;
-		}
-		
-		try
-		{
-			return Enum.valueOf(clazz, value);
-		}
-		catch (IllegalArgumentException e)
-		{
-			_log.warning("[" + _file.getName() + "] Invalid value specified for key: " + key + " specified value: " + value + " should be enum value of \"" + clazz.getSimpleName() + "\" using default value: " + defaultValue);
-			return defaultValue;
-		}
-	}
-	
-	public float getFloat(String key, float defaultValue)
-	{
-		String value = getValue(key);
-		if (value == null)
-		{
-			_log.warning("[" + _file.getName() + "] missing property for key: " + key + " using default value: " + defaultValue);
-			return defaultValue;
-		}
-		
-		try
-		{
-			return Float.parseFloat(value);
-		}
-		catch (NumberFormatException e)
-		{
-			_log.warning("[" + _file.getName() + "] Invalid value specified for key: " + key + " specified value: " + value + " should be \"float\" using default value: " + defaultValue);
+			_log.warning("[" + _file.getName() + "] Invalid value specified for key: " + key + " specified value: " + value + " should be \"short\" using default value: " + defaultValue);
 			return defaultValue;
 		}
 	}
@@ -206,7 +172,7 @@ public final class PropertiesParser
 		}
 	}
 	
-	public short getShort(String key, short defaultValue)
+	public float getFloat(String key, float defaultValue)
 	{
 		String value = getValue(key);
 		if (value == null)
@@ -217,11 +183,31 @@ public final class PropertiesParser
 		
 		try
 		{
-			return Short.parseShort(value);
+			return Float.parseFloat(value);
 		}
 		catch (NumberFormatException e)
 		{
-			_log.warning("[" + _file.getName() + "] Invalid value specified for key: " + key + " specified value: " + value + " should be \"short\" using default value: " + defaultValue);
+			_log.warning("[" + _file.getName() + "] Invalid value specified for key: " + key + " specified value: " + value + " should be \"float\" using default value: " + defaultValue);
+			return defaultValue;
+		}
+	}
+	
+	public double getDouble(String key, double defaultValue)
+	{
+		String value = getValue(key);
+		if (value == null)
+		{
+			_log.warning("[" + _file.getName() + "] missing property for key: " + key + " using default value: " + defaultValue);
+			return defaultValue;
+		}
+		
+		try
+		{
+			return Double.parseDouble(value);
+		}
+		catch (NumberFormatException e)
+		{
+			_log.warning("[" + _file.getName() + "] Invalid value specified for key: " + key + " specified value: " + value + " should be \"double\" using default value: " + defaultValue);
 			return defaultValue;
 		}
 	}
@@ -237,9 +223,23 @@ public final class PropertiesParser
 		return value;
 	}
 	
-	private String getValue(String key)
+	public <T extends Enum<T>> T getEnum(String key, Class<T> clazz, T defaultValue)
 	{
-		String value = _properties.getProperty(key);
-		return value != null ? value.trim() : null;
+		String value = getValue(key);
+		if (value == null)
+		{
+			_log.warning("[" + _file.getName() + "] missing property for key: " + key + " using default value: " + defaultValue);
+			return defaultValue;
+		}
+		
+		try
+		{
+			return Enum.valueOf(clazz, value);
+		}
+		catch (IllegalArgumentException e)
+		{
+			_log.warning("[" + _file.getName() + "] Invalid value specified for key: " + key + " specified value: " + value + " should be enum value of \"" + clazz.getSimpleName() + "\" using default value: " + defaultValue);
+			return defaultValue;
+		}
 	}
 }

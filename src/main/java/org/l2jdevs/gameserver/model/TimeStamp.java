@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -41,6 +41,21 @@ public class TimeStamp
 	private final int _group;
 	
 	/**
+	 * Skill time stamp constructor.
+	 * @param skill the skill upon the stamp will be created.
+	 * @param reuse the reuse time for this skill.
+	 * @param systime overrides the system time with a customized one.
+	 */
+	public TimeStamp(Skill skill, long reuse, long systime)
+	{
+		_id1 = skill.getId();
+		_id2 = skill.getLevel();
+		_reuse = reuse;
+		_stamp = systime > 0 ? systime : System.currentTimeMillis() + reuse;
+		_group = -1;
+	}
+	
+	/**
 	 * Item time stamp constructor.
 	 * @param item the item upon the stamp will be created.
 	 * @param reuse the reuse time for this item.
@@ -56,18 +71,12 @@ public class TimeStamp
 	}
 	
 	/**
-	 * Skill time stamp constructor.
-	 * @param skill the skill upon the stamp will be created.
-	 * @param reuse the reuse time for this skill.
-	 * @param systime overrides the system time with a customized one.
+	 * Gets the time stamp.
+	 * @return the time stamp, either the system time where this time stamp was created or the custom time assigned
 	 */
-	public TimeStamp(Skill skill, long reuse, long systime)
+	public long getStamp()
 	{
-		_id1 = skill.getId();
-		_id2 = skill.getLevel();
-		_reuse = reuse;
-		_stamp = systime > 0 ? systime : System.currentTimeMillis() + reuse;
-		_group = -1;
+		return _stamp;
 	}
 	
 	/**
@@ -89,12 +98,21 @@ public class TimeStamp
 	}
 	
 	/**
-	 * Gets the remaining time.
-	 * @return the remaining time for this time stamp to expire
+	 * Gets the skill ID.
+	 * @return the skill ID
 	 */
-	public long getRemaining()
+	public int getSkillId()
 	{
-		return Math.max(_stamp - System.currentTimeMillis(), 0);
+		return _id1;
+	}
+	
+	/**
+	 * Gets the skill level.
+	 * @return the skill level
+	 */
+	public int getSkillLvl()
+	{
+		return _id2;
 	}
 	
 	/**
@@ -117,30 +135,12 @@ public class TimeStamp
 	}
 	
 	/**
-	 * Gets the skill ID.
-	 * @return the skill ID
+	 * Gets the remaining time.
+	 * @return the remaining time for this time stamp to expire
 	 */
-	public int getSkillId()
+	public long getRemaining()
 	{
-		return _id1;
-	}
-	
-	/**
-	 * Gets the skill level.
-	 * @return the skill level
-	 */
-	public int getSkillLvl()
-	{
-		return _id2;
-	}
-	
-	/**
-	 * Gets the time stamp.
-	 * @return the time stamp, either the system time where this time stamp was created or the custom time assigned
-	 */
-	public long getStamp()
-	{
-		return _stamp;
+		return Math.max(_stamp - System.currentTimeMillis(), 0);
 	}
 	
 	/**

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -66,158 +66,6 @@ public class GameServerThread extends Thread
 	private final Set<String> _accountsOnGameServer = ConcurrentHashMap.newKeySet();
 	
 	private String _connectionIPAddress;
-	
-	public GameServerThread(Socket con)
-	{
-		_connection = con;
-		_connectionIp = con.getInetAddress().getHostAddress();
-		try
-		{
-			_in = _connection.getInputStream();
-			_out = new BufferedOutputStream(_connection.getOutputStream());
-		}
-		catch (IOException e)
-		{
-			_log.warning(getClass().getSimpleName() + ": " + e.getMessage());
-		}
-		KeyPair pair = GameServerTable.getInstance().getKeyPair();
-		_privateKey = (RSAPrivateKey) pair.getPrivate();
-		_publicKey = (RSAPublicKey) pair.getPublic();
-		_blowfish = new NewCrypt("_;v.]05-31!|+-%xT!^[$\00");
-		setName(getClass().getSimpleName() + "-" + getId() + "@" + _connectionIp);
-		start();
-	}
-	
-	/**
-	 * @param ipAddress
-	 * @return
-	 */
-	public static boolean isBannedGameserverIP(String ipAddress)
-	{
-		return false;
-	}
-	
-	public void addAccountOnGameServer(String account)
-	{
-		_accountsOnGameServer.add(account);
-	}
-	
-	/**
-	 * Attachs a GameServerInfo to this Thread<br>
-	 * <ul>
-	 * <li>Updates the GameServerInfo values based on GameServerAuth packet</li>
-	 * <li><b>Sets the GameServerInfo as Authed</b></li>
-	 * </ul>
-	 * @param gsi The GameServerInfo to be attached.
-	 * @param port
-	 * @param hosts
-	 * @param maxPlayers
-	 */
-	public void attachGameServerInfo(GameServerInfo gsi, int port, String[] hosts, int maxPlayers)
-	{
-		setGameServerInfo(gsi);
-		gsi.setGameServerThread(this);
-		gsi.setPort(port);
-		setGameHosts(hosts);
-		gsi.setMaxPlayers(maxPlayers);
-		gsi.setAuthed(true);
-	}
-	
-	public void broadcastToTelnet(String msg)
-	{
-		if (L2LoginServer.getInstance().getStatusServer() != null)
-		{
-			L2LoginServer.getInstance().getStatusServer().sendMessageToTelnets(msg);
-		}
-	}
-	
-	public void ChangePasswordResponse(byte successful, String characterName, String msgToSend)
-	{
-		sendPacket(new ChangePasswordResponse(successful, characterName, msgToSend));
-	}
-	
-	public void forceClose(int reason)
-	{
-		sendPacket(new LoginServerFail(reason));
-		
-		try
-		{
-			_connection.close();
-		}
-		catch (IOException e)
-		{
-			_log.finer("GameServerThread: Failed disconnecting banned server, server already disconnected.");
-		}
-	}
-	
-	/**
-	 * @return Returns the connectionIpAddress.
-	 */
-	public String getConnectionIpAddress()
-	{
-		return _connectionIPAddress;
-	}
-	
-	public GameServerInfo getGameServerInfo()
-	{
-		return _gsi;
-	}
-	
-	public GameServerState getLoginConnectionState()
-	{
-		return _loginConnectionState;
-	}
-	
-	public int getPlayerCount()
-	{
-		return _accountsOnGameServer.size();
-	}
-	
-	public RSAPrivateKey getPrivateKey()
-	{
-		return _privateKey;
-	}
-	
-	public int getServerId()
-	{
-		if (getGameServerInfo() != null)
-		{
-			return getGameServerInfo().getId();
-		}
-		return -1;
-	}
-	
-	public boolean hasAccountOnGameServer(String account)
-	{
-		return _accountsOnGameServer.contains(account);
-	}
-	
-	/**
-	 * @return Returns the isAuthed.
-	 */
-	public boolean isAuthed()
-	{
-		if (getGameServerInfo() == null)
-		{
-			return false;
-		}
-		return getGameServerInfo().isAuthed();
-	}
-	
-	public void kickPlayer(String account)
-	{
-		sendPacket(new KickPlayer(account));
-	}
-	
-	public void removeAccountOnGameServer(String account)
-	{
-		_accountsOnGameServer.remove(account);
-	}
-	
-	public void requestCharacters(String account)
-	{
-		sendPacket(new RequestCharacters(account));
-	}
 	
 	@Override
 	public void run()
@@ -306,6 +154,81 @@ public class GameServerThread extends Thread
 		}
 	}
 	
+	public boolean hasAccountOnGameServer(String account)
+	{
+		return _accountsOnGameServer.contains(account);
+	}
+	
+	public int getPlayerCount()
+	{
+		return _accountsOnGameServer.size();
+	}
+	
+	/**
+	 * Attachs a GameServerInfo to this Thread<br>
+	 * <ul>
+	 * <li>Updates the GameServerInfo values based on GameServerAuth packet</li>
+	 * <li><b>Sets the GameServerInfo as Authed</b></li>
+	 * </ul>
+	 * @param gsi The GameServerInfo to be attached.
+	 * @param port
+	 * @param hosts
+	 * @param maxPlayers
+	 */
+	public void attachGameServerInfo(GameServerInfo gsi, int port, String[] hosts, int maxPlayers)
+	{
+		setGameServerInfo(gsi);
+		gsi.setGameServerThread(this);
+		gsi.setPort(port);
+		setGameHosts(hosts);
+		gsi.setMaxPlayers(maxPlayers);
+		gsi.setAuthed(true);
+	}
+	
+	public void forceClose(int reason)
+	{
+		sendPacket(new LoginServerFail(reason));
+		
+		try
+		{
+			_connection.close();
+		}
+		catch (IOException e)
+		{
+			_log.finer("GameServerThread: Failed disconnecting banned server, server already disconnected.");
+		}
+	}
+	
+	/**
+	 * @param ipAddress
+	 * @return
+	 */
+	public static boolean isBannedGameserverIP(String ipAddress)
+	{
+		return false;
+	}
+	
+	public GameServerThread(Socket con)
+	{
+		_connection = con;
+		_connectionIp = con.getInetAddress().getHostAddress();
+		try
+		{
+			_in = _connection.getInputStream();
+			_out = new BufferedOutputStream(_connection.getOutputStream());
+		}
+		catch (IOException e)
+		{
+			_log.warning(getClass().getSimpleName() + ": " + e.getMessage());
+		}
+		KeyPair pair = GameServerTable.getInstance().getKeyPair();
+		_privateKey = (RSAPrivateKey) pair.getPrivate();
+		_publicKey = (RSAPublicKey) pair.getPublic();
+		_blowfish = new NewCrypt("_;v.]05-31!|+-%xT!^[$\00");
+		setName(getClass().getSimpleName() + "-" + getId() + "@" + _connectionIp);
+		start();
+	}
+	
 	/**
 	 * @param sl
 	 */
@@ -336,9 +259,27 @@ public class GameServerThread extends Thread
 		}
 	}
 	
-	public void SetBlowFish(NewCrypt blowfish)
+	public void broadcastToTelnet(String msg)
 	{
-		_blowfish = blowfish;
+		if (L2LoginServer.getInstance().getStatusServer() != null)
+		{
+			L2LoginServer.getInstance().getStatusServer().sendMessageToTelnets(msg);
+		}
+	}
+	
+	public void kickPlayer(String account)
+	{
+		sendPacket(new KickPlayer(account));
+	}
+	
+	public void requestCharacters(String account)
+	{
+		sendPacket(new RequestCharacters(account));
+	}
+	
+	public void ChangePasswordResponse(byte successful, String characterName, String msgToSend)
+	{
+		sendPacket(new ChangePasswordResponse(successful, characterName, msgToSend));
 	}
 	
 	/**
@@ -367,9 +308,68 @@ public class GameServerThread extends Thread
 		}
 	}
 	
+	/**
+	 * @return Returns the isAuthed.
+	 */
+	public boolean isAuthed()
+	{
+		if (getGameServerInfo() == null)
+		{
+			return false;
+		}
+		return getGameServerInfo().isAuthed();
+	}
+	
 	public void setGameServerInfo(GameServerInfo gsi)
 	{
 		_gsi = gsi;
+	}
+	
+	public GameServerInfo getGameServerInfo()
+	{
+		return _gsi;
+	}
+	
+	/**
+	 * @return Returns the connectionIpAddress.
+	 */
+	public String getConnectionIpAddress()
+	{
+		return _connectionIPAddress;
+	}
+	
+	public int getServerId()
+	{
+		if (getGameServerInfo() != null)
+		{
+			return getGameServerInfo().getId();
+		}
+		return -1;
+	}
+	
+	public RSAPrivateKey getPrivateKey()
+	{
+		return _privateKey;
+	}
+	
+	public void SetBlowFish(NewCrypt blowfish)
+	{
+		_blowfish = blowfish;
+	}
+	
+	public void addAccountOnGameServer(String account)
+	{
+		_accountsOnGameServer.add(account);
+	}
+	
+	public void removeAccountOnGameServer(String account)
+	{
+		_accountsOnGameServer.remove(account);
+	}
+	
+	public GameServerState getLoginConnectionState()
+	{
+		return _loginConnectionState;
 	}
 	
 	public void setLoginConnectionState(GameServerState state)

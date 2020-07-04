@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -58,11 +58,6 @@ public final class DayNightSpawnManager
 		// Prevent external initialization.
 	}
 	
-	public static DayNightSpawnManager getInstance()
-	{
-		return SingletonHolder.instance;
-	}
-	
 	public void addDayCreature(L2Spawn spawnDat)
 	{
 		_dayCreatures.add(spawnDat);
@@ -71,73 +66,6 @@ public final class DayNightSpawnManager
 	public void addNightCreature(L2Spawn spawnDat)
 	{
 		_nightCreatures.add(spawnDat);
-	}
-	
-	public void cleanUp()
-	{
-		_nightCreatures.clear();
-		_dayCreatures.clear();
-		_bosses.clear();
-	}
-	
-	public void notifyChangeMode()
-	{
-		try
-		{
-			if (GameTimeController.getInstance().isNight())
-			{
-				changeMode(1);
-			}
-			else
-			{
-				changeMode(0);
-			}
-		}
-		catch (Exception e)
-		{
-			LOG.warn("{}: Error while notifyChangeMode() {} {}", getClass().getSimpleName(), e.getMessage(), e);
-		}
-		// Applies Shadow Sense between 00h00m (midnight) and 06h00m (sunrise)
-		applyShadowSense();
-	}
-	
-	/**
-	 * Spawn Day Creatures, and Unspawn Night Creatures
-	 */
-	public void spawnDayCreatures()
-	{
-		spawnCreatures(_nightCreatures, _dayCreatures, "night", "day");
-	}
-	
-	/**
-	 * Spawn Night Creatures, and Unspawn Day Creatures
-	 */
-	public void spawnNightCreatures()
-	{
-		spawnCreatures(_dayCreatures, _nightCreatures, "day", "night");
-	}
-	
-	public DayNightSpawnManager trim()
-	{
-		((ArrayList<?>) _nightCreatures).trimToSize();
-		((ArrayList<?>) _dayCreatures).trimToSize();
-		return this;
-	}
-	
-	protected L2RaidBossInstance handleBoss(L2Spawn spawnDat)
-	{
-		if (_bosses.containsKey(spawnDat))
-		{
-			return _bosses.get(spawnDat);
-		}
-		
-		if (GameTimeController.getInstance().isNight())
-		{
-			final L2RaidBossInstance raidboss = (L2RaidBossInstance) spawnDat.doSpawn();
-			_bosses.put(spawnDat, raidboss);
-			return raidboss;
-		}
-		return null;
 	}
 	
 	private void applyShadowSense()
@@ -193,6 +121,29 @@ public final class DayNightSpawnManager
 		}
 	}
 	
+	public void cleanUp()
+	{
+		_nightCreatures.clear();
+		_dayCreatures.clear();
+		_bosses.clear();
+	}
+	
+	protected L2RaidBossInstance handleBoss(L2Spawn spawnDat)
+	{
+		if (_bosses.containsKey(spawnDat))
+		{
+			return _bosses.get(spawnDat);
+		}
+		
+		if (GameTimeController.getInstance().isNight())
+		{
+			final L2RaidBossInstance raidboss = (L2RaidBossInstance) spawnDat.doSpawn();
+			_bosses.put(spawnDat, raidboss);
+			return raidboss;
+		}
+		return null;
+	}
+	
 	private void handleHellmans(L2RaidBossInstance boss, int mode)
 	{
 		switch (mode)
@@ -213,6 +164,27 @@ public final class DayNightSpawnManager
 				break;
 			}
 		}
+	}
+	
+	public void notifyChangeMode()
+	{
+		try
+		{
+			if (GameTimeController.getInstance().isNight())
+			{
+				changeMode(1);
+			}
+			else
+			{
+				changeMode(0);
+			}
+		}
+		catch (Exception e)
+		{
+			LOG.warn("{}: Error while notifyChangeMode() {} {}", getClass().getSimpleName(), e.getMessage(), e);
+		}
+		// Applies Shadow Sense between 00h00m (midnight) and 06h00m (sunrise)
+		applyShadowSense();
 	}
 	
 	/**
@@ -266,6 +238,22 @@ public final class DayNightSpawnManager
 		}
 	}
 	
+	/**
+	 * Spawn Day Creatures, and Unspawn Night Creatures
+	 */
+	public void spawnDayCreatures()
+	{
+		spawnCreatures(_nightCreatures, _dayCreatures, "night", "day");
+	}
+	
+	/**
+	 * Spawn Night Creatures, and Unspawn Day Creatures
+	 */
+	public void spawnNightCreatures()
+	{
+		spawnCreatures(_dayCreatures, _nightCreatures, "day", "night");
+	}
+	
 	private void specialNightBoss(int mode)
 	{
 		try
@@ -300,8 +288,20 @@ public final class DayNightSpawnManager
 		}
 	}
 	
+	public DayNightSpawnManager trim()
+	{
+		((ArrayList<?>) _nightCreatures).trimToSize();
+		((ArrayList<?>) _dayCreatures).trimToSize();
+		return this;
+	}
+	
 	private static class SingletonHolder
 	{
 		protected static final DayNightSpawnManager instance = new DayNightSpawnManager();
+	}
+	
+	public static DayNightSpawnManager getInstance()
+	{
+		return SingletonHolder.instance;
 	}
 }

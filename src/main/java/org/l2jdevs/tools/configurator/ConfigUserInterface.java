@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -84,6 +84,26 @@ public class ConfigUserInterface extends JFrame implements ActionListener
 	
 	private ResourceBundle _bundle;
 	
+	public static void main(String[] args)
+	{
+		try
+		{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		catch (Exception e)
+		{
+			// couldn't care less
+		}
+		
+		final ResourceBundle bundle = ResourceBundle.getBundle("configurator.Configurator", Locale.getDefault(), LanguageControl.INSTANCE);
+		
+		SwingUtilities.invokeLater(() ->
+		{
+			ConfigUserInterface cui = new ConfigUserInterface(bundle);
+			cui.setVisible(true);
+		});
+	}
+	
 	public ConfigUserInterface(ResourceBundle bundle)
 	{
 		setBundle(bundle);
@@ -136,120 +156,12 @@ public class ConfigUserInterface extends JFrame implements ActionListener
 		this.add(_tabPane, cons);
 	}
 	
-	public static void main(String[] args)
+	private JButton createToolButton(String image, String text, String action)
 	{
-		try
-		{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch (Exception e)
-		{
-			// couldn't care less
-		}
-		
-		final ResourceBundle bundle = ResourceBundle.getBundle("configurator.Configurator", Locale.getDefault(), LanguageControl.INSTANCE);
-		
-		SwingUtilities.invokeLater(() ->
-		{
-			ConfigUserInterface cui = new ConfigUserInterface(bundle);
-			cui.setVisible(true);
-		});
-	}
-	
-	/**
-	 * @param keyName
-	 * @return Returns the configuration setting name in a human readable form.
-	 */
-	public static String unCamelize(final String keyName)
-	{
-		Pattern p = Pattern.compile("\\p{Lu}");
-		Matcher m = p.matcher(keyName);
-		StringBuffer sb = new StringBuffer();
-		int last = 0;
-		while (m.find())
-		{
-			if (m.start() != (last + 1))
-			{
-				m.appendReplacement(sb, " " + m.group());
-			}
-			last = m.start();
-		}
-		m.appendTail(sb);
-		return sb.toString().trim();
-	}
-	
-	@Override
-	public void actionPerformed(ActionEvent e)
-	{
-		String cmd = e.getActionCommand();
-		
-		StringBuilder errors = new StringBuilder();
-		
-		if (cmd.equals("save"))
-		{
-			for (ConfigFile cf : ConfigUserInterface.this.getConfigs())
-			{
-				try
-				{
-					cf.save();
-				}
-				catch (Exception e1)
-				{
-					e1.printStackTrace();
-					errors.append(getBundle().getString("errorSaving") + cf.getName() + ".properties. " + getBundle().getString("reason") + e1.getLocalizedMessage() + EOL);
-				}
-			}
-			if (errors.length() == 0)
-			{
-				JOptionPane.showMessageDialog(ConfigUserInterface.this, getBundle().getString("success"), "OK", JOptionPane.INFORMATION_MESSAGE);
-			}
-			else
-			{
-				JOptionPane.showMessageDialog(ConfigUserInterface.this, errors, getBundle().getString("error"), JOptionPane.ERROR_MESSAGE);
-				System.exit(2);
-			}
-		}
-		else if (cmd.equals("exit"))
-		{
-			System.exit(0);
-		}
-		else if (cmd.equals("about"))
-		{
-			JOptionPane.showMessageDialog(ConfigUserInterface.this, getBundle().getString("credits") + EOL + "http://www.l2jdevs.org" + EOL + EOL + getBundle().getString("icons") + EOL + EOL + getBundle().getString("langText") + EOL
-				+ getBundle().getString("translation"), getBundle().getString("aboutItem"), JOptionPane.INFORMATION_MESSAGE, ImagesTable.getImage("l2jdevslogo.png"));
-		}
-	}
-	
-	/**
-	 * @return Returns the bundle.
-	 */
-	public ResourceBundle getBundle()
-	{
-		return _bundle;
-	}
-	
-	/**
-	 * @return Returns the configuration.
-	 */
-	public List<ConfigFile> getConfigs()
-	{
-		return _configs;
-	}
-	
-	/**
-	 * @param bundle The bundle to set.
-	 */
-	public void setBundle(ResourceBundle bundle)
-	{
-		_bundle = bundle;
-	}
-	
-	/**
-	 * @param configs The configuration to set.
-	 */
-	public void setConfigs(List<ConfigFile> configs)
-	{
-		_configs = configs;
+		JButton button = new JButton(text, ImagesTable.getImage(image));
+		button.setActionCommand(action);
+		button.addActionListener(this);
+		return button;
 	}
 	
 	private void buildInterface()
@@ -308,14 +220,6 @@ public class ConfigUserInterface extends JFrame implements ActionListener
 			panel.add(new JLabel(), cons); // filler
 			_tabPane.addTab(cf.getName(), new JScrollPane(panel));
 		}
-	}
-	
-	private JButton createToolButton(String image, String text, String action)
-	{
-		JButton button = new JButton(text, ImagesTable.getImage(image));
-		button.setActionCommand(action);
-		button.addActionListener(this);
-		return button;
 	}
 	
 	private void loadConfigs()
@@ -465,42 +369,6 @@ public class ConfigUserInterface extends JFrame implements ActionListener
 		return value;
 	}
 	
-	public static enum ValueType
-	{
-		BOOLEAN(Boolean.class),
-		DOUBLE(Double.class),
-		INTEGER(Integer.class),
-		IPv4(Inet4Address.class),
-		STRING(String.class);
-		
-		private final Class<?> _type;
-		
-		private ValueType(Class<?> type)
-		{
-			_type = type;
-		}
-		
-		public static ValueType firstTypeMatch(Object value)
-		{
-			for (ValueType vt : ValueType.values())
-			{
-				if (vt.getType() == value.getClass())
-				{
-					return vt;
-				}
-			}
-			throw new NoSuchElementException("No match for: " + value.getClass().getName());
-		}
-		
-		/**
-		 * @return Returns the type.
-		 */
-		public Class<?> getType()
-		{
-			return _type;
-		}
-	}
-	
 	static class ConfigFile
 	{
 		private final File _file;
@@ -514,6 +382,11 @@ public class ConfigUserInterface extends JFrame implements ActionListener
 			setName(file.getName().substring(0, lastIndex));
 		}
 		
+		public void addConfigProperty(String name, Object value, ValueType type, String comments)
+		{
+			_configs.add(new ConfigProperty(name, value, type, comments));
+		}
+		
 		public void addConfigComment(String comment)
 		{
 			_configs.add(new ConfigComment(comment));
@@ -524,14 +397,17 @@ public class ConfigUserInterface extends JFrame implements ActionListener
 			this.addConfigProperty(name, value, ValueType.firstTypeMatch(value), comments);
 		}
 		
-		public void addConfigProperty(String name, Object value, ValueType type, String comments)
-		{
-			_configs.add(new ConfigProperty(name, value, type, comments));
-		}
-		
 		public List<ConfigComment> getConfigProperties()
 		{
 			return _configs;
+		}
+		
+		/**
+		 * @param name The name to set.
+		 */
+		public void setName(String name)
+		{
+			_name = name;
 		}
 		
 		/**
@@ -555,14 +431,6 @@ public class ConfigUserInterface extends JFrame implements ActionListener
 			}
 		}
 		
-		/**
-		 * @param name The name to set.
-		 */
-		public void setName(String name)
-		{
-			_name = name;
-		}
-		
 		class ConfigComment
 		{
 			
@@ -584,6 +452,14 @@ public class ConfigUserInterface extends JFrame implements ActionListener
 				return _comments;
 			}
 			
+			/**
+			 * @param comments The comments to set.
+			 */
+			public void setComments(String comments)
+			{
+				_comments = comments;
+			}
+			
 			public void save(Writer writer) throws IOException
 			{
 				StringBuilder sb = new StringBuilder();
@@ -591,14 +467,6 @@ public class ConfigUserInterface extends JFrame implements ActionListener
 				sb.append(getComments().replace(EOL, EOL + "#"));
 				sb.append(EOL + EOL);
 				writer.write(sb.toString());
-			}
-			
-			/**
-			 * @param comments The comments to set.
-			 */
-			public void setComments(String comments)
-			{
-				_comments = comments;
 			}
 		}
 		
@@ -625,6 +493,71 @@ public class ConfigUserInterface extends JFrame implements ActionListener
 				_propname = name;
 				_type = type;
 				_value = value;
+			}
+			
+			/**
+			 * @return Returns the name.
+			 */
+			public String getName()
+			{
+				return _propname;
+			}
+			
+			/**
+			 * @return Returns the name.
+			 */
+			public String getDisplayName()
+			{
+				return unCamelize(_propname);
+			}
+			
+			/**
+			 * @param name The name to set.
+			 */
+			public void setName(String name)
+			{
+				_propname = name;
+			}
+			
+			/**
+			 * @return Returns the value.
+			 */
+			public Object getValue()
+			{
+				return _value;
+			}
+			
+			/**
+			 * @param value The value to set.
+			 */
+			public void setValue(String value)
+			{
+				_value = value;
+			}
+			
+			/**
+			 * @return Returns the type.
+			 */
+			public ValueType getType()
+			{
+				return _type;
+			}
+			
+			/**
+			 * @param type The type to set.
+			 */
+			public void setType(ValueType type)
+			{
+				_type = type;
+			}
+			
+			public JComponent getValueComponent()
+			{
+				if (_component == null)
+				{
+					_component = createValueComponent();
+				}
+				return _component;
 			}
 			
 			public JComponent createValueComponent()
@@ -657,47 +590,6 @@ public class ConfigUserInterface extends JFrame implements ActionListener
 						textArea.setColumns(Math.max(val.length() / rows, 20));
 						return textArea;
 				}
-			}
-			
-			/**
-			 * @return Returns the name.
-			 */
-			public String getDisplayName()
-			{
-				return unCamelize(_propname);
-			}
-			
-			/**
-			 * @return Returns the name.
-			 */
-			public String getName()
-			{
-				return _propname;
-			}
-			
-			/**
-			 * @return Returns the type.
-			 */
-			public ValueType getType()
-			{
-				return _type;
-			}
-			
-			/**
-			 * @return Returns the value.
-			 */
-			public Object getValue()
-			{
-				return _value;
-			}
-			
-			public JComponent getValueComponent()
-			{
-				if (_component == null)
-				{
-					_component = createValueComponent();
-				}
-				return _component;
 			}
 			
 			@Override
@@ -733,30 +625,138 @@ public class ConfigUserInterface extends JFrame implements ActionListener
 				sb.append(EOL);
 				writer.write(sb.toString());
 			}
-			
-			/**
-			 * @param name The name to set.
-			 */
-			public void setName(String name)
+		}
+	}
+	
+	public static enum ValueType
+	{
+		BOOLEAN(Boolean.class),
+		DOUBLE(Double.class),
+		INTEGER(Integer.class),
+		IPv4(Inet4Address.class),
+		STRING(String.class);
+		
+		private final Class<?> _type;
+		
+		private ValueType(Class<?> type)
+		{
+			_type = type;
+		}
+		
+		/**
+		 * @return Returns the type.
+		 */
+		public Class<?> getType()
+		{
+			return _type;
+		}
+		
+		public static ValueType firstTypeMatch(Object value)
+		{
+			for (ValueType vt : ValueType.values())
 			{
-				_propname = name;
+				if (vt.getType() == value.getClass())
+				{
+					return vt;
+				}
 			}
-			
-			/**
-			 * @param type The type to set.
-			 */
-			public void setType(ValueType type)
+			throw new NoSuchElementException("No match for: " + value.getClass().getName());
+		}
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		String cmd = e.getActionCommand();
+		
+		StringBuilder errors = new StringBuilder();
+		
+		if (cmd.equals("save"))
+		{
+			for (ConfigFile cf : ConfigUserInterface.this.getConfigs())
 			{
-				_type = type;
+				try
+				{
+					cf.save();
+				}
+				catch (Exception e1)
+				{
+					e1.printStackTrace();
+					errors.append(getBundle().getString("errorSaving") + cf.getName() + ".properties. " + getBundle().getString("reason") + e1.getLocalizedMessage() + EOL);
+				}
 			}
-			
-			/**
-			 * @param value The value to set.
-			 */
-			public void setValue(String value)
+			if (errors.length() == 0)
 			{
-				_value = value;
+				JOptionPane.showMessageDialog(ConfigUserInterface.this, getBundle().getString("success"), "OK", JOptionPane.INFORMATION_MESSAGE);
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(ConfigUserInterface.this, errors, getBundle().getString("error"), JOptionPane.ERROR_MESSAGE);
+				System.exit(2);
 			}
 		}
+		else if (cmd.equals("exit"))
+		{
+			System.exit(0);
+		}
+		else if (cmd.equals("about"))
+		{
+			JOptionPane.showMessageDialog(ConfigUserInterface.this, getBundle().getString("credits") + EOL + "http://www.l2jdevs.org" + EOL + EOL + getBundle().getString("icons") + EOL + EOL + getBundle().getString("langText") + EOL
+				+ getBundle().getString("translation"), getBundle().getString("aboutItem"), JOptionPane.INFORMATION_MESSAGE, ImagesTable.getImage("l2jdevslogo.png"));
+		}
+	}
+	
+	/**
+	 * @param configs The configuration to set.
+	 */
+	public void setConfigs(List<ConfigFile> configs)
+	{
+		_configs = configs;
+	}
+	
+	/**
+	 * @return Returns the configuration.
+	 */
+	public List<ConfigFile> getConfigs()
+	{
+		return _configs;
+	}
+	
+	/**
+	 * @param keyName
+	 * @return Returns the configuration setting name in a human readable form.
+	 */
+	public static String unCamelize(final String keyName)
+	{
+		Pattern p = Pattern.compile("\\p{Lu}");
+		Matcher m = p.matcher(keyName);
+		StringBuffer sb = new StringBuffer();
+		int last = 0;
+		while (m.find())
+		{
+			if (m.start() != (last + 1))
+			{
+				m.appendReplacement(sb, " " + m.group());
+			}
+			last = m.start();
+		}
+		m.appendTail(sb);
+		return sb.toString().trim();
+	}
+	
+	/**
+	 * @param bundle The bundle to set.
+	 */
+	public void setBundle(ResourceBundle bundle)
+	{
+		_bundle = bundle;
+	}
+	
+	/**
+	 * @return Returns the bundle.
+	 */
+	public ResourceBundle getBundle()
+	{
+		return _bundle;
 	}
 }

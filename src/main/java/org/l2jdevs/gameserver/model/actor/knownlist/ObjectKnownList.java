@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -69,6 +69,44 @@ public class ObjectKnownList
 		}
 		
 		return (getKnownObjects().put(object.getObjectId(), object) == null);
+	}
+	
+	public final boolean knowsObject(L2Object object)
+	{
+		if (object == null)
+		{
+			return false;
+		}
+		
+		return (getActiveObject() == object) || getKnownObjects().containsKey(object.getObjectId());
+	}
+	
+	/**
+	 * Remove all L2Object from _knownObjects
+	 */
+	public void removeAllKnownObjects()
+	{
+		getKnownObjects().clear();
+	}
+	
+	public final boolean removeKnownObject(L2Object object)
+	{
+		return removeKnownObject(object, false);
+	}
+	
+	protected boolean removeKnownObject(L2Object object, boolean forget)
+	{
+		if (object == null)
+		{
+			return false;
+		}
+		
+		if (forget)
+		{
+			return true;
+		}
+		
+		return getKnownObjects().remove(object.getObjectId()) != null;
 	}
 	
 	/**
@@ -172,43 +210,5 @@ public class ObjectKnownList
 			}
 		}
 		return _knownObjects;
-	}
-	
-	public final boolean knowsObject(L2Object object)
-	{
-		if (object == null)
-		{
-			return false;
-		}
-		
-		return (getActiveObject() == object) || getKnownObjects().containsKey(object.getObjectId());
-	}
-	
-	/**
-	 * Remove all L2Object from _knownObjects
-	 */
-	public void removeAllKnownObjects()
-	{
-		getKnownObjects().clear();
-	}
-	
-	public final boolean removeKnownObject(L2Object object)
-	{
-		return removeKnownObject(object, false);
-	}
-	
-	protected boolean removeKnownObject(L2Object object, boolean forget)
-	{
-		if (object == null)
-		{
-			return false;
-		}
-		
-		if (forget)
-		{
-			return true;
-		}
-		
-		return getKnownObjects().remove(object.getObjectId()) != null;
 	}
 }

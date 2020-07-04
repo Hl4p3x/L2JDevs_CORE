@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -59,12 +59,6 @@ public final class UseItem extends L2GameClientPacket
 	private int _objectId;
 	private boolean _ctrlPressed;
 	private int _itemId;
-	
-	@Override
-	public String getType()
-	{
-		return _C__19_USEITEM;
-	}
 	
 	@Override
 	protected void readImpl()
@@ -353,12 +347,6 @@ public final class UseItem extends L2GameClientPacket
 		}
 	}
 	
-	@Override
-	protected boolean triggersOnActionRequest()
-	{
-		return !Config.SPAWN_PROTECTION_ALLOWED_ITEMS.contains(_itemId);
-	}
-	
 	private void reuseData(L2PcInstance activeChar, L2ItemInstance item, long remainingTime)
 	{
 		final int hours = (int) (remainingTime / 3600000L);
@@ -393,5 +381,17 @@ public final class UseItem extends L2GameClientPacket
 		{
 			activeChar.sendPacket(new ExUseSharedGroupItem(_itemId, group, remaining, reuse));
 		}
+	}
+	
+	@Override
+	public String getType()
+	{
+		return _C__19_USEITEM;
+	}
+	
+	@Override
+	protected boolean triggersOnActionRequest()
+	{
+		return !Config.SPAWN_PROTECTION_ALLOWED_ITEMS.contains(_itemId);
 	}
 }

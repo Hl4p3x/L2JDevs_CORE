@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -53,6 +53,11 @@ public class PunishmentTask implements Runnable
 	private boolean _isStored;
 	private ScheduledFuture<?> _task = null;
 	
+	public PunishmentTask(Object key, PunishmentAffect affect, PunishmentType type, long expirationTime, String reason, String punishedBy)
+	{
+		this(0, key, affect, type, expirationTime, reason, punishedBy, false);
+	}
+	
 	public PunishmentTask(int id, Object key, PunishmentAffect affect, PunishmentType type, long expirationTime, String reason, String punishedBy, boolean isStored)
 	{
 		_id = id;
@@ -67,9 +72,12 @@ public class PunishmentTask implements Runnable
 		startPunishment();
 	}
 	
-	public PunishmentTask(Object key, PunishmentAffect affect, PunishmentType type, long expirationTime, String reason, String punishedBy)
+	/**
+	 * @return affection value charId, account, ip, etc..
+	 */
+	public Object getKey()
 	{
-		this(0, key, affect, type, expirationTime, reason, punishedBy, false);
+		return _key;
 	}
 	
 	/**
@@ -81,27 +89,19 @@ public class PunishmentTask implements Runnable
 	}
 	
 	/**
+	 * @return {@link PunishmentType} type of current punishment.
+	 */
+	public PunishmentType getType()
+	{
+		return _type;
+	}
+	
+	/**
 	 * @return milliseconds to the end of the current punishment, -1 for infinity.
 	 */
 	public final long getExpirationTime()
 	{
 		return _expirationTime;
-	}
-	
-	/**
-	 * @return affection value charId, account, ip, etc..
-	 */
-	public Object getKey()
-	{
-		return _key;
-	}
-	
-	/**
-	 * @return name of the punishment issuer.
-	 */
-	public String getPunishedBy()
-	{
-		return _punishedBy;
 	}
 	
 	/**
@@ -113,19 +113,11 @@ public class PunishmentTask implements Runnable
 	}
 	
 	/**
-	 * @return {@link PunishmentType} type of current punishment.
+	 * @return name of the punishment issuer.
 	 */
-	public PunishmentType getType()
+	public String getPunishedBy()
 	{
-		return _type;
-	}
-	
-	/**
-	 * @return {@code true} if current punishment task has expired, {@code false} otherwise.
-	 */
-	public final boolean isExpired()
-	{
-		return (_expirationTime > 0) && (System.currentTimeMillis() > _expirationTime);
+		return _punishedBy;
 	}
 	
 	/**
@@ -137,12 +129,28 @@ public class PunishmentTask implements Runnable
 	}
 	
 	/**
-	 * Runs when punishment task ends in order to stop and remove it.
+	 * @return {@code true} if current punishment task has expired, {@code false} otherwise.
 	 */
-	@Override
-	public final void run()
+	public final boolean isExpired()
 	{
-		PunishmentManager.getInstance().stopPunishment(_key, _affect, _type);
+		return (_expirationTime > 0) && (System.currentTimeMillis() > _expirationTime);
+	}
+	
+	/**
+	 * Activates the punishment task.
+	 */
+	private void startPunishment()
+	{
+		if (isExpired())
+		{
+			return;
+		}
+		
+		onStart();
+		if (_expirationTime > 0) // Has expiration?
+		{
+			_task = ThreadPoolManager.getInstance().scheduleGeneral(this, (_expirationTime - System.currentTimeMillis()));
+		}
 	}
 	
 	/**
@@ -166,33 +174,6 @@ public class PunishmentTask implements Runnable
 				_task.cancel(false);
 			}
 			_task = null;
-		}
-	}
-	
-	/**
-	 * Remove and deactivate punishment when it ends.
-	 */
-	private void onEnd()
-	{
-		if (_isStored)
-		{
-			try (Connection con = ConnectionFactory.getInstance().getConnection();
-				PreparedStatement ps = con.prepareStatement(UPDATE_QUERY))
-			{
-				ps.setLong(1, System.currentTimeMillis());
-				ps.setLong(2, _id);
-				ps.execute();
-			}
-			catch (SQLException e)
-			{
-				_log.log(Level.WARNING, getClass().getSimpleName() + ": Couldn't update punishment task for: " + _affect + " " + _key + " id: " + _id, e);
-			}
-		}
-		
-		final IPunishmentHandler handler = PunishmentHandler.getInstance().getHandler(_type);
-		if (handler != null)
-		{
-			handler.onEnd(this);
 		}
 	}
 	
@@ -236,19 +217,38 @@ public class PunishmentTask implements Runnable
 	}
 	
 	/**
-	 * Activates the punishment task.
+	 * Remove and deactivate punishment when it ends.
 	 */
-	private void startPunishment()
+	private void onEnd()
 	{
-		if (isExpired())
+		if (_isStored)
 		{
-			return;
+			try (Connection con = ConnectionFactory.getInstance().getConnection();
+				PreparedStatement ps = con.prepareStatement(UPDATE_QUERY))
+			{
+				ps.setLong(1, System.currentTimeMillis());
+				ps.setLong(2, _id);
+				ps.execute();
+			}
+			catch (SQLException e)
+			{
+				_log.log(Level.WARNING, getClass().getSimpleName() + ": Couldn't update punishment task for: " + _affect + " " + _key + " id: " + _id, e);
+			}
 		}
 		
-		onStart();
-		if (_expirationTime > 0) // Has expiration?
+		final IPunishmentHandler handler = PunishmentHandler.getInstance().getHandler(_type);
+		if (handler != null)
 		{
-			_task = ThreadPoolManager.getInstance().scheduleGeneral(this, (_expirationTime - System.currentTimeMillis()));
+			handler.onEnd(this);
 		}
+	}
+	
+	/**
+	 * Runs when punishment task ends in order to stop and remove it.
+	 */
+	@Override
+	public final void run()
+	{
+		PunishmentManager.getInstance().stopPunishment(_key, _affect, _type);
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -70,51 +70,6 @@ public final class RequestAcquireSkill extends L2GameClientPacket
 	private int _level;
 	private AcquireSkillType _skillType;
 	private int _subType;
-	
-	/**
-	 * Verify if the player can transform.
-	 * @param player the player to verify
-	 * @return {@code true} if the player meets the required conditions to learn a transformation, {@code false} otherwise
-	 */
-	public static boolean canTransform(L2PcInstance player)
-	{
-		if (Config.ALLOW_TRANSFORM_WITHOUT_QUEST)
-		{
-			return true;
-		}
-		return player.hasQuestCompleted("Q00136_MoreThanMeetsTheEye");
-	}
-	
-	public static void showSubUnitSkillList(L2PcInstance activeChar)
-	{
-		final List<L2SkillLearn> skills = SkillTreesData.getInstance().getAvailableSubPledgeSkills(activeChar.getClan());
-		final AcquireSkillList asl = new AcquireSkillList(AcquireSkillType.SUBPLEDGE);
-		int count = 0;
-		
-		for (L2SkillLearn s : skills)
-		{
-			if (SkillData.getInstance().getSkill(s.getSkillId(), s.getSkillLevel()) != null)
-			{
-				asl.addSkill(s.getSkillId(), s.getSkillLevel(), s.getSkillLevel(), s.getLevelUpSp(), 0);
-				++count;
-			}
-		}
-		
-		if (count == 0)
-		{
-			activeChar.sendPacket(SystemMessageId.NO_MORE_SKILLS_TO_LEARN);
-		}
-		else
-		{
-			activeChar.sendPacket(asl);
-		}
-	}
-	
-	@Override
-	public String getType()
-	{
-		return _C__7C_REQUESTACQUIRESKILL;
-	}
 	
 	@Override
 	protected void readImpl()
@@ -455,6 +410,31 @@ public final class RequestAcquireSkill extends L2GameClientPacket
 		return true;
 	}
 	
+	public static void showSubUnitSkillList(L2PcInstance activeChar)
+	{
+		final List<L2SkillLearn> skills = SkillTreesData.getInstance().getAvailableSubPledgeSkills(activeChar.getClan());
+		final AcquireSkillList asl = new AcquireSkillList(AcquireSkillType.SUBPLEDGE);
+		int count = 0;
+		
+		for (L2SkillLearn s : skills)
+		{
+			if (SkillData.getInstance().getSkill(s.getSkillId(), s.getSkillLevel()) != null)
+			{
+				asl.addSkill(s.getSkillId(), s.getSkillLevel(), s.getSkillLevel(), s.getLevelUpSp(), 0);
+				++count;
+			}
+		}
+		
+		if (count == 0)
+		{
+			activeChar.sendPacket(SystemMessageId.NO_MORE_SKILLS_TO_LEARN);
+		}
+		else
+		{
+			activeChar.sendPacket(asl);
+		}
+	}
+	
 	/**
 	 * Perform a simple check for current player and skill.<br>
 	 * Takes the needed SP if the skill require it and all requirements are meet.<br>
@@ -597,5 +577,25 @@ public final class RequestAcquireSkill extends L2GameClientPacket
 		}
 		
 		L2NpcInstance.showSkillList(player, trainer, player.getLearningClass());
+	}
+	
+	/**
+	 * Verify if the player can transform.
+	 * @param player the player to verify
+	 * @return {@code true} if the player meets the required conditions to learn a transformation, {@code false} otherwise
+	 */
+	public static boolean canTransform(L2PcInstance player)
+	{
+		if (Config.ALLOW_TRANSFORM_WITHOUT_QUEST)
+		{
+			return true;
+		}
+		return player.hasQuestCompleted("Q00136_MoreThanMeetsTheEye");
+	}
+	
+	@Override
+	public String getType()
+	{
+		return _C__7C_REQUESTACQUIRESKILL;
 	}
 }

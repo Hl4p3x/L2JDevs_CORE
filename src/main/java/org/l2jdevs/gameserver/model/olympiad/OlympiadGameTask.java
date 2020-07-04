@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -89,10 +89,66 @@ public final class OlympiadGameTask implements Runnable
 	private boolean _needAnnounce = false;
 	private int _countDown = 0;
 	
+	private static enum GameState
+	{
+		BEGIN,
+		TELEPORT_TO_ARENA,
+		GAME_STARTED,
+		BATTLE_COUNTDOWN_FIRST,
+		BATTLE_COUNTDOWN_SECOND,
+		BATTLE_STARTED,
+		BATTLE_IN_PROGRESS,
+		GAME_CANCELLED,
+		GAME_STOPPED,
+		TELEPORT_TO_TOWN,
+		CLEANUP,
+		IDLE
+	}
+	
 	public OlympiadGameTask(L2OlympiadStadiumZone zone)
 	{
 		_zone = zone;
 		zone.registerTask(this);
+	}
+	
+	public final boolean isRunning()
+	{
+		return _state != GameState.IDLE;
+	}
+	
+	public final boolean isGameStarted()
+	{
+		return (_state.ordinal() >= GameState.GAME_STARTED.ordinal()) && (_state.ordinal() <= GameState.CLEANUP.ordinal());
+	}
+	
+	public final boolean isBattleStarted()
+	{
+		return _state == GameState.BATTLE_IN_PROGRESS;
+	}
+	
+	public final boolean isBattleFinished()
+	{
+		return _state == GameState.TELEPORT_TO_TOWN;
+	}
+	
+	public final boolean needAnnounce()
+	{
+		if (_needAnnounce)
+		{
+			_needAnnounce = false;
+			return true;
+		}
+		return false;
+	}
+	
+	public final L2OlympiadStadiumZone getZone()
+	{
+		return _zone;
+	}
+	
+	public final AbstractOlympiadGame getGame()
+	{
+		return _game;
 	}
 	
 	public final void attachGame(AbstractOlympiadGame game)
@@ -107,46 +163,6 @@ public final class OlympiadGameTask implements Runnable
 		_state = GameState.BEGIN;
 		_needAnnounce = false;
 		ThreadPoolManager.getInstance().executeGeneral(this);
-	}
-	
-	public final AbstractOlympiadGame getGame()
-	{
-		return _game;
-	}
-	
-	public final L2OlympiadStadiumZone getZone()
-	{
-		return _zone;
-	}
-	
-	public final boolean isBattleFinished()
-	{
-		return _state == GameState.TELEPORT_TO_TOWN;
-	}
-	
-	public final boolean isBattleStarted()
-	{
-		return _state == GameState.BATTLE_IN_PROGRESS;
-	}
-	
-	public final boolean isGameStarted()
-	{
-		return (_state.ordinal() >= GameState.GAME_STARTED.ordinal()) && (_state.ordinal() <= GameState.CLEANUP.ordinal());
-	}
-	
-	public final boolean isRunning()
-	{
-		return _state != GameState.IDLE;
-	}
-	
-	public final boolean needAnnounce()
-	{
-		if (_needAnnounce)
-		{
-			_needAnnounce = false;
-			return true;
-		}
-		return false;
 	}
 	
 	@Override
@@ -325,66 +341,6 @@ public final class OlympiadGameTask implements Runnable
 		}
 	}
 	
-	/**
-	 * Fifth stage: battle is running, returns true if winner found.
-	 * @return
-	 */
-	private final boolean checkBattle()
-	{
-		try
-		{
-			return _game.haveWinner();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, e.getMessage(), e);
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * Seventh stage: game cleanup (port players back, closing doors, etc)
-	 */
-	private final void cleanupGame()
-	{
-		try
-		{
-			_game.playersStatusBack();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, e.getMessage(), e);
-		}
-		
-		try
-		{
-			_game.portPlayersBack();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, e.getMessage(), e);
-		}
-		
-		try
-		{
-			_game.clearPlayers();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, e.getMessage(), e);
-		}
-		
-		try
-		{
-			_zone.closeDoors();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, e.getMessage(), e);
-		}
-	}
-	
 	private final int getDelay(int[] times)
 	{
 		int time;
@@ -403,6 +359,49 @@ public final class OlympiadGameTask implements Runnable
 		// should not happens
 		_countDown = -1;
 		return 1;
+	}
+	
+	/**
+	 * Second stage: check for defaulted, port players to arena, announce game.
+	 * @return true if no participants defaulted.
+	 */
+	private final boolean startGame()
+	{
+		try
+		{
+			// Checking for opponents and teleporting to arena
+			if (_game.checkDefaulted())
+			{
+				return false;
+			}
+			
+			_zone.closeDoors();
+			if (_game.needBuffers())
+			{
+				_zone.spawnBuffers();
+			}
+			
+			// 3vs3 team matches shouldn't have olympiad buffers
+			if (!_game.needBuffers())
+			{
+				_zone.deleteBuffers();
+			}
+			
+			if (!_game.portPlayersToArena(_zone.getSpawns()))
+			{
+				return false;
+			}
+			
+			_game.removals();
+			_needAnnounce = true;
+			OlympiadGameManager.getInstance().startBattle(); // inform manager
+			return true;
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, e.getMessage(), e);
+		}
+		return false;
 	}
 	
 	/**
@@ -451,46 +450,21 @@ public final class OlympiadGameTask implements Runnable
 	}
 	
 	/**
-	 * Second stage: check for defaulted, port players to arena, announce game.
-	 * @return true if no participants defaulted.
+	 * Fifth stage: battle is running, returns true if winner found.
+	 * @return
 	 */
-	private final boolean startGame()
+	private final boolean checkBattle()
 	{
 		try
 		{
-			// Checking for opponents and teleporting to arena
-			if (_game.checkDefaulted())
-			{
-				return false;
-			}
-			
-			_zone.closeDoors();
-			if (_game.needBuffers())
-			{
-				_zone.spawnBuffers();
-			}
-			
-			// 3vs3 team matches shouldn't have olympiad buffers
-			if (!_game.needBuffers())
-			{
-				_zone.deleteBuffers();
-			}
-			
-			if (!_game.portPlayersToArena(_zone.getSpawns()))
-			{
-				return false;
-			}
-			
-			_game.removals();
-			_needAnnounce = true;
-			OlympiadGameManager.getInstance().startBattle(); // inform manager
-			return true;
+			return _game.haveWinner();
 		}
 		catch (Exception e)
 		{
 			_log.log(Level.WARNING, e.getMessage(), e);
 		}
-		return false;
+		
+		return true;
 	}
 	
 	/**
@@ -526,19 +500,45 @@ public final class OlympiadGameTask implements Runnable
 		}
 	}
 	
-	private static enum GameState
+	/**
+	 * Seventh stage: game cleanup (port players back, closing doors, etc)
+	 */
+	private final void cleanupGame()
 	{
-		BEGIN,
-		TELEPORT_TO_ARENA,
-		GAME_STARTED,
-		BATTLE_COUNTDOWN_FIRST,
-		BATTLE_COUNTDOWN_SECOND,
-		BATTLE_STARTED,
-		BATTLE_IN_PROGRESS,
-		GAME_CANCELLED,
-		GAME_STOPPED,
-		TELEPORT_TO_TOWN,
-		CLEANUP,
-		IDLE
+		try
+		{
+			_game.playersStatusBack();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, e.getMessage(), e);
+		}
+		
+		try
+		{
+			_game.portPlayersBack();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, e.getMessage(), e);
+		}
+		
+		try
+		{
+			_game.clearPlayers();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, e.getMessage(), e);
+		}
+		
+		try
+		{
+			_zone.closeDoors();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, e.getMessage(), e);
+		}
 	}
 }

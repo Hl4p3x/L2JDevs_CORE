@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -45,9 +45,38 @@ public final class CoupleManager
 		load();
 	}
 	
-	public static final CoupleManager getInstance()
+	public void reload()
 	{
-		return SingletonHolder._instance;
+		_couples.clear();
+		load();
+	}
+	
+	private final void load()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement ps = con.createStatement();
+			ResultSet rs = ps.executeQuery("SELECT id FROM mods_wedding ORDER BY id"))
+		{
+			while (rs.next())
+			{
+				getCouples().add(new Couple(rs.getInt("id")));
+			}
+			_log.info(getClass().getSimpleName() + ": Loaded: " + getCouples().size() + " couples(s)");
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.SEVERE, "Exception: CoupleManager.load(): " + e.getMessage(), e);
+		}
+	}
+	
+	public final Couple getCouple(int coupleId)
+	{
+		int index = getCoupleIndex(coupleId);
+		if (index >= 0)
+		{
+			return getCouples().get(index);
+		}
+		return null;
 	}
 	
 	public void createCouple(L2PcInstance player1, L2PcInstance player2)
@@ -96,16 +125,6 @@ public final class CoupleManager
 		}
 	}
 	
-	public final Couple getCouple(int coupleId)
-	{
-		int index = getCoupleIndex(coupleId);
-		if (index >= 0)
-		{
-			return getCouples().get(index);
-		}
-		return null;
-	}
-	
 	public final int getCoupleIndex(int coupleId)
 	{
 		int i = 0;
@@ -125,28 +144,9 @@ public final class CoupleManager
 		return _couples;
 	}
 	
-	public void reload()
+	public static final CoupleManager getInstance()
 	{
-		_couples.clear();
-		load();
-	}
-	
-	private final void load()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement ps = con.createStatement();
-			ResultSet rs = ps.executeQuery("SELECT id FROM mods_wedding ORDER BY id"))
-		{
-			while (rs.next())
-			{
-				getCouples().add(new Couple(rs.getInt("id")));
-			}
-			_log.info(getClass().getSimpleName() + ": Loaded: " + getCouples().size() + " couples(s)");
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.SEVERE, "Exception: CoupleManager.load(): " + e.getMessage(), e);
-		}
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

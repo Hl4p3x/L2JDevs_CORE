@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -48,9 +48,69 @@ public final class RequestRestartPoint extends L2GameClientPacket
 	protected boolean _continuation;
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__7D_REQUESTRESTARTPOINT;
+		_requestedPointType = readD();
+	}
+	
+	class DeathTask implements Runnable
+	{
+		final L2PcInstance activeChar;
+		
+		DeathTask(L2PcInstance _activeChar)
+		{
+			activeChar = _activeChar;
+		}
+		
+		@Override
+		public void run()
+		{
+			portPlayer(activeChar);
+		}
+	}
+	
+	@Override
+	protected void runImpl()
+	{
+		L2PcInstance activeChar = getClient().getActiveChar();
+		
+		if (activeChar == null)
+		{
+			return;
+		}
+		
+		if (!activeChar.canRevive())
+		{
+			return;
+		}
+		
+		if (activeChar.isFakeDeath())
+		{
+			activeChar.stopFakeDeath(true);
+			return;
+		}
+		else if (!activeChar.isDead())
+		{
+			_log.warning("Living player [" + activeChar.getName() + "] called RestartPointPacket! Ban this player!");
+			return;
+		}
+		
+		Castle castle = CastleManager.getInstance().getCastle(activeChar.getX(), activeChar.getY(), activeChar.getZ());
+		if ((castle != null) && castle.getSiege().isInProgress())
+		{
+			if ((activeChar.getClan() != null) && castle.getSiege().checkIsAttacker(activeChar.getClan()))
+			{
+				// Schedule respawn delay for attacker
+				ThreadPoolManager.getInstance().scheduleGeneral(new DeathTask(activeChar), castle.getSiege().getAttackerRespawnDelay());
+				if (castle.getSiege().getAttackerRespawnDelay() > 0)
+				{
+					activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "respawn_in_seconds").replace("%s%", (castle.getSiege().getAttackerRespawnDelay() / 1000) + ""));
+				}
+				return;
+			}
+		}
+		
+		portPlayer(activeChar);
 	}
 	
 	protected final void portPlayer(final L2PcInstance activeChar)
@@ -226,68 +286,8 @@ public final class RequestRestartPoint extends L2GameClientPacket
 	}
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		_requestedPointType = readD();
-	}
-	
-	@Override
-	protected void runImpl()
-	{
-		L2PcInstance activeChar = getClient().getActiveChar();
-		
-		if (activeChar == null)
-		{
-			return;
-		}
-		
-		if (!activeChar.canRevive())
-		{
-			return;
-		}
-		
-		if (activeChar.isFakeDeath())
-		{
-			activeChar.stopFakeDeath(true);
-			return;
-		}
-		else if (!activeChar.isDead())
-		{
-			_log.warning("Living player [" + activeChar.getName() + "] called RestartPointPacket! Ban this player!");
-			return;
-		}
-		
-		Castle castle = CastleManager.getInstance().getCastle(activeChar.getX(), activeChar.getY(), activeChar.getZ());
-		if ((castle != null) && castle.getSiege().isInProgress())
-		{
-			if ((activeChar.getClan() != null) && castle.getSiege().checkIsAttacker(activeChar.getClan()))
-			{
-				// Schedule respawn delay for attacker
-				ThreadPoolManager.getInstance().scheduleGeneral(new DeathTask(activeChar), castle.getSiege().getAttackerRespawnDelay());
-				if (castle.getSiege().getAttackerRespawnDelay() > 0)
-				{
-					activeChar.sendMessage(LanguageData.getInstance().getMsg(activeChar, "respawn_in_seconds").replace("%s%", (castle.getSiege().getAttackerRespawnDelay() / 1000) + ""));
-				}
-				return;
-			}
-		}
-		
-		portPlayer(activeChar);
-	}
-	
-	class DeathTask implements Runnable
-	{
-		final L2PcInstance activeChar;
-		
-		DeathTask(L2PcInstance _activeChar)
-		{
-			activeChar = _activeChar;
-		}
-		
-		@Override
-		public void run()
-		{
-			portPlayer(activeChar);
-		}
+		return _C__7D_REQUESTRESTARTPOINT;
 	}
 }

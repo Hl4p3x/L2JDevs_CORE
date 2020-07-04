@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -37,11 +37,12 @@ public abstract class BaseRecievePacket
 		_off = 1; // skip packet type id
 	}
 	
-	public final byte[] readB(int length)
+	public int readD()
 	{
-		byte[] result = new byte[length];
-		System.arraycopy(_decrypt, _off, result, 0, length);
-		_off += length;
+		int result = _decrypt[_off++] & 0xff;
+		result |= (_decrypt[_off++] << 8) & 0xff00;
+		result |= (_decrypt[_off++] << 0x10) & 0xff0000;
+		result |= (_decrypt[_off++] << 0x18) & 0xff000000;
 		return result;
 	}
 	
@@ -51,12 +52,10 @@ public abstract class BaseRecievePacket
 		return result;
 	}
 	
-	public int readD()
+	public int readH()
 	{
 		int result = _decrypt[_off++] & 0xff;
 		result |= (_decrypt[_off++] << 8) & 0xff00;
-		result |= (_decrypt[_off++] << 0x10) & 0xff0000;
-		result |= (_decrypt[_off++] << 0x18) & 0xff000000;
 		return result;
 	}
 	
@@ -73,26 +72,6 @@ public abstract class BaseRecievePacket
 		return Double.longBitsToDouble(result);
 	}
 	
-	public int readH()
-	{
-		int result = _decrypt[_off++] & 0xff;
-		result |= (_decrypt[_off++] << 8) & 0xff00;
-		return result;
-	}
-	
-	public long readQ()
-	{
-		long result = _decrypt[_off++] & 0xff;
-		result |= (_decrypt[_off++] & 0xffL) << 8L;
-		result |= (_decrypt[_off++] & 0xffL) << 16L;
-		result |= (_decrypt[_off++] & 0xffL) << 24L;
-		result |= (_decrypt[_off++] & 0xffL) << 32L;
-		result |= (_decrypt[_off++] & 0xffL) << 40L;
-		result |= (_decrypt[_off++] & 0xffL) << 48L;
-		result |= (_decrypt[_off++] & 0xffL) << 56L;
-		return result;
-	}
-	
 	public String readS()
 	{
 		String result = null;
@@ -107,6 +86,27 @@ public abstract class BaseRecievePacket
 			_log.warning(getClass().getSimpleName() + ": " + e.getMessage());
 		}
 		
+		return result;
+	}
+	
+	public final byte[] readB(int length)
+	{
+		byte[] result = new byte[length];
+		System.arraycopy(_decrypt, _off, result, 0, length);
+		_off += length;
+		return result;
+	}
+	
+	public long readQ()
+	{
+		long result = _decrypt[_off++] & 0xff;
+		result |= (_decrypt[_off++] & 0xffL) << 8L;
+		result |= (_decrypt[_off++] & 0xffL) << 16L;
+		result |= (_decrypt[_off++] & 0xffL) << 24L;
+		result |= (_decrypt[_off++] & 0xffL) << 32L;
+		result |= (_decrypt[_off++] & 0xffL) << 40L;
+		result |= (_decrypt[_off++] & 0xffL) << 48L;
+		result |= (_decrypt[_off++] & 0xffL) << 56L;
 		return result;
 	}
 }

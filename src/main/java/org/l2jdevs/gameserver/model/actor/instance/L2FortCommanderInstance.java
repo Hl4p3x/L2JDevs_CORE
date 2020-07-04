@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -52,6 +52,77 @@ public class L2FortCommanderInstance extends L2DefenderInstance
 		super(template);
 		setInstanceType(InstanceType.L2FortCommanderInstance);
 		_canTalk = true;
+	}
+	
+	/**
+	 * Return True if a siege is in progress and the L2Character attacker isn't a Defender.
+	 * @param attacker The L2Character that the L2CommanderInstance try to attack
+	 */
+	@Override
+	public boolean isAutoAttackable(L2Character attacker)
+	{
+		if ((attacker == null) || !(attacker instanceof L2PcInstance))
+		{
+			return false;
+		}
+		
+		boolean isFort = ((getFort() != null) && (getFort().getResidenceId() > 0) && getFort().getSiege().isInProgress() && !getFort().getSiege().checkIsDefender(((L2PcInstance) attacker).getClan()));
+		
+		// Attackable during siege by all except defenders
+		return (isFort);
+	}
+	
+	@Override
+	public void addDamageHate(L2Character attacker, int damage, long aggro)
+	{
+		if (attacker == null)
+		{
+			return;
+		}
+		
+		if (!(attacker instanceof L2FortCommanderInstance))
+		{
+			super.addDamageHate(attacker, damage, aggro);
+		}
+	}
+	
+	@Override
+	public boolean doDie(L2Character killer)
+	{
+		if (!super.doDie(killer))
+		{
+			return false;
+		}
+		
+		if (getFort().getSiege().isInProgress())
+		{
+			getFort().getSiege().killedCommander(this);
+			
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * This method forces guard to return to home location previously set
+	 */
+	@Override
+	public void returnHome()
+	{
+		if (!isInsideRadius(getSpawn(), 200, false, false))
+		{
+			if (Config.DEBUG)
+			{
+				LOG.debug("{} moving home", getObjectId());
+			}
+			setisReturningToSpawnPoint(true);
+			clearAggroList();
+			
+			if (hasAI())
+			{
+				getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, getSpawn().getLocation());
+			}
+		}
 	}
 	
 	@Override
@@ -100,80 +171,17 @@ public class L2FortCommanderInstance extends L2DefenderInstance
 		super.addDamage(attacker, damage, skill);
 	}
 	
-	@Override
-	public void addDamageHate(L2Character attacker, int damage, long aggro)
+	private class ScheduleTalkTask implements Runnable
 	{
-		if (attacker == null)
+		
+		public ScheduleTalkTask()
 		{
-			return;
 		}
 		
-		if (!(attacker instanceof L2FortCommanderInstance))
+		@Override
+		public void run()
 		{
-			super.addDamageHate(attacker, damage, aggro);
-		}
-	}
-	
-	@Override
-	public boolean doDie(L2Character killer)
-	{
-		if (!super.doDie(killer))
-		{
-			return false;
-		}
-		
-		if (getFort().getSiege().isInProgress())
-		{
-			getFort().getSiege().killedCommander(this);
-			
-		}
-		
-		return true;
-	}
-	
-	@Override
-	public boolean hasRandomAnimation()
-	{
-		return false;
-	}
-	
-	/**
-	 * Return True if a siege is in progress and the L2Character attacker isn't a Defender.
-	 * @param attacker The L2Character that the L2CommanderInstance try to attack
-	 */
-	@Override
-	public boolean isAutoAttackable(L2Character attacker)
-	{
-		if ((attacker == null) || !(attacker instanceof L2PcInstance))
-		{
-			return false;
-		}
-		
-		boolean isFort = ((getFort() != null) && (getFort().getResidenceId() > 0) && getFort().getSiege().isInProgress() && !getFort().getSiege().checkIsDefender(((L2PcInstance) attacker).getClan()));
-		
-		// Attackable during siege by all except defenders
-		return (isFort);
-	}
-	
-	/**
-	 * This method forces guard to return to home location previously set
-	 */
-	@Override
-	public void returnHome()
-	{
-		if (!isInsideRadius(getSpawn(), 200, false, false))
-		{
-			if (Config.DEBUG)
-			{
-				LOG.debug("{} moving home", getObjectId());
-			}
-			setisReturningToSpawnPoint(true);
-			clearAggroList();
-			
-			if (hasAI())
-			{
-				getAI().setIntention(CtrlIntention.AI_INTENTION_MOVE_TO, getSpawn().getLocation());
-			}
+			setCanTalk(true);
 		}
 	}
 	
@@ -187,17 +195,9 @@ public class L2FortCommanderInstance extends L2DefenderInstance
 		return _canTalk;
 	}
 	
-	private class ScheduleTalkTask implements Runnable
+	@Override
+	public boolean hasRandomAnimation()
 	{
-		
-		public ScheduleTalkTask()
-		{
-		}
-		
-		@Override
-		public void run()
-		{
-			setCanTalk(true);
-		}
+		return false;
 	}
 }

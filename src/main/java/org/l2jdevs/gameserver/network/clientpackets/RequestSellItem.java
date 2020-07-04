@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -23,6 +23,7 @@ import static org.l2jdevs.gameserver.model.itemcontainer.Inventory.MAX_ADENA;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.Math;
 
 import org.l2jdevs.Config;
 import org.l2jdevs.gameserver.data.xml.impl.BuyListData;
@@ -52,9 +53,34 @@ public final class RequestSellItem extends L2GameClientPacket
 	private List<UniqueItemHolder> _items = null;
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__37_REQUESTSELLITEM;
+		_listId = readD();
+		int size = readD();
+		if ((size <= 0) || (size > Config.MAX_ITEM_IN_PACKET) || ((size * BATCH_LENGTH) != _buf.remaining()))
+		{
+			return;
+		}
+		
+		_items = new ArrayList<>(size);
+		for (int i = 0; i < size; i++)
+		{
+			int objectId = readD();
+			int itemId = readD();
+			long count = readQ();
+			if ((objectId < 1) || (itemId < 1) || (count < 1))
+			{
+				_items = null;
+				return;
+			}
+			_items.add(new UniqueItemHolder(itemId, objectId, count));
+		}
+	}
+	
+	@Override
+	protected void runImpl()
+	{
+		processSell();
 	}
 	
 	protected void processSell()
@@ -136,8 +162,23 @@ public final class RequestSellItem extends L2GameClientPacket
 			{
 				continue;
 			}
-			
-			long price = item.getReferencePrice() / 2;
+
+                        /*
+                          L2JMod.MerchantMaxPriceBuy = long
+                          # -1 if disabled else no more than n
+                          L2JMod.MerchantPriceUseLog = boolean
+                          # price is Math.log(item.getReferecePrice()) if true
+                          # else price/2
+                         */
+			long price = item.getReferencePrice();
+                        price = Config.L2JMOD_MERCHANT_PRICE_LOG
+                            ? 1L << (int)Math.log10(price)
+                            : item.getMerchantPriceBuy(); // original behaviour
+                        if (Config.L2JMOD_MERCHANT_MAX_PRICE_BUY >= 0) {
+                            price = price <= Config.L2JMOD_MERCHANT_MAX_PRICE_BUY
+                                ? price
+                                : Config.L2JMOD_MERCHANT_MAX_PRICE_BUY;
+                        }
 			totalPrice += price * i.getCount();
 			if (((MAX_ADENA / i.getCount()) < price) || (totalPrice > MAX_ADENA))
 			{
@@ -154,7 +195,7 @@ public final class RequestSellItem extends L2GameClientPacket
 				item = player.getInventory().destroyItem("Sell", i.getObjectId(), i.getCount(), player, merchant);
 			}
 		}
-		player.addAdena("Sell", totalPrice, merchant, false);
+		player.addAdena("Sell", totalPrice, merchant, Config.L2JMOD_MERCHANT_NOTIFY);
 		
 		// Update current load as well
 		StatusUpdate su = new StatusUpdate(player);
@@ -164,33 +205,8 @@ public final class RequestSellItem extends L2GameClientPacket
 	}
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		_listId = readD();
-		int size = readD();
-		if ((size <= 0) || (size > Config.MAX_ITEM_IN_PACKET) || ((size * BATCH_LENGTH) != _buf.remaining()))
-		{
-			return;
-		}
-		
-		_items = new ArrayList<>(size);
-		for (int i = 0; i < size; i++)
-		{
-			int objectId = readD();
-			int itemId = readD();
-			long count = readQ();
-			if ((objectId < 1) || (itemId < 1) || (count < 1))
-			{
-				_items = null;
-				return;
-			}
-			_items.add(new UniqueItemHolder(itemId, objectId, count));
-		}
-	}
-	
-	@Override
-	protected void runImpl()
-	{
-		processSell();
+		return _C__37_REQUESTSELLITEM;
 	}
 }

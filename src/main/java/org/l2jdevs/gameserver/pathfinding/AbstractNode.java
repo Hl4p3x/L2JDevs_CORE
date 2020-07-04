@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -26,6 +26,35 @@ public abstract class AbstractNode<Loc extends AbstractNodeLoc>
 	public AbstractNode(Loc loc)
 	{
 		_loc = loc;
+	}
+	
+	public void setParent(AbstractNode<Loc> p)
+	{
+		_parent = p;
+	}
+	
+	public AbstractNode<Loc> getParent()
+	{
+		return _parent;
+	}
+	
+	public Loc getLoc()
+	{
+		return _loc;
+	}
+	
+	public void setLoc(Loc l)
+	{
+		_loc = l;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + ((_loc == null) ? 0 : _loc.hashCode());
+		return result;
 	}
 	
 	@Override
@@ -56,34 +85,5 @@ public abstract class AbstractNode<Loc extends AbstractNodeLoc>
 			return false;
 		}
 		return true;
-	}
-	
-	public Loc getLoc()
-	{
-		return _loc;
-	}
-	
-	public AbstractNode<Loc> getParent()
-	{
-		return _parent;
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + ((_loc == null) ? 0 : _loc.hashCode());
-		return result;
-	}
-	
-	public void setLoc(Loc l)
-	{
-		_loc = l;
-	}
-	
-	public void setParent(AbstractNode<Loc> p)
-	{
-		_parent = p;
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -41,6 +41,7 @@ import org.l2jdevs.gameserver.network.serverpackets.MagicSkillUse;
 import org.l2jdevs.gameserver.network.serverpackets.StatusUpdate;
 import org.l2jdevs.gameserver.network.serverpackets.SystemMessage;
 import org.l2jdevs.gameserver.util.Util;
+import org.l2jdevs.util.Rnd;
 
 public final class RequestEnchantItem extends L2GameClientPacket
 {
@@ -50,12 +51,6 @@ public final class RequestEnchantItem extends L2GameClientPacket
 	
 	private int _objectId;
 	private int _supportId;
-	
-	@Override
-	public String getType()
-	{
-		return _C__5F_REQUESTENCHANTITEM;
-	}
 	
 	@Override
 	protected void readImpl()
@@ -240,7 +235,9 @@ public final class RequestEnchantItem extends L2GameClientPacket
 				}
 				case FAILURE:
 				{
-					if (scrollTemplate.isSafe())
+                                    final int rng = Rnd.get(100);
+                                    boolean luckyStar = rng == 0 || rng < (Config.L2JMOD_ENCHANT_ITEM_RECOVERABLE_FAILURE_RATE - item.getEnchantLevel());
+					if (scrollTemplate.isSafe() || luckyStar)
 					{
 						// safe enchant - remain old value
 						activeChar.sendPacket(SystemMessageId.SAFE_ENCHANT_FAILED);
@@ -423,5 +420,11 @@ public final class RequestEnchantItem extends L2GameClientPacket
 			activeChar.broadcastUserInfo();
 			activeChar.setActiveEnchantItemId(L2PcInstance.ID_NONE);
 		}
+	}
+	
+	@Override
+	public String getType()
+	{
+		return _C__5F_REQUESTENCHANTITEM;
 	}
 }

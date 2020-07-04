@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -36,22 +36,6 @@ public final class EffectHandler implements IHandler<Class<? extends AbstractEff
 		_handlers = new HashMap<>();
 	}
 	
-	public static EffectHandler getInstance()
-	{
-		return SingletonHolder.INSTANCE;
-	}
-	
-	public void executeScript() throws Exception
-	{
-		ScriptEngineManager.getInstance().executeScript("handlers/EffectMasterHandler.java");
-	}
-	
-	@Override
-	public Class<? extends AbstractEffect> getHandler(String name)
-	{
-		return _handlers.get(name);
-	}
-	
 	@Override
 	public void registerHandler(Class<? extends AbstractEffect> handler)
 	{
@@ -65,9 +49,25 @@ public final class EffectHandler implements IHandler<Class<? extends AbstractEff
 	}
 	
 	@Override
+	public Class<? extends AbstractEffect> getHandler(String name)
+	{
+		return _handlers.get(name);
+	}
+	
+	@Override
 	public int size()
 	{
 		return _handlers.size();
+	}
+	
+	public void executeScript() throws Exception
+	{
+		ScriptEngineManager.getInstance().executeScript("handlers/EffectMasterHandler.java");
+	}
+	
+	public static EffectHandler getInstance()
+	{
+		return SingletonHolder.INSTANCE;
 	}
 	
 	private static final class SingletonHolder

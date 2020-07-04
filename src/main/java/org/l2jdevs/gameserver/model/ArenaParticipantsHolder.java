@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -46,6 +46,24 @@ public final class ArenaParticipantsHolder
 		_engine = new BlockCheckerEngine(this, _arena);
 	}
 	
+	public List<L2PcInstance> getRedPlayers()
+	{
+		return _redPlayers;
+	}
+	
+	public List<L2PcInstance> getBluePlayers()
+	{
+		return _bluePlayers;
+	}
+	
+	public List<L2PcInstance> getAllPlayers()
+	{
+		List<L2PcInstance> all = new ArrayList<>(12);
+		all.addAll(_redPlayers);
+		all.addAll(_bluePlayers);
+		return all;
+	}
+	
 	public void addPlayer(L2PcInstance player, int team)
 	{
 		if (team == 0)
@@ -58,6 +76,44 @@ public final class ArenaParticipantsHolder
 		}
 	}
 	
+	public void removePlayer(L2PcInstance player, int team)
+	{
+		if (team == 0)
+		{
+			_redPlayers.remove(player);
+		}
+		else
+		{
+			_bluePlayers.remove(player);
+		}
+	}
+	
+	public int getPlayerTeam(L2PcInstance player)
+	{
+		if (_redPlayers.contains(player))
+		{
+			return 0;
+		}
+		else if (_bluePlayers.contains(player))
+		{
+			return 1;
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	
+	public int getRedTeamSize()
+	{
+		return _redPlayers.size();
+	}
+	
+	public int getBlueTeamSize()
+	{
+		return _bluePlayers.size();
+	}
+	
 	public void broadCastPacketToTeam(L2GameServerPacket packet)
 	{
 		for (L2PcInstance p : _redPlayers)
@@ -68,6 +124,22 @@ public final class ArenaParticipantsHolder
 		{
 			p.sendPacket(packet);
 		}
+	}
+	
+	public void clearPlayers()
+	{
+		_redPlayers.clear();
+		_bluePlayers.clear();
+	}
+	
+	public BlockCheckerEngine getEvent()
+	{
+		return _engine;
+	}
+	
+	public void updateEvent()
+	{
+		_engine.updatePlayersOnStart(this);
 	}
 	
 	public void checkAndShuffle()
@@ -102,77 +174,5 @@ public final class ArenaParticipantsHolder
 				HandysBlockCheckerManager.getInstance().changePlayerToTeam(plr, _arena, 0);
 			}
 		}
-	}
-	
-	public void clearPlayers()
-	{
-		_redPlayers.clear();
-		_bluePlayers.clear();
-	}
-	
-	public List<L2PcInstance> getAllPlayers()
-	{
-		List<L2PcInstance> all = new ArrayList<>(12);
-		all.addAll(_redPlayers);
-		all.addAll(_bluePlayers);
-		return all;
-	}
-	
-	public List<L2PcInstance> getBluePlayers()
-	{
-		return _bluePlayers;
-	}
-	
-	public int getBlueTeamSize()
-	{
-		return _bluePlayers.size();
-	}
-	
-	public BlockCheckerEngine getEvent()
-	{
-		return _engine;
-	}
-	
-	public int getPlayerTeam(L2PcInstance player)
-	{
-		if (_redPlayers.contains(player))
-		{
-			return 0;
-		}
-		else if (_bluePlayers.contains(player))
-		{
-			return 1;
-		}
-		else
-		{
-			return -1;
-		}
-	}
-	
-	public List<L2PcInstance> getRedPlayers()
-	{
-		return _redPlayers;
-	}
-	
-	public int getRedTeamSize()
-	{
-		return _redPlayers.size();
-	}
-	
-	public void removePlayer(L2PcInstance player, int team)
-	{
-		if (team == 0)
-		{
-			_redPlayers.remove(player);
-		}
-		else
-		{
-			_bluePlayers.remove(player);
-		}
-	}
-	
-	public void updateEvent()
-	{
-		_engine.updatePlayersOnStart(this);
 	}
 }

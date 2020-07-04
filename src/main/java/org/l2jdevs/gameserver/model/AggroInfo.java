@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -34,14 +34,14 @@ public final class AggroInfo
 		_attacker = pAttacker;
 	}
 	
-	public void addDamage(int value)
+	public L2Character getAttacker()
 	{
-		_damage = (int) Math.min(_damage + (long) value, 999999999);
+		return _attacker;
 	}
 	
-	public void addHate(long value)
+	public long getHate()
 	{
-		_hate = Math.min(_hate + value, 999999999);
+		return _hate;
 	}
 	
 	public long checkHate(L2Character owner)
@@ -52,6 +52,26 @@ public final class AggroInfo
 		}
 		
 		return _hate;
+	}
+	
+	public void addHate(long value)
+	{
+		_hate = Math.min(_hate + value, 999999999);
+	}
+	
+	public void stopHate()
+	{
+		_hate = 0;
+	}
+	
+	public int getDamage()
+	{
+		return _damage;
+	}
+	
+	public void addDamage(int value)
+	{
+		_damage = (int) Math.min(_damage + (long) value, 999999999);
 	}
 	
 	@Override
@@ -70,30 +90,10 @@ public final class AggroInfo
 		return false;
 	}
 	
-	public L2Character getAttacker()
-	{
-		return _attacker;
-	}
-	
-	public int getDamage()
-	{
-		return _damage;
-	}
-	
-	public long getHate()
-	{
-		return _hate;
-	}
-	
 	@Override
 	public final int hashCode()
 	{
 		return _attacker.getObjectId();
-	}
-	
-	public void stopHate()
-	{
-		_hate = 0;
 	}
 	
 	@Override

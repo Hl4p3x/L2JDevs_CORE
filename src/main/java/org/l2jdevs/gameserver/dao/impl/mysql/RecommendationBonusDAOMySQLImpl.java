@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -42,28 +42,6 @@ public class RecommendationBonusDAOMySQLImpl implements RecommendationBonusDAO
 	private static final String INSERT = "INSERT INTO character_reco_bonus (charId,rec_have,rec_left,time_left) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE rec_have=?, rec_left=?, time_left=?";
 	
 	@Override
-	public void insert(L2PcInstance player, long recoTaskEnd)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(INSERT))
-		{
-			ps.setInt(1, player.getObjectId());
-			ps.setInt(2, player.getRecomHave());
-			ps.setInt(3, player.getRecomLeft());
-			ps.setLong(4, recoTaskEnd);
-			// Update part
-			ps.setInt(5, player.getRecomHave());
-			ps.setInt(6, player.getRecomLeft());
-			ps.setLong(7, recoTaskEnd);
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			LOG.error("Could not update Recommendations for player: {}", player, e);
-		}
-	}
-	
-	@Override
 	public long load(L2PcInstance player)
 	{
 		long timeLeft = 0;
@@ -90,5 +68,27 @@ public class RecommendationBonusDAOMySQLImpl implements RecommendationBonusDAO
 			LOG.error("Could not restore Recommendations for {}, {}", player, e);
 		}
 		return timeLeft;
+	}
+	
+	@Override
+	public void insert(L2PcInstance player, long recoTaskEnd)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(INSERT))
+		{
+			ps.setInt(1, player.getObjectId());
+			ps.setInt(2, player.getRecomHave());
+			ps.setInt(3, player.getRecomLeft());
+			ps.setLong(4, recoTaskEnd);
+			// Update part
+			ps.setInt(5, player.getRecomHave());
+			ps.setInt(6, player.getRecomLeft());
+			ps.setLong(7, recoTaskEnd);
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			LOG.error("Could not update Recommendations for player: {}", player, e);
+		}
 	}
 }

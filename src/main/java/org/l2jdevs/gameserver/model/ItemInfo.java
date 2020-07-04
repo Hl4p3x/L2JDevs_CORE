@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -202,14 +202,19 @@ public class ItemInfo
 		_option = item.getEnchantOptions();
 	}
 	
-	public int getAttackElementPower()
+	public int getObjectId()
 	{
-		return _elemAtkPower;
+		return _objectId;
 	}
 	
-	public int getAttackElementType()
+	public L2Item getItem()
 	{
-		return _elemAtkType;
+		return _item;
+	}
+	
+	public int getEnchant()
+	{
+		return _enchant;
 	}
 	
 	public int getAugmentationBonus()
@@ -217,14 +222,14 @@ public class ItemInfo
 		return _augmentation;
 	}
 	
-	public int getChange()
-	{
-		return _change;
-	}
-	
 	public long getCount()
 	{
 		return _count;
+	}
+	
+	public int getPrice()
+	{
+		return _price;
 	}
 	
 	public int getCustomType1()
@@ -237,34 +242,14 @@ public class ItemInfo
 		return _type2;
 	}
 	
-	public int getElementDefAttr(byte i)
-	{
-		return _elemDefAttr[i];
-	}
-	
-	public int getEnchant()
-	{
-		return _enchant;
-	}
-	
-	public int[] getEnchantOptions()
-	{
-		return _option;
-	}
-	
 	public int getEquipped()
 	{
 		return _equipped;
 	}
 	
-	public L2Item getItem()
+	public int getChange()
 	{
-		return _item;
-	}
-	
-	public int getLocation()
-	{
-		return _location;
+		return _change;
 	}
 	
 	public int getMana()
@@ -272,18 +257,33 @@ public class ItemInfo
 		return _mana;
 	}
 	
-	public int getObjectId()
-	{
-		return _objectId;
-	}
-	
-	public int getPrice()
-	{
-		return _price;
-	}
-	
 	public int getTime()
 	{
 		return _time;
+	}
+	
+	public int getLocation()
+	{
+		return _location;
+	}
+	
+	public int getAttackElementType()
+	{
+		return _elemAtkType;
+	}
+	
+	public int getAttackElementPower()
+	{
+		return _elemAtkPower;
+	}
+	
+	public int getElementDefAttr(byte i)
+	{
+		return _elemDefAttr[i];
+	}
+	
+	public int[] getEnchantOptions()
+	{
+		return _option;
 	}
 }

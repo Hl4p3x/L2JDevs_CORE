@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -59,19 +59,12 @@ public final class AuctionableHall extends ClanHall
 		}
 	}
 	
-	@Override
-	public final void free()
+	/**
+	 * @return if clanHall is paid or not
+	 */
+	public final boolean getPaid()
 	{
-		super.free();
-		_paidUntil = 0;
-		_paid = false;
-	}
-	
-	/** Return Grade */
-	@Override
-	public final int getGrade()
-	{
-		return _grade;
+		return _paid;
 	}
 	
 	/** Return lease */
@@ -81,19 +74,26 @@ public final class AuctionableHall extends ClanHall
 		return _lease;
 	}
 	
-	/**
-	 * @return if clanHall is paid or not
-	 */
-	public final boolean getPaid()
-	{
-		return _paid;
-	}
-	
 	/** Return PaidUntil */
 	@Override
 	public final long getPaidUntil()
 	{
 		return _paidUntil;
+	}
+	
+	/** Return Grade */
+	@Override
+	public final int getGrade()
+	{
+		return _grade;
+	}
+	
+	@Override
+	public final void free()
+	{
+		super.free();
+		_paidUntil = 0;
+		_paid = false;
 	}
 	
 	@Override
@@ -102,24 +102,6 @@ public final class AuctionableHall extends ClanHall
 		super.setOwner(clan);
 		_paidUntil = System.currentTimeMillis();
 		initialyzeTask(true);
-	}
-	
-	@Override
-	public final void updateDb()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("UPDATE clanhall SET ownerId=?, paidUntil=?, paid=? WHERE id=?"))
-		{
-			ps.setInt(1, getOwnerId());
-			ps.setLong(2, getPaidUntil());
-			ps.setInt(3, (getPaid()) ? 1 : 0);
-			ps.setInt(4, getId());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Exception: updateOwnerInDB(L2Clan clan): " + e.getMessage(), e);
-		}
 	}
 	
 	/**
@@ -230,6 +212,24 @@ public final class AuctionableHall extends ClanHall
 			{
 				_log.log(Level.SEVERE, "", e);
 			}
+		}
+	}
+	
+	@Override
+	public final void updateDb()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("UPDATE clanhall SET ownerId=?, paidUntil=?, paid=? WHERE id=?"))
+		{
+			ps.setInt(1, getOwnerId());
+			ps.setLong(2, getPaidUntil());
+			ps.setInt(3, (getPaid()) ? 1 : 0);
+			ps.setInt(4, getId());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Exception: updateOwnerInDB(L2Clan clan): " + e.getMessage(), e);
 		}
 	}
 }

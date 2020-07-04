@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -39,11 +39,6 @@ import org.l2jdevs.gameserver.script.ScriptEngine;
 public class FaenorEventParser extends FaenorParser
 {
 	static Logger _log = Logger.getLogger(FaenorEventParser.class.getName());
-	static
-	{
-		ScriptEngine.parserFactories.put(getParserName("Event"), new FaenorEventParserFactory());
-	}
-	
 	private DateRange _eventDates = null;
 	
 	@Override
@@ -84,33 +79,6 @@ public class FaenorEventParser extends FaenorParser
 		}
 	}
 	
-	private void parseEventDrop(Node drop)
-	{
-		try
-		{
-			int[] items = IntList.parse(attribute(drop, "Items"));
-			int[] count = IntList.parse(attribute(drop, "Count"));
-			double chance = getPercent(attribute(drop, "Chance"));
-			
-			_bridge.addEventDrop(items, count, chance, _eventDates);
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "ERROR(parseEventDrop):" + e.getMessage(), e);
-		}
-	}
-	
-	private void parseEventDropList(Node dropList)
-	{
-		for (Node node = dropList.getFirstChild(); node != null; node = node.getNextSibling())
-		{
-			if (isNodeName(node, "AllDrop"))
-			{
-				parseEventDrop(node);
-			}
-		}
-	}
-	
 	private void parseEventMessage(Node sysMsg)
 	{
 		try
@@ -129,6 +97,33 @@ public class FaenorEventParser extends FaenorParser
 		}
 	}
 	
+	private void parseEventDropList(Node dropList)
+	{
+		for (Node node = dropList.getFirstChild(); node != null; node = node.getNextSibling())
+		{
+			if (isNodeName(node, "AllDrop"))
+			{
+				parseEventDrop(node);
+			}
+		}
+	}
+	
+	private void parseEventDrop(Node drop)
+	{
+		try
+		{
+			int[] items = IntList.parse(attribute(drop, "Items"));
+			int[] count = IntList.parse(attribute(drop, "Count"));
+			double chance = getPercent(attribute(drop, "Chance"));
+			
+			_bridge.addEventDrop(items, count, chance, _eventDates);
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "ERROR(parseEventDrop):" + e.getMessage(), e);
+		}
+	}
+	
 	static class FaenorEventParserFactory extends ParserFactory
 	{
 		@Override
@@ -136,5 +131,10 @@ public class FaenorEventParser extends FaenorParser
 		{
 			return (new FaenorEventParser());
 		}
+	}
+	
+	static
+	{
+		ScriptEngine.parserFactories.put(getParserName("Event"), new FaenorEventParserFactory());
 	}
 }

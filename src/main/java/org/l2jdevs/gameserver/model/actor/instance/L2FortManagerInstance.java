@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -67,6 +67,13 @@ public class L2FortManagerInstance extends L2MerchantInstance
 	public boolean isWarehouse()
 	{
 		return true;
+	}
+	
+	private void sendHtmlMessage(L2PcInstance player, NpcHtmlMessage html)
+	{
+		html.replace("%objectId%", String.valueOf(getObjectId()));
+		html.replace("%npcId%", String.valueOf(getId()));
+		player.sendPacket(html);
 	}
 	
 	@Override
@@ -975,25 +982,6 @@ public class L2FortManagerInstance extends L2MerchantInstance
 		player.sendPacket(html);
 	}
 	
-	protected int validateCondition(L2PcInstance player)
-	{
-		if ((getFort() != null) && (getFort().getResidenceId() > 0))
-		{
-			if (player.getClan() != null)
-			{
-				if (getFort().getZone().isActive())
-				{
-					return COND_BUSY_BECAUSE_OF_SIEGE; // Busy because of siege
-				}
-				else if ((getFort().getOwnerClan() != null) && (getFort().getOwnerClan().getId() == player.getClanId()))
-				{
-					return COND_OWNER; // Owner
-				}
-			}
-		}
-		return COND_ALL_FALSE;
-	}
-	
 	private void doTeleport(L2PcInstance player, int val)
 	{
 		if (Config.DEBUG)
@@ -1019,11 +1007,23 @@ public class L2FortManagerInstance extends L2MerchantInstance
 		player.sendPacket(ActionFailed.STATIC_PACKET);
 	}
 	
-	private void sendHtmlMessage(L2PcInstance player, NpcHtmlMessage html)
+	protected int validateCondition(L2PcInstance player)
 	{
-		html.replace("%objectId%", String.valueOf(getObjectId()));
-		html.replace("%npcId%", String.valueOf(getId()));
-		player.sendPacket(html);
+		if ((getFort() != null) && (getFort().getResidenceId() > 0))
+		{
+			if (player.getClan() != null)
+			{
+				if (getFort().getZone().isActive())
+				{
+					return COND_BUSY_BECAUSE_OF_SIEGE; // Busy because of siege
+				}
+				else if ((getFort().getOwnerClan() != null) && (getFort().getOwnerClan().getId() == player.getClanId()))
+				{
+					return COND_OWNER; // Owner
+				}
+			}
+		}
+		return COND_ALL_FALSE;
 	}
 	
 	private void showVaultWindowDeposit(L2PcInstance player)

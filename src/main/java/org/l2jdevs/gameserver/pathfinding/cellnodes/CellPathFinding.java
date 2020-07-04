@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -51,6 +51,11 @@ public class CellPathFinding extends PathFinding
 	
 	private List<L2ItemInstance> _debugItems = null;
 	
+	public static CellPathFinding getInstance()
+	{
+		return SingletonHolder._instance;
+	}
+	
 	protected CellPathFinding()
 	{
 		try
@@ -80,9 +85,10 @@ public class CellPathFinding extends PathFinding
 		}
 	}
 	
-	public static CellPathFinding getInstance()
+	@Override
+	public boolean pathNodesExist(short regionoffset)
 	{
-		return SingletonHolder._instance;
+		return false;
 	}
 	
 	@Override
@@ -229,32 +235,49 @@ public class CellPathFinding extends PathFinding
 		return path;
 	}
 	
-	@Override
-	public String[] getStat()
+	private List<AbstractNodeLoc> constructPath(AbstractNode<NodeLoc> node)
 	{
-		final String[] result = new String[_allBuffers.length + 1];
-		for (int i = 0; i < _allBuffers.length; i++)
-		{
-			result[i] = _allBuffers[i].toString();
-		}
+		final List<AbstractNodeLoc> path = new CopyOnWriteArrayList<>();
+		int previousDirectionX = Integer.MIN_VALUE;
+		int previousDirectionY = Integer.MIN_VALUE;
+		int directionX, directionY;
 		
-		final StringBuilder stat = new StringBuilder(100);
-		StringUtil.append(stat, "LOS postfilter uses:", String.valueOf(_postFilterUses), "/", String.valueOf(_postFilterPlayableUses));
-		if (_postFilterUses > 0)
+		while (node.getParent() != null)
 		{
-			StringUtil.append(stat, " total/avg(ms):", String.valueOf(_postFilterElapsed), "/", String.format("%1.2f", (double) _postFilterElapsed / _postFilterUses), " passes total/avg:", String.valueOf(_postFilterPasses), "/", String.format("%1.1f", (double) _postFilterPasses
-				/ _postFilterUses), Config.EOL);
+			if (!Config.ADVANCED_DIAGONAL_STRATEGY && (node.getParent().getParent() != null))
+			{
+				int tmpX = node.getLoc().getNodeX() - node.getParent().getParent().getLoc().getNodeX();
+				int tmpY = node.getLoc().getNodeY() - node.getParent().getParent().getLoc().getNodeY();
+				if (Math.abs(tmpX) == Math.abs(tmpY))
+				{
+					directionX = tmpX;
+					directionY = tmpY;
+				}
+				else
+				{
+					directionX = node.getLoc().getNodeX() - node.getParent().getLoc().getNodeX();
+					directionY = node.getLoc().getNodeY() - node.getParent().getLoc().getNodeY();
+				}
+			}
+			else
+			{
+				directionX = node.getLoc().getNodeX() - node.getParent().getLoc().getNodeX();
+				directionY = node.getLoc().getNodeY() - node.getParent().getLoc().getNodeY();
+			}
+			
+			// only add a new route point if moving direction changes
+			if ((directionX != previousDirectionX) || (directionY != previousDirectionY))
+			{
+				previousDirectionX = directionX;
+				previousDirectionY = directionY;
+				
+				path.add(0, node.getLoc());
+				node.setLoc(null);
+			}
+			
+			node = node.getParent();
 		}
-		StringUtil.append(stat, "Pathfind success/fail:", String.valueOf(_findSuccess), "/", String.valueOf(_findFails));
-		result[result.length - 1] = stat.toString();
-		
-		return result;
-	}
-	
-	@Override
-	public boolean pathNodesExist(short regionoffset)
-	{
-		return false;
+		return path;
 	}
 	
 	private final CellNodeBuffer alloc(int size, boolean playable)
@@ -309,51 +332,6 @@ public class CellPathFinding extends PathFinding
 		return current;
 	}
 	
-	private List<AbstractNodeLoc> constructPath(AbstractNode<NodeLoc> node)
-	{
-		final List<AbstractNodeLoc> path = new CopyOnWriteArrayList<>();
-		int previousDirectionX = Integer.MIN_VALUE;
-		int previousDirectionY = Integer.MIN_VALUE;
-		int directionX, directionY;
-		
-		while (node.getParent() != null)
-		{
-			if (!Config.ADVANCED_DIAGONAL_STRATEGY && (node.getParent().getParent() != null))
-			{
-				int tmpX = node.getLoc().getNodeX() - node.getParent().getParent().getLoc().getNodeX();
-				int tmpY = node.getLoc().getNodeY() - node.getParent().getParent().getLoc().getNodeY();
-				if (Math.abs(tmpX) == Math.abs(tmpY))
-				{
-					directionX = tmpX;
-					directionY = tmpY;
-				}
-				else
-				{
-					directionX = node.getLoc().getNodeX() - node.getParent().getLoc().getNodeX();
-					directionY = node.getLoc().getNodeY() - node.getParent().getLoc().getNodeY();
-				}
-			}
-			else
-			{
-				directionX = node.getLoc().getNodeX() - node.getParent().getLoc().getNodeX();
-				directionY = node.getLoc().getNodeY() - node.getParent().getLoc().getNodeY();
-			}
-			
-			// only add a new route point if moving direction changes
-			if ((directionX != previousDirectionX) || (directionY != previousDirectionY))
-			{
-				previousDirectionX = directionX;
-				previousDirectionY = directionY;
-				
-				path.add(0, node.getLoc());
-				node.setLoc(null);
-			}
-			
-			node = node.getParent();
-		}
-		return path;
-	}
-	
 	private final void dropDebugItem(int itemId, int num, AbstractNodeLoc loc)
 	{
 		final L2ItemInstance item = new L2ItemInstance(IdFactory.getInstance().getNextId(), itemId);
@@ -394,6 +372,28 @@ public class CellPathFinding extends PathFinding
 			
 			return stat.toString();
 		}
+	}
+	
+	@Override
+	public String[] getStat()
+	{
+		final String[] result = new String[_allBuffers.length + 1];
+		for (int i = 0; i < _allBuffers.length; i++)
+		{
+			result[i] = _allBuffers[i].toString();
+		}
+		
+		final StringBuilder stat = new StringBuilder(100);
+		StringUtil.append(stat, "LOS postfilter uses:", String.valueOf(_postFilterUses), "/", String.valueOf(_postFilterPlayableUses));
+		if (_postFilterUses > 0)
+		{
+			StringUtil.append(stat, " total/avg(ms):", String.valueOf(_postFilterElapsed), "/", String.format("%1.2f", (double) _postFilterElapsed / _postFilterUses), " passes total/avg:", String.valueOf(_postFilterPasses), "/", String.format("%1.1f", (double) _postFilterPasses
+				/ _postFilterUses), Config.EOL);
+		}
+		StringUtil.append(stat, "Pathfind success/fail:", String.valueOf(_findSuccess), "/", String.valueOf(_findFails));
+		result[result.length - 1] = stat.toString();
+		
+		return result;
 	}
 	
 	private static class SingletonHolder

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -29,25 +29,18 @@ public class L2SiegeClan
 	private final List<L2Npc> _flag = new CopyOnWriteArrayList<>();
 	private SiegeClanType _type;
 	
+	public enum SiegeClanType
+	{
+		OWNER,
+		DEFENDER,
+		ATTACKER,
+		DEFENDER_PENDING
+	}
+	
 	public L2SiegeClan(int clanId, SiegeClanType type)
 	{
 		_clanId = clanId;
 		_type = type;
-	}
-	
-	public void addFlag(L2Npc flag)
-	{
-		_flag.add(flag);
-	}
-	
-	public final int getClanId()
-	{
-		return _clanId;
-	}
-	
-	public final List<L2Npc> getFlag()
-	{
-		return _flag;
 	}
 	
 	public int getNumFlags()
@@ -55,9 +48,9 @@ public class L2SiegeClan
 		return _flag.size();
 	}
 	
-	public SiegeClanType getType()
+	public void addFlag(L2Npc flag)
 	{
-		return _type;
+		_flag.add(flag);
 	}
 	
 	public boolean removeFlag(L2Npc flag)
@@ -73,16 +66,23 @@ public class L2SiegeClan
 		_flag.clear();
 	}
 	
+	public final int getClanId()
+	{
+		return _clanId;
+	}
+	
+	public final List<L2Npc> getFlag()
+	{
+		return _flag;
+	}
+	
+	public SiegeClanType getType()
+	{
+		return _type;
+	}
+	
 	public void setType(SiegeClanType setType)
 	{
 		_type = setType;
-	}
-	
-	public enum SiegeClanType
-	{
-		OWNER,
-		DEFENDER,
-		ATTACKER,
-		DEFENDER_PENDING
 	}
 }

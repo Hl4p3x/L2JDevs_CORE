@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  *
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  *
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -20,75 +20,17 @@ package org.l2jdevs.gameserver.util;
 
 import java.awt.Color;
 
+import org.l2jdevs.geodriver.Cell;
+
 import org.l2jdevs.gameserver.GeoData;
 import org.l2jdevs.gameserver.model.actor.instance.L2PcInstance;
 import org.l2jdevs.gameserver.network.serverpackets.ExServerPrimitive;
-import org.l2jdevs.geodriver.Cell;
 
 /**
  * @author HorridoJoho
  */
 public final class GeoUtils
 {
-	/**
-	 * difference between x values: never above 1<br>
-	 * difference between y values: never above 1
-	 * @param lastX
-	 * @param lastY
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	public static int computeNswe(int lastX, int lastY, int x, int y)
-	{
-		if (x > lastX) // east
-		{
-			if (y > lastY)
-			{
-				return Cell.NSWE_SOUTH_EAST;// Direction.SOUTH_EAST;
-			}
-			else if (y < lastY)
-			{
-				return Cell.NSWE_NORTH_EAST;// Direction.NORTH_EAST;
-			}
-			else
-			{
-				return Cell.NSWE_EAST;// Direction.EAST;
-			}
-		}
-		else if (x < lastX) // west
-		{
-			if (y > lastY)
-			{
-				return Cell.NSWE_SOUTH_WEST;// Direction.SOUTH_WEST;
-			}
-			else if (y < lastY)
-			{
-				return Cell.NSWE_NORTH_WEST;// Direction.NORTH_WEST;
-			}
-			else
-			{
-				return Cell.NSWE_WEST;// Direction.WEST;
-			}
-		}
-		else
-		// unchanged x
-		{
-			if (y > lastY)
-			{
-				return Cell.NSWE_SOUTH;// Direction.SOUTH;
-			}
-			else if (y < lastY)
-			{
-				return Cell.NSWE_NORTH;// Direction.NORTH;
-			}
-			else
-			{
-				throw new RuntimeException();
-			}
-		}
-	}
-	
 	public static void debug2DLine(L2PcInstance player, int x, int y, int tx, int ty, int z)
 	{
 		int gx = GeoData.getInstance().getGeoX(x);
@@ -150,6 +92,15 @@ public final class GeoUtils
 			}
 		}
 		player.sendPacket(prim);
+	}
+	
+	private static Color getDirectionColor(int x, int y, int z, int nswe)
+	{
+		if (GeoData.getInstance().checkNearestNswe(x, y, z, nswe))
+		{
+			return Color.GREEN;
+		}
+		return Color.RED;
 	}
 	
 	public static void debugGrid(L2PcInstance player)
@@ -229,12 +180,62 @@ public final class GeoUtils
 		player.sendPacket(exsp);
 	}
 	
-	private static Color getDirectionColor(int x, int y, int z, int nswe)
+	/**
+	 * difference between x values: never above 1<br>
+	 * difference between y values: never above 1
+	 * @param lastX
+	 * @param lastY
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public static int computeNswe(int lastX, int lastY, int x, int y)
 	{
-		if (GeoData.getInstance().checkNearestNswe(x, y, z, nswe))
+		if (x > lastX) // east
 		{
-			return Color.GREEN;
+			if (y > lastY)
+			{
+				return Cell.NSWE_SOUTH_EAST;// Direction.SOUTH_EAST;
+			}
+			else if (y < lastY)
+			{
+				return Cell.NSWE_NORTH_EAST;// Direction.NORTH_EAST;
+			}
+			else
+			{
+				return Cell.NSWE_EAST;// Direction.EAST;
+			}
 		}
-		return Color.RED;
+		else if (x < lastX) // west
+		{
+			if (y > lastY)
+			{
+				return Cell.NSWE_SOUTH_WEST;// Direction.SOUTH_WEST;
+			}
+			else if (y < lastY)
+			{
+				return Cell.NSWE_NORTH_WEST;// Direction.NORTH_WEST;
+			}
+			else
+			{
+				return Cell.NSWE_WEST;// Direction.WEST;
+			}
+		}
+		else
+		// unchanged x
+		{
+			if (y > lastY)
+			{
+				return Cell.NSWE_SOUTH;// Direction.SOUTH;
+			}
+			else if (y < lastY)
+			{
+				return Cell.NSWE_NORTH;// Direction.NORTH;
+			}
+			else
+			{
+				throw new RuntimeException();
+			}
+		}
 	}
 }

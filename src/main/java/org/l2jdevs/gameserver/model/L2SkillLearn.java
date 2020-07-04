@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -49,6 +49,34 @@ public final class L2SkillLearn
 	private final boolean _learnedByNpc;
 	private final boolean _learnedByFS;
 	
+	public class SubClassData
+	{
+		private final int slot;
+		private final int lvl;
+		
+		public SubClassData(int pSlot, int pLvl)
+		{
+			slot = pSlot;
+			lvl = pLvl;
+		}
+		
+		/**
+		 * @return the sub-class slot.
+		 */
+		public int getSlot()
+		{
+			return slot;
+		}
+		
+		/**
+		 * @return the required sub-class level.
+		 */
+		public int getLvl()
+		{
+			return lvl;
+		}
+	}
+	
 	/**
 	 * Constructor for L2SkillLearn.
 	 * @param set the set with the L2SkillLearn data.
@@ -67,21 +95,59 @@ public final class L2SkillLearn
 	}
 	
 	/**
-	 * Adds a required skill holder to learn this skill.
-	 * @param skill the required skill holder.
+	 * @return the name of this skill.
 	 */
-	public void addPreReqSkill(SkillHolder skill)
+	public String getName()
 	{
-		_preReqSkills.add(skill);
+		return _skillName;
 	}
 	
 	/**
-	 * Adds a required race to learn this skill.
-	 * @param race the required race.
+	 * @return the ID of this skill.
 	 */
-	public void addRace(Race race)
+	public int getSkillId()
 	{
-		_races.add(race);
+		return _skillId;
+	}
+	
+	/**
+	 * @return the level of this skill.
+	 */
+	public int getSkillLevel()
+	{
+		return _skillLvl;
+	}
+	
+	/**
+	 * @return the minimum level required to acquire this skill.
+	 */
+	public int getGetLevel()
+	{
+		return _getLevel;
+	}
+	
+	/**
+	 * @return the amount of SP/Clan Reputation to acquire this skill.
+	 */
+	public int getLevelUpSp()
+	{
+		return _levelUpSp;
+	}
+	
+	/**
+	 * @return {@code true} if the skill is auto-get, this skill is automatically delivered.
+	 */
+	public boolean isAutoGet()
+	{
+		return _autoGet;
+	}
+	
+	/**
+	 * @return the list with the item holders required to acquire this skill.
+	 */
+	public List<ItemHolder> getRequiredItems()
+	{
+		return _requiredItems;
 	}
 	
 	/**
@@ -94,12 +160,90 @@ public final class L2SkillLearn
 	}
 	
 	/**
+	 * @return a list with the races that can acquire this skill.
+	 */
+	public List<Race> getRaces()
+	{
+		return _races;
+	}
+	
+	/**
+	 * Adds a required race to learn this skill.
+	 * @param race the required race.
+	 */
+	public void addRace(Race race)
+	{
+		_races.add(race);
+	}
+	
+	/**
+	 * @return the list of skill holders required to acquire this skill.
+	 */
+	public List<SkillHolder> getPreReqSkills()
+	{
+		return _preReqSkills;
+	}
+	
+	/**
+	 * Adds a required skill holder to learn this skill.
+	 * @param skill the required skill holder.
+	 */
+	public void addPreReqSkill(SkillHolder skill)
+	{
+		_preReqSkills.add(skill);
+	}
+	
+	/**
+	 * @return the social class required to get this skill.
+	 */
+	public SocialClass getSocialClass()
+	{
+		return _socialClass;
+	}
+	
+	/**
+	 * Sets the social class if hasn't been set before.
+	 * @param socialClass the social class to set.
+	 */
+	public void setSocialClass(SocialClass socialClass)
+	{
+		if (_socialClass == null)
+		{
+			_socialClass = socialClass;
+		}
+	}
+	
+	/**
+	 * @return {@code true} if this skill is a Residence skill.
+	 */
+	public boolean isResidencialSkill()
+	{
+		return _residenceSkill;
+	}
+	
+	/**
+	 * @return a list with the Ids where this skill is available.
+	 */
+	public List<Integer> getResidenceIds()
+	{
+		return _residenceIds;
+	}
+	
+	/**
 	 * Adds a required residence Id.
 	 * @param id the residence Id to add.
 	 */
 	public void addResidenceId(Integer id)
 	{
 		_residenceIds.add(id);
+	}
+	
+	/**
+	 * @return a list with Sub-Class conditions, amount of subclasses and level.
+	 */
+	public List<SubClassData> getSubClassConditions()
+	{
+		return _subClassLvlNumber;
 	}
 	
 	/**
@@ -110,6 +254,22 @@ public final class L2SkillLearn
 	public void addSubclassConditions(int slot, int lvl)
 	{
 		_subClassLvlNumber.add(new SubClassData(slot, lvl));
+	}
+	
+	/**
+	 * @return {@code true} if this skill is learned from Npc.
+	 */
+	public boolean isLearnedByNpc()
+	{
+		return _learnedByNpc;
+	}
+	
+	/**
+	 * @return {@code true} if this skill is learned by Forgotten Scroll.
+	 */
+	public boolean isLearnedByFS()
+	{
+		return _learnedByFS;
 	}
 	
 	/**
@@ -142,165 +302,5 @@ public final class L2SkillLearn
 			}
 		}
 		return levelUpSp;
-	}
-	
-	/**
-	 * @return the minimum level required to acquire this skill.
-	 */
-	public int getGetLevel()
-	{
-		return _getLevel;
-	}
-	
-	/**
-	 * @return the amount of SP/Clan Reputation to acquire this skill.
-	 */
-	public int getLevelUpSp()
-	{
-		return _levelUpSp;
-	}
-	
-	/**
-	 * @return the name of this skill.
-	 */
-	public String getName()
-	{
-		return _skillName;
-	}
-	
-	/**
-	 * @return the list of skill holders required to acquire this skill.
-	 */
-	public List<SkillHolder> getPreReqSkills()
-	{
-		return _preReqSkills;
-	}
-	
-	/**
-	 * @return a list with the races that can acquire this skill.
-	 */
-	public List<Race> getRaces()
-	{
-		return _races;
-	}
-	
-	/**
-	 * @return the list with the item holders required to acquire this skill.
-	 */
-	public List<ItemHolder> getRequiredItems()
-	{
-		return _requiredItems;
-	}
-	
-	/**
-	 * @return a list with the Ids where this skill is available.
-	 */
-	public List<Integer> getResidenceIds()
-	{
-		return _residenceIds;
-	}
-	
-	/**
-	 * @return the ID of this skill.
-	 */
-	public int getSkillId()
-	{
-		return _skillId;
-	}
-	
-	/**
-	 * @return the level of this skill.
-	 */
-	public int getSkillLevel()
-	{
-		return _skillLvl;
-	}
-	
-	/**
-	 * @return the social class required to get this skill.
-	 */
-	public SocialClass getSocialClass()
-	{
-		return _socialClass;
-	}
-	
-	/**
-	 * @return a list with Sub-Class conditions, amount of subclasses and level.
-	 */
-	public List<SubClassData> getSubClassConditions()
-	{
-		return _subClassLvlNumber;
-	}
-	
-	/**
-	 * @return {@code true} if the skill is auto-get, this skill is automatically delivered.
-	 */
-	public boolean isAutoGet()
-	{
-		return _autoGet;
-	}
-	
-	/**
-	 * @return {@code true} if this skill is learned by Forgotten Scroll.
-	 */
-	public boolean isLearnedByFS()
-	{
-		return _learnedByFS;
-	}
-	
-	/**
-	 * @return {@code true} if this skill is learned from Npc.
-	 */
-	public boolean isLearnedByNpc()
-	{
-		return _learnedByNpc;
-	}
-	
-	/**
-	 * @return {@code true} if this skill is a Residence skill.
-	 */
-	public boolean isResidencialSkill()
-	{
-		return _residenceSkill;
-	}
-	
-	/**
-	 * Sets the social class if hasn't been set before.
-	 * @param socialClass the social class to set.
-	 */
-	public void setSocialClass(SocialClass socialClass)
-	{
-		if (_socialClass == null)
-		{
-			_socialClass = socialClass;
-		}
-	}
-	
-	public class SubClassData
-	{
-		private final int slot;
-		private final int lvl;
-		
-		public SubClassData(int pSlot, int pLvl)
-		{
-			slot = pSlot;
-			lvl = pLvl;
-		}
-		
-		/**
-		 * @return the required sub-class level.
-		 */
-		public int getLvl()
-		{
-			return lvl;
-		}
-		
-		/**
-		 * @return the sub-class slot.
-		 */
-		public int getSlot()
-		{
-			return slot;
-		}
 	}
 }

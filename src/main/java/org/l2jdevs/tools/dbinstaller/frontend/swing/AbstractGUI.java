@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -35,39 +35,6 @@ public abstract class AbstractGUI extends JFrame implements IApplicationFrontend
 	protected AbstractGUI(String title)
 	{
 		super(title);
-	}
-	
-	@Override
-	public void close()
-	{
-		setVisible(false);
-		dispose();
-	}
-	
-	@Override
-	public void reportError(boolean drawAttention, String message)
-	{
-		if (drawAttention)
-		{
-			JOptionPane.showMessageDialog(this, message, "Database Installer", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-	
-	@Override
-	public final void reportError(boolean drawAttention, Throwable t, String message)
-	{
-		if (t != null)
-		{
-			message += MessageFormat.format("\n\nReason:\n{0}", t.getMessage());
-		}
-		
-		reportError(drawAttention, message);
-	}
-	
-	@Override
-	public final void reportError(boolean drawAttention, Throwable t, String message, Object... args)
-	{
-		reportError(drawAttention, t, MessageFormat.format(message, args));
 	}
 	
 	@Override
@@ -101,14 +68,47 @@ public abstract class AbstractGUI extends JFrame implements IApplicationFrontend
 	}
 	
 	@Override
-	public final boolean requestUserConfirm(String message, Object... args)
+	public void reportError(boolean drawAttention, String message)
 	{
-		return JOptionPane.showConfirmDialog(this, MessageFormat.format(message, args), "Database Installer", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == 0;
+		if (drawAttention)
+		{
+			JOptionPane.showMessageDialog(this, message, "Database Installer", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	@Override
+	public final void reportError(boolean drawAttention, Throwable t, String message)
+	{
+		if (t != null)
+		{
+			message += MessageFormat.format("\n\nReason:\n{0}", t.getMessage());
+		}
+		
+		reportError(drawAttention, message);
+	}
+	
+	@Override
+	public final void reportError(boolean drawAttention, Throwable t, String message, Object... args)
+	{
+		reportError(drawAttention, t, MessageFormat.format(message, args));
 	}
 	
 	@Override
 	public final String requestUserInput(String message, Object... args)
 	{
 		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public final boolean requestUserConfirm(String message, Object... args)
+	{
+		return JOptionPane.showConfirmDialog(this, MessageFormat.format(message, args), "Database Installer", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == 0;
+	}
+	
+	@Override
+	public void close()
+	{
+		setVisible(false);
+		dispose();
 	}
 }

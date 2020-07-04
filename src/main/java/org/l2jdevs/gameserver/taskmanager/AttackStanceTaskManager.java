@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -50,15 +50,6 @@ public class AttackStanceTaskManager
 	}
 	
 	/**
-	 * Gets the single instance of AttackStanceTaskManager.
-	 * @return single instance of AttackStanceTaskManager
-	 */
-	public static AttackStanceTaskManager getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
 	 * Adds the attack stance task.
 	 * @param actor the actor
 	 */
@@ -82,6 +73,22 @@ public class AttackStanceTaskManager
 	}
 	
 	/**
+	 * Removes the attack stance task.
+	 * @param actor the actor
+	 */
+	public void removeAttackStanceTask(L2Character actor)
+	{
+		if (actor != null)
+		{
+			if (actor.isSummon())
+			{
+				actor = actor.getActingPlayer();
+			}
+			_attackStanceTasks.remove(actor);
+		}
+	}
+	
+	/**
 	 * Checks for attack stance task.<br>
 	 * @param actor the actor
 	 * @return {@code true} if the character has an attack stance task, {@code false} otherwise
@@ -97,22 +104,6 @@ public class AttackStanceTaskManager
 			return _attackStanceTasks.containsKey(actor);
 		}
 		return false;
-	}
-	
-	/**
-	 * Removes the attack stance task.
-	 * @param actor the actor
-	 */
-	public void removeAttackStanceTask(L2Character actor)
-	{
-		if (actor != null)
-		{
-			if (actor.isSummon())
-			{
-				actor = actor.getActingPlayer();
-			}
-			_attackStanceTasks.remove(actor);
-		}
 	}
 	
 	protected class FightModeScheduler implements Runnable
@@ -151,6 +142,15 @@ public class AttackStanceTaskManager
 				_log.log(Level.WARNING, "Error in FightModeScheduler: " + e.getMessage(), e);
 			}
 		}
+	}
+	
+	/**
+	 * Gets the single instance of AttackStanceTaskManager.
+	 * @return single instance of AttackStanceTaskManager
+	 */
+	public static AttackStanceTaskManager getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

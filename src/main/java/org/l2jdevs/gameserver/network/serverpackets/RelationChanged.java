@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -46,13 +46,13 @@ public final class RelationChanged extends L2GameServerPacket
 	public static final int RELATION_ALLY_MEMBER = 0x10000; // clan is in alliance
 	public static final int RELATION_TERRITORY_WAR = 0x80000; // show Territory War icon
 	
-	private Relation _singled;
-	
-	private List<Relation> _multi;
-	public RelationChanged()
+	protected static class Relation
 	{
-		_multi = new ArrayList<>();
+		int _objId, _relation, _autoAttackable, _karma, _pvpFlag;
 	}
+	
+	private Relation _singled;
+	private List<Relation> _multi;
 	
 	public RelationChanged(L2Playable activeChar, int relation, boolean autoattackable)
 	{
@@ -63,6 +63,11 @@ public final class RelationChanged extends L2GameServerPacket
 		_singled._karma = activeChar.getKarma();
 		_singled._pvpFlag = activeChar.getPvpFlag();
 		setInvisible(activeChar.isInvisible());
+	}
+	
+	public RelationChanged()
+	{
+		_multi = new ArrayList<>();
 	}
 	
 	public void addRelation(L2Playable activeChar, int relation, boolean autoattackable)
@@ -106,10 +111,5 @@ public final class RelationChanged extends L2GameServerPacket
 		writeD(relation._autoAttackable);
 		writeD(relation._karma);
 		writeD(relation._pvpFlag);
-	}
-	
-	protected static class Relation
-	{
-		int _objId, _relation, _autoAttackable, _karma, _pvpFlag;
 	}
 }

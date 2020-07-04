@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -35,6 +35,8 @@ import org.l2jdevs.gameserver.model.entity.Auction;
 public final class AuctionManager
 {
 	protected static final Logger _log = Logger.getLogger(AuctionManager.class.getName());
+	private final List<Auction> _auctions = new ArrayList<>();
+	
 	private static final String[] ITEM_INIT_DATA =
 	{
 		"(22, 0, 'NPC', 'NPC Clan', 'ClanHall', 22, 0, 'Moonstone Hall', 1, 20000000, 0, 1073037600000)",
@@ -85,16 +87,33 @@ public final class AuctionManager
 	};
 	// @formatter:on
 	
-	private final List<Auction> _auctions = new ArrayList<>();
-	
 	protected AuctionManager()
 	{
 		load();
 	}
 	
-	public static final AuctionManager getInstance()
+	public void reload()
 	{
-		return SingletonHolder._instance;
+		_auctions.clear();
+		load();
+	}
+	
+	private final void load()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement s = con.createStatement();
+			ResultSet rs = s.executeQuery("SELECT id FROM auction ORDER BY id"))
+		{
+			while (rs.next())
+			{
+				_auctions.add(new Auction(rs.getInt("id")));
+			}
+			_log.info(getClass().getSimpleName() + ": Loaded: " + _auctions.size() + " auction(s)");
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, getClass().getSimpleName() + ": Exception: AuctionManager.load(): " + e.getMessage(), e);
+		}
 	}
 	
 	public final Auction getAuction(int auctionId)
@@ -159,28 +178,9 @@ public final class AuctionManager
 		}
 	}
 	
-	public void reload()
+	public static final AuctionManager getInstance()
 	{
-		_auctions.clear();
-		load();
-	}
-	
-	private final void load()
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement s = con.createStatement();
-			ResultSet rs = s.executeQuery("SELECT id FROM auction ORDER BY id"))
-		{
-			while (rs.next())
-			{
-				_auctions.add(new Auction(rs.getInt("id")));
-			}
-			_log.info(getClass().getSimpleName() + ": Loaded: " + _auctions.size() + " auction(s)");
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, getClass().getSimpleName() + ": Exception: AuctionManager.load(): " + e.getMessage(), e);
-		}
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

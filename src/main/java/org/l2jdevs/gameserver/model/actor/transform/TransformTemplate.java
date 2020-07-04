@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -96,56 +96,13 @@ public final class TransformTemplate
 		addDefense(Inventory.PAPERDOLL_NECK, set.getInt("neck", 0));
 	}
 	
-	public void addAdditionalItem(AdditionalItemHolder holder)
+	private void addSpeed(MoveType type, double val)
 	{
-		if (_additionalItems == null)
+		if (_baseSpeed == null)
 		{
-			_additionalItems = new ArrayList<>();
+			_baseSpeed = new HashMap<>();
 		}
-		_additionalItems.add(holder);
-	}
-	
-	public void addAdditionalSkill(AdditionalSkillHolder holder)
-	{
-		if (_additionalSkills == null)
-		{
-			_additionalSkills = new ArrayList<>();
-		}
-		_additionalSkills.add(holder);
-	}
-	
-	public void addLevelData(TransformLevelData data)
-	{
-		_data.put(data.getLevel(), data);
-	}
-	
-	public void addSkill(SkillHolder holder)
-	{
-		if (_skills == null)
-		{
-			_skills = new ArrayList<>();
-		}
-		_skills.add(holder);
-	}
-	
-	public List<AdditionalItemHolder> getAdditionalItems()
-	{
-		return _additionalItems != null ? _additionalItems : Collections.<AdditionalItemHolder> emptyList();
-	}
-	
-	public List<AdditionalSkillHolder> getAdditionalSkills()
-	{
-		return _additionalSkills != null ? _additionalSkills : Collections.<AdditionalSkillHolder> emptyList();
-	}
-	
-	public int getBaseAttackRange()
-	{
-		return _baseAttackRange;
-	}
-	
-	public WeaponType getBaseAttackType()
-	{
-		return _baseAttackType;
+		_baseSpeed.put(type.ordinal(), val);
 	}
 	
 	public double getBaseMoveSpeed(MoveType type)
@@ -157,29 +114,13 @@ public final class TransformTemplate
 		return _baseSpeed.get(type.ordinal());
 	}
 	
-	public double getBaseRandomDamage()
+	private void addDefense(int type, int val)
 	{
-		return _baseRandomDamage;
-	}
-	
-	public ExBasicActionList getBasicActionList()
-	{
-		return _list;
-	}
-	
-	public double getCollisionHeight()
-	{
-		return _collisionHeight;
-	}
-	
-	public double getCollisionRadius()
-	{
-		return _collisionRadius;
-	}
-	
-	public TransformLevelData getData(int level)
-	{
-		return _data.get(level);
+		if (_baseDefense == null)
+		{
+			_baseDefense = new HashMap<>();
+		}
+		_baseDefense.put(type, val);
 	}
 	
 	public int getDefense(int type)
@@ -191,9 +132,13 @@ public final class TransformTemplate
 		return _baseDefense.get(type);
 	}
 	
-	public List<SkillHolder> getSkills()
+	private void addStats(Stats stats, double val)
 	{
-		return _skills != null ? _skills : Collections.<SkillHolder> emptyList();
+		if (_baseStats == null)
+		{
+			_baseStats = new HashMap<>();
+		}
+		_baseStats.put(stats.ordinal(), val);
 	}
 	
 	public double getStats(Stats stats)
@@ -205,9 +150,71 @@ public final class TransformTemplate
 		return _baseStats.get(stats.ordinal());
 	}
 	
-	public boolean hasBasicActionList()
+	public double getCollisionRadius()
 	{
-		return _list != null;
+		return _collisionRadius;
+	}
+	
+	public double getCollisionHeight()
+	{
+		return _collisionHeight;
+	}
+	
+	public WeaponType getBaseAttackType()
+	{
+		return _baseAttackType;
+	}
+	
+	public int getBaseAttackRange()
+	{
+		return _baseAttackRange;
+	}
+	
+	public double getBaseRandomDamage()
+	{
+		return _baseRandomDamage;
+	}
+	
+	public void addSkill(SkillHolder holder)
+	{
+		if (_skills == null)
+		{
+			_skills = new ArrayList<>();
+		}
+		_skills.add(holder);
+	}
+	
+	public List<SkillHolder> getSkills()
+	{
+		return _skills != null ? _skills : Collections.<SkillHolder> emptyList();
+	}
+	
+	public void addAdditionalSkill(AdditionalSkillHolder holder)
+	{
+		if (_additionalSkills == null)
+		{
+			_additionalSkills = new ArrayList<>();
+		}
+		_additionalSkills.add(holder);
+	}
+	
+	public List<AdditionalSkillHolder> getAdditionalSkills()
+	{
+		return _additionalSkills != null ? _additionalSkills : Collections.<AdditionalSkillHolder> emptyList();
+	}
+	
+	public void addAdditionalItem(AdditionalItemHolder holder)
+	{
+		if (_additionalItems == null)
+		{
+			_additionalItems = new ArrayList<>();
+		}
+		_additionalItems.add(holder);
+	}
+	
+	public List<AdditionalItemHolder> getAdditionalItems()
+	{
+		return _additionalItems != null ? _additionalItems : Collections.<AdditionalItemHolder> emptyList();
 	}
 	
 	public void setBasicActionList(ExBasicActionList list)
@@ -215,30 +222,23 @@ public final class TransformTemplate
 		_list = list;
 	}
 	
-	private void addDefense(int type, int val)
+	public ExBasicActionList getBasicActionList()
 	{
-		if (_baseDefense == null)
-		{
-			_baseDefense = new HashMap<>();
-		}
-		_baseDefense.put(type, val);
+		return _list;
 	}
 	
-	private void addSpeed(MoveType type, double val)
+	public boolean hasBasicActionList()
 	{
-		if (_baseSpeed == null)
-		{
-			_baseSpeed = new HashMap<>();
-		}
-		_baseSpeed.put(type.ordinal(), val);
+		return _list != null;
 	}
 	
-	private void addStats(Stats stats, double val)
+	public void addLevelData(TransformLevelData data)
 	{
-		if (_baseStats == null)
-		{
-			_baseStats = new HashMap<>();
-		}
-		_baseStats.put(stats.ordinal(), val);
+		_data.put(data.getLevel(), data);
+	}
+	
+	public TransformLevelData getData(int level)
+	{
+		return _data.get(level);
 	}
 }

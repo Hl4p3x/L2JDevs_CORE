@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,23 +38,14 @@ public final class L2BuyList
 		_listId = listId;
 	}
 	
-	public void addAllowedNpc(int npcId)
-	{
-		if (_allowedNpcs == null)
-		{
-			_allowedNpcs = new HashSet<>();
-		}
-		_allowedNpcs.add(npcId);
-	}
-	
-	public void addProduct(Product product)
-	{
-		_products.put(product.getItemId(), product);
-	}
-	
 	public int getListId()
 	{
 		return _listId;
+	}
+	
+	public Collection<Product> getProducts()
+	{
+		return _products.values();
 	}
 	
 	public Product getProductByItemId(int itemId)
@@ -62,9 +53,18 @@ public final class L2BuyList
 		return _products.get(itemId);
 	}
 	
-	public Collection<Product> getProducts()
+	public void addProduct(Product product)
 	{
-		return _products.values();
+		_products.put(product.getItemId(), product);
+	}
+	
+	public void addAllowedNpc(int npcId)
+	{
+		if (_allowedNpcs == null)
+		{
+			_allowedNpcs = new HashSet<>();
+		}
+		_allowedNpcs.add(npcId);
 	}
 	
 	public boolean isNpcAllowed(int npcId)

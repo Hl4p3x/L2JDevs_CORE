@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -49,14 +49,14 @@ public enum PcCondOverride
 		_descr = descr;
 	}
 	
-	public static long getAllExceptionsMask()
+	public int getMask()
 	{
-		long result = 0L;
-		for (PcCondOverride ex : values())
-		{
-			result |= ex.getMask();
-		}
-		return result;
+		return _mask;
+	}
+	
+	public String getDescription()
+	{
+		return _descr;
 	}
 	
 	public static PcCondOverride getCondOverride(int ordinal)
@@ -71,13 +71,13 @@ public enum PcCondOverride
 		}
 	}
 	
-	public String getDescription()
+	public static long getAllExceptionsMask()
 	{
-		return _descr;
-	}
-	
-	public int getMask()
-	{
-		return _mask;
+		long result = 0L;
+		for (PcCondOverride ex : values())
+		{
+			result |= ex.getMask();
+		}
+		return result;
 	}
 }

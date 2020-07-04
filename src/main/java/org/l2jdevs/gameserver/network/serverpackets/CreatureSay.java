@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -35,30 +35,6 @@ public final class CreatureSay extends L2GameServerPacket
 	private int _npcString = -1;
 	private List<String> _parameters;
 	
-	public CreatureSay(int objectId, int messageType, int charId, NpcStringId npcString)
-	{
-		_objectId = objectId;
-		_textType = messageType;
-		_charId = charId;
-		_npcString = npcString.getId();
-	}
-	
-	public CreatureSay(int objectId, int messageType, int charId, SystemMessageId sysString)
-	{
-		_objectId = objectId;
-		_textType = messageType;
-		_charId = charId;
-		_npcString = sysString.getId();
-	}
-	
-	public CreatureSay(int objectId, int messageType, String charName, NpcStringId npcString)
-	{
-		_objectId = objectId;
-		_textType = messageType;
-		_charName = charName;
-		_npcString = npcString.getId();
-	}
-	
 	/**
 	 * @param objectId
 	 * @param messageType
@@ -73,6 +49,30 @@ public final class CreatureSay extends L2GameServerPacket
 		_text = text;
 	}
 	
+	public CreatureSay(int objectId, int messageType, int charId, NpcStringId npcString)
+	{
+		_objectId = objectId;
+		_textType = messageType;
+		_charId = charId;
+		_npcString = npcString.getId();
+	}
+	
+	public CreatureSay(int objectId, int messageType, String charName, NpcStringId npcString)
+	{
+		_objectId = objectId;
+		_textType = messageType;
+		_charName = charName;
+		_npcString = npcString.getId();
+	}
+	
+	public CreatureSay(int objectId, int messageType, int charId, SystemMessageId sysString)
+	{
+		_objectId = objectId;
+		_textType = messageType;
+		_charId = charId;
+		_npcString = sysString.getId();
+	}
+	
 	/**
 	 * String parameter for argument S1,S2,.. in npcstring-e.dat
 	 * @param text
@@ -84,16 +84,6 @@ public final class CreatureSay extends L2GameServerPacket
 			_parameters = new ArrayList<>();
 		}
 		_parameters.add(text);
-	}
-	
-	@Override
-	public final void runImpl()
-	{
-		L2PcInstance _pci = getClient().getActiveChar();
-		if (_pci != null)
-		{
-			_pci.broadcastSnoop(_textType, _charName, _text);
-		}
 	}
 	
 	@Override
@@ -121,6 +111,16 @@ public final class CreatureSay extends L2GameServerPacket
 			{
 				writeS(s);
 			}
+		}
+	}
+	
+	@Override
+	public final void runImpl()
+	{
+		L2PcInstance _pci = getClient().getActiveChar();
+		if (_pci != null)
+		{
+			_pci.broadcastSnoop(_textType, _charName, _text);
 		}
 	}
 }

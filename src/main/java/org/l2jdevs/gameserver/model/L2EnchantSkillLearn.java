@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -36,29 +36,17 @@ public final class L2EnchantSkillLearn
 		_baseLvl = baseLvl;
 	}
 	
-	public static int getEnchantIndex(int level)
-	{
-		return (level % 100) - 1;
-	}
-	
-	public static int getEnchantRoute(int level)
-	{
-		return (int) Math.floor(level / 100);
-	}
-	
-	public static int getEnchantType(int level)
-	{
-		return ((level - 1) / 100) - 1;
-	}
-	
 	public void addNewEnchantRoute(int route, int group)
 	{
 		_enchantRoutes.put(route, group);
 	}
 	
-	public Set<Integer> getAllRoutes()
+	/**
+	 * @return Returns the id.
+	 */
+	public int getId()
 	{
-		return _enchantRoutes.keySet();
+		return _id;
 	}
 	
 	/**
@@ -69,25 +57,19 @@ public final class L2EnchantSkillLearn
 		return _baseLvl;
 	}
 	
-	public EnchantSkillHolder getEnchantSkillHolder(int level)
+	public static int getEnchantRoute(int level)
 	{
-		int enchantType = getEnchantRoute(level);
-		if ((enchantType < 1) || !_enchantRoutes.containsKey(enchantType))
-		{
-			return null;
-		}
-		int index = getEnchantIndex(level);
-		L2EnchantSkillGroup group = EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(enchantType));
-		
-		if (index < 0)
-		{
-			return group.getEnchantGroupDetails().get(0);
-		}
-		else if (index >= group.getEnchantGroupDetails().size())
-		{
-			return group.getEnchantGroupDetails().get(EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(enchantType)).getEnchantGroupDetails().size() - 1);
-		}
-		return group.getEnchantGroupDetails().get(index);
+		return (int) Math.floor(level / 100);
+	}
+	
+	public static int getEnchantIndex(int level)
+	{
+		return (level % 100) - 1;
+	}
+	
+	public static int getEnchantType(int level)
+	{
+		return ((level - 1) / 100) - 1;
 	}
 	
 	public L2EnchantSkillGroup getFirstRouteGroup()
@@ -95,12 +77,9 @@ public final class L2EnchantSkillLearn
 		return EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.firstEntry().getValue());
 	}
 	
-	/**
-	 * @return Returns the id.
-	 */
-	public int getId()
+	public Set<Integer> getAllRoutes()
 	{
-		return _id;
+		return _enchantRoutes.keySet();
 	}
 	
 	public int getMinSkillLevel(int level)
@@ -126,5 +105,26 @@ public final class L2EnchantSkillLearn
 			return true;
 		}
 		return false;
+	}
+	
+	public EnchantSkillHolder getEnchantSkillHolder(int level)
+	{
+		int enchantType = getEnchantRoute(level);
+		if ((enchantType < 1) || !_enchantRoutes.containsKey(enchantType))
+		{
+			return null;
+		}
+		int index = getEnchantIndex(level);
+		L2EnchantSkillGroup group = EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(enchantType));
+		
+		if (index < 0)
+		{
+			return group.getEnchantGroupDetails().get(0);
+		}
+		else if (index >= group.getEnchantGroupDetails().size())
+		{
+			return group.getEnchantGroupDetails().get(EnchantSkillGroupsData.getInstance().getEnchantSkillGroupById(_enchantRoutes.get(enchantType)).getEnchantGroupDetails().size() - 1);
+		}
+		return group.getEnchantGroupDetails().get(index);
 	}
 }

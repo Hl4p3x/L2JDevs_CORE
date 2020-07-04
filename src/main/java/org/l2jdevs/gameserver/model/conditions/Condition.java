@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -35,11 +35,12 @@ public abstract class Condition implements ConditionListener
 	private boolean _result;
 	
 	/**
-	 * Adds the name.
+	 * Sets the message.
+	 * @param msg the new message
 	 */
-	public final void addName()
+	public final void setMessage(String msg)
 	{
-		_addName = true;
+		_msg = msg;
 	}
 	
 	/**
@@ -52,12 +53,29 @@ public abstract class Condition implements ConditionListener
 	}
 	
 	/**
+	 * Sets the message id.
+	 * @param msgId the new message id
+	 */
+	public final void setMessageId(int msgId)
+	{
+		_msgId = msgId;
+	}
+	
+	/**
 	 * Gets the message id.
 	 * @return the message id
 	 */
 	public final int getMessageId()
 	{
 		return _msgId;
+	}
+	
+	/**
+	 * Adds the name.
+	 */
+	public final void addName()
+	{
+		_addName = true;
 	}
 	
 	/**
@@ -69,41 +87,33 @@ public abstract class Condition implements ConditionListener
 		return _addName;
 	}
 	
-	@Override
-	public void notifyChanged()
+	/**
+	 * Sets the listener.
+	 * @param listener the new listener
+	 */
+	void setListener(ConditionListener listener)
 	{
-		if (_listener != null)
-		{
-			_listener.notifyChanged();
-		}
+		_listener = listener;
+		notifyChanged();
 	}
 	
 	/**
-	 * Sets the message.
-	 * @param msg the new message
+	 * Gets the listener.
+	 * @return the listener
 	 */
-	public final void setMessage(String msg)
+	final ConditionListener getListener()
 	{
-		_msg = msg;
-	}
-	
-	/**
-	 * Sets the message id.
-	 * @param msgId the new message id
-	 */
-	public final void setMessageId(int msgId)
-	{
-		_msgId = msgId;
-	}
-	
-	public final boolean test(L2Character caster, L2Character target, L2Item item)
-	{
-		return test(caster, target, null, null);
+		return _listener;
 	}
 	
 	public final boolean test(L2Character caster, L2Character target, Skill skill)
 	{
 		return test(caster, target, skill, null);
+	}
+	
+	public final boolean test(L2Character caster, L2Character target, L2Item item)
+	{
+		return test(caster, target, null, null);
 	}
 	
 	public final boolean test(L2Character caster, L2Character target, Skill skill, L2Item item)
@@ -127,22 +137,12 @@ public abstract class Condition implements ConditionListener
 	 */
 	public abstract boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item);
 	
-	/**
-	 * Gets the listener.
-	 * @return the listener
-	 */
-	final ConditionListener getListener()
+	@Override
+	public void notifyChanged()
 	{
-		return _listener;
-	}
-	
-	/**
-	 * Sets the listener.
-	 * @param listener the new listener
-	 */
-	void setListener(ConditionListener listener)
-	{
-		_listener = listener;
-		notifyChanged();
+		if (_listener != null)
+		{
+			_listener.notifyChanged();
+		}
 	}
 }

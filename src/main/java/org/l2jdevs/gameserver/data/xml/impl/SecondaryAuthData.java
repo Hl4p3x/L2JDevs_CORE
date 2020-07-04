@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -42,41 +42,6 @@ public class SecondaryAuthData implements IXmlReader
 	protected SecondaryAuthData()
 	{
 		load();
-	}
-	
-	public static SecondaryAuthData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	public int getBanTime()
-	{
-		return _banTime;
-	}
-	
-	public Set<String> getForbiddenPasswords()
-	{
-		return _forbiddenPasswords;
-	}
-	
-	public int getMaxAttempts()
-	{
-		return _maxAttempts;
-	}
-	
-	public String getRecoveryLink()
-	{
-		return _recoveryLink;
-	}
-	
-	public boolean isEnabled()
-	{
-		return _enabled;
-	}
-	
-	public boolean isForbiddenPassword(String password)
-	{
-		return _forbiddenPasswords.contains(password);
 	}
 	
 	@Override
@@ -132,6 +97,41 @@ public class SecondaryAuthData implements IXmlReader
 		{
 			LOG.warn("Failed to load secondary auth data from xml.", e);
 		}
+	}
+	
+	public boolean isEnabled()
+	{
+		return _enabled;
+	}
+	
+	public int getMaxAttempts()
+	{
+		return _maxAttempts;
+	}
+	
+	public int getBanTime()
+	{
+		return _banTime;
+	}
+	
+	public String getRecoveryLink()
+	{
+		return _recoveryLink;
+	}
+	
+	public Set<String> getForbiddenPasswords()
+	{
+		return _forbiddenPasswords;
+	}
+	
+	public boolean isForbiddenPassword(String password)
+	{
+		return _forbiddenPasswords.contains(password);
+	}
+	
+	public static SecondaryAuthData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

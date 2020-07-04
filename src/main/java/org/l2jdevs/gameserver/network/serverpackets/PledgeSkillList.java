@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -30,6 +30,21 @@ public class PledgeSkillList extends L2GameServerPacket
 {
 	private final Skill[] _skills;
 	private final List<SubPledgeSkill> _subSkills;
+	
+	public static class SubPledgeSkill
+	{
+		int _subType;
+		int _skillId;
+		int _skillLvl;
+		
+		public SubPledgeSkill(int subType, int skillId, int skillLvl)
+		{
+			super();
+			_subType = subType;
+			_skillId = skillId;
+			_skillLvl = skillLvl;
+		}
+	}
 	
 	public PledgeSkillList(L2Clan clan)
 	{
@@ -54,21 +69,6 @@ public class PledgeSkillList extends L2GameServerPacket
 			writeD(sk._subType); // Clan Sub-unit types
 			writeD(sk._skillId);
 			writeD(sk._skillLvl);
-		}
-	}
-	
-	public static class SubPledgeSkill
-	{
-		int _subType;
-		int _skillId;
-		int _skillLvl;
-		
-		public SubPledgeSkill(int subType, int skillId, int skillLvl)
-		{
-			super();
-			_subType = subType;
-			_skillId = skillId;
-			_skillLvl = skillLvl;
 		}
 	}
 }

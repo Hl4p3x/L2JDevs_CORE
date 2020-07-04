@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -122,19 +122,12 @@ public final class L2EtcItem extends L2Item
 	}
 	
 	/**
-	 * @return the extractable items list.
+	 * @return the type of Etc Item.
 	 */
-	public List<L2ExtractableProduct> getExtractableItems()
+	@Override
+	public EtcItemType getItemType()
 	{
-		return _extractableItems;
-	}
-	
-	/**
-	 * @return the handler name, null if no handler for item.
-	 */
-	public String getHandlerName()
-	{
-		return _handler;
+		return _type;
 	}
 	
 	/**
@@ -147,12 +140,11 @@ public final class L2EtcItem extends L2Item
 	}
 	
 	/**
-	 * @return the type of Etc Item.
+	 * @return the handler name, null if no handler for item.
 	 */
-	@Override
-	public EtcItemType getItemType()
+	public String getHandlerName()
 	{
-		return _type;
+		return _handler;
 	}
 	
 	/**
@@ -161,5 +153,13 @@ public final class L2EtcItem extends L2Item
 	public final boolean isBlessed()
 	{
 		return _isBlessed;
+	}
+	
+	/**
+	 * @return the extractable items list.
+	 */
+	public List<L2ExtractableProduct> getExtractableItems()
+	{
+		return _extractableItems;
 	}
 }

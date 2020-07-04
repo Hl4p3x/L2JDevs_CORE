@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -57,45 +57,12 @@ public class PcAppearance
 		_sex = sex;
 	}
 	
-	public final byte getFace()
-	{
-		return _face;
-	}
-	
-	public final byte getHairColor()
-	{
-		return _hairColor;
-	}
-	
-	public final byte getHairStyle()
-	{
-		return _hairStyle;
-	}
-	
-	public int getNameColor()
-	{
-		return _nameColor;
-	}
-	
 	/**
-	 * @return Returns the owner.
+	 * @param visibleName The visibleName to set.
 	 */
-	public L2PcInstance getOwner()
+	public final void setVisibleName(String visibleName)
 	{
-		return _owner;
-	}
-	
-	/**
-	 * @return true if char is female
-	 */
-	public final boolean getSex()
-	{
-		return _sex;
-	}
-	
-	public int getTitleColor()
-	{
-		return _titleColor;
+		_visibleName = visibleName;
 	}
 	
 	/**
@@ -111,6 +78,14 @@ public class PcAppearance
 	}
 	
 	/**
+	 * @param visibleTitle The visibleTitle to set.
+	 */
+	public final void setVisibleTitle(String visibleTitle)
+	{
+		_visibleTitle = visibleTitle;
+	}
+	
+	/**
 	 * @return Returns the visibleTitle.
 	 */
 	public final String getVisibleTitle()
@@ -122,9 +97,9 @@ public class PcAppearance
 		return _visibleTitle;
 	}
 	
-	public boolean isGhost()
+	public final byte getFace()
 	{
-		return _ghostmode;
+		return _face;
 	}
 	
 	/**
@@ -135,9 +110,9 @@ public class PcAppearance
 		_face = (byte) value;
 	}
 	
-	public void setGhostMode(boolean b)
+	public final byte getHairColor()
 	{
-		_ghostmode = b;
+		return _hairColor;
 	}
 	
 	/**
@@ -148,12 +123,48 @@ public class PcAppearance
 		_hairColor = (byte) value;
 	}
 	
+	public final byte getHairStyle()
+	{
+		return _hairStyle;
+	}
+	
 	/**
 	 * @param value
 	 */
 	public final void setHairStyle(int value)
 	{
 		_hairStyle = (byte) value;
+	}
+	
+	/**
+	 * @return true if char is female
+	 */
+	public final boolean getSex()
+	{
+		return _sex;
+	}
+	
+	/**
+	 * @param isfemale
+	 */
+	public final void setSex(boolean isfemale)
+	{
+		_sex = isfemale;
+	}
+	
+	public void setGhostMode(boolean b)
+	{
+		_ghostmode = b;
+	}
+	
+	public boolean isGhost()
+	{
+		return _ghostmode;
+	}
+	
+	public int getNameColor()
+	{
+		return _nameColor;
 	}
 	
 	public void setNameColor(int nameColor)
@@ -171,20 +182,9 @@ public class PcAppearance
 		_nameColor = (red & 0xFF) + ((green & 0xFF) << 8) + ((blue & 0xFF) << 16);
 	}
 	
-	/**
-	 * @param owner The owner to set.
-	 */
-	public void setOwner(L2PcInstance owner)
+	public int getTitleColor()
 	{
-		_owner = owner;
-	}
-	
-	/**
-	 * @param isfemale
-	 */
-	public final void setSex(boolean isfemale)
-	{
-		_sex = isfemale;
+		return _titleColor;
 	}
 	
 	public void setTitleColor(int titleColor)
@@ -203,18 +203,18 @@ public class PcAppearance
 	}
 	
 	/**
-	 * @param visibleName The visibleName to set.
+	 * @param owner The owner to set.
 	 */
-	public final void setVisibleName(String visibleName)
+	public void setOwner(L2PcInstance owner)
 	{
-		_visibleName = visibleName;
+		_owner = owner;
 	}
 	
 	/**
-	 * @param visibleTitle The visibleTitle to set.
+	 * @return Returns the owner.
 	 */
-	public final void setVisibleTitle(String visibleTitle)
+	public L2PcInstance getOwner()
 	{
-		_visibleTitle = visibleTitle;
+		return _owner;
 	}
 }

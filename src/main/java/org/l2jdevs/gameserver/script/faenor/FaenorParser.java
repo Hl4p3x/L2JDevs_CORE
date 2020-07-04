@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -47,6 +47,11 @@ public abstract class FaenorParser extends Parser
 		return attribute(node, attributeName, null);
 	}
 	
+	public static String element(Node node, String elementName)
+	{
+		return element(node, elementName, null);
+	}
+	
 	public static String attribute(Node node, String attributeName, String defaultValue)
 	{
 		try
@@ -61,11 +66,6 @@ public abstract class FaenorParser extends Parser
 			}
 			throw new NullPointerException(e.getMessage());
 		}
-	}
-	
-	public static String element(Node node, String elementName)
-	{
-		return element(node, elementName, null);
 	}
 	
 	public static String element(Node parentNode, String elementName, String defaultValue)
@@ -92,14 +92,24 @@ public abstract class FaenorParser extends Parser
 		throw new NullPointerException();
 	}
 	
+	public static boolean isNodeName(Node node, String name)
+	{
+		return node.getNodeName().equalsIgnoreCase(name);
+	}
+	
+	public Date getDate(String date) throws ParseException
+	{
+		return DATE_FORMAT.parse(date);
+	}
+	
 	public static double getPercent(String percent)
 	{
 		return (Double.parseDouble(percent.split("%")[0]) / 100.0);
 	}
 	
-	public static boolean isNodeName(Node node, String name)
+	protected static int getInt(String number)
 	{
-		return node.getNodeName().equalsIgnoreCase(name);
+		return Integer.parseInt(number);
 	}
 	
 	protected static double getDouble(String number)
@@ -112,19 +122,9 @@ public abstract class FaenorParser extends Parser
 		return Float.parseFloat(number);
 	}
 	
-	protected static int getInt(String number)
-	{
-		return Integer.parseInt(number);
-	}
-	
 	protected static String getParserName(String name)
 	{
 		return "faenor.Faenor" + name + "Parser";
-	}
-	
-	public Date getDate(String date) throws ParseException
-	{
-		return DATE_FORMAT.parse(date);
 	}
 	
 	/**

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -31,19 +31,15 @@ public class ObjectPoly
 		_activeObject = activeObject;
 	}
 	
+	public void setPolyInfo(String polyType, String polyId)
+	{
+		setPolyId(Integer.parseInt(polyId));
+		setPolyType(polyType);
+	}
+	
 	public final L2Object getActiveObject()
 	{
 		return _activeObject;
-	}
-	
-	public final int getPolyId()
-	{
-		return _polyId;
-	}
-	
-	public final String getPolyType()
-	{
-		return _polyType;
 	}
 	
 	public final boolean isMorphed()
@@ -51,15 +47,19 @@ public class ObjectPoly
 		return getPolyType() != null;
 	}
 	
+	public final int getPolyId()
+	{
+		return _polyId;
+	}
+	
 	public final void setPolyId(int value)
 	{
 		_polyId = value;
 	}
 	
-	public void setPolyInfo(String polyType, String polyId)
+	public final String getPolyType()
 	{
-		setPolyId(Integer.parseInt(polyId));
-		setPolyType(polyType);
+		return _polyType;
 	}
 	
 	public final void setPolyType(String value)

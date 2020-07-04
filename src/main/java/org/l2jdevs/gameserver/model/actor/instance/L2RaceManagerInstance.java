@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -144,6 +144,22 @@ public class L2RaceManagerInstance extends L2Npc
 		setKnownList(new RaceManagerKnownList(this));
 	}
 	
+	class Announcement implements Runnable
+	{
+		private final SystemMessageId _type;
+		
+		public Announcement(SystemMessageId pType)
+		{
+			_type = pType;
+		}
+		
+		@Override
+		public void run()
+		{
+			makeAnnouncement(_type);
+		}
+	}
+	
 	public void makeAnnouncement(SystemMessageId type)
 	{
 		SystemMessage sm = SystemMessage.getSystemMessage(type);
@@ -201,6 +217,49 @@ public class L2RaceManagerInstance extends L2Npc
 		}
 	}
 	
+	protected void broadcast(L2GameServerPacket pkt)
+	{
+		for (L2RaceManagerInstance manager : _managers)
+		{
+			if (!manager.isDead())
+			{
+				Broadcast.toKnownPlayers(manager, pkt);
+			}
+		}
+	}
+	
+	public void sendMonsterInfo()
+	{
+		broadcast(_packet);
+	}
+	
+	private void startRace()
+	{
+		MonsterRace race = MonsterRace.getInstance();
+		if (_state == STARTING_RACE)
+		{
+			// state++;
+			PlaySound SRace = Music.S_RACE.getPacket();
+			broadcast(SRace);
+			// TODO find correct sender 121209259, 12125, 182487, -3559
+			PlaySound SRace2 = Sound.ITEMSOUND2_RACE_START.getPacket();
+			broadcast(SRace2);
+			_packet = new MonRaceInfo(_codes[1][0], _codes[1][1], race.getMonsters(), race.getSpeeds());
+			sendMonsterInfo();
+			
+			ThreadPoolManager.getInstance().scheduleGeneral(new RunRace(), 5000);
+		}
+		else
+		{
+			// state++;
+			race.newRace();
+			race.newSpeeds();
+			_packet = new MonRaceInfo(_codes[0][0], _codes[0][1], race.getMonsters(), race.getSpeeds());
+			sendMonsterInfo();
+		}
+		
+	}
+	
 	@Override
 	public void onBypassFeedback(L2PcInstance player, String command)
 	{
@@ -252,9 +311,45 @@ public class L2RaceManagerInstance extends L2Npc
 		}
 	}
 	
-	public void sendMonsterInfo()
+	public void showOdds(L2PcInstance player)
 	{
-		broadcast(_packet);
+		if (_state == ACCEPTING_BETS)
+		{
+			return;
+		}
+		int npcId = getTemplate().getId();
+		String filename, search;
+		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
+		filename = getHtmlPath(npcId, 5);
+		html.setFile(player.getHtmlPrefix(), filename);
+		for (int i = 0; i < 8; i++)
+		{
+			int n = i + 1;
+			search = "Mob" + n;
+			html.replace(search, MonsterRace.getInstance().getMonsters()[i].getTemplate().getName());
+		}
+		html.replace("1race", String.valueOf(_raceNumber));
+		html.replace("%objectId%", String.valueOf(getObjectId()));
+		player.sendPacket(html);
+		player.sendPacket(ActionFailed.STATIC_PACKET);
+	}
+	
+	public void showMonsterInfo(L2PcInstance player)
+	{
+		int npcId = getTemplate().getId();
+		String filename, search;
+		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
+		filename = getHtmlPath(npcId, 6);
+		html.setFile(player.getHtmlPrefix(), filename);
+		for (int i = 0; i < 8; i++)
+		{
+			int n = i + 1;
+			search = "Mob" + n;
+			html.replace(search, MonsterRace.getInstance().getMonsters()[i].getTemplate().getName());
+		}
+		html.replace("%objectId%", String.valueOf(getObjectId()));
+		player.sendPacket(html);
+		player.sendPacket(ActionFailed.STATIC_PACKET);
 	}
 	
 	public void showBuyTicket(L2PcInstance player, int val)
@@ -370,85 +465,6 @@ public class L2RaceManagerInstance extends L2Npc
 		player.sendPacket(ActionFailed.STATIC_PACKET);
 	}
 	
-	public void showMonsterInfo(L2PcInstance player)
-	{
-		int npcId = getTemplate().getId();
-		String filename, search;
-		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
-		filename = getHtmlPath(npcId, 6);
-		html.setFile(player.getHtmlPrefix(), filename);
-		for (int i = 0; i < 8; i++)
-		{
-			int n = i + 1;
-			search = "Mob" + n;
-			html.replace(search, MonsterRace.getInstance().getMonsters()[i].getTemplate().getName());
-		}
-		html.replace("%objectId%", String.valueOf(getObjectId()));
-		player.sendPacket(html);
-		player.sendPacket(ActionFailed.STATIC_PACKET);
-	}
-	
-	public void showOdds(L2PcInstance player)
-	{
-		if (_state == ACCEPTING_BETS)
-		{
-			return;
-		}
-		int npcId = getTemplate().getId();
-		String filename, search;
-		final NpcHtmlMessage html = new NpcHtmlMessage(getObjectId());
-		filename = getHtmlPath(npcId, 5);
-		html.setFile(player.getHtmlPrefix(), filename);
-		for (int i = 0; i < 8; i++)
-		{
-			int n = i + 1;
-			search = "Mob" + n;
-			html.replace(search, MonsterRace.getInstance().getMonsters()[i].getTemplate().getName());
-		}
-		html.replace("1race", String.valueOf(_raceNumber));
-		html.replace("%objectId%", String.valueOf(getObjectId()));
-		player.sendPacket(html);
-		player.sendPacket(ActionFailed.STATIC_PACKET);
-	}
-	
-	protected void broadcast(L2GameServerPacket pkt)
-	{
-		for (L2RaceManagerInstance manager : _managers)
-		{
-			if (!manager.isDead())
-			{
-				Broadcast.toKnownPlayers(manager, pkt);
-			}
-		}
-	}
-	
-	private void startRace()
-	{
-		MonsterRace race = MonsterRace.getInstance();
-		if (_state == STARTING_RACE)
-		{
-			// state++;
-			PlaySound SRace = Music.S_RACE.getPacket();
-			broadcast(SRace);
-			// TODO find correct sender 121209259, 12125, 182487, -3559
-			PlaySound SRace2 = Sound.ITEMSOUND2_RACE_START.getPacket();
-			broadcast(SRace2);
-			_packet = new MonRaceInfo(_codes[1][0], _codes[1][1], race.getMonsters(), race.getSpeeds());
-			sendMonsterInfo();
-			
-			ThreadPoolManager.getInstance().scheduleGeneral(new RunRace(), 5000);
-		}
-		else
-		{
-			// state++;
-			race.newRace();
-			race.newSpeeds();
-			_packet = new MonRaceInfo(_codes[0][0], _codes[0][1], race.getMonsters(), race.getSpeeds());
-			sendMonsterInfo();
-		}
-		
-	}
-	
 	public static class Race
 	{
 		private final Info[] _info;
@@ -501,19 +517,14 @@ public class L2RaceManagerInstance extends L2Npc
 		
 	}
 	
-	class Announcement implements Runnable
+	class RunRace implements Runnable
 	{
-		private final SystemMessageId _type;
-		
-		public Announcement(SystemMessageId pType)
-		{
-			_type = pType;
-		}
-		
 		@Override
 		public void run()
 		{
-			makeAnnouncement(_type);
+			_packet = new MonRaceInfo(_codes[2][0], _codes[2][1], MonsterRace.getInstance().getMonsters(), MonsterRace.getInstance().getSpeeds());
+			sendMonsterInfo();
+			ThreadPoolManager.getInstance().scheduleGeneral(new RunEnd(), 30000);
 		}
 	}
 	
@@ -532,17 +543,6 @@ public class L2RaceManagerInstance extends L2Npc
 				obj = new DeleteObject(MonsterRace.getInstance().getMonsters()[i]);
 				broadcast(obj);
 			}
-		}
-	}
-	
-	class RunRace implements Runnable
-	{
-		@Override
-		public void run()
-		{
-			_packet = new MonRaceInfo(_codes[2][0], _codes[2][1], MonsterRace.getInstance().getMonsters(), MonsterRace.getInstance().getSpeeds());
-			sendMonsterInfo();
-			ThreadPoolManager.getInstance().scheduleGeneral(new RunEnd(), 30000);
 		}
 	}
 	

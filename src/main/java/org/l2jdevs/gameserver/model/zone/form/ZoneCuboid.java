@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -48,6 +48,18 @@ public class ZoneCuboid extends L2ZoneForm
 	}
 	
 	@Override
+	public boolean isInsideZone(int x, int y, int z)
+	{
+		return (_r.contains(x, y) && (z >= _z1) && (z <= _z2));
+	}
+	
+	@Override
+	public boolean intersectsRectangle(int ax1, int ax2, int ay1, int ay2)
+	{
+		return (_r.intersects(Math.min(ax1, ax2), Math.min(ay1, ay2), Math.abs(ax2 - ax1), Math.abs(ay2 - ay1)));
+	}
+	
+	@Override
 	public double getDistanceToZone(int x, int y)
 	{
 		int _x1 = _r.x;
@@ -77,12 +89,6 @@ public class ZoneCuboid extends L2ZoneForm
 		return Math.sqrt(shortestDist);
 	}
 	
-	@Override
-	public int getHighZ()
-	{
-		return _z2;
-	}
-	
 	/*
 	 * getLowZ() / getHighZ() - These two functions were added to cope with the demand of the new fishing algorithms, which are now able to correctly place the hook in the water, thanks to getHighZ(). getLowZ() was added, considering potential future modifications.
 	 */
@@ -93,29 +99,9 @@ public class ZoneCuboid extends L2ZoneForm
 	}
 	
 	@Override
-	public int[] getRandomPoint()
+	public int getHighZ()
 	{
-		int x = Rnd.get(_r.x, _r.x + _r.width);
-		int y = Rnd.get(_r.y, _r.y + _r.height);
-		
-		return new int[]
-		{
-			x,
-			y,
-			GeoData.getInstance().getHeight(x, y, _z1)
-		};
-	}
-	
-	@Override
-	public boolean intersectsRectangle(int ax1, int ax2, int ay1, int ay2)
-	{
-		return (_r.intersects(Math.min(ax1, ax2), Math.min(ay1, ay2), Math.abs(ax2 - ax1), Math.abs(ay2 - ay1)));
-	}
-	
-	@Override
-	public boolean isInsideZone(int x, int y, int z)
-	{
-		return (_r.contains(x, y) && (z >= _z1) && (z <= _z2));
+		return _z2;
 	}
 	
 	@Override
@@ -138,5 +124,19 @@ public class ZoneCuboid extends L2ZoneForm
 			dropDebugItem(Inventory.ADENA_ID, 1, _x1, y, z);
 			dropDebugItem(Inventory.ADENA_ID, 1, _x2, y, z);
 		}
+	}
+	
+	@Override
+	public int[] getRandomPoint()
+	{
+		int x = Rnd.get(_r.x, _r.x + _r.width);
+		int y = Rnd.get(_r.y, _r.y + _r.height);
+		
+		return new int[]
+		{
+			x,
+			y,
+			GeoData.getInstance().getHeight(x, y, _z1)
+		};
 	}
 }

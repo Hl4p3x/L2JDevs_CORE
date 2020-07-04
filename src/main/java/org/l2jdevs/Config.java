@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  *
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  *
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -68,6 +68,8 @@ import org.l2jdevs.gameserver.util.Util;
 import org.l2jdevs.util.PropertiesParser;
 import org.l2jdevs.util.StringUtil;
 import org.l2jdevs.util.data.xml.IXmlReader;
+
+import org.l2jdevs.util.MarkovNameGen;
 
 /**
  * This class loads all the game server related configurations from files.<br>
@@ -271,7 +273,7 @@ public final class Config
 	public static Set<String> FORBIDDEN_NAMES;
 	public static boolean SILENCE_MODE_EXCLUDE;
 	public static boolean ALT_VALIDATE_TRIGGER_SKILLS;
-	
+
 	// --------------------------------------------------
 	// ClanHall Settings
 	// --------------------------------------------------
@@ -676,30 +678,38 @@ public final class Config
 	public static FloodProtectorConfig FLOOD_PROTECTOR_SENDMAIL;
 	public static FloodProtectorConfig FLOOD_PROTECTOR_CHARACTER_SELECT;
 	public static FloodProtectorConfig FLOOD_PROTECTOR_ITEM_AUCTION;
-	// --------------------------------------------------
+
+        // --------------------------------------------------
 	// L2JMods Settings
 	// --------------------------------------------------
 	public static boolean L2JMOD_CHAMPION_ENABLE;
 	public static boolean L2JMOD_CHAMPION_PASSIVE;
 	public static int L2JMOD_CHAMPION_FREQUENCY;
+	public static boolean L2JMOD_CHAMPION_RANDNAMES;
+	public static boolean L2JMOD_CHAMPION_COLORED_NAMES;
 	public static String L2JMOD_CHAMP_TITLE;
 	public static int L2JMOD_CHAMP_MIN_LVL;
 	public static int L2JMOD_CHAMP_MAX_LVL;
-	public static int L2JMOD_CHAMPION_HP;
-	public static float L2JMOD_CHAMPION_REWARDS_EXP_SP;
-	public static float L2JMOD_CHAMPION_REWARDS_CHANCE;
-	public static float L2JMOD_CHAMPION_REWARDS_AMOUNT;
-	public static float L2JMOD_CHAMPION_ADENAS_REWARDS_CHANCE;
-	public static float L2JMOD_CHAMPION_ADENAS_REWARDS_AMOUNT;
-	public static float L2JMOD_CHAMPION_HP_REGEN;
-	public static float L2JMOD_CHAMPION_ATK;
-	public static float L2JMOD_CHAMPION_SPD_ATK;
+        public static int L2JMOD_CHAMPION_HP, L2JMOD_CHAMPION_HP1M;
+	public static double L2JMOD_CHAMPION_REWARDS_EXP_SP;
+	public static double L2JMOD_CHAMPION_REWARDS_CHANCE;
+	public static double L2JMOD_CHAMPION_REWARDS_AMOUNT;
+	public static double L2JMOD_CHAMPION_ADENAS_REWARDS_CHANCE;
+	public static double L2JMOD_CHAMPION_ADENAS_REWARDS_AMOUNT;
+	public static double L2JMOD_CHAMPION_HP_REGEN;
+	public static double L2JMOD_CHAMPION_ATK;
+	public static double L2JMOD_CHAMPION_SPD_ATK;
 	public static int L2JMOD_CHAMPION_REWARD_LOWER_LVL_ITEM_CHANCE;
 	public static int L2JMOD_CHAMPION_REWARD_HIGHER_LVL_ITEM_CHANCE;
 	public static int L2JMOD_CHAMPION_REWARD_ID;
 	public static int L2JMOD_CHAMPION_REWARD_QTY;
 	public static boolean L2JMOD_CHAMPION_ENABLE_VITALITY;
 	public static boolean L2JMOD_CHAMPION_ENABLE_IN_INSTANCES;
+        public static int L2JMOD_CHAMPION_NAME_COLOR_DEFAULT;
+        public static int L2JMOD_CHAMPION_NAME_COLOR_AGRESSIVE;
+        public static int L2JMOD_CHAMPION_NAME_COLOR_PEACEFUL;
+	public static int L2JMOD_CHAMPION_ENABLE_AURA;
+
 	public static boolean TVT_EVENT_ENABLED;
 	public static boolean TVT_EVENT_IN_INSTANCE;
 	public static String TVT_EVENT_INSTANCE_FILE;
@@ -789,6 +799,55 @@ public final class Config
 	public static boolean L2JMOD_ALLOW_CHANGE_PASSWORD;
 	public static int L2JMOD_MAX_ATTACK_ELEMENT;
 	public static int L2JMOD_MAX_DEFENSE_ELEMENT;
+
+        public static boolean L2JMOD_MERCHANT_NOTIFY;
+        public static long L2JMOD_MERCHANT_MAX_PRICE_BUY;
+        public static long L2JMOD_MERCHANT_MODIFIER_SELL;
+        public static long L2JMOD_MERCHANT_MODIFIER_BUY;
+        public static boolean L2JMOD_MERCHANT_PRICE_LOG;
+	public static int L2JMOD_TELEPORT_FREE_LEVEL;
+        public static boolean L2JMOD_TELEPORT_COST_SCALE;
+        public static int L2JMOD_TELEPORT_COST_SCALE_PIVOT_LEVEL;
+        public static boolean L2JMOD_QUEST_ITEM_ALWAYS_DROPS;
+        public static double L2JMOD_QUEST_ITEM_MIN_DROP_RATE;
+        public static int L2JMOD_QUEST_ITEM_MIN_DROP_RATE_INT;
+        public static int L2JMOD_INTERACTION_DISTANCE;
+        public static int L2JMOD_FISHMONSTER_DESPAWN_TIME;
+        public static int L2JMOD_RAID_CURSE_LEVEL_DIFF;
+        // public static boolean L2JMOD_PERMADEATH; // aka Allow Revive (and back to village)
+        public static boolean L2JMOD_ALLOW_REVIVE; // aka Allow Revive (and back to village)
+        public static long L2JMOD_RESPAWN_DELAY_MULTIPLIER,
+            L2JMOD_RESPAWN_RANDOM_MULTIPLIER;
+        public static boolean L2JMOD_ALLOW_QUEST_SSHOTS;
+        public static boolean L2JMOD_ROGUELIKE_DROP;
+        public static int L2JMOD_RNG_FAVOR_RANGE,
+            L2JMOD_RNG_BASE_CHANCE,
+            L2JMOD_RNG_GIFTS_EQUIPMENT,
+            L2JMOD_RNG_GIFTS_AMMO_MUL,
+            L2JMOD_RNG_GIFTS_AMMO_DIV,
+            L2JMOD_RNG_EQUIP_FAVOR_RANGE,
+            L2JMOD_RNG_EQUIP_SHARD_RATE;
+        public static int L2JMOD_RNG_SUCCESS_RATE_MAX,
+            L2JMOD_RNG_SUCCESS_PIVOT,
+            L2JMOD_RNG_SUCCESS_BONUS_SKILL,
+            L2JMOD_RNG_SUCCESS_BONUS_LNLEVEL;
+        public static double L2JMOD_SSHOT_USE_MP,
+            L2JMOD_BSSHOT_USE_MP;
+	public static boolean L2JMOD_SHADOW_COUPONS;
+	public static boolean L2JMOD_SEX_DIFF;
+        public static int L2JMOD_RNG_PC_STAT_DIFF;
+	public static boolean L2JMOD_NPC_POWER_JITTER_ENABLE;
+        public static float L2JMOD_NPC_POWER_JITTER,
+            L2JMOD_NPC_POWER_JITTER_X2,
+            L2JMOD_NPC_POWER_JITTER_1M,
+            L2JMOD_NPC_POWER_JITTER_1P;
+	public static boolean L2JMOD_CLASS_TRANSFER_REWARDS;
+        public static int L2JMOD_DAY_NIGHT_BONUS;
+        public static int L2JMOD_EXTRA_GEM_CHANCE_MULTIPLIER;
+	public static boolean L2JMOD_UNSTUCK_INFIGHT;
+        public static int L2JMOD_ENCHANT_ITEM_RECOVERABLE_FAILURE_RATE;
+	public static boolean L2JMOD_2ND_CLASS_DIAMOND_REWARD;
+
 	// --------------------------------------------------
 	// NPC Settings
 	// --------------------------------------------------
@@ -838,7 +897,7 @@ public final class Config
 	public static int DROP_ITEM_MIN_LEVEL_DIFFERENCE;
 	public static int DROP_ITEM_MAX_LEVEL_DIFFERENCE;
 	public static double DROP_ITEM_MIN_LEVEL_GAP_CHANCE;
-	
+
 	// --------------------------------------------------
 	// PvP Settings
 	// --------------------------------------------------
@@ -865,7 +924,7 @@ public final class Config
 	public static float RATE_QUEST_REWARD;
 	public static float RATE_QUEST_REWARD_XP;
 	public static float RATE_QUEST_REWARD_SP;
-	public static float RATE_QUEST_REWARD_ADENA;
+	public static double RATE_QUEST_REWARD_ADENA;
 	public static boolean RATE_QUEST_REWARD_USE_MULTIPLIERS;
 	public static float RATE_QUEST_REWARD_POTION;
 	public static float RATE_QUEST_REWARD_SCROLL;
@@ -999,11 +1058,17 @@ public final class Config
 	public static int PVP_NORMAL_TIME;
 	public static int PVP_PVP_TIME;
 	
+	public static enum IdFactoryType
+	{
+		Compaction,
+		BitSet,
+		Stack
+	}
+	
 	public static IdFactoryType IDFACTORY_TYPE;
-	
 	public static boolean BAD_ID_CHECKING;
-	public static double ENCHANT_CHANCE_ELEMENT_STONE;
 	
+	public static double ENCHANT_CHANCE_ELEMENT_STONE;
 	public static double ENCHANT_CHANCE_ELEMENT_CRYSTAL;
 	public static double ENCHANT_CHANCE_ELEMENT_JEWEL;
 	public static double ENCHANT_CHANCE_ELEMENT_ENERGY;
@@ -1040,46 +1105,46 @@ public final class Config
 	public static int NORMAL_CONNECTION_TIME;
 	public static int FAST_CONNECTION_TIME;
 	public static int MAX_CONNECTION_PER_IP;
-	// Antharas
-	public static int ANTHARAS_WAIT_TIME;
 	
 	// GrandBoss Settings
 	
+	// Antharas
+	public static int ANTHARAS_WAIT_TIME;
 	public static int ANTHARAS_SPAWN_INTERVAL;
 	public static int ANTHARAS_SPAWN_RANDOM;
+	
 	// Valakas
 	public static int VALAKAS_WAIT_TIME;
-	
 	public static int VALAKAS_SPAWN_INTERVAL;
 	public static int VALAKAS_SPAWN_RANDOM;
+	
 	// Baium
 	public static int BAIUM_SPAWN_INTERVAL;
-	
 	public static int BAIUM_SPAWN_RANDOM;
+	
 	// Core
 	public static int CORE_SPAWN_INTERVAL;
-	
 	public static int CORE_SPAWN_RANDOM;
+	
 	// Offen
 	public static int ORFEN_SPAWN_INTERVAL;
-	
 	public static int ORFEN_SPAWN_RANDOM;
+	
 	// Queen Ant
 	public static int QUEEN_ANT_SPAWN_INTERVAL;
-	
 	public static int QUEEN_ANT_SPAWN_RANDOM;
+	
 	// Beleth
 	public static int BELETH_MIN_PLAYERS;
-	
 	public static int BELETH_SPAWN_INTERVAL;
 	public static int BELETH_SPAWN_RANDOM;
+	
 	// Gracia Seeds Settings
 	public static int SOD_TIAT_KILL_COUNT;
-	
 	public static long SOD_STAGE_2_LENGTH;
+	
 	// Hunting Bonus Settings
 	public static boolean HUNTING_BONUS_ENGINE;
-	
 	public static int HUNTING_BONUS_MAX_POINTS;
 	public static int HUNTING_BONUS_MAX_TIME;
 	public static int HUNTING_BONUS_REFRESH_RATE;
@@ -1087,12 +1152,12 @@ public final class Config
 	public static int HUNTING_BONUS_EFFECT_TIME;
 	public static boolean HUNTING_BONUS_EXTRA_POINTS;
 	public static boolean HUNTING_BONUS_EXTRA_POINTS_ALL_TIME;
+	
 	// chatfilter
 	public static List<String> FILTER_LIST;
 	
 	// Email
 	public static String EMAIL_SERVERINFO_NAME;
-	
 	public static String EMAIL_SERVERINFO_ADDRESS;
 	public static boolean EMAIL_SYS_ENABLED;
 	public static String EMAIL_SYS_HOST;
@@ -1105,17 +1170,17 @@ public final class Config
 	public static String EMAIL_SYS_ADDRESS;
 	public static String EMAIL_SYS_SELECTQUERY;
 	public static String EMAIL_SYS_DBFIELD;
+	
 	// Conquerable Halls Settings
 	public static int CHS_CLAN_MINLEVEL;
-	
 	public static int CHS_MAX_ATTACKERS;
 	public static int CHS_MAX_FLAGS_PER_CLAN;
 	public static boolean CHS_ENABLE_FAME;
 	public static int CHS_FAME_AMOUNT;
 	public static int CHS_FAME_FREQUENCY;
+	
 	// GeoData Settings
 	public static int PATHFINDING;
-	
 	public static File PATHNODE_DIR;
 	public static String PATHFIND_BUFFERS;
 	public static float LOW_WEIGHT;
@@ -1130,40 +1195,6 @@ public final class Config
 	public static Path GEODATA_PATH;
 	public static boolean TRY_LOAD_UNSPECIFIED_REGIONS;
 	public static Map<String, Boolean> GEODATA_REGIONS;
-	public static int getServerTypeId(String[] serverTypes)
-	{
-		int tType = 0;
-		for (String cType : serverTypes)
-		{
-			switch (cType.trim().toLowerCase())
-			{
-				case "normal":
-					tType |= 0x01;
-					break;
-				case "relax":
-					tType |= 0x02;
-					break;
-				case "test":
-					tType |= 0x04;
-					break;
-				case "nolabel":
-					tType |= 0x08;
-					break;
-				case "restricted":
-					tType |= 0x10;
-					break;
-				case "event":
-					tType |= 0x20;
-					break;
-				case "free":
-					tType |= 0x40;
-					break;
-				default:
-					break;
-			}
-		}
-		return tType;
-	}
 	
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2218,12 +2249,18 @@ public final class Config
 			final PropertiesParser L2JModSettings = new PropertiesParser(L2JMOD_CONFIG_FILE);
 			
 			L2JMOD_CHAMPION_ENABLE = L2JModSettings.getBoolean("ChampionEnable", false);
+                        LOG.info ("Champions are {}", L2JMOD_CHAMPION_ENABLE ? "enabled" : "disabled");
 			L2JMOD_CHAMPION_PASSIVE = L2JModSettings.getBoolean("ChampionPassive", false);
 			L2JMOD_CHAMPION_FREQUENCY = L2JModSettings.getInt("ChampionFrequency", -1);
-			L2JMOD_CHAMP_TITLE = L2JModSettings.getString("ChampionTitle", "Champion");
+			L2JMOD_CHAMPION_RANDNAMES = L2JModSettings.getBoolean("ChampionRandomNames", false); // overrides ChampionTitle if true
+                        if (L2JMOD_CHAMPION_RANDNAMES)
+                            LOG.info ("MarkovNameGen init, 1st name is '{}'", (new MarkovNameGen(4)).getName());
+                        L2JMOD_CHAMPION_COLORED_NAMES = L2JModSettings.getBoolean("ChampionNameColor", false);
+			L2JMOD_CHAMP_TITLE = L2JModSettings.getString("ChampionTitle", "Champion"); // used only if ChampionRandomNames false
 			L2JMOD_CHAMP_MIN_LVL = L2JModSettings.getInt("ChampionMinLevel", 20);
 			L2JMOD_CHAMP_MAX_LVL = L2JModSettings.getInt("ChampionMaxLevel", 60);
 			L2JMOD_CHAMPION_HP = L2JModSettings.getInt("ChampionHp", 7);
+                        L2JMOD_CHAMPION_HP1M = L2JMOD_CHAMPION_HP - 1;
 			L2JMOD_CHAMPION_HP_REGEN = L2JModSettings.getFloat("ChampionHpRegen", 1);
 			L2JMOD_CHAMPION_REWARDS_EXP_SP = L2JModSettings.getFloat("ChampionRewardsExpSp", 8);
 			L2JMOD_CHAMPION_REWARDS_CHANCE = L2JModSettings.getFloat("ChampionRewardsChance", 8);
@@ -2238,6 +2275,83 @@ public final class Config
 			L2JMOD_CHAMPION_REWARD_QTY = L2JModSettings.getInt("ChampionRewardItemQty", 1);
 			L2JMOD_CHAMPION_ENABLE_VITALITY = L2JModSettings.getBoolean("ChampionEnableVitality", false);
 			L2JMOD_CHAMPION_ENABLE_IN_INSTANCES = L2JModSettings.getBoolean("ChampionEnableInInstances", false);
+			L2JMOD_CHAMPION_ENABLE_AURA = L2JModSettings.getInt("ChampionEnableAura", 0);
+			if (L2JMOD_CHAMPION_ENABLE_AURA < 0 || L2JMOD_CHAMPION_ENABLE_AURA > 2) L2JMOD_CHAMPION_ENABLE_AURA = 0;
+                        L2JMOD_CHAMPION_NAME_COLOR_DEFAULT = L2JModSettings.getInt("ChampionNameColorDefault", 0x0); // green
+                        L2JMOD_CHAMPION_NAME_COLOR_AGRESSIVE = L2JModSettings.getInt("ChampionNameColorAgressive", 0x0); // red
+                        L2JMOD_CHAMPION_NAME_COLOR_PEACEFUL = L2JModSettings.getInt("ChampionNameColorPeaceful", 0x0); // yellow
+                        L2JMOD_DAY_NIGHT_BONUS = L2JModSettings.getInt("NPCAggroDayNightBonus", 0);
+                        L2JMOD_NPC_POWER_JITTER = L2JModSettings.getFloat("NPCPowerJitter", 0);
+                        L2JMOD_NPC_POWER_JITTER_ENABLE = L2JMOD_NPC_POWER_JITTER > 0.001;
+                        L2JMOD_NPC_POWER_JITTER_X2 = 2 * L2JMOD_NPC_POWER_JITTER;
+                        L2JMOD_NPC_POWER_JITTER_1M = 1 - L2JMOD_NPC_POWER_JITTER;
+                        L2JMOD_NPC_POWER_JITTER_1P = 1 + L2JMOD_NPC_POWER_JITTER;
+
+                        L2JMOD_INTERACTION_DISTANCE = L2JModSettings.getInt ("NPCInteractionDistance", 150);
+                        L2JMOD_ALLOW_REVIVE = L2JModSettings.getBoolean("PCAllowRevive", true);
+                        L2JMOD_ALLOW_QUEST_SSHOTS = L2JModSettings.getBoolean("AllowNewbieShotsFromQuests", true);
+                        L2JMOD_FISHMONSTER_DESPAWN_TIME = L2JModSettings.getInt("FishMonsterDespawnTime", 50);
+                        L2JMOD_RAID_CURSE_LEVEL_DIFF = L2JModSettings.getInt("RaidCurseLevelDiff", 8);
+                        L2JMOD_SHADOW_COUPONS = L2JModSettings.getBoolean("AllowShadowCoupons", true);
+                        L2JMOD_CLASS_TRANSFER_REWARDS = L2JModSettings.getBoolean("ClassTransferRewards", true);
+                        L2JMOD_SEX_DIFF = L2JModSettings.getBoolean("EnableSexDifference", false);
+                        L2JMOD_RNG_PC_STAT_DIFF = L2JModSettings.getInt("RNGStatDifference", 3);
+                        L2JMOD_RNG_SUCCESS_RATE_MAX = L2JModSettings.getInt("CraftSuccessRateMax", 100);
+                        L2JMOD_RNG_SUCCESS_PIVOT = L2JModSettings.getInt("CraftSuccessPivot", 50);
+                        L2JMOD_RNG_SUCCESS_BONUS_SKILL = L2JModSettings.getInt("CraftSuccessBonusBySkill", 12);
+                        L2JMOD_RNG_SUCCESS_BONUS_LNLEVEL = L2JModSettings.getInt("CraftSuccessBonusByLnLevel", 8);
+                        L2JMOD_SSHOT_USE_MP = L2JModSettings.getDouble("SShotUseMP", 1);
+                        L2JMOD_BSSHOT_USE_MP = L2JModSettings.getDouble("BSShotUseMPMul", 2);
+                        L2JMOD_UNSTUCK_INFIGHT = L2JModSettings.getBoolean("AllowUnstuckInFight", true);
+                        L2JMOD_ENCHANT_ITEM_RECOVERABLE_FAILURE_RATE = L2JModSettings.getInt("EnchantItemRecoverableFailureRate", 42);
+
+                        L2JMOD_QUEST_ITEM_ALWAYS_DROPS = L2JModSettings.getBoolean("QuestItemAlwaysDrops", false);
+                        L2JMOD_QUEST_ITEM_MIN_DROP_RATE = L2JModSettings.getDouble("QuestItemMinDropRate", 0);
+                        L2JMOD_QUEST_ITEM_MIN_DROP_RATE_INT = //
+                            L2JMOD_QUEST_ITEM_ALWAYS_DROPS
+                            ? Integer.MAX_VALUE
+                            : (int)(L2JMOD_QUEST_ITEM_MIN_DROP_RATE * 100);
+                        L2JMOD_EXTRA_GEM_CHANCE_MULTIPLIER = L2JModSettings.getInt("ExtraGemChanceMultiplier", 1);
+                        L2JMOD_ROGUELIKE_DROP = L2JModSettings.getBoolean("AllowRoguelikeDrop", false);
+                        L2JMOD_RNG_FAVOR_RANGE = L2JModSettings.getInt("RNGDropRange", 2048);
+                        L2JMOD_RNG_BASE_CHANCE = L2JModSettings.getInt("RNGDropBaseChance", 64);
+                        L2JMOD_RNG_GIFTS_AMMO_MUL = L2JModSettings.getInt("RNGDropAmmoChanceMul", 3);
+                        L2JMOD_RNG_GIFTS_AMMO_DIV = L2JModSettings.getInt("RNGDropAmmoChanceDiv", 4);
+                        L2JMOD_RNG_EQUIP_FAVOR_RANGE = L2JModSettings.getInt("RNGDropEquipmentRange", 1_0240);
+                        L2JMOD_RNG_GIFTS_EQUIPMENT = L2JModSettings.getInt("RNGDropEquipmentChance", 64);
+                        L2JMOD_RNG_EQUIP_SHARD_RATE = L2JModSettings.getInt("RNGDropEquipmentShardRate", 64);
+
+			L2JMOD_ALLOW_WEDDING = L2JModSettings.getBoolean("AllowWedding", false);
+			L2JMOD_WEDDING_PRICE = L2JModSettings.getInt("WeddingPrice", 2_5000_0000);
+			L2JMOD_WEDDING_PUNISH_INFIDELITY = L2JModSettings.getBoolean("WeddingPunishInfidelity", true);
+			L2JMOD_WEDDING_TELEPORT = L2JModSettings.getBoolean("WeddingTeleport", true);
+			L2JMOD_WEDDING_TELEPORT_PRICE = L2JModSettings.getInt("WeddingTeleportPrice", 5_0000);
+			L2JMOD_WEDDING_TELEPORT_DURATION = L2JModSettings.getInt("WeddingTeleportDuration", 60);
+			L2JMOD_WEDDING_SAMESEX = L2JModSettings.getBoolean("WeddingAllowSameSex", false);
+			L2JMOD_WEDDING_FORMALWEAR = L2JModSettings.getBoolean("WeddingFormalWear", true);
+			L2JMOD_WEDDING_DIVORCE_COSTS = L2JModSettings.getInt("WeddingDivorceCosts", 20);
+			
+			L2JMOD_ENABLE_WAREHOUSESORTING_CLAN = L2JModSettings.getBoolean("EnableWarehouseSortingClan", false);
+			L2JMOD_ENABLE_WAREHOUSESORTING_PRIVATE = L2JModSettings.getBoolean("EnableWarehouseSortingPrivate", false);
+
+                        L2JMOD_MERCHANT_NOTIFY = L2JModSettings.getBoolean("MerchantBuyNotificationLog", false);
+                        L2JMOD_MERCHANT_MAX_PRICE_BUY = L2JModSettings.getInt("MerchantMaxPriceBuy", -1);
+                        L2JMOD_MERCHANT_MODIFIER_SELL = L2JModSettings.getInt("MerchantModifierSell", 2);
+                        if (L2JMOD_MERCHANT_MODIFIER_SELL <= 0)
+                            L2JMOD_MERCHANT_MODIFIER_SELL = 2;
+                        L2JMOD_MERCHANT_MODIFIER_BUY = L2JModSettings.getInt("MerchantModifierBuy", 2);
+                        if (L2JMOD_MERCHANT_MODIFIER_BUY <= 0)
+                            L2JMOD_MERCHANT_MODIFIER_BUY = 2;
+                        L2JMOD_MERCHANT_PRICE_LOG = L2JModSettings.getBoolean("MerchantPriceUseLog", false);
+
+                        L2JMOD_TELEPORT_FREE_LEVEL = L2JModSettings.getInt("TeleportFreeLevel", 40);
+                        L2JMOD_TELEPORT_COST_SCALE = L2JModSettings.getBoolean("TeleportCostScale", false);
+                        L2JMOD_TELEPORT_COST_SCALE_PIVOT_LEVEL = L2JModSettings.getInt("TeleportCostScalePivotLevel", -1);
+
+                        L2JMOD_RESPAWN_DELAY_MULTIPLIER = L2JModSettings.getInt("RespawnDelayMultiplier", 1);
+                        L2JMOD_RESPAWN_RANDOM_MULTIPLIER = L2JModSettings.getInt("RespawnRandomMultiplier", 1);
+
+                        L2JMOD_2ND_CLASS_DIAMOND_REWARD = L2JModSettings.getBoolean("GiveDimensionalDiamondReward", true);
 			
 			TVT_EVENT_ENABLED = L2JModSettings.getBoolean("TvTEventEnabled", false);
 			TVT_EVENT_IN_INSTANCE = L2JModSettings.getBoolean("TvTEventInInstance", false);
@@ -2246,19 +2360,6 @@ public final class Config
 			TVT_EVENT_PARTICIPATION_TIME = L2JModSettings.getInt("TvTEventParticipationTime", 3600);
 			TVT_EVENT_RUNNING_TIME = L2JModSettings.getInt("TvTEventRunningTime", 1800);
 			TVT_EVENT_PARTICIPATION_NPC_ID = L2JModSettings.getInt("TvTEventParticipationNpcId", 0);
-			
-			L2JMOD_ALLOW_WEDDING = L2JModSettings.getBoolean("AllowWedding", false);
-			L2JMOD_WEDDING_PRICE = L2JModSettings.getInt("WeddingPrice", 250000000);
-			L2JMOD_WEDDING_PUNISH_INFIDELITY = L2JModSettings.getBoolean("WeddingPunishInfidelity", true);
-			L2JMOD_WEDDING_TELEPORT = L2JModSettings.getBoolean("WeddingTeleport", true);
-			L2JMOD_WEDDING_TELEPORT_PRICE = L2JModSettings.getInt("WeddingTeleportPrice", 50000);
-			L2JMOD_WEDDING_TELEPORT_DURATION = L2JModSettings.getInt("WeddingTeleportDuration", 60);
-			L2JMOD_WEDDING_SAMESEX = L2JModSettings.getBoolean("WeddingAllowSameSex", false);
-			L2JMOD_WEDDING_FORMALWEAR = L2JModSettings.getBoolean("WeddingFormalWear", true);
-			L2JMOD_WEDDING_DIVORCE_COSTS = L2JModSettings.getInt("WeddingDivorceCosts", 20);
-			
-			L2JMOD_ENABLE_WAREHOUSESORTING_CLAN = L2JModSettings.getBoolean("EnableWarehouseSortingClan", false);
-			L2JMOD_ENABLE_WAREHOUSESORTING_PRIVATE = L2JModSettings.getBoolean("EnableWarehouseSortingPrivate", false);
 			
 			if (TVT_EVENT_PARTICIPATION_NPC_ID == 0)
 			{
@@ -2479,7 +2580,7 @@ public final class Config
 			L2JMOD_DISPLAY_SERVER_TIME = L2JModSettings.getBoolean("DisplayServerTime", false);
 			
 			WELCOME_MESSAGE_ENABLED = L2JModSettings.getBoolean("ScreenWelcomeMessageEnable", false);
-			WELCOME_MESSAGE_TEXT = L2JModSettings.getString("ScreenWelcomeMessageText", "Welcome to L2JDevs!");
+			WELCOME_MESSAGE_TEXT = L2JModSettings.getString("ScreenWelcomeMessageText", "Welcome to L2J server!");
 			WELCOME_MESSAGE_TIME = L2JModSettings.getInt("ScreenWelcomeMessageTime", 10) * 1000;
 			FOUNDERS_AND_TEAM_LICENSE_MESSAGE_ENABLED = L2JModSettings.getBoolean("FoundersAndTeamLicenseMessageEnable", true);
 			
@@ -2866,44 +2967,6 @@ public final class Config
 		else
 		{
 			LOG.error("Could not Load Config: server mode was not set!");
-		}
-	}
-	
-	/**
-	 * Save hexadecimal ID of the server in the L2Properties file.<br>
-	 * Check {@link #HEXID_FILE}.
-	 * @param serverId the ID of the server whose hexId to save
-	 * @param hexId the hexadecimal ID to store
-	 */
-	public static void saveHexid(int serverId, String hexId)
-	{
-		Config.saveHexid(serverId, hexId, HEXID_FILE);
-	}
-	
-	/**
-	 * Save hexadecimal ID of the server in the L2Properties file.
-	 * @param serverId the ID of the server whose hexId to save
-	 * @param hexId the hexadecimal ID to store
-	 * @param fileName name of the L2Properties file
-	 */
-	public static void saveHexid(int serverId, String hexId, String fileName)
-	{
-		try
-		{
-			Properties hexSetting = new Properties();
-			File file = new File(fileName);
-			// Create a new empty file only if it doesn't exist
-			file.createNewFile();
-			try (OutputStream out = new FileOutputStream(file))
-			{
-				hexSetting.setProperty("ServerID", String.valueOf(serverId));
-				hexSetting.setProperty("HexID", hexId);
-				hexSetting.store(out, "the hexID to auth into login");
-			}
-		}
-		catch (Exception e)
-		{
-			LOG.warn("Failed to save hex id to {} file.", fileName, e);
 		}
 	}
 	
@@ -3753,19 +3816,41 @@ public final class Config
 	}
 	
 	/**
-	 * Loads single flood protector configuration.
-	 * @param properties properties file reader
-	 * @param config flood protector configuration instance
-	 * @param configString flood protector configuration string that determines for which flood protector configuration should be read
-	 * @param defaultInterval default flood protector interval
+	 * Save hexadecimal ID of the server in the L2Properties file.<br>
+	 * Check {@link #HEXID_FILE}.
+	 * @param serverId the ID of the server whose hexId to save
+	 * @param hexId the hexadecimal ID to store
 	 */
-	private static void loadFloodProtectorConfig(final PropertiesParser properties, final FloodProtectorConfig config, final String configString, final int defaultInterval)
+	public static void saveHexid(int serverId, String hexId)
 	{
-		config.FLOOD_PROTECTION_INTERVAL = properties.getInt(StringUtil.concat("FloodProtector", configString, "Interval"), defaultInterval);
-		config.LOG_FLOODING = properties.getBoolean(StringUtil.concat("FloodProtector", configString, "LogFlooding"), false);
-		config.PUNISHMENT_LIMIT = properties.getInt(StringUtil.concat("FloodProtector", configString, "PunishmentLimit"), 0);
-		config.PUNISHMENT_TYPE = properties.getString(StringUtil.concat("FloodProtector", configString, "PunishmentType"), "none");
-		config.PUNISHMENT_TIME = properties.getInt(StringUtil.concat("FloodProtector", configString, "PunishmentTime"), 0) * 60000;
+		Config.saveHexid(serverId, hexId, HEXID_FILE);
+	}
+	
+	/**
+	 * Save hexadecimal ID of the server in the L2Properties file.
+	 * @param serverId the ID of the server whose hexId to save
+	 * @param hexId the hexadecimal ID to store
+	 * @param fileName name of the L2Properties file
+	 */
+	public static void saveHexid(int serverId, String hexId, String fileName)
+	{
+		try
+		{
+			Properties hexSetting = new Properties();
+			File file = new File(fileName);
+			// Create a new empty file only if it doesn't exist
+			file.createNewFile();
+			try (OutputStream out = new FileOutputStream(file))
+			{
+				hexSetting.setProperty("ServerID", String.valueOf(serverId));
+				hexSetting.setProperty("HexID", hexId);
+				hexSetting.store(out, "the hexID to auth into login");
+			}
+		}
+		catch (Exception e)
+		{
+			LOG.warn("Failed to save hex id to {} file.", fileName, e);
+		}
 	}
 	
 	/**
@@ -3790,6 +3875,140 @@ public final class Config
 		loadFloodProtectorConfig(properties, FLOOD_PROTECTOR_SENDMAIL, "SendMail", 100);
 		loadFloodProtectorConfig(properties, FLOOD_PROTECTOR_CHARACTER_SELECT, "CharacterSelect", 30);
 		loadFloodProtectorConfig(properties, FLOOD_PROTECTOR_ITEM_AUCTION, "ItemAuction", 9);
+	}
+	
+	/**
+	 * Loads single flood protector configuration.
+	 * @param properties properties file reader
+	 * @param config flood protector configuration instance
+	 * @param configString flood protector configuration string that determines for which flood protector configuration should be read
+	 * @param defaultInterval default flood protector interval
+	 */
+	private static void loadFloodProtectorConfig(final PropertiesParser properties, final FloodProtectorConfig config, final String configString, final int defaultInterval)
+	{
+		config.FLOOD_PROTECTION_INTERVAL = properties.getInt(StringUtil.concat("FloodProtector", configString, "Interval"), defaultInterval);
+		config.LOG_FLOODING = properties.getBoolean(StringUtil.concat("FloodProtector", configString, "LogFlooding"), false);
+		config.PUNISHMENT_LIMIT = properties.getInt(StringUtil.concat("FloodProtector", configString, "PunishmentLimit"), 0);
+		config.PUNISHMENT_TYPE = properties.getString(StringUtil.concat("FloodProtector", configString, "PunishmentType"), "none");
+		config.PUNISHMENT_TIME = properties.getInt(StringUtil.concat("FloodProtector", configString, "PunishmentTime"), 0) * 60000;
+	}
+	
+	public static int getServerTypeId(String[] serverTypes)
+	{
+		int tType = 0;
+		for (String cType : serverTypes)
+		{
+			switch (cType.trim().toLowerCase())
+			{
+				case "normal":
+					tType |= 0x01;
+					break;
+				case "relax":
+					tType |= 0x02;
+					break;
+				case "test":
+					tType |= 0x04;
+					break;
+				case "nolabel":
+					tType |= 0x08;
+					break;
+				case "restricted":
+					tType |= 0x10;
+					break;
+				case "event":
+					tType |= 0x20;
+					break;
+				case "free":
+					tType |= 0x40;
+					break;
+				default:
+					break;
+			}
+		}
+		return tType;
+	}
+	
+	public static final class ClassMasterSettings
+	{
+		private final Map<Integer, List<ItemHolder>> _claimItems = new HashMap<>(3);
+		private final Map<Integer, List<ItemHolder>> _rewardItems = new HashMap<>(3);
+		private final Map<Integer, Boolean> _allowedClassChange = new HashMap<>(3);
+		
+		public ClassMasterSettings(String configLine)
+		{
+			parseConfigLine(configLine.trim());
+		}
+		
+		private void parseConfigLine(String configLine)
+		{
+			if (configLine.isEmpty())
+			{
+				return;
+			}
+			
+			final StringTokenizer st = new StringTokenizer(configLine, ";");
+			
+			while (st.hasMoreTokens())
+			{
+				// get allowed class change
+				final int job = Integer.parseInt(st.nextToken());
+				
+				_allowedClassChange.put(job, true);
+				
+				final List<ItemHolder> requiredItems = new ArrayList<>();
+				// parse items needed for class change
+				if (st.hasMoreTokens())
+				{
+					final StringTokenizer st2 = new StringTokenizer(st.nextToken(), "[],");
+					
+					while (st2.hasMoreTokens())
+					{
+						final StringTokenizer st3 = new StringTokenizer(st2.nextToken(), "()");
+						final int itemId = Integer.parseInt(st3.nextToken());
+						final int quantity = Integer.parseInt(st3.nextToken());
+						requiredItems.add(new ItemHolder(itemId, quantity));
+					}
+				}
+				
+				_claimItems.put(job, requiredItems);
+				
+				final List<ItemHolder> rewardItems = new ArrayList<>();
+				// parse gifts after class change
+				if (st.hasMoreTokens())
+				{
+					final StringTokenizer st2 = new StringTokenizer(st.nextToken(), "[],");
+					
+					while (st2.hasMoreTokens())
+					{
+						final StringTokenizer st3 = new StringTokenizer(st2.nextToken(), "()");
+						final int itemId = Integer.parseInt(st3.nextToken());
+						final int quantity = Integer.parseInt(st3.nextToken());
+						rewardItems.add(new ItemHolder(itemId, quantity));
+					}
+				}
+				
+				_rewardItems.put(job, rewardItems);
+			}
+		}
+		
+		public boolean isAllowed(int job)
+		{
+			if ((_allowedClassChange == null) || !_allowedClassChange.containsKey(job))
+			{
+				return false;
+			}
+			return _allowedClassChange.get(job);
+		}
+		
+		public List<ItemHolder> getRewardItems(int job)
+		{
+			return _rewardItems.get(job);
+		}
+		
+		public List<ItemHolder> getRequireItems(int job)
+		{
+			return _claimItems.get(job);
+		}
 	}
 	
 	/**
@@ -3858,96 +4077,6 @@ public final class Config
 			result[i++] = tmp;
 		}
 		return result;
-	}
-	
-	public static final class ClassMasterSettings
-	{
-		private final Map<Integer, List<ItemHolder>> _claimItems = new HashMap<>(3);
-		private final Map<Integer, List<ItemHolder>> _rewardItems = new HashMap<>(3);
-		private final Map<Integer, Boolean> _allowedClassChange = new HashMap<>(3);
-		
-		public ClassMasterSettings(String configLine)
-		{
-			parseConfigLine(configLine.trim());
-		}
-		
-		public List<ItemHolder> getRequireItems(int job)
-		{
-			return _claimItems.get(job);
-		}
-		
-		public List<ItemHolder> getRewardItems(int job)
-		{
-			return _rewardItems.get(job);
-		}
-		
-		public boolean isAllowed(int job)
-		{
-			if ((_allowedClassChange == null) || !_allowedClassChange.containsKey(job))
-			{
-				return false;
-			}
-			return _allowedClassChange.get(job);
-		}
-		
-		private void parseConfigLine(String configLine)
-		{
-			if (configLine.isEmpty())
-			{
-				return;
-			}
-			
-			final StringTokenizer st = new StringTokenizer(configLine, ";");
-			
-			while (st.hasMoreTokens())
-			{
-				// get allowed class change
-				final int job = Integer.parseInt(st.nextToken());
-				
-				_allowedClassChange.put(job, true);
-				
-				final List<ItemHolder> requiredItems = new ArrayList<>();
-				// parse items needed for class change
-				if (st.hasMoreTokens())
-				{
-					final StringTokenizer st2 = new StringTokenizer(st.nextToken(), "[],");
-					
-					while (st2.hasMoreTokens())
-					{
-						final StringTokenizer st3 = new StringTokenizer(st2.nextToken(), "()");
-						final int itemId = Integer.parseInt(st3.nextToken());
-						final int quantity = Integer.parseInt(st3.nextToken());
-						requiredItems.add(new ItemHolder(itemId, quantity));
-					}
-				}
-				
-				_claimItems.put(job, requiredItems);
-				
-				final List<ItemHolder> rewardItems = new ArrayList<>();
-				// parse gifts after class change
-				if (st.hasMoreTokens())
-				{
-					final StringTokenizer st2 = new StringTokenizer(st.nextToken(), "[],");
-					
-					while (st2.hasMoreTokens())
-					{
-						final StringTokenizer st3 = new StringTokenizer(st2.nextToken(), "()");
-						final int itemId = Integer.parseInt(st3.nextToken());
-						final int quantity = Integer.parseInt(st3.nextToken());
-						rewardItems.add(new ItemHolder(itemId, quantity));
-					}
-				}
-				
-				_rewardItems.put(job, rewardItems);
-			}
-		}
-	}
-	
-	public static enum IdFactoryType
-	{
-		Compaction,
-		BitSet,
-		Stack
 	}
 	
 	private static class IPConfigData implements IXmlReader
@@ -4085,15 +4214,6 @@ public final class Config
 			}
 		}
 		
-		protected List<String> getHosts()
-		{
-			if (_hosts.isEmpty())
-			{
-				return Arrays.asList("127.0.0.1");
-			}
-			return _hosts;
-		}
-		
 		protected List<String> getSubnets()
 		{
 			if (_subnets.isEmpty())
@@ -4101,6 +4221,15 @@ public final class Config
 				return Arrays.asList("0.0.0.0/0");
 			}
 			return _subnets;
+		}
+		
+		protected List<String> getHosts()
+		{
+			if (_hosts.isEmpty())
+			{
+				return Arrays.asList("127.0.0.1");
+			}
+			return _hosts;
 		}
 	}
 }

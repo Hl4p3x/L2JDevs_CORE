@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -46,6 +46,22 @@ public class BaseMail implements Runnable
 	private static final Logger _log = Logger.getLogger(BaseMail.class.getName());
 	
 	private MimeMessage _messageMime = null;
+	
+	private class SmtpAuthenticator extends Authenticator
+	{
+		private final PasswordAuthentication _auth;
+		
+		public SmtpAuthenticator()
+		{
+			_auth = new PasswordAuthentication(Config.EMAIL_SYS_USERNAME, Config.EMAIL_SYS_PASSWORD);
+		}
+		
+		@Override
+		public PasswordAuthentication getPasswordAuthentication()
+		{
+			return _auth;
+		}
+	}
 	
 	public BaseMail(String account, String mailId, String... args)
 	{
@@ -96,22 +112,6 @@ public class BaseMail implements Runnable
 		}
 	}
 	
-	@Override
-	public void run()
-	{
-		try
-		{
-			if (_messageMime != null)
-			{
-				Transport.send(_messageMime);
-			}
-		}
-		catch (MessagingException e)
-		{
-			_log.warning("Error encounterd while sending email");
-		}
-	}
-	
 	private String compileHtml(String account, String html, String[] args)
 	{
 		if (args != null)
@@ -147,19 +147,19 @@ public class BaseMail implements Runnable
 		return null;
 	}
 	
-	private class SmtpAuthenticator extends Authenticator
+	@Override
+	public void run()
 	{
-		private final PasswordAuthentication _auth;
-		
-		public SmtpAuthenticator()
+		try
 		{
-			_auth = new PasswordAuthentication(Config.EMAIL_SYS_USERNAME, Config.EMAIL_SYS_PASSWORD);
+			if (_messageMime != null)
+			{
+				Transport.send(_messageMime);
+			}
 		}
-		
-		@Override
-		public PasswordAuthentication getPasswordAuthentication()
+		catch (MessagingException e)
 		{
-			return _auth;
+			_log.warning("Error encounterd while sending email");
 		}
 	}
 }

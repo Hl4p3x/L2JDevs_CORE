@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -46,10 +46,22 @@ public abstract class AbstractResidence extends ListenersContainer implements IN
 		initResidentialSkills();
 	}
 	
-	@Override
-	public boolean equals(Object obj)
+	protected abstract void load();
+	
+	protected abstract void initResidenceZone();
+	
+	protected void initResidentialSkills()
 	{
-		return (obj instanceof AbstractResidence) && (((AbstractResidence) obj).getResidenceId() == getResidenceId());
+		final List<L2SkillLearn> residentialSkills = SkillTreesData.getInstance().getAvailableResidentialSkills(getResidenceId());
+		for (L2SkillLearn s : residentialSkills)
+		{
+			_residentialSkills.add(new SkillHolder(s.getSkillId(), s.getSkillLevel()));
+		}
+	}
+	
+	public final int getResidenceId()
+	{
+		return _residenceId;
 	}
 	
 	@Override
@@ -58,14 +70,20 @@ public abstract class AbstractResidence extends ListenersContainer implements IN
 		return _name;
 	}
 	
-	public final int getResidenceId()
+	// TODO: Remove it later when both castles and forts are loaded from same table.
+	public final void setName(String name)
 	{
-		return _residenceId;
+		_name = name;
 	}
 	
 	public L2ResidenceZone getResidenceZone()
 	{
 		return _zone;
+	}
+	
+	protected void setResidenceZone(L2ResidenceZone zone)
+	{
+		_zone = zone;
 	}
 	
 	public final List<SkillHolder> getResidentialSkills()
@@ -95,33 +113,15 @@ public abstract class AbstractResidence extends ListenersContainer implements IN
 		}
 	}
 	
-	// TODO: Remove it later when both castles and forts are loaded from same table.
-	public final void setName(String name)
+	@Override
+	public boolean equals(Object obj)
 	{
-		_name = name;
+		return (obj instanceof AbstractResidence) && (((AbstractResidence) obj).getResidenceId() == getResidenceId());
 	}
 	
 	@Override
 	public String toString()
 	{
 		return getName() + "(" + getResidenceId() + ")";
-	}
-	
-	protected abstract void initResidenceZone();
-	
-	protected void initResidentialSkills()
-	{
-		final List<L2SkillLearn> residentialSkills = SkillTreesData.getInstance().getAvailableResidentialSkills(getResidenceId());
-		for (L2SkillLearn s : residentialSkills)
-		{
-			_residentialSkills.add(new SkillHolder(s.getSkillId(), s.getSkillLevel()));
-		}
-	}
-	
-	protected abstract void load();
-	
-	protected void setResidenceZone(L2ResidenceZone zone)
-	{
-		_zone = zone;
 	}
 }

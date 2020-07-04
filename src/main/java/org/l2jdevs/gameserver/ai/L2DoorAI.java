@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -37,78 +37,17 @@ public class L2DoorAI extends L2CharacterAI
 	}
 	
 	@Override
-	protected void onEvtAggression(L2Character target, long aggro)
-	{
-	}
-	
-	@Override
-	protected void onEvtArrived()
-	{
-	}
-	
-	@Override
-	protected void onEvtArrivedBlocked(Location blocked_at_loc)
-	{
-	}
-	
-	@Override
-	protected void onEvtArrivedRevalidate()
-	{
-	}
-	
-	@Override
-	protected void onEvtAttacked(L2Character attacker)
-	{
-		ThreadPoolManager.getInstance().executeGeneral(new onEventAttackedDoorTask((L2DoorInstance) _actor, attacker));
-	}
-	
-	@Override
-	protected void onEvtCancel()
-	{
-	}
-	
-	@Override
-	protected void onEvtDead()
-	{
-	}
-	
-	@Override
-	protected void onEvtForgetObject(L2Object object)
-	{
-	}
-	
-	@Override
-	protected void onEvtReadyToAct()
-	{
-	}
-	
-	@Override
-	protected void onEvtRooted(L2Character attacker)
-	{
-	}
-	
-	@Override
-	protected void onEvtSleeping(L2Character attacker)
-	{
-	}
-	
-	@Override
-	protected void onEvtStunned(L2Character attacker)
-	{
-	}
-	
-	@Override
-	protected void onEvtThink()
-	{
-	}
-	
-	@Override
-	protected void onEvtUserCmd(Object arg0, Object arg1)
+	protected void onIntentionIdle()
 	{
 	}
 	
 	@Override
 	protected void onIntentionActive()
+	{
+	}
+	
+	@Override
+	protected void onIntentionRest()
 	{
 	}
 	
@@ -123,22 +62,12 @@ public class L2DoorAI extends L2CharacterAI
 	}
 	
 	@Override
-	protected void onIntentionFollow(L2Character target)
-	{
-	}
-	
-	@Override
-	protected void onIntentionIdle()
-	{
-	}
-	
-	@Override
-	protected void onIntentionInteract(L2Object object)
-	{
-	}
-	
-	@Override
 	protected void onIntentionMoveTo(Location destination)
+	{
+	}
+	
+	@Override
+	protected void onIntentionFollow(L2Character target)
 	{
 	}
 	
@@ -148,7 +77,78 @@ public class L2DoorAI extends L2CharacterAI
 	}
 	
 	@Override
-	protected void onIntentionRest()
+	protected void onIntentionInteract(L2Object object)
+	{
+	}
+	
+	@Override
+	protected void onEvtThink()
+	{
+	}
+	
+	@Override
+	protected void onEvtAttacked(L2Character attacker)
+	{
+		ThreadPoolManager.getInstance().executeGeneral(new onEventAttackedDoorTask((L2DoorInstance) _actor, attacker));
+	}
+	
+	@Override
+	protected void onEvtAggression(L2Character target, long aggro)
+	{
+	}
+	
+	@Override
+	protected void onEvtStunned(L2Character attacker)
+	{
+	}
+	
+	@Override
+	protected void onEvtSleeping(L2Character attacker)
+	{
+	}
+	
+	@Override
+	protected void onEvtRooted(L2Character attacker)
+	{
+	}
+	
+	@Override
+	protected void onEvtReadyToAct()
+	{
+	}
+	
+	@Override
+	protected void onEvtUserCmd(Object arg0, Object arg1)
+	{
+	}
+	
+	@Override
+	protected void onEvtArrived()
+	{
+	}
+	
+	@Override
+	protected void onEvtArrivedRevalidate()
+	{
+	}
+	
+	@Override
+	protected void onEvtArrivedBlocked(Location blocked_at_loc)
+	{
+	}
+	
+	@Override
+	protected void onEvtForgetObject(L2Object object)
+	{
+	}
+	
+	@Override
+	protected void onEvtCancel()
+	{
+	}
+	
+	@Override
+	protected void onEvtDead()
 	{
 	}
 	

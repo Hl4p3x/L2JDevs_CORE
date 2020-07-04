@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -72,9 +72,14 @@ public final class DimensionalRiftRoom
 		}, 4);
 	}
 	
-	public boolean checkIfInZone(int x, int y, int z)
+	public byte getType()
 	{
-		return _s.contains(x, y) && (z >= _zMin) && (z <= _zMax);
+		return _type;
+	}
+	
+	public byte getRoom()
+	{
+		return _room;
 	}
 	
 	public int getRandomX()
@@ -87,24 +92,14 @@ public final class DimensionalRiftRoom
 		return Rnd.get(_yMin, _yMax);
 	}
 	
-	public byte getRoom()
-	{
-		return _room;
-	}
-	
-	public List<L2Spawn> getSpawns()
-	{
-		return _roomSpawns;
-	}
-	
 	public Location getTeleportCoorinates()
 	{
 		return _teleportCoords;
 	}
 	
-	public byte getType()
+	public boolean checkIfInZone(int x, int y, int z)
 	{
-		return _type;
+		return _s.contains(x, y) && (z >= _zMin) && (z <= _zMax);
 	}
 	
 	public boolean isBossRoom()
@@ -112,22 +107,9 @@ public final class DimensionalRiftRoom
 		return _isBossRoom;
 	}
 	
-	/**
-	 * Returns if party is inside the room.
-	 * @return {@code true} if there is a party inside, {@code false} otherwise
-	 */
-	public boolean isPartyInside()
+	public List<L2Spawn> getSpawns()
 	{
-		return _partyInside;
-	}
-	
-	/**
-	 * Sets the party inside.
-	 * @param partyInside
-	 */
-	public void setPartyInside(boolean partyInside)
-	{
-		_partyInside = partyInside;
+		return _roomSpawns;
 	}
 	
 	public void spawn()
@@ -150,5 +132,23 @@ public final class DimensionalRiftRoom
 			}
 		}
 		return this;
+	}
+	
+	/**
+	 * Returns if party is inside the room.
+	 * @return {@code true} if there is a party inside, {@code false} otherwise
+	 */
+	public boolean isPartyInside()
+	{
+		return _partyInside;
+	}
+	
+	/**
+	 * Sets the party inside.
+	 * @param partyInside
+	 */
+	public void setPartyInside(boolean partyInside)
+	{
+		_partyInside = partyInside;
 	}
 }

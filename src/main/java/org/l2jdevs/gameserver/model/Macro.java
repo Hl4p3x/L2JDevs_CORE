@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -52,6 +52,53 @@ public class Macro implements IIdentifiable, INamable
 	}
 	
 	/**
+	 * Gets the marco ID.
+	 * @returns the marco ID
+	 */
+	@Override
+	public int getId()
+	{
+		return _id;
+	}
+	
+	/**
+	 * Sets the marco ID.
+	 * @param id the marco ID
+	 */
+	public void setId(int id)
+	{
+		_id = id;
+	}
+	
+	/**
+	 * Gets the macro icon ID.
+	 * @return the icon
+	 */
+	public int getIcon()
+	{
+		return _icon;
+	}
+	
+	/**
+	 * Gets the macro name.
+	 * @return the name
+	 */
+	@Override
+	public String getName()
+	{
+		return _name;
+	}
+	
+	/**
+	 * Gets the macro description.
+	 * @return the description
+	 */
+	public String getDescr()
+	{
+		return _descr;
+	}
+	
+	/**
 	 * Gets the macro acronym.
 	 * @return the acronym
 	 */
@@ -67,52 +114,5 @@ public class Macro implements IIdentifiable, INamable
 	public List<MacroCmd> getCommands()
 	{
 		return _commands;
-	}
-	
-	/**
-	 * Gets the macro description.
-	 * @return the description
-	 */
-	public String getDescr()
-	{
-		return _descr;
-	}
-	
-	/**
-	 * Gets the macro icon ID.
-	 * @return the icon
-	 */
-	public int getIcon()
-	{
-		return _icon;
-	}
-	
-	/**
-	 * Gets the marco ID.
-	 * @returns the marco ID
-	 */
-	@Override
-	public int getId()
-	{
-		return _id;
-	}
-	
-	/**
-	 * Gets the macro name.
-	 * @return the name
-	 */
-	@Override
-	public String getName()
-	{
-		return _name;
-	}
-	
-	/**
-	 * Sets the marco ID.
-	 * @param id the marco ID
-	 */
-	public void setId(int id)
-	{
-		_id = id;
 	}
 }

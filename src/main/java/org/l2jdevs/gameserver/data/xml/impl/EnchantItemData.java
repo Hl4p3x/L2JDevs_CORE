@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -46,35 +46,6 @@ public class EnchantItemData implements IXmlReader
 	public EnchantItemData()
 	{
 		load();
-	}
-	
-	/**
-	 * Gets the single instance of EnchantItemData.
-	 * @return single instance of EnchantItemData
-	 */
-	public static final EnchantItemData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Gets the enchant scroll.
-	 * @param scroll the scroll
-	 * @return enchant template for scroll
-	 */
-	public final EnchantScroll getEnchantScroll(L2ItemInstance scroll)
-	{
-		return _scrolls.get(scroll.getId());
-	}
-	
-	/**
-	 * Gets the support item.
-	 * @param item the item
-	 * @return enchant template for support item
-	 */
-	public final EnchantSupportItem getSupportItem(L2ItemInstance item)
-	{
-		return _supports.get(item.getId());
 	}
 	
 	@Override
@@ -157,6 +128,35 @@ public class EnchantItemData implements IXmlReader
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Gets the enchant scroll.
+	 * @param scroll the scroll
+	 * @return enchant template for scroll
+	 */
+	public final EnchantScroll getEnchantScroll(L2ItemInstance scroll)
+	{
+		return _scrolls.get(scroll.getId());
+	}
+	
+	/**
+	 * Gets the support item.
+	 * @param item the item
+	 * @return enchant template for support item
+	 */
+	public final EnchantSupportItem getSupportItem(L2ItemInstance item)
+	{
+		return _supports.get(item.getId());
+	}
+	
+	/**
+	 * Gets the single instance of EnchantItemData.
+	 * @return single instance of EnchantItemData
+	 */
+	public static final EnchantItemData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

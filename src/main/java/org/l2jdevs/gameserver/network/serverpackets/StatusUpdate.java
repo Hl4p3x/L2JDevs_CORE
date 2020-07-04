@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -60,6 +60,21 @@ public final class StatusUpdate extends L2GameServerPacket
 	private final int _objectId;
 	private final ArrayList<Attribute> _attributes = new ArrayList<>();
 	
+	static class Attribute
+	{
+		/**
+		 * id values 09 - current health 0a - max health 0b - current mana 0c - max mana
+		 */
+		public int id;
+		public int value;
+		
+		Attribute(int pId, int pValue)
+		{
+			id = pId;
+			value = pValue;
+		}
+	}
+	
 	/**
 	 * If you have access to object itself use {@link StatusUpdate#StatusUpdate(L2Object)}.
 	 * @param objectId
@@ -99,21 +114,6 @@ public final class StatusUpdate extends L2GameServerPacket
 		{
 			writeD(temp.id);
 			writeD(temp.value);
-		}
-	}
-	
-	static class Attribute
-	{
-		/**
-		 * id values 09 - current health 0a - max health 0b - current mana 0c - max mana
-		 */
-		public int id;
-		public int value;
-		
-		Attribute(int pId, int pValue)
-		{
-			id = pId;
-			value = pValue;
 		}
 	}
 }

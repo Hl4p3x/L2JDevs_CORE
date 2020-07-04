@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -44,151 +44,9 @@ public class PlayableStat extends CharStat
 		super(activeChar);
 	}
 	
-	public boolean addExp(long value)
-	{
-		final long currentExp = getExp();
-		final long totalExp = currentExp + value;
-		final TerminateReturn term = EventDispatcher.getInstance().notifyEvent(new OnPlayableExpChanged(getActiveChar(), currentExp, totalExp), getActiveChar(), TerminateReturn.class);
-		if ((term != null) && term.terminate())
-		{
-			return false;
-		}
-		
-		if ((totalExp < 0) || ((value > 0) && (currentExp == (getExpForLevel(getMaxExpLevel()) - 1))))
-		{
-			return true;
-		}
-		
-		if (totalExp >= getExpForLevel(getMaxExpLevel()))
-		{
-			value = (getExpForLevel(getMaxExpLevel()) - 1 - currentExp);
-		}
-		
-		if (_exp.addAndGet(value) >= getExpForLevel(getLevel() + 1))
-		{
-			syncExpLevel(true);
-		}
-		
-		return true;
-	}
-	
-	public boolean addLevel(int value)
-	{
-		final int currentLevel = getLevel();
-		if ((currentLevel + value) > getMaxLevel())
-		{
-			if (currentLevel < getMaxLevel())
-			{
-				value = getMaxLevel() - currentLevel;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		
-		boolean levelIncreased = ((currentLevel + value) > currentLevel);
-		value += currentLevel;
-		setLevel(value);
-		
-		// Sync up exp with current level
-		if ((getExp() >= getExpForLevel(getLevel() + 1)) || (getExpForLevel(getLevel()) > getExp()))
-		{
-			setExp(getExpForLevel(getLevel()));
-		}
-		
-		if (!levelIncreased)
-		{
-			return false;
-		}
-		
-		getActiveChar().getStatus().setCurrentHp(getActiveChar().getStat().getMaxHp());
-		getActiveChar().getStatus().setCurrentMp(getActiveChar().getStat().getMaxMp());
-		
-		return true;
-	}
-	
-	public boolean addSp(int sp)
-	{
-		if (sp < 0)
-		{
-			_log.warning("addSp acept only possitive numbers!");
-			return false;
-		}
-		int currentSp = getSp();
-		if (currentSp == Integer.MAX_VALUE)
-		{
-			return false;
-		}
-		
-		if (sp > (Integer.MAX_VALUE - currentSp))
-		{
-			_sp.set(Integer.MAX_VALUE);
-		}
-		else
-		{
-			_sp.addAndGet(sp);
-		}
-		return true;
-	}
-	
-	@Override
-	public L2Playable getActiveChar()
-	{
-		return (L2Playable) super.getActiveChar();
-	}
-	
 	public long getExp()
 	{
 		return _exp.get();
-	}
-	
-	/**
-	 * Get required exp for specific level
-	 * @param level
-	 * @return
-	 */
-	public long getExpForLevel(int level)
-	{
-		return ExperienceData.getInstance().getExpForLevel(level);
-	}
-	
-	/**
-	 * Get maximum level of expirince is max level +1 for get (100%)<br>
-	 * <B><U> Overridden in </U> :</B>
-	 * <li>PcStat</li>
-	 * <li>PetStat</li>
-	 */
-	public int getMaxExpLevel()
-	{
-		// Dummy method
-		return Config.MAX_PLAYER_LEVEL + 1;
-	}
-	
-	/**
-	 * Get maximum level that playable can reach.<br>
-	 * <B><U> Overridden in </U> :</B>
-	 * <li>PcStat</li>
-	 * <li>PetStat</li>
-	 */
-	public int getMaxLevel()
-	{
-		// Dummy method
-		return Config.MAX_PLAYER_LEVEL;
-	}
-	
-	@Override
-	public double getRunSpeed()
-	{
-		if (getActiveChar().isInsideZone(ZoneId.SWAMP))
-		{
-			final L2SwampZone zone = ZoneManager.getInstance().getZone(getActiveChar(), L2SwampZone.class);
-			if (zone != null)
-			{
-				return super.getRunSpeed() * zone.getMoveBonus();
-			}
-		}
-		return super.getRunSpeed();
 	}
 	
 	public int getSp()
@@ -196,18 +54,22 @@ public class PlayableStat extends CharStat
 		return _sp.get();
 	}
 	
-	@Override
-	public double getWalkSpeed()
+	/**
+	 * This method not contains checks!
+	 * @param exp
+	 */
+	public void setExp(long exp)
 	{
-		if (getActiveChar().isInsideZone(ZoneId.SWAMP))
-		{
-			final L2SwampZone zone = ZoneManager.getInstance().getZone(getActiveChar(), L2SwampZone.class);
-			if (zone != null)
-			{
-				return super.getWalkSpeed() * zone.getMoveBonus();
-			}
-		}
-		return super.getWalkSpeed();
+		_exp.set(exp);
+	}
+	
+	/**
+	 * This method not contains checks!
+	 * @param sp
+	 */
+	public void setSp(int sp)
+	{
+		_sp.set(sp);
 	}
 	
 	/**
@@ -249,22 +111,32 @@ public class PlayableStat extends CharStat
 		return true;
 	}
 	
-	/**
-	 * This method not contains checks!
-	 * @param exp
-	 */
-	public void setExp(long exp)
+	public boolean addExp(long value)
 	{
-		_exp.set(exp);
-	}
-	
-	/**
-	 * This method not contains checks!
-	 * @param sp
-	 */
-	public void setSp(int sp)
-	{
-		_sp.set(sp);
+		final long currentExp = getExp();
+		final long totalExp = currentExp + value;
+		final TerminateReturn term = EventDispatcher.getInstance().notifyEvent(new OnPlayableExpChanged(getActiveChar(), currentExp, totalExp), getActiveChar(), TerminateReturn.class);
+		if ((term != null) && term.terminate())
+		{
+			return false;
+		}
+		
+		if ((totalExp < 0) || ((value > 0) && (currentExp == (getExpForLevel(getMaxExpLevel()) - 1))))
+		{
+			return true;
+		}
+		
+		if (totalExp >= getExpForLevel(getMaxExpLevel()))
+		{
+			value = (getExpForLevel(getMaxExpLevel()) - 1 - currentExp);
+		}
+		
+		if (_exp.addAndGet(value) >= getExpForLevel(getLevel() + 1))
+		{
+			syncExpLevel(true);
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -329,5 +201,133 @@ public class PlayableStat extends CharStat
 				}
 			}
 		}
+	}
+	
+	public boolean addSp(int sp)
+	{
+		if (sp < 0)
+		{
+			_log.warning("addSp acept only possitive numbers!");
+			return false;
+		}
+		int currentSp = getSp();
+		if (currentSp == Integer.MAX_VALUE)
+		{
+			return false;
+		}
+		
+		if (sp > (Integer.MAX_VALUE - currentSp))
+		{
+			_sp.set(Integer.MAX_VALUE);
+		}
+		else
+		{
+			_sp.addAndGet(sp);
+		}
+		return true;
+	}
+	
+	public boolean addLevel(int value)
+	{
+		final int currentLevel = getLevel();
+		if ((currentLevel + value) > getMaxLevel())
+		{
+			if (currentLevel < getMaxLevel())
+			{
+				value = getMaxLevel() - currentLevel;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+		boolean levelIncreased = ((currentLevel + value) > currentLevel);
+		value += currentLevel;
+		setLevel(value);
+		
+		// Sync up exp with current level
+		if ((getExp() >= getExpForLevel(getLevel() + 1)) || (getExpForLevel(getLevel()) > getExp()))
+		{
+			setExp(getExpForLevel(getLevel()));
+		}
+		
+		if (!levelIncreased)
+		{
+			return false;
+		}
+		
+		getActiveChar().getStatus().setCurrentHp(getActiveChar().getStat().getMaxHp());
+		getActiveChar().getStatus().setCurrentMp(getActiveChar().getStat().getMaxMp());
+		
+		return true;
+	}
+	
+	/**
+	 * Get required exp for specific level
+	 * @param level
+	 * @return
+	 */
+	public long getExpForLevel(int level)
+	{
+		return ExperienceData.getInstance().getExpForLevel(level);
+	}
+	
+	/**
+	 * Get maximum level that playable can reach.<br>
+	 * <B><U> Overridden in </U> :</B>
+	 * <li>PcStat</li>
+	 * <li>PetStat</li>
+	 */
+	public int getMaxLevel()
+	{
+		// Dummy method
+		return Config.MAX_PLAYER_LEVEL;
+	}
+	
+	/**
+	 * Get maximum level of expirince is max level +1 for get (100%)<br>
+	 * <B><U> Overridden in </U> :</B>
+	 * <li>PcStat</li>
+	 * <li>PetStat</li>
+	 */
+	public int getMaxExpLevel()
+	{
+		// Dummy method
+		return Config.MAX_PLAYER_LEVEL + 1;
+	}
+	
+	@Override
+	public L2Playable getActiveChar()
+	{
+		return (L2Playable) super.getActiveChar();
+	}
+	
+	@Override
+	public double getRunSpeed()
+	{
+		if (getActiveChar().isInsideZone(ZoneId.SWAMP))
+		{
+			final L2SwampZone zone = ZoneManager.getInstance().getZone(getActiveChar(), L2SwampZone.class);
+			if (zone != null)
+			{
+				return super.getRunSpeed() * zone.getMoveBonus();
+			}
+		}
+		return super.getRunSpeed();
+	}
+	
+	@Override
+	public double getWalkSpeed()
+	{
+		if (getActiveChar().isInsideZone(ZoneId.SWAMP))
+		{
+			final L2SwampZone zone = ZoneManager.getInstance().getZone(getActiveChar(), L2SwampZone.class);
+			if (zone != null)
+			{
+				return super.getWalkSpeed() * zone.getMoveBonus();
+			}
+		}
+		return super.getWalkSpeed();
 	}
 }

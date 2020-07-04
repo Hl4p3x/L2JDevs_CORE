@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -88,11 +88,124 @@ public final class L2World
 	}
 	
 	/**
-	 * @return the current instance of L2World
+	 * Adds an object to the world.<br>
+	 * <B><U>Example of use</U>:</B>
+	 * <ul>
+	 * <li>Withdraw an item from the warehouse, create an item</li>
+	 * <li>Spawn a L2Character (PC, NPC, Pet)</li>
+	 * </ul>
+	 * @param object
 	 */
-	public static L2World getInstance()
+	public void storeObject(L2Object object)
 	{
-		return SingletonHolder._instance;
+		if (_allObjects.containsKey(object.getObjectId()))
+		{
+			LOG.warn("Current object: {} already exist in OID map!", object);
+			LOG.warn("---------------------- End ---------------------");
+			return;
+		}
+		_allObjects.put(object.getObjectId(), object);
+	}
+	
+	/**
+	 * Removes an object from the world.<br>
+	 * <B><U>Example of use</U>:</B>
+	 * <ul>
+	 * <li>Delete item from inventory, transfer Item from inventory to warehouse</li>
+	 * <li>Crystallize item</li>
+	 * <li>Remove NPC/PC/Pet from the world</li>
+	 * </ul>
+	 * @param object the object to remove
+	 */
+	public void removeObject(L2Object object)
+	{
+		_allObjects.remove(object.getObjectId());
+	}
+	
+	/**
+	 * <B><U> Example of use</U>:</B>
+	 * <ul>
+	 * <li>Client packets : Action, AttackRequest, RequestJoinParty, RequestJoinPledge...</li>
+	 * </ul>
+	 * @param objectId Identifier of the L2Object
+	 * @return the L2Object object that belongs to an ID or null if no object found.
+	 */
+	public L2Object findObject(int objectId)
+	{
+		return _allObjects.get(objectId);
+	}
+	
+	public Collection<L2Object> getVisibleObjects()
+	{
+		return _allObjects.values();
+	}
+	
+	/**
+	 * Get the count of all visible objects in world.
+	 * @return count off all L2World objects
+	 */
+	public int getVisibleObjectsCount()
+	{
+		return _allObjects.size();
+	}
+	
+	public List<L2PcInstance> getAllGMs()
+	{
+		return AdminData.getInstance().getAllGms(true);
+	}
+	
+	public Collection<L2PcInstance> getPlayers()
+	{
+		return _allPlayers.values();
+	}
+	
+	/**
+	 * Gets all players sorted by the given comparator.
+	 * @param comparator the comparator
+	 * @return the players sorted by the comparator
+	 */
+	public L2PcInstance[] getPlayersSortedBy(Comparator<L2PcInstance> comparator)
+	{
+		final L2PcInstance[] players = _allPlayers.values().toArray(new L2PcInstance[_allPlayers.values().size()]);
+		Arrays.sort(players, comparator);
+		return players;
+	}
+	
+	/**
+	 * Return how many players are online.
+	 * @return number of online players.
+	 */
+	public int getAllPlayersCount()
+	{
+		return _allPlayers.size();
+	}
+	
+	/**
+	 * <B>If you have access to player objectId use {@link #getPlayer(int playerObjId)}</B>
+	 * @param name Name of the player to get Instance
+	 * @return the player instance corresponding to the given name.
+	 */
+	public L2PcInstance getPlayer(String name)
+	{
+		return getPlayer(CharNameTable.getInstance().getIdByName(name));
+	}
+	
+	/**
+	 * @param objectId of the player to get Instance
+	 * @return the player instance corresponding to the given object ID.
+	 */
+	public L2PcInstance getPlayer(int objectId)
+	{
+		return _allPlayers.get(objectId);
+	}
+	
+	/**
+	 * @param ownerId ID of the owner
+	 * @return the pet instance from the given ownerId.
+	 */
+	public L2PetInstance getPet(int ownerId)
+	{
+		return _petsInstance.get(ownerId);
 	}
 	
 	/**
@@ -107,12 +220,21 @@ public final class L2World
 	}
 	
 	/**
-	 * Adds the player to the world.
-	 * @param player the player to add
+	 * Remove the given pet instance.
+	 * @param ownerId ID of the owner
 	 */
-	public void addPlayerToWorld(L2PcInstance player)
+	public void removePet(int ownerId)
 	{
-		_allPlayers.put(player.getObjectId(), player);
+		_petsInstance.remove(ownerId);
+	}
+	
+	/**
+	 * Remove the given pet instance.
+	 * @param pet the pet to remove
+	 */
+	public void removePet(L2PetInstance pet)
+	{
+		_petsInstance.remove(pet.getOwner().getObjectId());
 	}
 	
 	/**
@@ -168,113 +290,69 @@ public final class L2World
 	}
 	
 	/**
-	 * Deleted all spawns in the world.
+	 * Adds the player to the world.
+	 * @param player the player to add
 	 */
-	public void deleteVisibleNpcSpawns()
+	public void addPlayerToWorld(L2PcInstance player)
 	{
-		LOG.info("Deleting all visible NPC's.");
-		for (int i = 0; i <= REGIONS_X; i++)
+		_allPlayers.put(player.getObjectId(), player);
+	}
+	
+	/**
+	 * Remove the player from the world.
+	 * @param player the player to remove
+	 */
+	public void removeFromAllPlayers(L2PcInstance player)
+	{
+		_allPlayers.remove(player.getObjectId());
+	}
+	
+	/**
+	 * Remove an object from the world.<br>
+	 * <B><U> Concept</U> :</B> L2Object (including L2PcInstance) are identified in <B>_visibleObjects</B> of his current L2WorldRegion and in <B>_knownObjects</B> of other surrounding L2Characters <BR>
+	 * L2PcInstance are identified in <B>_allPlayers</B> of L2World, in <B>_allPlayers</B> of his current L2WorldRegion and in <B>_knownPlayer</B> of other surrounding L2Characters <B><U> Actions</U> :</B>
+	 * <li>Remove the L2Object object from _allPlayers* of L2World</li>
+	 * <li>Remove the L2Object object from _visibleObjects and _allPlayers* of L2WorldRegion</li>
+	 * <li>Remove the L2Object object from _gmList** of GmListTable</li>
+	 * <li>Remove object from _knownObjects and _knownPlayer* of all surrounding L2WorldRegion L2Characters</li><BR>
+	 * <li>If object is a L2Character, remove all L2Object from its _knownObjects and all L2PcInstance from its _knownPlayer</li> <FONT COLOR=#FF0000><B> <U>Caution</U> : This method DOESN'T REMOVE the object from _allObjects of L2World</B></FONT> <I>* only if object is a L2PcInstance</I><BR>
+	 * <I>** only if object is a GM L2PcInstance</I> <B><U> Example of use </U> :</B>
+	 * <li>Pickup an Item</li>
+	 * <li>Decay a L2Character</li>
+	 * @param object L2object to remove from the world
+	 * @param oldWorldRegion L2WorldRegion in which the object was before removing
+	 */
+	public void removeVisibleObject(L2Object object, L2WorldRegion oldWorldRegion)
+	{
+		if (object == null)
 		{
-			for (int j = 0; j <= REGIONS_Y; j++)
+			return;
+		}
+		
+		if (oldWorldRegion == null)
+		{
+			return;
+		}
+		
+		// Removes the object from the visible objects of world region.
+		// If object is a player, removes it from the players map of this world region.
+		oldWorldRegion.removeVisibleObject(object);
+		
+		// Goes through all surrounding world region's creatures.
+		// And removes the object from their known lists.
+		for (L2WorldRegion worldRegion : oldWorldRegion.getSurroundingRegions())
+		{
+			for (L2Object obj : worldRegion.getVisibleObjects().values())
 			{
-				_worldRegions[i][j].deleteVisibleNpcSpawns();
+				if (obj != null)
+				{
+					obj.getKnownList().removeKnownObject(object);
+				}
 			}
 		}
-		LOG.info("All visible NPC's deleted.");
-	}
-	
-	/**
-	 * <B><U> Example of use</U>:</B>
-	 * <ul>
-	 * <li>Client packets : Action, AttackRequest, RequestJoinParty, RequestJoinPledge...</li>
-	 * </ul>
-	 * @param objectId Identifier of the L2Object
-	 * @return the L2Object object that belongs to an ID or null if no object found.
-	 */
-	public L2Object findObject(int objectId)
-	{
-		return _allObjects.get(objectId);
-	}
-	
-	public List<L2PcInstance> getAllGMs()
-	{
-		return AdminData.getInstance().getAllGms(true);
-	}
-	
-	/**
-	 * Return how many players are online.
-	 * @return number of online players.
-	 */
-	public int getAllPlayersCount()
-	{
-		return _allPlayers.size();
-	}
-	
-	/**
-	 * @param ownerId ID of the owner
-	 * @return the pet instance from the given ownerId.
-	 */
-	public L2PetInstance getPet(int ownerId)
-	{
-		return _petsInstance.get(ownerId);
-	}
-	
-	/**
-	 * @param objectId of the player to get Instance
-	 * @return the player instance corresponding to the given object ID.
-	 */
-	public L2PcInstance getPlayer(int objectId)
-	{
-		return _allPlayers.get(objectId);
-	}
-	
-	/**
-	 * <B>If you have access to player objectId use {@link #getPlayer(int playerObjId)}</B>
-	 * @param name Name of the player to get Instance
-	 * @return the player instance corresponding to the given name.
-	 */
-	public L2PcInstance getPlayer(String name)
-	{
-		return getPlayer(CharNameTable.getInstance().getIdByName(name));
-	}
-	
-	public Collection<L2PcInstance> getPlayers()
-	{
-		return _allPlayers.values();
-	}
-	
-	/**
-	 * Gets all players sorted by the given comparator.
-	 * @param comparator the comparator
-	 * @return the players sorted by the comparator
-	 */
-	public L2PcInstance[] getPlayersSortedBy(Comparator<L2PcInstance> comparator)
-	{
-		final L2PcInstance[] players = _allPlayers.values().toArray(new L2PcInstance[_allPlayers.values().size()]);
-		Arrays.sort(players, comparator);
-		return players;
-	}
-	
-	public L2WorldRegion getRegion(int x, int y)
-	{
-		return _worldRegions[(x >> SHIFT_BY) + OFFSET_X][(y >> SHIFT_BY) + OFFSET_Y];
-	}
-	
-	/**
-	 * Calculate the current L2WorldRegions of the object according to its position (x,y). <B><U> Example of use </U> :</B>
-	 * <li>Set position of a new L2Object (drop, spawn...)</li>
-	 * <li>Update position of a L2Object after a movement</li><BR>
-	 * @param point position of the object
-	 * @return
-	 */
-	public L2WorldRegion getRegion(Location point)
-	{
-		return _worldRegions[(point.getX() >> SHIFT_BY) + OFFSET_X][(point.getY() >> SHIFT_BY) + OFFSET_Y];
-	}
-	
-	public Collection<L2Object> getVisibleObjects()
-	{
-		return _allObjects.values();
+		
+		// Removes all objects from the object's known list.
+		object.getKnownList().removeAllKnownObjects();
 	}
 	
 	/**
@@ -396,15 +474,6 @@ public final class L2World
 	}
 	
 	/**
-	 * Get the count of all visible objects in world.
-	 * @return count off all L2World objects
-	 */
-	public int getVisibleObjectsCount()
-	{
-		return _allObjects.size();
-	}
-	
-	/**
 	 * <B><U> Concept</U> :</B> All visible object are identified in <B>_visibleObjects</B> of their current L2WorldRegion <BR>
 	 * All surrounding L2WorldRegion are identified in <B>_surroundingRegions</B> of the selected L2WorldRegion in order to scan a large area around a L2Object <B><U> Example of use </U> :</B>
 	 * <li>Find Close Objects for L2Character</li><BR>
@@ -447,6 +516,23 @@ public final class L2World
 	}
 	
 	/**
+	 * Calculate the current L2WorldRegions of the object according to its position (x,y). <B><U> Example of use </U> :</B>
+	 * <li>Set position of a new L2Object (drop, spawn...)</li>
+	 * <li>Update position of a L2Object after a movement</li><BR>
+	 * @param point position of the object
+	 * @return
+	 */
+	public L2WorldRegion getRegion(Location point)
+	{
+		return _worldRegions[(point.getX() >> SHIFT_BY) + OFFSET_X][(point.getY() >> SHIFT_BY) + OFFSET_Y];
+	}
+	
+	public L2WorldRegion getRegion(int x, int y)
+	{
+		return _worldRegions[(x >> SHIFT_BY) + OFFSET_X][(y >> SHIFT_BY) + OFFSET_Y];
+	}
+	
+	/**
 	 * Returns the whole 2d array containing the world regions used by ZoneData.java to setup zones inside the world regions
 	 * @return
 	 */
@@ -456,113 +542,15 @@ public final class L2World
 	}
 	
 	/**
-	 * Remove the player from the world.
-	 * @param player the player to remove
+	 * Check if the current L2WorldRegions of the object is valid according to its position (x,y). <B><U> Example of use </U> :</B>
+	 * <li>Init L2WorldRegions</li><BR>
+	 * @param x X position of the object
+	 * @param y Y position of the object
+	 * @return True if the L2WorldRegion is valid
 	 */
-	public void removeFromAllPlayers(L2PcInstance player)
+	private boolean validRegion(int x, int y)
 	{
-		_allPlayers.remove(player.getObjectId());
-	}
-	
-	/**
-	 * Removes an object from the world.<br>
-	 * <B><U>Example of use</U>:</B>
-	 * <ul>
-	 * <li>Delete item from inventory, transfer Item from inventory to warehouse</li>
-	 * <li>Crystallize item</li>
-	 * <li>Remove NPC/PC/Pet from the world</li>
-	 * </ul>
-	 * @param object the object to remove
-	 */
-	public void removeObject(L2Object object)
-	{
-		_allObjects.remove(object.getObjectId());
-	}
-	
-	/**
-	 * Remove the given pet instance.
-	 * @param ownerId ID of the owner
-	 */
-	public void removePet(int ownerId)
-	{
-		_petsInstance.remove(ownerId);
-	}
-	
-	/**
-	 * Remove the given pet instance.
-	 * @param pet the pet to remove
-	 */
-	public void removePet(L2PetInstance pet)
-	{
-		_petsInstance.remove(pet.getOwner().getObjectId());
-	}
-	
-	/**
-	 * Remove an object from the world.<br>
-	 * <B><U> Concept</U> :</B> L2Object (including L2PcInstance) are identified in <B>_visibleObjects</B> of his current L2WorldRegion and in <B>_knownObjects</B> of other surrounding L2Characters <BR>
-	 * L2PcInstance are identified in <B>_allPlayers</B> of L2World, in <B>_allPlayers</B> of his current L2WorldRegion and in <B>_knownPlayer</B> of other surrounding L2Characters <B><U> Actions</U> :</B>
-	 * <li>Remove the L2Object object from _allPlayers* of L2World</li>
-	 * <li>Remove the L2Object object from _visibleObjects and _allPlayers* of L2WorldRegion</li>
-	 * <li>Remove the L2Object object from _gmList** of GmListTable</li>
-	 * <li>Remove object from _knownObjects and _knownPlayer* of all surrounding L2WorldRegion L2Characters</li><BR>
-	 * <li>If object is a L2Character, remove all L2Object from its _knownObjects and all L2PcInstance from its _knownPlayer</li> <FONT COLOR=#FF0000><B> <U>Caution</U> : This method DOESN'T REMOVE the object from _allObjects of L2World</B></FONT> <I>* only if object is a L2PcInstance</I><BR>
-	 * <I>** only if object is a GM L2PcInstance</I> <B><U> Example of use </U> :</B>
-	 * <li>Pickup an Item</li>
-	 * <li>Decay a L2Character</li>
-	 * @param object L2object to remove from the world
-	 * @param oldWorldRegion L2WorldRegion in which the object was before removing
-	 */
-	public void removeVisibleObject(L2Object object, L2WorldRegion oldWorldRegion)
-	{
-		if (object == null)
-		{
-			return;
-		}
-		
-		if (oldWorldRegion == null)
-		{
-			return;
-		}
-		
-		// Removes the object from the visible objects of world region.
-		// If object is a player, removes it from the players map of this world region.
-		oldWorldRegion.removeVisibleObject(object);
-		
-		// Goes through all surrounding world region's creatures.
-		// And removes the object from their known lists.
-		for (L2WorldRegion worldRegion : oldWorldRegion.getSurroundingRegions())
-		{
-			for (L2Object obj : worldRegion.getVisibleObjects().values())
-			{
-				if (obj != null)
-				{
-					obj.getKnownList().removeKnownObject(object);
-				}
-			}
-		}
-		
-		// Removes all objects from the object's known list.
-		object.getKnownList().removeAllKnownObjects();
-	}
-	
-	/**
-	 * Adds an object to the world.<br>
-	 * <B><U>Example of use</U>:</B>
-	 * <ul>
-	 * <li>Withdraw an item from the warehouse, create an item</li>
-	 * <li>Spawn a L2Character (PC, NPC, Pet)</li>
-	 * </ul>
-	 * @param object
-	 */
-	public void storeObject(L2Object object)
-	{
-		if (_allObjects.containsKey(object.getObjectId()))
-		{
-			LOG.warn("Current object: {} already exist in OID map!", object);
-			LOG.warn("---------------------- End ---------------------");
-			return;
-		}
-		_allObjects.put(object.getObjectId(), object);
+		return ((x >= 0) && (x <= REGIONS_X) && (y >= 0) && (y <= REGIONS_Y));
 	}
 	
 	/**
@@ -602,15 +590,27 @@ public final class L2World
 	}
 	
 	/**
-	 * Check if the current L2WorldRegions of the object is valid according to its position (x,y). <B><U> Example of use </U> :</B>
-	 * <li>Init L2WorldRegions</li><BR>
-	 * @param x X position of the object
-	 * @param y Y position of the object
-	 * @return True if the L2WorldRegion is valid
+	 * Deleted all spawns in the world.
 	 */
-	private boolean validRegion(int x, int y)
+	public void deleteVisibleNpcSpawns()
 	{
-		return ((x >= 0) && (x <= REGIONS_X) && (y >= 0) && (y <= REGIONS_Y));
+		LOG.info("Deleting all visible NPC's.");
+		for (int i = 0; i <= REGIONS_X; i++)
+		{
+			for (int j = 0; j <= REGIONS_Y; j++)
+			{
+				_worldRegions[i][j].deleteVisibleNpcSpawns();
+			}
+		}
+		LOG.info("All visible NPC's deleted.");
+	}
+	
+	/**
+	 * @return the current instance of L2World
+	 */
+	public static L2World getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

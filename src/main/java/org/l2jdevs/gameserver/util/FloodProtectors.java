@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -118,92 +118,12 @@ public final class FloodProtectors
 	}
 	
 	/**
-	 * Returns {@link #_characterSelect}.
-	 * @return {@link #_characterSelect}
+	 * Returns {@link #_useItem}.
+	 * @return {@link #_useItem}
 	 */
-	public FloodProtectorAction getCharacterSelect()
+	public FloodProtectorAction getUseItem()
 	{
-		return _characterSelect;
-	}
-	
-	/**
-	 * Returns {@link #_dropItem}.
-	 * @return {@link #_dropItem}
-	 */
-	public FloodProtectorAction getDropItem()
-	{
-		return _dropItem;
-	}
-	
-	/**
-	 * Returns {@link #_firework}.
-	 * @return {@link #_firework}
-	 */
-	public FloodProtectorAction getFirework()
-	{
-		return _firework;
-	}
-	
-	/**
-	 * Returns {@link #_globalChat}.
-	 * @return {@link #_globalChat}
-	 */
-	public FloodProtectorAction getGlobalChat()
-	{
-		return _globalChat;
-	}
-	
-	/**
-	 * Returns {@link #_heroVoice}.
-	 * @return {@link #_heroVoice}
-	 */
-	public FloodProtectorAction getHeroVoice()
-	{
-		return _heroVoice;
-	}
-	
-	/**
-	 * Returns {@link #_itemAuction}.
-	 * @return {@link #_itemAuction}
-	 */
-	public FloodProtectorAction getItemAuction()
-	{
-		return _itemAuction;
-	}
-	
-	/**
-	 * Returns {@link #_itemPetSummon}.
-	 * @return {@link #_itemPetSummon}
-	 */
-	public FloodProtectorAction getItemPetSummon()
-	{
-		return _itemPetSummon;
-	}
-	
-	/**
-	 * Returns {@link #_manor}.
-	 * @return {@link #_manor}
-	 */
-	public FloodProtectorAction getManor()
-	{
-		return _manor;
-	}
-	
-	/**
-	 * Returns {@link #_manufacture}.
-	 * @return {@link #_manufacture}
-	 */
-	public FloodProtectorAction getManufacture()
-	{
-		return _manufacture;
-	}
-	
-	/**
-	 * @return {@link #_multiSell}
-	 */
-	public FloodProtectorAction getMultiSell()
-	{
-		return _multiSell;
+		return _useItem;
 	}
 	
 	/**
@@ -216,21 +136,39 @@ public final class FloodProtectors
 	}
 	
 	/**
-	 * Returns {@link #_sendMail}.
-	 * @return {@link #_sendMail}
+	 * Returns {@link #_firework}.
+	 * @return {@link #_firework}
 	 */
-	public FloodProtectorAction getSendMail()
+	public FloodProtectorAction getFirework()
 	{
-		return _sendMail;
+		return _firework;
 	}
 	
 	/**
-	 * Returns {@link #_serverBypass}.
-	 * @return {@link #_serverBypass}
+	 * Returns {@link #_itemPetSummon}.
+	 * @return {@link #_itemPetSummon}
 	 */
-	public FloodProtectorAction getServerBypass()
+	public FloodProtectorAction getItemPetSummon()
 	{
-		return _serverBypass;
+		return _itemPetSummon;
+	}
+	
+	/**
+	 * Returns {@link #_heroVoice}.
+	 * @return {@link #_heroVoice}
+	 */
+	public FloodProtectorAction getHeroVoice()
+	{
+		return _heroVoice;
+	}
+	
+	/**
+	 * Returns {@link #_globalChat}.
+	 * @return {@link #_globalChat}
+	 */
+	public FloodProtectorAction getGlobalChat()
+	{
+		return _globalChat;
 	}
 	
 	/**
@@ -243,6 +181,32 @@ public final class FloodProtectors
 	}
 	
 	/**
+	 * Returns {@link #_dropItem}.
+	 * @return {@link #_dropItem}
+	 */
+	public FloodProtectorAction getDropItem()
+	{
+		return _dropItem;
+	}
+	
+	/**
+	 * Returns {@link #_serverBypass}.
+	 * @return {@link #_serverBypass}
+	 */
+	public FloodProtectorAction getServerBypass()
+	{
+		return _serverBypass;
+	}
+	
+	/**
+	 * @return {@link #_multiSell}
+	 */
+	public FloodProtectorAction getMultiSell()
+	{
+		return _multiSell;
+	}
+	
+	/**
 	 * Returns {@link #_transaction}.
 	 * @return {@link #_transaction}
 	 */
@@ -252,11 +216,47 @@ public final class FloodProtectors
 	}
 	
 	/**
-	 * Returns {@link #_useItem}.
-	 * @return {@link #_useItem}
+	 * Returns {@link #_manufacture}.
+	 * @return {@link #_manufacture}
 	 */
-	public FloodProtectorAction getUseItem()
+	public FloodProtectorAction getManufacture()
 	{
-		return _useItem;
+		return _manufacture;
+	}
+	
+	/**
+	 * Returns {@link #_manor}.
+	 * @return {@link #_manor}
+	 */
+	public FloodProtectorAction getManor()
+	{
+		return _manor;
+	}
+	
+	/**
+	 * Returns {@link #_sendMail}.
+	 * @return {@link #_sendMail}
+	 */
+	public FloodProtectorAction getSendMail()
+	{
+		return _sendMail;
+	}
+	
+	/**
+	 * Returns {@link #_characterSelect}.
+	 * @return {@link #_characterSelect}
+	 */
+	public FloodProtectorAction getCharacterSelect()
+	{
+		return _characterSelect;
+	}
+	
+	/**
+	 * Returns {@link #_itemAuction}.
+	 * @return {@link #_itemAuction}
+	 */
+	public FloodProtectorAction getItemAuction()
+	{
+		return _itemAuction;
 	}
 }

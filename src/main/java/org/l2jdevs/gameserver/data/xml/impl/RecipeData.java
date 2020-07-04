@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -49,75 +49,6 @@ public class RecipeData implements IXmlReader
 	protected RecipeData()
 	{
 		load();
-	}
-	
-	/**
-	 * Gets the single instance of RecipeData.
-	 * @return single instance of RecipeData
-	 */
-	public static RecipeData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Gets the all item ids.
-	 * @return the all item ids
-	 */
-	public int[] getAllItemIds()
-	{
-		int[] idList = new int[_recipes.size()];
-		int i = 0;
-		for (L2RecipeList rec : _recipes.values())
-		{
-			idList[i++] = rec.getRecipeId();
-		}
-		return idList;
-	}
-	
-	/**
-	 * Gets the recipe by item id.
-	 * @param itemId the item id
-	 * @return the recipe by item id
-	 */
-	public L2RecipeList getRecipeByItemId(int itemId)
-	{
-		for (L2RecipeList find : _recipes.values())
-		{
-			if (find.getRecipeId() == itemId)
-			{
-				return find;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * Gets the recipe list.
-	 * @param listId the list id
-	 * @return the recipe list
-	 */
-	public L2RecipeList getRecipeList(int listId)
-	{
-		return _recipes.get(listId);
-	}
-	
-	/**
-	 * Gets the valid recipe list.
-	 * @param player the player
-	 * @param id the recipe list id
-	 * @return the valid recipe list
-	 */
-	public L2RecipeList getValidRecipeList(L2PcInstance player, int id)
-	{
-		L2RecipeList recipeList = _recipes.get(id);
-		if ((recipeList == null) || (recipeList.getRecipes().length == 0))
-		{
-			player.sendMessage(LanguageData.getInstance().getMsg(player, "no_recipe_id").replace("%s%", id + ""));
-			player.isInCraftMode(false);
-			return null;
-		}
-		return recipeList;
 	}
 	
 	@Override
@@ -271,6 +202,75 @@ public class RecipeData implements IXmlReader
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Gets the recipe list.
+	 * @param listId the list id
+	 * @return the recipe list
+	 */
+	public L2RecipeList getRecipeList(int listId)
+	{
+		return _recipes.get(listId);
+	}
+	
+	/**
+	 * Gets the recipe by item id.
+	 * @param itemId the item id
+	 * @return the recipe by item id
+	 */
+	public L2RecipeList getRecipeByItemId(int itemId)
+	{
+		for (L2RecipeList find : _recipes.values())
+		{
+			if (find.getRecipeId() == itemId)
+			{
+				return find;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the all item ids.
+	 * @return the all item ids
+	 */
+	public int[] getAllItemIds()
+	{
+		int[] idList = new int[_recipes.size()];
+		int i = 0;
+		for (L2RecipeList rec : _recipes.values())
+		{
+			idList[i++] = rec.getRecipeId();
+		}
+		return idList;
+	}
+	
+	/**
+	 * Gets the valid recipe list.
+	 * @param player the player
+	 * @param id the recipe list id
+	 * @return the valid recipe list
+	 */
+	public L2RecipeList getValidRecipeList(L2PcInstance player, int id)
+	{
+		L2RecipeList recipeList = _recipes.get(id);
+		if ((recipeList == null) || (recipeList.getRecipes().length == 0))
+		{
+			player.sendMessage(LanguageData.getInstance().getMsg(player, "no_recipe_id").replace("%s%", id + ""));
+			player.isInCraftMode(false);
+			return null;
+		}
+		return recipeList;
+	}
+	
+	/**
+	 * Gets the single instance of RecipeData.
+	 * @return single instance of RecipeData
+	 */
+	public static RecipeData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	/**

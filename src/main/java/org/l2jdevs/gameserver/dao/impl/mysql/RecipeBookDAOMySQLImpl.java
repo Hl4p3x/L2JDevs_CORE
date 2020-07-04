@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -49,23 +49,6 @@ public class RecipeBookDAOMySQLImpl implements RecipeBookDAO
 	private static final String SELECT = "SELECT id FROM character_recipebook WHERE charId=? AND classIndex=? AND type = 1";
 	
 	@Override
-	public void delete(L2PcInstance player, int recipeId, boolean isDwarf)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(DELETE))
-		{
-			ps.setInt(1, player.getObjectId());
-			ps.setInt(2, recipeId);
-			ps.setInt(3, isDwarf ? player.getClassIndex() : 0);
-			ps.execute();
-		}
-		catch (SQLException e)
-		{
-			LOG.warn("SQL exception while deleting recipe: {} from player {}", recipeId, player, e);
-		}
-	}
-	
-	@Override
 	public void insert(L2PcInstance player, int recipeId, boolean isDwarf)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
@@ -80,6 +63,23 @@ public class RecipeBookDAOMySQLImpl implements RecipeBookDAO
 		catch (SQLException e)
 		{
 			LOG.warn("SQL exception while inserting recipe: {} from player {}", recipeId, player, e);
+		}
+	}
+	
+	@Override
+	public void delete(L2PcInstance player, int recipeId, boolean isDwarf)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(DELETE))
+		{
+			ps.setInt(1, player.getObjectId());
+			ps.setInt(2, recipeId);
+			ps.setInt(3, isDwarf ? player.getClassIndex() : 0);
+			ps.execute();
+		}
+		catch (SQLException e)
+		{
+			LOG.warn("SQL exception while deleting recipe: {} from player {}", recipeId, player, e);
 		}
 	}
 	

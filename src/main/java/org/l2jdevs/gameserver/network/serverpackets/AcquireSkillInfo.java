@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,6 +38,31 @@ public class AcquireSkillInfo extends L2GameServerPacket
 	private final int _level;
 	private final int _spCost;
 	private final List<Req> _reqs;
+	
+	/**
+	 * Private class containing learning skill requisites.
+	 */
+	private static class Req
+	{
+		public int itemId;
+		public long count;
+		public int type;
+		public int unk;
+		
+		/**
+		 * @param pType TODO identify.
+		 * @param pItemId the item Id.
+		 * @param itemCount the item count.
+		 * @param pUnk TODO identify.
+		 */
+		public Req(int pType, int pItemId, long itemCount, int pUnk)
+		{
+			itemId = pItemId;
+			type = pType;
+			count = itemCount;
+			unk = pUnk;
+		}
+	}
 	
 	/**
 	 * Constructor for the acquire skill info object.
@@ -99,31 +124,6 @@ public class AcquireSkillInfo extends L2GameServerPacket
 			writeD(temp.itemId);
 			writeQ(temp.count);
 			writeD(temp.unk);
-		}
-	}
-	
-	/**
-	 * Private class containing learning skill requisites.
-	 */
-	private static class Req
-	{
-		public int itemId;
-		public long count;
-		public int type;
-		public int unk;
-		
-		/**
-		 * @param pType TODO identify.
-		 * @param pItemId the item Id.
-		 * @param itemCount the item count.
-		 * @param pUnk TODO identify.
-		 */
-		public Req(int pType, int pItemId, long itemCount, int pUnk)
-		{
-			itemId = pItemId;
-			type = pType;
-			count = itemCount;
-			unk = pUnk;
 		}
 	}
 }

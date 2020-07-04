@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -59,6 +59,128 @@ public class TradeList
 	public TradeList(L2PcInstance owner)
 	{
 		_owner = owner;
+	}
+	
+	public L2PcInstance getOwner()
+	{
+		return _owner;
+	}
+	
+	public void setPartner(L2PcInstance partner)
+	{
+		_partner = partner;
+	}
+	
+	public L2PcInstance getPartner()
+	{
+		return _partner;
+	}
+	
+	public void setTitle(String title)
+	{
+		_title = title;
+	}
+	
+	public String getTitle()
+	{
+		return _title;
+	}
+	
+	public boolean isLocked()
+	{
+		return _locked;
+	}
+	
+	public boolean isConfirmed()
+	{
+		return _confirmed;
+	}
+	
+	public boolean isPackaged()
+	{
+		return _packaged;
+	}
+	
+	public void setPackaged(boolean value)
+	{
+		_packaged = value;
+	}
+	
+	/**
+	 * @return all items from TradeList
+	 */
+	public TradeItem[] getItems()
+	{
+		return _items.toArray(new TradeItem[_items.size()]);
+	}
+	
+	/**
+	 * Returns the list of items in inventory available for transaction
+	 * @param inventory
+	 * @return L2ItemInstance : items in inventory
+	 */
+	public List<TradeItem> getAvailableItems(PcInventory inventory)
+	{
+		final List<TradeItem> list = new LinkedList<>();
+		for (TradeItem item : _items)
+		{
+			item = new TradeItem(item, item.getCount(), item.getPrice());
+			inventory.adjustAvailableItem(item);
+			list.add(item);
+		}
+		return list;
+	}
+	
+	/**
+	 * @return Item List size
+	 */
+	public int getItemCount()
+	{
+		return _items.size();
+	}
+	
+	/**
+	 * Adjust available item from Inventory by the one in this list
+	 * @param item : L2ItemInstance to be adjusted
+	 * @return TradeItem representing adjusted item
+	 */
+	public TradeItem adjustAvailableItem(L2ItemInstance item)
+	{
+		if (item.isStackable())
+		{
+			for (TradeItem exclItem : _items)
+			{
+				if (exclItem.getItem().getId() == item.getId())
+				{
+					if (item.getCount() <= exclItem.getCount())
+					{
+						return null;
+					}
+					return new TradeItem(item, item.getCount() - exclItem.getCount(), item.getReferencePrice());
+				}
+			}
+		}
+		return new TradeItem(item, item.getCount(), item.getReferencePrice());
+	}
+	
+	/**
+	 * Adjust ItemRequest by corresponding item in this list using its <b>ObjectId</b>
+	 * @param item : ItemRequest to be adjusted
+	 */
+	public void adjustItemRequest(ItemRequest item)
+	{
+		for (TradeItem filtItem : _items)
+		{
+			if (filtItem.getObjectId() == item.getObjectId())
+			{
+				if (filtItem.getCount() < item.getCount())
+				{
+					item.setCount(filtItem.getCount());
+				}
+				return;
+			}
+		}
+		item.setCount(0);
 	}
 	
 	/**
@@ -190,71 +312,77 @@ public class TradeList
 	}
 	
 	/**
-	 * Adjust available item from Inventory by the one in this list
-	 * @param item : L2ItemInstance to be adjusted
-	 * @return TradeItem representing adjusted item
+	 * Remove item from TradeList
+	 * @param objectId : int
+	 * @param itemId
+	 * @param count : int
+	 * @return
 	 */
-	public TradeItem adjustAvailableItem(L2ItemInstance item)
+	public synchronized TradeItem removeItem(int objectId, int itemId, long count)
 	{
-		if (item.isStackable())
+		if (isLocked())
 		{
-			for (TradeItem exclItem : _items)
+			_log.warning(_owner.getName() + ": Attempt to modify locked TradeList!");
+			return null;
+		}
+		
+		for (TradeItem titem : _items)
+		{
+			if ((titem.getObjectId() == objectId) || (titem.getItem().getId() == itemId))
 			{
-				if (exclItem.getItem().getId() == item.getId())
+				// If Partner has already confirmed this trade, invalidate the confirmation
+				if (_partner != null)
 				{
-					if (item.getCount() <= exclItem.getCount())
+					TradeList partnerList = _partner.getActiveTradeList();
+					if (partnerList == null)
 					{
+						_log.warning(_partner.getName() + ": Trading partner (" + _partner.getName() + ") is invalid in this trade!");
 						return null;
 					}
-					return new TradeItem(item, item.getCount() - exclItem.getCount(), item.getReferencePrice());
+					partnerList.invalidateConfirmation();
 				}
-			}
-		}
-		return new TradeItem(item, item.getCount(), item.getReferencePrice());
-	}
-	
-	/**
-	 * Adjust ItemRequest by corresponding item in this list using its <b>ObjectId</b>
-	 * @param item : ItemRequest to be adjusted
-	 */
-	public void adjustItemRequest(ItemRequest item)
-	{
-		for (TradeItem filtItem : _items)
-		{
-			if (filtItem.getObjectId() == item.getObjectId())
-			{
-				if (filtItem.getCount() < item.getCount())
+				
+				// Reduce item count or complete item
+				if ((count != -1) && (titem.getCount() > count))
 				{
-					item.setCount(filtItem.getCount());
+					titem.setCount(titem.getCount() - count);
 				}
-				return;
+				else
+				{
+					_items.remove(titem);
+				}
+				
+				return titem;
 			}
 		}
-		item.setCount(0);
+		return null;
 	}
 	
 	/**
-	 * @return the weight of items in tradeList
+	 * Update items in TradeList according their quantity in owner inventory
 	 */
-	public int calcItemsWeight()
+	public synchronized void updateItems()
 	{
-		long weight = 0;
-		
-		for (TradeItem item : _items)
+		for (TradeItem titem : _items)
 		{
-			if (item == null)
+			L2ItemInstance item = _owner.getInventory().getItemByObjectId(titem.getObjectId());
+			if ((item == null) || (titem.getCount() < 1))
 			{
-				continue;
+				removeItem(titem.getObjectId(), -1, -1);
 			}
-			L2Item template = ItemTable.getInstance().getTemplate(item.getItem().getId());
-			if (template == null)
+			else if (item.getCount() < titem.getCount())
 			{
-				continue;
+				titem.setCount(item.getCount());
 			}
-			weight += item.getCount() * template.getWeight();
 		}
-		
-		return (int) Math.min(weight, Integer.MAX_VALUE);
+	}
+	
+	/**
+	 * Lockes TradeList, no further changes are allowed
+	 */
+	public void lock()
+	{
+		_locked = true;
 	}
 	
 	/**
@@ -336,6 +464,91 @@ public class TradeList
 	}
 	
 	/**
+	 * Cancels TradeList confirmation
+	 */
+	public void invalidateConfirmation()
+	{
+		_confirmed = false;
+	}
+	
+	/**
+	 * Validates TradeList with owner inventory
+	 * @return
+	 */
+	private boolean validate()
+	{
+		// Check for Owner validity
+		if ((_owner == null) || (L2World.getInstance().getPlayer(_owner.getObjectId()) == null))
+		{
+			_log.warning("Invalid owner of TradeList");
+			return false;
+		}
+		
+		// Check for Item validity
+		for (TradeItem titem : _items)
+		{
+			L2ItemInstance item = _owner.checkItemManipulation(titem.getObjectId(), titem.getCount(), "transfer");
+			if ((item == null) || (item.getCount() < 1))
+			{
+				_log.warning(_owner.getName() + ": Invalid Item in TradeList");
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Transfers all TradeItems from inventory to partner
+	 * @param partner
+	 * @param ownerIU
+	 * @param partnerIU
+	 * @return
+	 */
+	private boolean TransferItems(L2PcInstance partner, InventoryUpdate ownerIU, InventoryUpdate partnerIU)
+	{
+		for (TradeItem titem : _items)
+		{
+			L2ItemInstance oldItem = _owner.getInventory().getItemByObjectId(titem.getObjectId());
+			if (oldItem == null)
+			{
+				return false;
+			}
+			L2ItemInstance newItem = _owner.getInventory().transferItem("Trade", titem.getObjectId(), titem.getCount(), partner.getInventory(), _owner, _partner);
+			if (newItem == null)
+			{
+				return false;
+			}
+			
+			// Add changes to inventory update packets
+			if (ownerIU != null)
+			{
+				if ((oldItem.getCount() > 0) && (oldItem != newItem))
+				{
+					ownerIU.addModifiedItem(oldItem);
+				}
+				else
+				{
+					ownerIU.addRemovedItem(oldItem);
+				}
+			}
+			
+			if (partnerIU != null)
+			{
+				if (newItem.getCount() > titem.getCount())
+				{
+					partnerIU.addModifiedItem(newItem);
+				}
+				else
+				{
+					partnerIU.addNewItem(newItem);
+				}
+			}
+		}
+		return true;
+	}
+	
+	/**
 	 * @param partner
 	 * @return items slots count
 	 */
@@ -368,82 +581,90 @@ public class TradeList
 	}
 	
 	/**
-	 * Returns the list of items in inventory available for transaction
-	 * @param inventory
-	 * @return L2ItemInstance : items in inventory
+	 * @return the weight of items in tradeList
 	 */
-	public List<TradeItem> getAvailableItems(PcInventory inventory)
+	public int calcItemsWeight()
 	{
-		final List<TradeItem> list = new LinkedList<>();
+		long weight = 0;
+		
 		for (TradeItem item : _items)
 		{
-			item = new TradeItem(item, item.getCount(), item.getPrice());
-			inventory.adjustAvailableItem(item);
-			list.add(item);
+			if (item == null)
+			{
+				continue;
+			}
+			L2Item template = ItemTable.getInstance().getTemplate(item.getItem().getId());
+			if (template == null)
+			{
+				continue;
+			}
+			weight += item.getCount() * template.getWeight();
 		}
-		return list;
+		
+		return (int) Math.min(weight, Integer.MAX_VALUE);
 	}
 	
 	/**
-	 * @return Item List size
+	 * Proceeds with trade
+	 * @param partnerList
 	 */
-	public int getItemCount()
+	private void doExchange(TradeList partnerList)
 	{
-		return _items.size();
-	}
-	
-	/**
-	 * @return all items from TradeList
-	 */
-	public TradeItem[] getItems()
-	{
-		return _items.toArray(new TradeItem[_items.size()]);
-	}
-	
-	public L2PcInstance getOwner()
-	{
-		return _owner;
-	}
-	
-	public L2PcInstance getPartner()
-	{
-		return _partner;
-	}
-	
-	public String getTitle()
-	{
-		return _title;
-	}
-	
-	/**
-	 * Cancels TradeList confirmation
-	 */
-	public void invalidateConfirmation()
-	{
-		_confirmed = false;
-	}
-	
-	public boolean isConfirmed()
-	{
-		return _confirmed;
-	}
-	
-	public boolean isLocked()
-	{
-		return _locked;
-	}
-	
-	public boolean isPackaged()
-	{
-		return _packaged;
-	}
-	
-	/**
-	 * Lockes TradeList, no further changes are allowed
-	 */
-	public void lock()
-	{
-		_locked = true;
+		boolean success = false;
+		
+		// check weight and slots
+		if ((!getOwner().getInventory().validateWeight(partnerList.calcItemsWeight())) || !(partnerList.getOwner().getInventory().validateWeight(calcItemsWeight())))
+		{
+			partnerList.getOwner().sendPacket(SystemMessageId.WEIGHT_LIMIT_EXCEEDED);
+			getOwner().sendPacket(SystemMessageId.WEIGHT_LIMIT_EXCEEDED);
+		}
+		else if ((!getOwner().getInventory().validateCapacity(partnerList.countItemsSlots(getOwner()))) || (!partnerList.getOwner().getInventory().validateCapacity(countItemsSlots(partnerList.getOwner()))))
+		{
+			partnerList.getOwner().sendPacket(SystemMessageId.SLOTS_FULL);
+			getOwner().sendPacket(SystemMessageId.SLOTS_FULL);
+		}
+		else
+		{
+			// Prepare inventory update packet
+			InventoryUpdate ownerIU = Config.FORCE_INVENTORY_UPDATE ? null : new InventoryUpdate();
+			InventoryUpdate partnerIU = Config.FORCE_INVENTORY_UPDATE ? null : new InventoryUpdate();
+			
+			// Transfer items
+			partnerList.TransferItems(getOwner(), partnerIU, ownerIU);
+			TransferItems(partnerList.getOwner(), ownerIU, partnerIU);
+			
+			// Send inventory update packet
+			if (ownerIU != null)
+			{
+				_owner.sendPacket(ownerIU);
+			}
+			else
+			{
+				_owner.sendPacket(new ItemList(_owner, false));
+			}
+			
+			if (partnerIU != null)
+			{
+				_partner.sendPacket(partnerIU);
+			}
+			else
+			{
+				_partner.sendPacket(new ItemList(_partner, false));
+			}
+			
+			// Update current load as well
+			StatusUpdate playerSU = new StatusUpdate(_owner);
+			playerSU.addAttribute(StatusUpdate.CUR_LOAD, _owner.getCurrentLoad());
+			_owner.sendPacket(playerSU);
+			playerSU = new StatusUpdate(_partner);
+			playerSU.addAttribute(StatusUpdate.CUR_LOAD, _partner.getCurrentLoad());
+			_partner.sendPacket(playerSU);
+			
+			success = true;
+		}
+		// Finish the trade
+		partnerList.getOwner().onTradeFinish(success);
+		getOwner().onTradeFinish(success);
 	}
 	
 	/**
@@ -859,226 +1080,5 @@ public class TradeList
 			player.sendPacket(playerIU);
 		}
 		return ok;
-	}
-	
-	/**
-	 * Remove item from TradeList
-	 * @param objectId : int
-	 * @param itemId
-	 * @param count : int
-	 * @return
-	 */
-	public synchronized TradeItem removeItem(int objectId, int itemId, long count)
-	{
-		if (isLocked())
-		{
-			_log.warning(_owner.getName() + ": Attempt to modify locked TradeList!");
-			return null;
-		}
-		
-		for (TradeItem titem : _items)
-		{
-			if ((titem.getObjectId() == objectId) || (titem.getItem().getId() == itemId))
-			{
-				// If Partner has already confirmed this trade, invalidate the confirmation
-				if (_partner != null)
-				{
-					TradeList partnerList = _partner.getActiveTradeList();
-					if (partnerList == null)
-					{
-						_log.warning(_partner.getName() + ": Trading partner (" + _partner.getName() + ") is invalid in this trade!");
-						return null;
-					}
-					partnerList.invalidateConfirmation();
-				}
-				
-				// Reduce item count or complete item
-				if ((count != -1) && (titem.getCount() > count))
-				{
-					titem.setCount(titem.getCount() - count);
-				}
-				else
-				{
-					_items.remove(titem);
-				}
-				
-				return titem;
-			}
-		}
-		return null;
-	}
-	
-	public void setPackaged(boolean value)
-	{
-		_packaged = value;
-	}
-	
-	public void setPartner(L2PcInstance partner)
-	{
-		_partner = partner;
-	}
-	
-	public void setTitle(String title)
-	{
-		_title = title;
-	}
-	
-	/**
-	 * Update items in TradeList according their quantity in owner inventory
-	 */
-	public synchronized void updateItems()
-	{
-		for (TradeItem titem : _items)
-		{
-			L2ItemInstance item = _owner.getInventory().getItemByObjectId(titem.getObjectId());
-			if ((item == null) || (titem.getCount() < 1))
-			{
-				removeItem(titem.getObjectId(), -1, -1);
-			}
-			else if (item.getCount() < titem.getCount())
-			{
-				titem.setCount(item.getCount());
-			}
-		}
-	}
-	
-	/**
-	 * Proceeds with trade
-	 * @param partnerList
-	 */
-	private void doExchange(TradeList partnerList)
-	{
-		boolean success = false;
-		
-		// check weight and slots
-		if ((!getOwner().getInventory().validateWeight(partnerList.calcItemsWeight())) || !(partnerList.getOwner().getInventory().validateWeight(calcItemsWeight())))
-		{
-			partnerList.getOwner().sendPacket(SystemMessageId.WEIGHT_LIMIT_EXCEEDED);
-			getOwner().sendPacket(SystemMessageId.WEIGHT_LIMIT_EXCEEDED);
-		}
-		else if ((!getOwner().getInventory().validateCapacity(partnerList.countItemsSlots(getOwner()))) || (!partnerList.getOwner().getInventory().validateCapacity(countItemsSlots(partnerList.getOwner()))))
-		{
-			partnerList.getOwner().sendPacket(SystemMessageId.SLOTS_FULL);
-			getOwner().sendPacket(SystemMessageId.SLOTS_FULL);
-		}
-		else
-		{
-			// Prepare inventory update packet
-			InventoryUpdate ownerIU = Config.FORCE_INVENTORY_UPDATE ? null : new InventoryUpdate();
-			InventoryUpdate partnerIU = Config.FORCE_INVENTORY_UPDATE ? null : new InventoryUpdate();
-			
-			// Transfer items
-			partnerList.TransferItems(getOwner(), partnerIU, ownerIU);
-			TransferItems(partnerList.getOwner(), ownerIU, partnerIU);
-			
-			// Send inventory update packet
-			if (ownerIU != null)
-			{
-				_owner.sendPacket(ownerIU);
-			}
-			else
-			{
-				_owner.sendPacket(new ItemList(_owner, false));
-			}
-			
-			if (partnerIU != null)
-			{
-				_partner.sendPacket(partnerIU);
-			}
-			else
-			{
-				_partner.sendPacket(new ItemList(_partner, false));
-			}
-			
-			// Update current load as well
-			StatusUpdate playerSU = new StatusUpdate(_owner);
-			playerSU.addAttribute(StatusUpdate.CUR_LOAD, _owner.getCurrentLoad());
-			_owner.sendPacket(playerSU);
-			playerSU = new StatusUpdate(_partner);
-			playerSU.addAttribute(StatusUpdate.CUR_LOAD, _partner.getCurrentLoad());
-			_partner.sendPacket(playerSU);
-			
-			success = true;
-		}
-		// Finish the trade
-		partnerList.getOwner().onTradeFinish(success);
-		getOwner().onTradeFinish(success);
-	}
-	
-	/**
-	 * Transfers all TradeItems from inventory to partner
-	 * @param partner
-	 * @param ownerIU
-	 * @param partnerIU
-	 * @return
-	 */
-	private boolean TransferItems(L2PcInstance partner, InventoryUpdate ownerIU, InventoryUpdate partnerIU)
-	{
-		for (TradeItem titem : _items)
-		{
-			L2ItemInstance oldItem = _owner.getInventory().getItemByObjectId(titem.getObjectId());
-			if (oldItem == null)
-			{
-				return false;
-			}
-			L2ItemInstance newItem = _owner.getInventory().transferItem("Trade", titem.getObjectId(), titem.getCount(), partner.getInventory(), _owner, _partner);
-			if (newItem == null)
-			{
-				return false;
-			}
-			
-			// Add changes to inventory update packets
-			if (ownerIU != null)
-			{
-				if ((oldItem.getCount() > 0) && (oldItem != newItem))
-				{
-					ownerIU.addModifiedItem(oldItem);
-				}
-				else
-				{
-					ownerIU.addRemovedItem(oldItem);
-				}
-			}
-			
-			if (partnerIU != null)
-			{
-				if (newItem.getCount() > titem.getCount())
-				{
-					partnerIU.addModifiedItem(newItem);
-				}
-				else
-				{
-					partnerIU.addNewItem(newItem);
-				}
-			}
-		}
-		return true;
-	}
-	
-	/**
-	 * Validates TradeList with owner inventory
-	 * @return
-	 */
-	private boolean validate()
-	{
-		// Check for Owner validity
-		if ((_owner == null) || (L2World.getInstance().getPlayer(_owner.getObjectId()) == null))
-		{
-			_log.warning("Invalid owner of TradeList");
-			return false;
-		}
-		
-		// Check for Item validity
-		for (TradeItem titem : _items)
-		{
-			L2ItemInstance item = _owner.checkItemManipulation(titem.getObjectId(), titem.getCount(), "transfer");
-			if ((item == null) || (item.getCount() < 1))
-			{
-				_log.warning(_owner.getName() + ": Invalid Item in TradeList");
-				return false;
-			}
-		}
-		
-		return true;
 	}
 }

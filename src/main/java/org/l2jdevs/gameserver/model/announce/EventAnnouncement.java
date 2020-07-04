@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -40,25 +40,6 @@ public class EventAnnouncement implements IAnnouncement
 	}
 	
 	@Override
-	public boolean deleteMe()
-	{
-		IdFactory.getInstance().releaseId(_id);
-		return true;
-	}
-	
-	@Override
-	public String getAuthor()
-	{
-		return "N/A";
-	}
-	
-	@Override
-	public String getContent()
-	{
-		return _content;
-	}
-	
-	@Override
 	public int getId()
 	{
 		return _id;
@@ -71,15 +52,21 @@ public class EventAnnouncement implements IAnnouncement
 	}
 	
 	@Override
+	public void setType(AnnouncementType type)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
 	public boolean isValid()
 	{
 		return _range.isWithinRange(new Date());
 	}
 	
 	@Override
-	public void setAuthor(String author)
+	public String getContent()
 	{
-		throw new UnsupportedOperationException();
+		return _content;
 	}
 	
 	@Override
@@ -89,9 +76,22 @@ public class EventAnnouncement implements IAnnouncement
 	}
 	
 	@Override
-	public void setType(AnnouncementType type)
+	public String getAuthor()
+	{
+		return "N/A";
+	}
+	
+	@Override
+	public void setAuthor(String author)
 	{
 		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public boolean deleteMe()
+	{
+		IdFactory.getInstance().releaseId(_id);
+		return true;
 	}
 	
 	@Override

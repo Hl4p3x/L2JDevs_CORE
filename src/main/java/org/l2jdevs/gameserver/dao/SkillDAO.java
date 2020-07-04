@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -29,9 +29,11 @@ import org.l2jdevs.gameserver.model.skills.Skill;
  */
 public interface SkillDAO
 {
-	void delete(L2PcInstance player, Skill skill);
+	void insert(L2PcInstance player, int classIndex, Skill skill);
 	
-	void deleteAll(L2PcInstance player, int classIndex);
+	void update(L2PcInstance player, int classIndex, Skill newSkill, Skill oldSkill);
+	
+	void delete(L2PcInstance player, Skill skill);
 	
 	/**
 	 * Adds or updates player's skills in the database.
@@ -41,13 +43,11 @@ public interface SkillDAO
 	 */
 	void insert(L2PcInstance player, int newClassIndex, List<Skill> newSkills);
 	
-	void insert(L2PcInstance player, int classIndex, Skill skill);
-	
 	/**
 	 * Retrieves all skills from the database.
 	 * @param player the player
 	 */
 	void load(L2PcInstance player);
 	
-	void update(L2PcInstance player, int classIndex, Skill newSkill, Skill oldSkill);
+	void deleteAll(L2PcInstance player, int classIndex);
 }

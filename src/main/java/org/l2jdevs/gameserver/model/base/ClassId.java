@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -217,6 +217,22 @@ public enum ClassId implements IIdentifiable
 	 * Class constructor.
 	 * @param pId the class Id.
 	 * @param pIsMage {code true} if the class is mage class.
+	 * @param race the race related to the class.
+	 * @param pParent the parent class Id.
+	 */
+	private ClassId(int pId, boolean pIsMage, Race race, ClassId pParent)
+	{
+		_id = pId;
+		_isMage = pIsMage;
+		_isSummoner = false;
+		_race = race;
+		_parent = pParent;
+	}
+	
+	/**
+	 * Class constructor.
+	 * @param pId the class Id.
+	 * @param pIsMage {code true} if the class is mage class.
 	 * @param pIsSummoner {code true} if the class is summoner class.
 	 * @param race the race related to the class.
 	 * @param pParent the parent class Id.
@@ -231,31 +247,37 @@ public enum ClassId implements IIdentifiable
 	}
 	
 	/**
-	 * Class constructor.
-	 * @param pId the class Id.
-	 * @param pIsMage {code true} if the class is mage class.
-	 * @param race the race related to the class.
-	 * @param pParent the parent class Id.
+	 * Gets the ID of the class.
+	 * @return the ID of the class
 	 */
-	private ClassId(int pId, boolean pIsMage, Race race, ClassId pParent)
+	@Override
+	public final int getId()
 	{
-		_id = pId;
-		_isMage = pIsMage;
-		_isSummoner = false;
-		_race = race;
-		_parent = pParent;
+		return _id;
 	}
 	
-	public static ClassId getClassId(int cId)
+	/**
+	 * @return {code true} if the class is a mage class.
+	 */
+	public final boolean isMage()
 	{
-		try
-		{
-			return ClassId.values()[cId];
-		}
-		catch (Exception e)
-		{
-			return null;
-		}
+		return _isMage;
+	}
+	
+	/**
+	 * @return {code true} if the class is a summoner class.
+	 */
+	public final boolean isSummoner()
+	{
+		return _isSummoner;
+	}
+	
+	/**
+	 * @return the Race object of the class.
+	 */
+	public final Race getRace()
+	{
+		return _race;
 	}
 	
 	/**
@@ -288,48 +310,6 @@ public enum ClassId implements IIdentifiable
 	}
 	
 	/**
-	 * Gets the ID of the class.
-	 * @return the ID of the class
-	 */
-	@Override
-	public final int getId()
-	{
-		return _id;
-	}
-	
-	/**
-	 * @return its parent Class Id
-	 */
-	public final ClassId getParent()
-	{
-		return _parent;
-	}
-	
-	/**
-	 * @return the Race object of the class.
-	 */
-	public final Race getRace()
-	{
-		return _race;
-	}
-	
-	/**
-	 * @return {code true} if the class is a mage class.
-	 */
-	public final boolean isMage()
-	{
-		return _isMage;
-	}
-	
-	/**
-	 * @return {code true} if the class is a summoner class.
-	 */
-	public final boolean isSummoner()
-	{
-		return _isSummoner;
-	}
-	
-	/**
 	 * @return the child level of this Class (0=root, 1=child leve 1...)
 	 */
 	public final int level()
@@ -340,5 +320,25 @@ public enum ClassId implements IIdentifiable
 		}
 		
 		return 1 + _parent.level();
+	}
+	
+	/**
+	 * @return its parent Class Id
+	 */
+	public final ClassId getParent()
+	{
+		return _parent;
+	}
+	
+	public static ClassId getClassId(int cId)
+	{
+		try
+		{
+			return ClassId.values()[cId];
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -46,6 +46,67 @@ public class ShortCuts implements IRestorable
 	public ShortCuts(L2PcInstance owner)
 	{
 		_owner = owner;
+	}
+	
+	public Shortcut[] getAllShortCuts()
+	{
+		return _shortCuts.values().toArray(new Shortcut[_shortCuts.values().size()]);
+	}
+	
+	public Shortcut getShortCut(int slot, int page)
+	{
+		Shortcut sc = _shortCuts.get(slot + (page * MAX_SHORTCUTS_PER_BAR));
+		// Verify shortcut
+		if ((sc != null) && (sc.getType() == ShortcutType.ITEM))
+		{
+			if (_owner.getInventory().getItemByObjectId(sc.getId()) == null)
+			{
+				deleteShortCut(sc.getSlot(), sc.getPage());
+				sc = null;
+			}
+		}
+		return sc;
+	}
+	
+	public synchronized void registerShortCut(Shortcut shortcut)
+	{
+		// Verify shortcut
+		if (shortcut.getType() == ShortcutType.ITEM)
+		{
+			final L2ItemInstance item = _owner.getInventory().getItemByObjectId(shortcut.getId());
+			if (item == null)
+			{
+				return;
+			}
+			shortcut.setSharedReuseGroup(item.getSharedReuseGroup());
+		}
+		final Shortcut oldShortCut = _shortCuts.put(shortcut.getSlot() + (shortcut.getPage() * MAX_SHORTCUTS_PER_BAR), shortcut);
+		registerShortCutInDb(shortcut, oldShortCut);
+	}
+	
+	private void registerShortCutInDb(Shortcut shortcut, Shortcut oldShortCut)
+	{
+		if (oldShortCut != null)
+		{
+			deleteShortCutFromDb(oldShortCut);
+		}
+		
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("REPLACE INTO character_shortcuts (charId,slot,page,type,shortcut_id,level,class_index) values(?,?,?,?,?,?,?)"))
+		{
+			ps.setInt(1, _owner.getObjectId());
+			ps.setInt(2, shortcut.getSlot());
+			ps.setInt(3, shortcut.getPage());
+			ps.setInt(4, shortcut.getType().ordinal());
+			ps.setInt(5, shortcut.getId());
+			ps.setInt(6, shortcut.getLevel());
+			ps.setInt(7, _owner.getClassIndex());
+			ps.execute();
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Could not store character shortcut: " + e.getMessage(), e);
+		}
 	}
 	
 	/**
@@ -93,40 +154,24 @@ public class ShortCuts implements IRestorable
 		}
 	}
 	
-	public Shortcut[] getAllShortCuts()
+	/**
+	 * @param shortcut
+	 */
+	private void deleteShortCutFromDb(Shortcut shortcut)
 	{
-		return _shortCuts.values().toArray(new Shortcut[_shortCuts.values().size()]);
-	}
-	
-	public Shortcut getShortCut(int slot, int page)
-	{
-		Shortcut sc = _shortCuts.get(slot + (page * MAX_SHORTCUTS_PER_BAR));
-		// Verify shortcut
-		if ((sc != null) && (sc.getType() == ShortcutType.ITEM))
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM character_shortcuts WHERE charId=? AND slot=? AND page=? AND class_index=?"))
 		{
-			if (_owner.getInventory().getItemByObjectId(sc.getId()) == null)
-			{
-				deleteShortCut(sc.getSlot(), sc.getPage());
-				sc = null;
-			}
+			ps.setInt(1, _owner.getObjectId());
+			ps.setInt(2, shortcut.getSlot());
+			ps.setInt(3, shortcut.getPage());
+			ps.setInt(4, _owner.getClassIndex());
+			ps.execute();
 		}
-		return sc;
-	}
-	
-	public synchronized void registerShortCut(Shortcut shortcut)
-	{
-		// Verify shortcut
-		if (shortcut.getType() == ShortcutType.ITEM)
+		catch (Exception e)
 		{
-			final L2ItemInstance item = _owner.getInventory().getItemByObjectId(shortcut.getId());
-			if (item == null)
-			{
-				return;
-			}
-			shortcut.setSharedReuseGroup(item.getSharedReuseGroup());
+			_log.log(Level.WARNING, "Could not delete character shortcut: " + e.getMessage(), e);
 		}
-		final Shortcut oldShortCut = _shortCuts.put(shortcut.getSlot() + (shortcut.getPage() * MAX_SHORTCUTS_PER_BAR), shortcut);
-		registerShortCutInDb(shortcut, oldShortCut);
 	}
 	
 	@Override
@@ -195,51 +240,6 @@ public class ShortCuts implements IRestorable
 				_owner.sendPacket(new ShortCutRegister(newsc));
 				_owner.registerShortCut(newsc);
 			}
-		}
-	}
-	
-	/**
-	 * @param shortcut
-	 */
-	private void deleteShortCutFromDb(Shortcut shortcut)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM character_shortcuts WHERE charId=? AND slot=? AND page=? AND class_index=?"))
-		{
-			ps.setInt(1, _owner.getObjectId());
-			ps.setInt(2, shortcut.getSlot());
-			ps.setInt(3, shortcut.getPage());
-			ps.setInt(4, _owner.getClassIndex());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Could not delete character shortcut: " + e.getMessage(), e);
-		}
-	}
-	
-	private void registerShortCutInDb(Shortcut shortcut, Shortcut oldShortCut)
-	{
-		if (oldShortCut != null)
-		{
-			deleteShortCutFromDb(oldShortCut);
-		}
-		
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("REPLACE INTO character_shortcuts (charId,slot,page,type,shortcut_id,level,class_index) values(?,?,?,?,?,?,?)"))
-		{
-			ps.setInt(1, _owner.getObjectId());
-			ps.setInt(2, shortcut.getSlot());
-			ps.setInt(3, shortcut.getPage());
-			ps.setInt(4, shortcut.getType().ordinal());
-			ps.setInt(5, shortcut.getId());
-			ps.setInt(6, shortcut.getLevel());
-			ps.setInt(7, _owner.getClassIndex());
-			ps.execute();
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Could not store character shortcut: " + e.getMessage(), e);
 		}
 	}
 }

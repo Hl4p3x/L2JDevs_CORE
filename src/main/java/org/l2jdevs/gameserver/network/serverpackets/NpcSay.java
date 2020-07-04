@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -36,14 +36,6 @@ public final class NpcSay extends L2GameServerPacket
 	private final int _npcString;
 	private List<String> _parameters;
 	
-	public NpcSay(int objectId, int messageType, int npcId, NpcStringId npcString)
-	{
-		_objectId = objectId;
-		_textType = messageType;
-		_npcId = 1000000 + npcId;
-		_npcString = npcString.getId();
-	}
-	
 	/**
 	 * @param objectId
 	 * @param messageType
@@ -59,14 +51,6 @@ public final class NpcSay extends L2GameServerPacket
 		_text = text;
 	}
 	
-	public NpcSay(L2Npc npc, int messageType, NpcStringId npcString)
-	{
-		_objectId = npc.getObjectId();
-		_textType = messageType;
-		_npcId = 1000000 + npc.getId();
-		_npcString = npcString.getId();
-	}
-	
 	public NpcSay(L2Npc npc, int messageType, String text)
 	{
 		_objectId = npc.getObjectId();
@@ -74,6 +58,22 @@ public final class NpcSay extends L2GameServerPacket
 		_npcId = 1000000 + npc.getId();
 		_npcString = -1;
 		_text = text;
+	}
+	
+	public NpcSay(int objectId, int messageType, int npcId, NpcStringId npcString)
+	{
+		_objectId = objectId;
+		_textType = messageType;
+		_npcId = 1000000 + npcId;
+		_npcString = npcString.getId();
+	}
+	
+	public NpcSay(L2Npc npc, int messageType, NpcStringId npcString)
+	{
+		_objectId = npc.getObjectId();
+		_textType = messageType;
+		_npcId = 1000000 + npc.getId();
+		_npcString = npcString.getId();
 	}
 	
 	/**

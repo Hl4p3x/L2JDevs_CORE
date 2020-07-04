@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -42,6 +42,55 @@ public final class NewCrypt
 	public NewCrypt(String key)
 	{
 		this(key.getBytes());
+	}
+	
+	/**
+	 * Equivalent to calling {@link #verifyChecksum(byte[], int, int)} with parameters (raw, 0, raw.length)
+	 * @param raw data array to be verified
+	 * @return true when the checksum of the data is valid, false otherwise
+	 */
+	public static boolean verifyChecksum(final byte[] raw)
+	{
+		return NewCrypt.verifyChecksum(raw, 0, raw.length);
+	}
+	
+	/**
+	 * Method to verify the checksum of a packet received by login server from game client.<br>
+	 * This is also used for game server <-> login server communication.
+	 * @param raw data array to be verified
+	 * @param offset at which offset to start verifying
+	 * @param size number of bytes to verify
+	 * @return true if the checksum of the data is valid, false otherwise
+	 */
+	public static boolean verifyChecksum(final byte[] raw, final int offset, final int size)
+	{
+		// check if size is multiple of 4 and if there is more then only the checksum
+		if (((size & 3) != 0) || (size <= 4))
+		{
+			return false;
+		}
+		
+		long chksum = 0;
+		int count = size - 4;
+		long check = -1;
+		int i;
+		
+		for (i = offset; i < count; i += 4)
+		{
+			check = raw[i] & 0xff;
+			check |= (raw[i + 1] << 8) & 0xff00;
+			check |= (raw[i + 2] << 0x10) & 0xff0000;
+			check |= (raw[i + 3] << 0x18) & 0xff000000;
+			
+			chksum ^= check;
+		}
+		
+		check = raw[i] & 0xff;
+		check |= (raw[i + 1] << 8) & 0xff00;
+		check |= (raw[i + 2] << 0x10) & 0xff0000;
+		check |= (raw[i + 3] << 0x18) & 0xff000000;
+		
+		return check == chksum;
 	}
 	
 	/**
@@ -99,55 +148,6 @@ public final class NewCrypt
 	}
 	
 	/**
-	 * Equivalent to calling {@link #verifyChecksum(byte[], int, int)} with parameters (raw, 0, raw.length)
-	 * @param raw data array to be verified
-	 * @return true when the checksum of the data is valid, false otherwise
-	 */
-	public static boolean verifyChecksum(final byte[] raw)
-	{
-		return NewCrypt.verifyChecksum(raw, 0, raw.length);
-	}
-	
-	/**
-	 * Method to verify the checksum of a packet received by login server from game client.<br>
-	 * This is also used for game server <-> login server communication.
-	 * @param raw data array to be verified
-	 * @param offset at which offset to start verifying
-	 * @param size number of bytes to verify
-	 * @return true if the checksum of the data is valid, false otherwise
-	 */
-	public static boolean verifyChecksum(final byte[] raw, final int offset, final int size)
-	{
-		// check if size is multiple of 4 and if there is more then only the checksum
-		if (((size & 3) != 0) || (size <= 4))
-		{
-			return false;
-		}
-		
-		long chksum = 0;
-		int count = size - 4;
-		long check = -1;
-		int i;
-		
-		for (i = offset; i < count; i += 4)
-		{
-			check = raw[i] & 0xff;
-			check |= (raw[i + 1] << 8) & 0xff00;
-			check |= (raw[i + 2] << 0x10) & 0xff0000;
-			check |= (raw[i + 3] << 0x18) & 0xff000000;
-			
-			chksum ^= check;
-		}
-		
-		check = raw[i] & 0xff;
-		check |= (raw[i + 1] << 8) & 0xff00;
-		check |= (raw[i + 2] << 0x10) & 0xff0000;
-		check |= (raw[i + 3] << 0x18) & 0xff000000;
-		
-		return check == chksum;
-	}
-	
-	/**
 	 * Packet is first XOR encoded with <code>key</code> then, the last 4 bytes are overwritten with the the XOR "key".<br>
 	 * Thus this assume that there is enough room for the key to fit without overwriting data.
 	 * @param raw The raw bytes to be encrypted
@@ -186,22 +186,6 @@ public final class NewCrypt
 	}
 	
 	/**
-	 * Method to encrypt using Blowfish-Blockcipher in ECB mode.<br>
-	 * The results will be directly placed inside {@code raw} array.<br>
-	 * This method does not do any error checking, since the calling code should ensure sizes.
-	 * @param raw the data array to be decrypted
-	 * @param offset the offset at which to start decrypting
-	 * @param size the number of bytes to be decrypted
-	 */
-	public void crypt(byte[] raw, final int offset, final int size)
-	{
-		for (int i = offset; i < (offset + size); i += 8)
-		{
-			_cipher.encryptBlock(raw, i);
-		}
-	}
-	
-	/**
 	 * Method to decrypt using Blowfish-Blockcipher in ECB mode.<br>
 	 * The results will be directly placed inside {@code raw} array.<br>
 	 * This method does not do any error checking, since the calling code<br>
@@ -215,6 +199,22 @@ public final class NewCrypt
 		for (int i = offset; i < (offset + size); i += 8)
 		{
 			_cipher.decryptBlock(raw, i);
+		}
+	}
+	
+	/**
+	 * Method to encrypt using Blowfish-Blockcipher in ECB mode.<br>
+	 * The results will be directly placed inside {@code raw} array.<br>
+	 * This method does not do any error checking, since the calling code should ensure sizes.
+	 * @param raw the data array to be decrypted
+	 * @param offset the offset at which to start decrypting
+	 * @param size the number of bytes to be decrypted
+	 */
+	public void crypt(byte[] raw, final int offset, final int size)
+	{
+		for (int i = offset; i < (offset + size); i += 8)
+		{
+			_cipher.encryptBlock(raw, i);
 		}
 	}
 }

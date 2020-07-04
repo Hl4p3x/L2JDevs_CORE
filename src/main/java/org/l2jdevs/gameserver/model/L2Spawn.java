@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -55,7 +55,6 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable
 {
 	protected static final Logger _log = Logger.getLogger(L2Spawn.class.getName());
 	
-	private static List<SpawnListener> _spawnListeners = new CopyOnWriteArrayList<>();
 	/** String identifier of this spawn */
 	private String _name;
 	/** The link on the L2NpcTemplate object containing generic and static properties of this spawn (ex : RewardExp, RewardSP, AggroRange...) */
@@ -82,23 +81,38 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable
 	private boolean _doRespawn;
 	/** If true then spawn is custom */
 	private boolean _customSpawn;
+	private static List<SpawnListener> _spawnListeners = new CopyOnWriteArrayList<>();
 	private final Deque<L2Npc> _spawnedNpcs = new ConcurrentLinkedDeque<>();
 	private Map<Integer, Location> _lastSpawnPoints;
 	private boolean _isNoRndWalk = false; // Is no random walk
 	private String _areaName;
 	private int _globalMapId;
 	
-	/**
-	 * Creates a spawn.
-	 * @param npcId the NPC ID
-	 * @throws ClassCastException
-	 * @throws NoSuchMethodException
-	 * @throws ClassNotFoundException
-	 * @throws SecurityException
-	 */
-	public L2Spawn(int npcId) throws SecurityException, ClassNotFoundException, NoSuchMethodException, ClassCastException
+	/** The task launching the function doSpawn() */
+	class SpawnTask implements Runnable
 	{
-		this(NpcData.getInstance().getTemplate(npcId));
+		private final L2Npc _oldNpc;
+		
+		public SpawnTask(L2Npc pOldNpc)
+		{
+			_oldNpc = pOldNpc;
+		}
+		
+		@Override
+		public void run()
+		{
+			try
+			{
+				// doSpawn();
+				respawnNpc(_oldNpc);
+			}
+			catch (Exception e)
+			{
+				_log.log(Level.WARNING, "", e);
+			}
+			
+			_scheduledCount--;
+		}
 	}
 	
 	/**
@@ -137,22 +151,269 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable
 		_constructor = Class.forName(className).asSubclass(L2Npc.class).getConstructor(L2NpcTemplate.class);
 	}
 	
-	public static void addSpawnListener(SpawnListener listener)
+	/**
+	 * Creates a spawn.
+	 * @param npcId the NPC ID
+	 * @throws ClassCastException
+	 * @throws NoSuchMethodException
+	 * @throws ClassNotFoundException
+	 * @throws SecurityException
+	 */
+	public L2Spawn(int npcId) throws SecurityException, ClassNotFoundException, NoSuchMethodException, ClassCastException
 	{
-		_spawnListeners.add(listener);
+		this(NpcData.getInstance().getTemplate(npcId));
 	}
 	
-	public static void notifyNpcSpawned(L2Npc npc)
+	/**
+	 * @return the maximum number of L2NpcInstance that this L2Spawn can manage.
+	 */
+	public int getAmount()
 	{
-		for (SpawnListener listener : _spawnListeners)
-		{
-			listener.npcSpawned(npc);
-		}
+		return _maximumCount;
 	}
 	
-	public static void removeSpawnListener(SpawnListener listener)
+	/**
+	 * @return the String Identifier of this spawn.
+	 */
+	@Override
+	public String getName()
 	{
-		_spawnListeners.remove(listener);
+		return _name;
+	}
+	
+	/**
+	 * Set the String Identifier of this spawn.
+	 * @param name
+	 */
+	public void setName(String name)
+	{
+		_name = name;
+	}
+	
+	/**
+	 * @return the Identifier of the location area where L2NpcInstance can be spwaned.
+	 */
+	public int getLocationId()
+	{
+		return _locationId;
+	}
+	
+	@Override
+	public Location getLocation()
+	{
+		return _location;
+	}
+	
+	public Location getLocation(L2Object obj)
+	{
+		return ((_lastSpawnPoints == null) || (obj == null) || !_lastSpawnPoints.containsKey(obj.getObjectId())) ? _location : _lastSpawnPoints.get(obj.getObjectId());
+	}
+	
+	@Override
+	public int getX()
+	{
+		return _location.getX();
+	}
+	
+	/**
+	 * @param obj object to check
+	 * @return the X position of the last spawn point of given NPC.
+	 */
+	public int getX(L2Object obj)
+	{
+		return getLocation(obj).getX();
+	}
+	
+	/**
+	 * Set the X position of the spawn point.
+	 * @param x the x coordinate
+	 */
+	@Override
+	public void setX(int x)
+	{
+		_location.setX(x);
+	}
+	
+	@Override
+	public int getY()
+	{
+		return _location.getY();
+	}
+	
+	/**
+	 * @param obj object to check
+	 * @return the Y position of the last spawn point of given NPC.
+	 */
+	public int getY(L2Object obj)
+	{
+		return getLocation(obj).getY();
+	}
+	
+	/**
+	 * Set the Y position of the spawn point.
+	 * @param y the y coordinate
+	 */
+	@Override
+	public void setY(int y)
+	{
+		_location.setY(y);
+	}
+	
+	@Override
+	public int getZ()
+	{
+		return _location.getZ();
+	}
+	
+	/**
+	 * @param obj object to check
+	 * @return the Z position of the last spawn point of given NPC.
+	 */
+	public int getZ(L2Object obj)
+	{
+		return getLocation(obj).getZ();
+	}
+	
+	/**
+	 * Set the Z position of the spawn point.
+	 * @param z the z coordinate
+	 */
+	@Override
+	public void setZ(int z)
+	{
+		_location.setZ(z);
+	}
+	
+	/**
+	 * Set the x, y, z position of the spawn point.
+	 * @param x The x coordinate.
+	 * @param y The y coordinate.
+	 * @param z The z coordinate.
+	 */
+	@Override
+	public void setXYZ(int x, int y, int z)
+	{
+		setX(x);
+		setY(y);
+		setZ(z);
+	}
+	
+	/**
+	 * Set the x, y, z position of the spawn point.
+	 * @param loc The location.
+	 */
+	@Override
+	public void setXYZ(ILocational loc)
+	{
+		setXYZ(loc.getX(), loc.getY(), loc.getZ());
+	}
+	
+	/**
+	 * @return the heading of L2NpcInstance when they are spawned.
+	 */
+	@Override
+	public int getHeading()
+	{
+		return _location.getHeading();
+	}
+	
+	/**
+	 * Set the heading of L2NpcInstance when they are spawned.
+	 * @param heading
+	 */
+	@Override
+	public void setHeading(int heading)
+	{
+		_location.setHeading(heading);
+	}
+	
+	/**
+	 * Set the XYZ position of the spawn point.
+	 * @param loc
+	 */
+	@Override
+	public void setLocation(Location loc)
+	{
+		_location = loc;
+	}
+	
+	/**
+	 * Gets the NPC ID.
+	 * @return the NPC ID
+	 */
+	@Override
+	public int getId()
+	{
+		return _template.getId();
+	}
+	
+	/**
+	 * @return min respawn delay.
+	 */
+	public int getRespawnMinDelay()
+	{
+		return _respawnMinDelay;
+	}
+	
+	/**
+	 * @return max respawn delay.
+	 */
+	public int getRespawnMaxDelay()
+	{
+		return _respawnMaxDelay;
+	}
+	
+	/**
+	 * Set the maximum number of L2NpcInstance that this L2Spawn can manage.
+	 * @param amount
+	 */
+	public void setAmount(int amount)
+	{
+		_maximumCount = amount;
+	}
+	
+	/**
+	 * Set the Identifier of the location area where L2NpcInstance can be spawned.
+	 * @param id
+	 */
+	public void setLocationId(int id)
+	{
+		_locationId = id;
+	}
+	
+	/**
+	 * Set Minimum Respawn Delay.
+	 * @param date
+	 */
+	public void setRespawnMinDelay(int date)
+	{
+		_respawnMinDelay = date;
+	}
+	
+	/**
+	 * Set Maximum Respawn Delay.
+	 * @param date
+	 */
+	public void setRespawnMaxDelay(int date)
+	{
+		_respawnMaxDelay = date;
+	}
+	
+	/**
+	 * Set the spawn as custom.<BR>
+	 * @param custom
+	 */
+	public void setCustom(boolean custom)
+	{
+		_customSpawn = custom;
+	}
+	
+	/**
+	 * @return type of spawn.
+	 */
+	public boolean isCustom()
+	{
+		return _customSpawn;
 	}
 	
 	/**
@@ -196,6 +457,55 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable
 			// ClientScheduler.getInstance().scheduleLow(new SpawnTask(npcId), _respawnDelay);
 			ThreadPoolManager.getInstance().scheduleGeneral(new SpawnTask(oldNpc), hasRespawnRandom() ? Rnd.get(_respawnMinDelay, _respawnMaxDelay) : _respawnMinDelay);
 		}
+	}
+	
+	/**
+	 * Create the initial spawning and set _doRespawn to False, if respawn time set to 0, or set it to True otherwise.
+	 * @return The number of L2NpcInstance that were spawned
+	 */
+	public int init()
+	{
+		while (_currentCount < _maximumCount)
+		{
+			doSpawn();
+		}
+		_doRespawn = _respawnMinDelay != 0;
+		
+		return _currentCount;
+	}
+	
+	/**
+	 * Create a L2NpcInstance in this L2Spawn.
+	 * @param val
+	 * @return
+	 */
+	public L2Npc spawnOne(boolean val)
+	{
+		return doSpawn(val);
+	}
+	
+	/**
+	 * @return true if respawn enabled
+	 */
+	public boolean isRespawnEnabled()
+	{
+		return _doRespawn;
+	}
+	
+	/**
+	 * Set _doRespawn to False to stop respawn in this L2Spawn.
+	 */
+	public void stopRespawn()
+	{
+		_doRespawn = false;
+	}
+	
+	/**
+	 * Set _doRespawn to True to start or restart respawn in this L2Spawn.
+	 */
+	public void startRespawn()
+	{
+		_doRespawn = true;
 	}
 	
 	public L2Npc doSpawn()
@@ -249,7 +559,7 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable
 			{
 				NpcPersonalAIData.getInstance().initializeNpcParameters(npc, this, _name);
 			}
-			
+			mobChampionhood(npc);
 			return initializeNpcInstance(npc);
 		}
 		catch (Exception e)
@@ -258,442 +568,22 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable
 		}
 		return null;
 	}
-	
-	/**
-	 * @return the maximum number of L2NpcInstance that this L2Spawn can manage.
-	 */
-	public int getAmount()
-	{
-		return _maximumCount;
-	}
-	
-	public String getAreaName()
-	{
-		return _areaName;
-	}
-	
-	public int getGlobalMapId()
-	{
-		return _globalMapId;
-	}
-	
-	/**
-	 * @return the heading of L2NpcInstance when they are spawned.
-	 */
-	@Override
-	public int getHeading()
-	{
-		return _location.getHeading();
-	}
-	
-	/**
-	 * Gets the NPC ID.
-	 * @return the NPC ID
-	 */
-	@Override
-	public int getId()
-	{
-		return _template.getId();
-	}
-	
-	@Override
-	public int getInstanceId()
-	{
-		return _location.getInstanceId();
-	}
-	
-	public L2Npc getLastSpawn()
-	{
-		return _spawnedNpcs.peekLast();
-	}
-	
-	@Override
-	public Location getLocation()
-	{
-		return _location;
-	}
-	
-	public Location getLocation(L2Object obj)
-	{
-		return ((_lastSpawnPoints == null) || (obj == null) || !_lastSpawnPoints.containsKey(obj.getObjectId())) ? _location : _lastSpawnPoints.get(obj.getObjectId());
-	}
-	
-	/**
-	 * @return the Identifier of the location area where L2NpcInstance can be spwaned.
-	 */
-	public int getLocationId()
-	{
-		return _locationId;
-	}
-	
-	/**
-	 * @return the String Identifier of this spawn.
-	 */
-	@Override
-	public String getName()
-	{
-		return _name;
-	}
-	
-	public int getRespawnDelay()
-	{
-		return (_respawnMinDelay + _respawnMaxDelay) / 2;
-	}
-	
-	/**
-	 * @return max respawn delay.
-	 */
-	public int getRespawnMaxDelay()
-	{
-		return _respawnMaxDelay;
-	}
-	
-	/**
-	 * @return min respawn delay.
-	 */
-	public int getRespawnMinDelay()
-	{
-		return _respawnMinDelay;
-	}
-	
-	public final Deque<L2Npc> getSpawnedNpcs()
-	{
-		return _spawnedNpcs;
-	}
-	
-	public NpcSpawnTerritory getSpawnTerritory()
-	{
-		return _spawnTerritory;
-	}
-	
-	public L2NpcTemplate getTemplate()
-	{
-		return _template;
-	}
-	
-	@Override
-	public int getX()
-	{
-		return _location.getX();
-	}
-	
-	/**
-	 * @param obj object to check
-	 * @return the X position of the last spawn point of given NPC.
-	 */
-	public int getX(L2Object obj)
-	{
-		return getLocation(obj).getX();
-	}
-	
-	@Override
-	public int getY()
-	{
-		return _location.getY();
-	}
-	
-	/**
-	 * @param obj object to check
-	 * @return the Y position of the last spawn point of given NPC.
-	 */
-	public int getY(L2Object obj)
-	{
-		return getLocation(obj).getY();
-	}
-	
-	@Override
-	public int getZ()
-	{
-		return _location.getZ();
-	}
-	
-	/**
-	 * @param obj object to check
-	 * @return the Z position of the last spawn point of given NPC.
-	 */
-	public int getZ(L2Object obj)
-	{
-		return getLocation(obj).getZ();
-	}
-	
-	public boolean hasRespawnRandom()
-	{
-		return _respawnMinDelay != _respawnMaxDelay;
-	}
-	
-	/**
-	 * Create the initial spawning and set _doRespawn to False, if respawn time set to 0, or set it to True otherwise.
-	 * @return The number of L2NpcInstance that were spawned
-	 */
-	public int init()
-	{
-		while (_currentCount < _maximumCount)
-		{
-			doSpawn();
-		}
-		_doRespawn = _respawnMinDelay != 0;
-		
-		return _currentCount;
-	}
-	
-	/**
-	 * @return type of spawn.
-	 */
-	public boolean isCustom()
-	{
-		return _customSpawn;
-	}
-	
-	public final boolean isNoRndWalk()
-	{
-		return _isNoRndWalk;
-	}
-	
-	/**
-	 * @return true if respawn enabled
-	 */
-	public boolean isRespawnEnabled()
-	{
-		return _doRespawn;
-	}
-	
-	public boolean isTerritoryBased()
-	{
-		return (_spawnTerritory != null) && (_location.getX() == 0) && (_location.getY() == 0);
-	}
-	
-	/**
-	 * @param oldNpc
-	 */
-	public void respawnNpc(L2Npc oldNpc)
-	{
-		if (_doRespawn)
-		{
-			oldNpc.refreshID();
-			initializeNpcInstance(oldNpc);
-		}
-	}
-	
-	/**
-	 * Set the maximum number of L2NpcInstance that this L2Spawn can manage.
-	 * @param amount
-	 */
-	public void setAmount(int amount)
-	{
-		_maximumCount = amount;
-	}
-	
-	public void setAreaName(String areaName)
-	{
-		_areaName = areaName;
-	}
-	
-	/**
-	 * Set the spawn as custom.<BR>
-	 * @param custom
-	 */
-	public void setCustom(boolean custom)
-	{
-		_customSpawn = custom;
-	}
-	
-	public void setGlobalMapId(int globalMapId)
-	{
-		_globalMapId = globalMapId;
-	}
-	
-	/**
-	 * Set the heading of L2NpcInstance when they are spawned.
-	 * @param heading
-	 */
-	@Override
-	public void setHeading(int heading)
-	{
-		_location.setHeading(heading);
-	}
-	
-	@Override
-	public void setInstanceId(int instanceId)
-	{
-		_location.setInstanceId(instanceId);
-	}
-	
-	public final void setIsNoRndWalk(boolean value)
-	{
-		_isNoRndWalk = value;
-	}
-	
-	/**
-	 * Set the XYZ position of the spawn point.
-	 * @param loc
-	 */
-	@Override
-	public void setLocation(Location loc)
-	{
-		_location = loc;
-	}
-	
-	/**
-	 * Set the Identifier of the location area where L2NpcInstance can be spawned.
-	 * @param id
-	 */
-	public void setLocationId(int id)
-	{
-		_locationId = id;
-	}
-	
-	/**
-	 * Set the String Identifier of this spawn.
-	 * @param name
-	 */
-	public void setName(String name)
-	{
-		_name = name;
-	}
-	
-	public void setRespawnDelay(int delay)
-	{
-		setRespawnDelay(delay, 0);
-	}
-	
-	/**
-	 * Set bounds for random calculation and delay for respawn
-	 * @param delay delay in seconds
-	 * @param randomInterval random interval in seconds
-	 */
-	public void setRespawnDelay(int delay, int randomInterval)
-	{
-		if (delay != 0)
-		{
-			if (delay < 0)
-			{
-				_log.warning("respawn delay is negative for spawn:" + this);
-			}
-			
-			int minDelay = delay - randomInterval;
-			int maxDelay = delay + randomInterval;
-			
-			_respawnMinDelay = Math.max(10, minDelay) * 1000;
-			_respawnMaxDelay = Math.max(10, maxDelay) * 1000;
-		}
-		
-		else
-		{
-			_respawnMinDelay = 0;
-			_respawnMaxDelay = 0;
-		}
-	}
-	
-	/**
-	 * Set Maximum Respawn Delay.
-	 * @param date
-	 */
-	public void setRespawnMaxDelay(int date)
-	{
-		_respawnMaxDelay = date;
-	}
-	
-	/**
-	 * Set Minimum Respawn Delay.
-	 * @param date
-	 */
-	public void setRespawnMinDelay(int date)
-	{
-		_respawnMinDelay = date;
-	}
-	
-	public void setSpawnTerritory(NpcSpawnTerritory territory)
-	{
-		_spawnTerritory = territory;
-		_lastSpawnPoints = new ConcurrentHashMap<>();
-	}
-	
-	/**
-	 * Set the X position of the spawn point.
-	 * @param x the x coordinate
-	 */
-	@Override
-	public void setX(int x)
-	{
-		_location.setX(x);
-	}
-	
-	/**
-	 * Set the x, y, z position of the spawn point.
-	 * @param loc The location.
-	 */
-	@Override
-	public void setXYZ(ILocational loc)
-	{
-		setXYZ(loc.getX(), loc.getY(), loc.getZ());
-	}
-	
-	/**
-	 * Set the x, y, z position of the spawn point.
-	 * @param x The x coordinate.
-	 * @param y The y coordinate.
-	 * @param z The z coordinate.
-	 */
-	@Override
-	public void setXYZ(int x, int y, int z)
-	{
-		setX(x);
-		setY(y);
-		setZ(z);
-	}
-	
-	/**
-	 * Set the Y position of the spawn point.
-	 * @param y the y coordinate
-	 */
-	@Override
-	public void setY(int y)
-	{
-		_location.setY(y);
-	}
-	
-	/**
-	 * Set the Z position of the spawn point.
-	 * @param z the z coordinate
-	 */
-	@Override
-	public void setZ(int z)
-	{
-		_location.setZ(z);
-	}
-	
-	/**
-	 * Create a L2NpcInstance in this L2Spawn.
-	 * @param val
-	 * @return
-	 */
-	public L2Npc spawnOne(boolean val)
-	{
-		return doSpawn(val);
-	}
-	
-	/**
-	 * Set _doRespawn to True to start or restart respawn in this L2Spawn.
-	 */
-	public void startRespawn()
-	{
-		_doRespawn = true;
-	}
-	
-	/**
-	 * Set _doRespawn to False to stop respawn in this L2Spawn.
-	 */
-	public void stopRespawn()
-	{
-		_doRespawn = false;
-	}
-	
-	@Override
-	public String toString()
-	{
-		return "L2Spawn ID: " + getId() + " " + getLocation();
-	}
-	
+
+        private void mobChampionhood (L2Npc mob) {
+               if (mob instanceof L2Attackable) {
+                       ((L2Attackable) mob).setChampion(false);
+               }
+               // Set champion on next spawn
+               if (Config.L2JMOD_CHAMPION_ENABLE && Config.L2JMOD_CHAMPION_FREQUENCY > 0 && //
+                   mob.isMonster() && !getTemplate().isUndying() && !mob.isRaid() && !mob.isRaidMinion() && //
+                   (mob.getLevel() >= Config.L2JMOD_CHAMP_MIN_LVL) && //
+                   (mob.getLevel() <= Config.L2JMOD_CHAMP_MAX_LVL) && //
+                   (Config.L2JMOD_CHAMPION_ENABLE_IN_INSTANCES || (getInstanceId() == 0)) && //
+                   (Rnd.get(100) < Config.L2JMOD_CHAMPION_FREQUENCY)) {
+                   ((L2Attackable) mob).setChampion(true);
+               }
+        }
+
 	/**
 	 * @param mob
 	 * @return
@@ -819,30 +709,155 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable
 		return mob;
 	}
 	
-	/** The task launching the function doSpawn() */
-	class SpawnTask implements Runnable
+	public static void addSpawnListener(SpawnListener listener)
 	{
-		private final L2Npc _oldNpc;
-		
-		public SpawnTask(L2Npc pOldNpc)
+		_spawnListeners.add(listener);
+	}
+	
+	public static void removeSpawnListener(SpawnListener listener)
+	{
+		_spawnListeners.remove(listener);
+	}
+	
+	public static void notifyNpcSpawned(L2Npc npc)
+	{
+		for (SpawnListener listener : _spawnListeners)
 		{
-			_oldNpc = pOldNpc;
+			listener.npcSpawned(npc);
 		}
-		
-		@Override
-		public void run()
+	}
+	
+	/**
+	 * Set bounds for random calculation and delay for respawn
+	 * @param delay delay in seconds
+	 * @param randomInterval random interval in seconds
+	 */
+	public void setRespawnDelay(int delay, int randomInterval)
+	{
+		if (delay != 0)
 		{
-			try
+			if (delay < 0)
 			{
-				// doSpawn();
-				respawnNpc(_oldNpc);
-			}
-			catch (Exception e)
-			{
-				_log.log(Level.WARNING, "", e);
+				_log.warning("respawn delay is negative for spawn:" + this);
 			}
 			
-			_scheduledCount--;
+			int minDelay = delay - randomInterval;
+			int maxDelay = delay + randomInterval;
+			
+			_respawnMinDelay = Math.max(10, minDelay) * 1000;
+			_respawnMaxDelay = Math.max(10, maxDelay) * 1000;
 		}
+		
+		else
+		{
+			_respawnMinDelay = 0;
+			_respawnMaxDelay = 0;
+		}
+	}
+	
+	public void setRespawnDelay(int delay)
+	{
+		setRespawnDelay(delay, 0);
+	}
+	
+	public int getRespawnDelay()
+	{
+		return (_respawnMinDelay + _respawnMaxDelay) / 2;
+	}
+	
+	public boolean hasRespawnRandom()
+	{
+		return _respawnMinDelay != _respawnMaxDelay;
+	}
+	
+	public void setSpawnTerritory(NpcSpawnTerritory territory)
+	{
+		_spawnTerritory = territory;
+		_lastSpawnPoints = new ConcurrentHashMap<>();
+	}
+	
+	public NpcSpawnTerritory getSpawnTerritory()
+	{
+		return _spawnTerritory;
+	}
+	
+	public boolean isTerritoryBased()
+	{
+		return (_spawnTerritory != null) && (_location.getX() == 0) && (_location.getY() == 0);
+	}
+	
+	public L2Npc getLastSpawn()
+	{
+		return _spawnedNpcs.peekLast();
+	}
+	
+	public final Deque<L2Npc> getSpawnedNpcs()
+	{
+		return _spawnedNpcs;
+	}
+	
+	/**
+	 * @param oldNpc
+	 */
+	public void respawnNpc(L2Npc oldNpc)
+	{
+		if (_doRespawn)
+		{
+			oldNpc.refreshID();
+			initializeNpcInstance(oldNpc);
+		}
+	}
+	
+	public L2NpcTemplate getTemplate()
+	{
+		return _template;
+	}
+	
+	@Override
+	public int getInstanceId()
+	{
+		return _location.getInstanceId();
+	}
+	
+	@Override
+	public void setInstanceId(int instanceId)
+	{
+		_location.setInstanceId(instanceId);
+	}
+	
+	public final boolean isNoRndWalk()
+	{
+		return _isNoRndWalk;
+	}
+	
+	public final void setIsNoRndWalk(boolean value)
+	{
+		_isNoRndWalk = value;
+	}
+	
+	public String getAreaName()
+	{
+		return _areaName;
+	}
+	
+	public void setAreaName(String areaName)
+	{
+		_areaName = areaName;
+	}
+	
+	public int getGlobalMapId()
+	{
+		return _globalMapId;
+	}
+	
+	public void setGlobalMapId(int globalMapId)
+	{
+		_globalMapId = globalMapId;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "L2Spawn ID: " + getId() + " " + getLocation();
 	}
 }

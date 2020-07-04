@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -41,25 +41,6 @@ public final class PlayerXpPercentLostData implements IXmlReader
 		load();
 	}
 	
-	/**
-	 * Gets the single instance of PlayerXpPercentLostData.
-	 * @return single instance of PlayerXpPercentLostData.
-	 */
-	public static PlayerXpPercentLostData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	public double getXpPercent(final int level)
-	{
-		if (level > Config.MAX_PLAYER_LEVEL)
-		{
-			LOG.warn("Require to high level inside PlayerXpPercentLostData ({})", level);
-			return _playerXpPercentLost[Config.MAX_PLAYER_LEVEL];
-		}
-		return _playerXpPercentLost[level];
-	}
-	
 	@Override
 	public void load()
 	{
@@ -83,6 +64,25 @@ public final class PlayerXpPercentLostData implements IXmlReader
 				}
 			}
 		}
+	}
+	
+	public double getXpPercent(final int level)
+	{
+		if (level > Config.MAX_PLAYER_LEVEL)
+		{
+			LOG.warn("Require to high level inside PlayerXpPercentLostData ({})", level);
+			return _playerXpPercentLost[Config.MAX_PLAYER_LEVEL];
+		}
+		return _playerXpPercentLost[level];
+	}
+	
+	/**
+	 * Gets the single instance of PlayerXpPercentLostData.
+	 * @return single instance of PlayerXpPercentLostData.
+	 */
+	public static PlayerXpPercentLostData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -66,6 +66,49 @@ public final class ServerList extends L2LoginServerPacket
 	private final int _lastServer;
 	private final Map<Integer, Integer> _charsOnServers;
 	private final Map<Integer, long[]> _charsToDelete;
+	
+	class ServerData
+	{
+		protected byte[] _ip;
+		protected int _port;
+		protected int _ageLimit;
+		protected boolean _pvp;
+		protected int _currentPlayers;
+		protected int _maxPlayers;
+		protected boolean _brackets;
+		protected boolean _clock;
+		protected int _status;
+		protected int _serverId;
+		protected int _serverType;
+		
+		ServerData(L2LoginClient client, GameServerInfo gsi)
+		{
+			try
+			{
+				_ip = InetAddress.getByName(gsi.getServerAddress(client.getConnection().getInetAddress())).getAddress();
+			}
+			catch (UnknownHostException e)
+			{
+				_log.warning(getClass().getSimpleName() + ": " + e.getMessage());
+				_ip = new byte[4];
+				_ip[0] = 127;
+				_ip[1] = 0;
+				_ip[2] = 0;
+				_ip[3] = 1;
+			}
+			
+			_port = gsi.getPort();
+			_pvp = gsi.isPvp();
+			_serverType = gsi.getServerType();
+			_currentPlayers = gsi.getCurrentPlayerCount();
+			_maxPlayers = gsi.getMaxPlayers();
+			_ageLimit = 0;
+			_brackets = gsi.isShowingBrackets();
+			// If server GM-only - show status only to GMs
+			_status = gsi.getStatus() != ServerStatus.STATUS_GM_ONLY ? gsi.getStatus() : client.getAccessLevel() > 0 ? gsi.getStatus() : ServerStatus.STATUS_DOWN;
+			_serverId = gsi.getId();
+		}
+	}
 	
 	public ServerList(L2LoginClient client)
 	{
@@ -128,49 +171,6 @@ public final class ServerList extends L2LoginServerPacket
 		else
 		{
 			writeC(0x00);
-		}
-	}
-	
-	class ServerData
-	{
-		protected byte[] _ip;
-		protected int _port;
-		protected int _ageLimit;
-		protected boolean _pvp;
-		protected int _currentPlayers;
-		protected int _maxPlayers;
-		protected boolean _brackets;
-		protected boolean _clock;
-		protected int _status;
-		protected int _serverId;
-		protected int _serverType;
-		
-		ServerData(L2LoginClient client, GameServerInfo gsi)
-		{
-			try
-			{
-				_ip = InetAddress.getByName(gsi.getServerAddress(client.getConnection().getInetAddress())).getAddress();
-			}
-			catch (UnknownHostException e)
-			{
-				_log.warning(getClass().getSimpleName() + ": " + e.getMessage());
-				_ip = new byte[4];
-				_ip[0] = 127;
-				_ip[1] = 0;
-				_ip[2] = 0;
-				_ip[3] = 1;
-			}
-			
-			_port = gsi.getPort();
-			_pvp = gsi.isPvp();
-			_serverType = gsi.getServerType();
-			_currentPlayers = gsi.getCurrentPlayerCount();
-			_maxPlayers = gsi.getMaxPlayers();
-			_ageLimit = 0;
-			_brackets = gsi.isShowingBrackets();
-			// If server GM-only - show status only to GMs
-			_status = gsi.getStatus() != ServerStatus.STATUS_GM_ONLY ? gsi.getStatus() : client.getAccessLevel() > 0 ? gsi.getStatus() : ServerStatus.STATUS_DOWN;
-			_serverId = gsi.getId();
 		}
 	}
 }

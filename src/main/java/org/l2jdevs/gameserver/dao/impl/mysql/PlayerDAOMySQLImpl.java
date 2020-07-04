@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -51,59 +51,6 @@ public class PlayerDAOMySQLImpl implements PlayerDAO
 	private static final String UPDATE = "UPDATE characters SET level=?,maxHp=?,curHp=?,maxCp=?,curCp=?,maxMp=?,curMp=?,face=?,hairStyle=?,hairColor=?,sex=?,heading=?,x=?,y=?,z=?,exp=?,expBeforeDeath=?,sp=?,karma=?,fame=?,pvpkills=?,pkkills=?,clanid=?,race=?,classid=?,deletetime=?,title=?,title_color=?,accesslevel=?,online=?,isin7sdungeon=?,clan_privs=?,wantspeace=?,base_class=?,onlinetime=?,newbie=?,nobless=?,power_grade=?,subpledge=?,lvl_joined_academy=?,apprentice=?,sponsor=?,clan_join_expiry_time=?,clan_create_expiry_time=?,char_name=?,death_penalty_level=?,bookmarkslot=?,vitality_points=?,language=? WHERE charId=?";
 	private static final String UPDATE_ONLINE = "UPDATE characters SET online=?, lastAccess=? WHERE charId=?";
 	private static final String SELECT_CHARACTERS = "SELECT charId, char_name FROM characters WHERE account_name=? AND charId<>?";
-	
-	@Override
-	public boolean insert(L2PcInstance player)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(INSERT))
-		{
-			ps.setString(1, player.getAccountName());
-			ps.setInt(2, player.getObjectId());
-			ps.setString(3, player.getName());
-			ps.setInt(4, player.getBaseLevel());
-			ps.setInt(5, player.getMaxHp());
-			ps.setDouble(6, player.getCurrentHp());
-			ps.setInt(7, player.getMaxCp());
-			ps.setDouble(8, player.getCurrentCp());
-			ps.setInt(9, player.getMaxMp());
-			ps.setDouble(10, player.getCurrentMp());
-			ps.setInt(11, player.getAppearance().getFace());
-			ps.setInt(12, player.getAppearance().getHairStyle());
-			ps.setInt(13, player.getAppearance().getHairColor());
-			ps.setInt(14, player.getAppearance().getSex() ? 1 : 0);
-			ps.setLong(15, player.getBaseExp());
-			ps.setInt(16, player.getBaseSp());
-			ps.setInt(17, player.getKarma());
-			ps.setInt(18, player.getFame());
-			ps.setInt(19, player.getPvpKills());
-			ps.setInt(20, player.getPkKills());
-			ps.setInt(21, player.getClanId());
-			ps.setInt(22, player.getRace().ordinal());
-			ps.setInt(23, player.getClassId().getId());
-			ps.setLong(24, player.getDeleteTimer());
-			ps.setInt(25, player.hasDwarvenCraft() ? 1 : 0);
-			ps.setString(26, player.getTitle());
-			ps.setInt(27, player.getAppearance().getTitleColor());
-			ps.setInt(28, player.getAccessLevel().getLevel());
-			ps.setInt(29, player.isOnlineInt());
-			ps.setInt(30, player.isIn7sDungeon() ? 1 : 0);
-			ps.setInt(31, player.getClanPrivileges().getBitmask());
-			ps.setInt(32, player.getWantsPeace());
-			ps.setInt(33, player.getBaseClass());
-			ps.setInt(34, player.getNewbie());
-			ps.setInt(35, player.isNoble() ? 1 : 0);
-			ps.setLong(36, 0);
-			ps.setTimestamp(37, new Timestamp(player.getCreateDate().getTimeInMillis()));
-			ps.executeUpdate();
-		}
-		catch (Exception e)
-		{
-			LOG.error("Could not insert char data: {}", e);
-			return false;
-		}
-		return true;
-	}
 	
 	@Override
 	public L2PcInstance load(int objectId)
@@ -283,6 +230,59 @@ public class PlayerDAOMySQLImpl implements PlayerDAO
 		{
 			LOG.error("Failed to load {} characters.", player, e);
 		}
+	}
+	
+	@Override
+	public boolean insert(L2PcInstance player)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(INSERT))
+		{
+			ps.setString(1, player.getAccountName());
+			ps.setInt(2, player.getObjectId());
+			ps.setString(3, player.getName());
+			ps.setInt(4, player.getBaseLevel());
+			ps.setInt(5, player.getMaxHp());
+			ps.setDouble(6, player.getCurrentHp());
+			ps.setInt(7, player.getMaxCp());
+			ps.setDouble(8, player.getCurrentCp());
+			ps.setInt(9, player.getMaxMp());
+			ps.setDouble(10, player.getCurrentMp());
+			ps.setInt(11, player.getAppearance().getFace());
+			ps.setInt(12, player.getAppearance().getHairStyle());
+			ps.setInt(13, player.getAppearance().getHairColor());
+			ps.setInt(14, player.getAppearance().getSex() ? 1 : 0);
+			ps.setLong(15, player.getBaseExp());
+			ps.setInt(16, player.getBaseSp());
+			ps.setInt(17, player.getKarma());
+			ps.setInt(18, player.getFame());
+			ps.setInt(19, player.getPvpKills());
+			ps.setInt(20, player.getPkKills());
+			ps.setInt(21, player.getClanId());
+			ps.setInt(22, player.getRace().ordinal());
+			ps.setInt(23, player.getClassId().getId());
+			ps.setLong(24, player.getDeleteTimer());
+			ps.setInt(25, player.hasDwarvenCraft() ? 1 : 0);
+			ps.setString(26, player.getTitle());
+			ps.setInt(27, player.getAppearance().getTitleColor());
+			ps.setInt(28, player.getAccessLevel().getLevel());
+			ps.setInt(29, player.isOnlineInt());
+			ps.setInt(30, player.isIn7sDungeon() ? 1 : 0);
+			ps.setInt(31, player.getClanPrivileges().getBitmask());
+			ps.setInt(32, player.getWantsPeace());
+			ps.setInt(33, player.getBaseClass());
+			ps.setInt(34, player.getNewbie());
+			ps.setInt(35, player.isNoble() ? 1 : 0);
+			ps.setLong(36, 0);
+			ps.setTimestamp(37, new Timestamp(player.getCreateDate().getTimeInMillis()));
+			ps.executeUpdate();
+		}
+		catch (Exception e)
+		{
+			LOG.error("Could not insert char data: {}", e);
+			return false;
+		}
+		return true;
 	}
 	
 	@Override

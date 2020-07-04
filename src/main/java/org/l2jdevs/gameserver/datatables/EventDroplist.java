@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,19 +38,44 @@ public class EventDroplist
 	 */
 	private static final List<DateDrop> ALL_NPC_DATE_DROPS = new ArrayList<>();
 	
-	public static EventDroplist getInstance()
+	public static class DateDrop
 	{
-		return SingletonHolder._instance;
+		protected final DateRange _dateRange;
+		private final EventDrop _eventDrop;
+		
+		public DateDrop(DateRange dateRange, EventDrop eventDrop)
+		{
+			_dateRange = dateRange;
+			_eventDrop = eventDrop;
+		}
+		
+		/**
+		 * @return the _eventDrop
+		 */
+		public EventDrop getEventDrop()
+		{
+			return _eventDrop;
+		}
+		
+		/**
+		 * @return the _dateRange
+		 */
+		public DateRange getDateRange()
+		{
+			return _dateRange;
+		}
 	}
 	
 	/**
-	 * Adds an event drop for a given date range.
-	 * @param dateRange the date range.
-	 * @param eventDrop the event drop.
+	 * Create and Init a new DateDrop then add it to the allNpcDateDrops of EventDroplist .
+	 * @param itemIdList The table containing all item identifier of this DateDrop
+	 * @param count The table containing min and max value of this DateDrop
+	 * @param chance The chance to obtain this drop
+	 * @param dateRange The DateRange object to add to this DateDrop
 	 */
-	public void addGlobalDrop(DateRange dateRange, EventDrop eventDrop)
+	public void addGlobalDrop(int[] itemIdList, int[] count, int chance, DateRange dateRange)
 	{
-		ALL_NPC_DATE_DROPS.add(new DateDrop(dateRange, eventDrop));
+		ALL_NPC_DATE_DROPS.add(new DateDrop(dateRange, new EventDrop(itemIdList, count[0], count[1], chance)));
 	}
 	
 	/**
@@ -66,15 +91,13 @@ public class EventDroplist
 	}
 	
 	/**
-	 * Create and Init a new DateDrop then add it to the allNpcDateDrops of EventDroplist .
-	 * @param itemIdList The table containing all item identifier of this DateDrop
-	 * @param count The table containing min and max value of this DateDrop
-	 * @param chance The chance to obtain this drop
-	 * @param dateRange The DateRange object to add to this DateDrop
+	 * Adds an event drop for a given date range.
+	 * @param dateRange the date range.
+	 * @param eventDrop the event drop.
 	 */
-	public void addGlobalDrop(int[] itemIdList, int[] count, int chance, DateRange dateRange)
+	public void addGlobalDrop(DateRange dateRange, EventDrop eventDrop)
 	{
-		ALL_NPC_DATE_DROPS.add(new DateDrop(dateRange, new EventDrop(itemIdList, count[0], count[1], chance)));
+		ALL_NPC_DATE_DROPS.add(new DateDrop(dateRange, eventDrop));
 	}
 	
 	/**
@@ -94,32 +117,9 @@ public class EventDroplist
 		return list;
 	}
 	
-	public static class DateDrop
+	public static EventDroplist getInstance()
 	{
-		protected final DateRange _dateRange;
-		private final EventDrop _eventDrop;
-		
-		public DateDrop(DateRange dateRange, EventDrop eventDrop)
-		{
-			_dateRange = dateRange;
-			_eventDrop = eventDrop;
-		}
-		
-		/**
-		 * @return the _dateRange
-		 */
-		public DateRange getDateRange()
-		{
-			return _dateRange;
-		}
-		
-		/**
-		 * @return the _eventDrop
-		 */
-		public EventDrop getEventDrop()
-		{
-			return _eventDrop;
-		}
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

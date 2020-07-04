@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,17 +38,32 @@ public abstract class L2VehicleAI extends L2CharacterAI
 	}
 	
 	@Override
-	protected void clientActionFailed()
+	protected void onIntentionAttack(L2Character target)
 	{
 	}
 	
 	@Override
-	protected void clientStoppedMoving()
+	protected void onIntentionCast(Skill skill, L2Object target)
 	{
 	}
 	
 	@Override
-	protected void moveToPawn(L2Object pawn, int offset)
+	protected void onIntentionFollow(L2Character target)
+	{
+	}
+	
+	@Override
+	protected void onIntentionPickUp(L2Object item)
+	{
+	}
+	
+	@Override
+	protected void onIntentionInteract(L2Object object)
+	{
+	}
+	
+	@Override
+	protected void onEvtAttacked(L2Character attacker)
 	{
 	}
 	
@@ -58,7 +73,22 @@ public abstract class L2VehicleAI extends L2CharacterAI
 	}
 	
 	@Override
-	protected void onEvtAttacked(L2Character attacker)
+	protected void onEvtStunned(L2Character attacker)
+	{
+	}
+	
+	@Override
+	protected void onEvtSleeping(L2Character attacker)
+	{
+	}
+	
+	@Override
+	protected void onEvtRooted(L2Character attacker)
+	{
+	}
+	
+	@Override
+	protected void onEvtForgetObject(L2Object object)
 	{
 	}
 	
@@ -83,47 +113,17 @@ public abstract class L2VehicleAI extends L2CharacterAI
 	}
 	
 	@Override
-	protected void onEvtForgetObject(L2Object object)
+	protected void clientActionFailed()
 	{
 	}
 	
 	@Override
-	protected void onEvtRooted(L2Character attacker)
+	protected void moveToPawn(L2Object pawn, int offset)
 	{
 	}
 	
 	@Override
-	protected void onEvtSleeping(L2Character attacker)
-	{
-	}
-	
-	@Override
-	protected void onEvtStunned(L2Character attacker)
-	{
-	}
-	
-	@Override
-	protected void onIntentionAttack(L2Character target)
-	{
-	}
-	
-	@Override
-	protected void onIntentionCast(Skill skill, L2Object target)
-	{
-	}
-	
-	@Override
-	protected void onIntentionFollow(L2Character target)
-	{
-	}
-	
-	@Override
-	protected void onIntentionInteract(L2Object object)
-	{
-	}
-	
-	@Override
-	protected void onIntentionPickUp(L2Object item)
+	protected void clientStoppedMoving()
 	{
 	}
 }

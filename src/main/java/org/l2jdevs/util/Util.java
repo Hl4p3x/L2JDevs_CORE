@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Useful utilities common to L2JDevs.
+ * Useful utilities common to L2J Server.
  */
 public final class Util
 {
@@ -64,6 +64,63 @@ public final class Util
 	};
 	
 	/**
+	 * Checks if a host name is internal
+	 * @param host the host name to check
+	 * @return true: host name is internal<br>
+	 *         false: host name is external
+	 */
+	public static boolean isInternalHostname(String host)
+	{
+		try
+		{
+			InetAddress addr = InetAddress.getByName(host);
+			return addr.isSiteLocalAddress() || addr.isLoopbackAddress();
+		}
+		catch (UnknownHostException e)
+		{
+			LOG.warn("Invalid host!", e);
+		}
+		return false;
+	}
+	
+	/**
+	 * Method to generate the hexadecimal representation of a byte array.<br>
+	 * 16 bytes per row, while ascii chars or "." is shown at the end of the line.
+	 * @param data the byte array to be represented in hexadecimal representation
+	 * @param len the number of bytes to represent in hexadecimal representation
+	 * @return byte array represented in hexadecimal format
+	 */
+	public static String printData(byte[] data, int len)
+	{
+		return new String(HexUtils.bArr2HexEdChars(data, len));
+	}
+	
+	/**
+	 * This call is equivalent to Util.printData(data, data.length)
+	 * @see Util#printData(byte[],int)
+	 * @param data data to represent in hexadecimal
+	 * @return byte array represented in hexadecimal format
+	 */
+	public static String printData(byte[] data)
+	{
+		return printData(data, data.length);
+	}
+	
+	/**
+	 * Method to represent the remaining bytes of a ByteBuffer as hexadecimal
+	 * @param buf ByteBuffer to represent the remaining bytes of as hexadecimal
+	 * @return hexadecimal representation of remaining bytes of the ByteBuffer
+	 */
+	public static String printData(ByteBuffer buf)
+	{
+		byte[] data = new byte[buf.remaining()];
+		buf.get(data);
+		String hex = Util.printData(data, data.length);
+		buf.position(buf.position() - data.length);
+		return hex;
+	}
+	
+	/**
 	 * Method to generate a random sequence of bytes returned as byte array
 	 * @param size number of random bytes to generate
 	 * @return byte array with sequence of random bytes
@@ -73,6 +130,62 @@ public final class Util
 		byte[] array = new byte[size];
 		Rnd.nextBytes(array);
 		return array;
+	}
+	
+	/**
+	 * Method to get the stack trace of a Throwable into a String
+	 * @param t Throwable to get the stacktrace from
+	 * @return stack trace from Throwable as String
+	 */
+	public static String getStackTrace(Throwable t)
+	{
+		StringWriter sw = new StringWriter();
+		t.printStackTrace(new PrintWriter(sw));
+		return sw.toString();
+	}
+	
+	/**
+	 * Replaces most invalid characters for the given string with an underscore.
+	 * @param str the string that may contain invalid characters
+	 * @return the string with invalid character replaced by underscores
+	 */
+	public static String replaceIllegalCharacters(String str)
+	{
+		String valid = str;
+		for (char c : ILLEGAL_CHARACTERS)
+		{
+			valid = valid.replace(c, '_');
+		}
+		return valid;
+	}
+	
+	/**
+	 * Verify if a file name is valid.
+	 * @param name the name of the file
+	 * @return {@code true} if the file name is valid, {@code false} otherwise
+	 */
+	public static boolean isValidFileName(String name)
+	{
+		final File f = new File(name);
+		try
+		{
+			f.getCanonicalPath();
+			return true;
+		}
+		catch (IOException e)
+		{
+			return false;
+		}
+	}
+	
+	/**
+	 * Split words with a space.
+	 * @param input the string to split
+	 * @return the split string
+	 */
+	public static String splitWords(String input)
+	{
+		return input.replaceAll("(\\p{Ll})(\\p{Lu})", "$1 $2");
 	}
 	
 	/**
@@ -116,57 +229,6 @@ public final class Util
 	}
 	
 	/**
-	 * Method to get the stack trace of a Throwable into a String
-	 * @param t Throwable to get the stacktrace from
-	 * @return stack trace from Throwable as String
-	 */
-	public static String getStackTrace(Throwable t)
-	{
-		StringWriter sw = new StringWriter();
-		t.printStackTrace(new PrintWriter(sw));
-		return sw.toString();
-	}
-	
-	/**
-	 * Checks if a host name is internal
-	 * @param host the host name to check
-	 * @return true: host name is internal<br>
-	 *         false: host name is external
-	 */
-	public static boolean isInternalHostname(String host)
-	{
-		try
-		{
-			InetAddress addr = InetAddress.getByName(host);
-			return addr.isSiteLocalAddress() || addr.isLoopbackAddress();
-		}
-		catch (UnknownHostException e)
-		{
-			LOG.warn("Invalid host!", e);
-		}
-		return false;
-	}
-	
-	/**
-	 * Verify if a file name is valid.
-	 * @param name the name of the file
-	 * @return {@code true} if the file name is valid, {@code false} otherwise
-	 */
-	public static boolean isValidFileName(String name)
-	{
-		final File f = new File(name);
-		try
-		{
-			f.getCanonicalPath();
-			return true;
-		}
-		catch (IOException e)
-		{
-			return false;
-		}
-	}
-	
-	/**
 	 * This method translates map to function
 	 * @param <K> key type of the map and argument of the function
 	 * @param <V> value type of the map and return type of the function
@@ -207,67 +269,5 @@ public final class Util
 		{
 			throw new IllegalArgumentException("Illegal arguments " + Arrays.toString(args) + " and argument " + arg + "!", ex);
 		}
-	}
-	
-	/**
-	 * This call is equivalent to Util.printData(data, data.length)
-	 * @see Util#printData(byte[],int)
-	 * @param data data to represent in hexadecimal
-	 * @return byte array represented in hexadecimal format
-	 */
-	public static String printData(byte[] data)
-	{
-		return printData(data, data.length);
-	}
-	
-	/**
-	 * Method to generate the hexadecimal representation of a byte array.<br>
-	 * 16 bytes per row, while ascii chars or "." is shown at the end of the line.
-	 * @param data the byte array to be represented in hexadecimal representation
-	 * @param len the number of bytes to represent in hexadecimal representation
-	 * @return byte array represented in hexadecimal format
-	 */
-	public static String printData(byte[] data, int len)
-	{
-		return new String(HexUtils.bArr2HexEdChars(data, len));
-	}
-	
-	/**
-	 * Method to represent the remaining bytes of a ByteBuffer as hexadecimal
-	 * @param buf ByteBuffer to represent the remaining bytes of as hexadecimal
-	 * @return hexadecimal representation of remaining bytes of the ByteBuffer
-	 */
-	public static String printData(ByteBuffer buf)
-	{
-		byte[] data = new byte[buf.remaining()];
-		buf.get(data);
-		String hex = Util.printData(data, data.length);
-		buf.position(buf.position() - data.length);
-		return hex;
-	}
-	
-	/**
-	 * Replaces most invalid characters for the given string with an underscore.
-	 * @param str the string that may contain invalid characters
-	 * @return the string with invalid character replaced by underscores
-	 */
-	public static String replaceIllegalCharacters(String str)
-	{
-		String valid = str;
-		for (char c : ILLEGAL_CHARACTERS)
-		{
-			valid = valid.replace(c, '_');
-		}
-		return valid;
-	}
-	
-	/**
-	 * Split words with a space.
-	 * @param input the string to split
-	 * @return the split string
-	 */
-	public static String splitWords(String input)
-	{
-		return input.replaceAll("(\\p{Ll})(\\p{Lu})", "$1 $2");
 	}
 }

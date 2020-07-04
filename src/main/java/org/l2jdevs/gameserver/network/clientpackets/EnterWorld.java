@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -107,12 +107,6 @@ public class EnterWorld extends L2GameClientPacket
 	private static final int COMBAT_FLAG = 9819;
 	
 	private final int[][] tracert = new int[5][4];
-	
-	@Override
-	public String getType()
-	{
-		return _C__11_ENTERWORLD;
-	}
 	
 	@Override
 	protected void readImpl()
@@ -608,12 +602,6 @@ public class EnterWorld extends L2GameClientPacket
 		activeChar.sendPacket(ActionFailed.STATIC_PACKET);
 	}
 	
-	@Override
-	protected boolean triggersOnActionRequest()
-	{
-		return false;
-	}
-	
 	private void engage(L2PcInstance cha)
 	{
 		final int chaId = cha.getObjectId();
@@ -641,12 +629,16 @@ public class EnterWorld extends L2GameClientPacket
 	}
 	
 	/**
-	 * @param string
-	 * @return
+	 * @param cha
+	 * @param partnerId
 	 */
-	private String getText(String string)
+	private void notifyPartner(L2PcInstance cha, int partnerId)
 	{
-		return new String(Base64.getDecoder().decode(string));
+		final L2PcInstance partner = L2World.getInstance().getPlayer(cha.getPartnerId());
+		if (partner != null)
+		{
+			partner.sendMessage(LanguageData.getInstance().getMsg(partner, "enter_with_partner"));
+		}
 	}
 	
 	/**
@@ -663,19 +655,6 @@ public class EnterWorld extends L2GameClientPacket
 			msg.addString(activeChar.getName());
 			clan.broadcastToOtherOnlineMembers(msg, activeChar);
 			clan.broadcastToOtherOnlineMembers(new PledgeShowMemberListUpdate(activeChar), activeChar);
-		}
-	}
-	
-	/**
-	 * @param cha
-	 * @param partnerId
-	 */
-	private void notifyPartner(L2PcInstance cha, int partnerId)
-	{
-		final L2PcInstance partner = L2World.getInstance().getPlayer(cha.getPartnerId());
-		if (partner != null)
-		{
-			partner.sendMessage(LanguageData.getInstance().getMsg(partner, "enter_with_partner"));
 		}
 	}
 	
@@ -704,5 +683,26 @@ public class EnterWorld extends L2GameClientPacket
 				apprentice.sendPacket(msg);
 			}
 		}
+	}
+	
+	/**
+	 * @param string
+	 * @return
+	 */
+	private String getText(String string)
+	{
+		return new String(Base64.getDecoder().decode(string));
+	}
+	
+	@Override
+	public String getType()
+	{
+		return _C__11_ENTERWORLD;
+	}
+	
+	@Override
+	protected boolean triggersOnActionRequest()
+	{
+		return false;
 	}
 }

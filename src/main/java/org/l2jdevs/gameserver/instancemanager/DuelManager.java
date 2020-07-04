@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,6 +38,81 @@ public final class DuelManager
 	DuelManager()
 	{
 		// Hide constructor
+	}
+	
+	public Duel getDuel(int duelId)
+	{
+		return _duels.get(duelId);
+	}
+	
+	public void addDuel(L2PcInstance playerA, L2PcInstance playerB, boolean partyDuel)
+	{
+		if ((playerA == null) || (playerB == null))
+		{
+			return;
+		}
+		
+		final int duelId = _currentDuelId.incrementAndGet();
+		_duels.put(duelId, new Duel(playerA, playerB, partyDuel, duelId));
+	}
+	
+	public void removeDuel(Duel duel)
+	{
+		_duels.remove(duel.getId());
+	}
+	
+	public void doSurrender(L2PcInstance player)
+	{
+		if ((player == null) || !player.isInDuel())
+		{
+			return;
+		}
+		final Duel duel = getDuel(player.getDuelId());
+		duel.doSurrender(player);
+	}
+	
+	/**
+	 * Updates player states.
+	 * @param player - the dying player
+	 */
+	public void onPlayerDefeat(L2PcInstance player)
+	{
+		if ((player == null) || !player.isInDuel())
+		{
+			return;
+		}
+		final Duel duel = getDuel(player.getDuelId());
+		if (duel != null)
+		{
+			duel.onPlayerDefeat(player);
+		}
+	}
+	
+	/**
+	 * Broadcasts a packet to the team opposing the given player.
+	 * @param player
+	 * @param packet
+	 */
+	public void broadcastToOppositTeam(L2PcInstance player, L2GameServerPacket packet)
+	{
+		if ((player == null) || !player.isInDuel())
+		{
+			return;
+		}
+		final Duel duel = getDuel(player.getDuelId());
+		
+		if (duel == null)
+		{
+			return;
+		}
+		if (duel.getTeamA().contains(player))
+		{
+			duel.broadcastToTeam2(packet);
+		}
+		else
+		{
+			duel.broadcastToTeam1(packet);
+		}
 	}
 	
 	/**
@@ -105,81 +180,6 @@ public final class DuelManager
 	public static final DuelManager getInstance()
 	{
 		return SingletonHolder._instance;
-	}
-	
-	public void addDuel(L2PcInstance playerA, L2PcInstance playerB, boolean partyDuel)
-	{
-		if ((playerA == null) || (playerB == null))
-		{
-			return;
-		}
-		
-		final int duelId = _currentDuelId.incrementAndGet();
-		_duels.put(duelId, new Duel(playerA, playerB, partyDuel, duelId));
-	}
-	
-	/**
-	 * Broadcasts a packet to the team opposing the given player.
-	 * @param player
-	 * @param packet
-	 */
-	public void broadcastToOppositTeam(L2PcInstance player, L2GameServerPacket packet)
-	{
-		if ((player == null) || !player.isInDuel())
-		{
-			return;
-		}
-		final Duel duel = getDuel(player.getDuelId());
-		
-		if (duel == null)
-		{
-			return;
-		}
-		if (duel.getTeamA().contains(player))
-		{
-			duel.broadcastToTeam2(packet);
-		}
-		else
-		{
-			duel.broadcastToTeam1(packet);
-		}
-	}
-	
-	public void doSurrender(L2PcInstance player)
-	{
-		if ((player == null) || !player.isInDuel())
-		{
-			return;
-		}
-		final Duel duel = getDuel(player.getDuelId());
-		duel.doSurrender(player);
-	}
-	
-	public Duel getDuel(int duelId)
-	{
-		return _duels.get(duelId);
-	}
-	
-	/**
-	 * Updates player states.
-	 * @param player - the dying player
-	 */
-	public void onPlayerDefeat(L2PcInstance player)
-	{
-		if ((player == null) || !player.isInDuel())
-		{
-			return;
-		}
-		final Duel duel = getDuel(player.getDuelId());
-		if (duel != null)
-		{
-			duel.onPlayerDefeat(player);
-		}
-	}
-	
-	public void removeDuel(Duel duel)
-	{
-		_duels.remove(duel.getId());
 	}
 	
 	private static class SingletonHolder

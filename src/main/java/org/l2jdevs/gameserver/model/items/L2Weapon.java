@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -195,6 +195,152 @@ public final class L2Weapon extends L2Item
 	}
 	
 	/**
+	 * @return the type of Weapon
+	 */
+	@Override
+	public WeaponType getItemType()
+	{
+		return _type;
+	}
+	
+	/**
+	 * @return the ID of the Etc item after applying the mask.
+	 */
+	@Override
+	public int getItemMask()
+	{
+		return getItemType().mask();
+	}
+	
+	/**
+	 * @return {@code true} if the weapon is magic, {@code false} otherwise.
+	 */
+	@Override
+	public boolean isMagicWeapon()
+	{
+		return _isMagicWeapon;
+	}
+	
+	/**
+	 * @return the quantity of SoulShot used.
+	 */
+	public int getSoulShotCount()
+	{
+		return _soulShotCount;
+	}
+	
+	/**
+	 * @return the quantity of SpiritShot used.
+	 */
+	public int getSpiritShotCount()
+	{
+		return _spiritShotCount;
+	}
+	
+	/**
+	 * @return the reduced quantity of SoultShot used.
+	 */
+	public int getReducedSoulShot()
+	{
+		return _reducedSoulshot;
+	}
+	
+	/**
+	 * @return the chance to use Reduced SoultShot.
+	 */
+	public int getReducedSoulShotChance()
+	{
+		return _reducedSoulshotChance;
+	}
+	
+	/**
+	 * @return the random damage inflicted by the weapon.
+	 */
+	public int getRandomDamage()
+	{
+		return _rndDam;
+	}
+	
+	/**
+	 * @return the MP consumption with the weapon.
+	 */
+	public int getMpConsume()
+	{
+		return _mpConsume;
+	}
+	
+	public int getBaseAttackRange()
+	{
+		return _baseAttackRange;
+	}
+	
+	public int getBaseAttackAngle()
+	{
+		return _baseAttackAngle;
+	}
+	
+	/**
+	 * @return the reduced MP consumption with the weapon.
+	 */
+	public int getReducedMpConsume()
+	{
+		return _reducedMpConsume;
+	}
+	
+	/**
+	 * @return the chance to use getReducedMpConsume()
+	 */
+	public int getReducedMpConsumeChance()
+	{
+		return _reducedMpConsumeChance;
+	}
+	
+	/**
+	 * @return the skill that player get when has equipped weapon +4 or more (for duals SA).
+	 */
+	@Override
+	public Skill getEnchant4Skill()
+	{
+		if (_enchant4Skill == null)
+		{
+			return null;
+		}
+		return _enchant4Skill.getSkill();
+	}
+	
+	/**
+	 * @return the Id in which weapon this weapon can be changed.
+	 */
+	public int getChangeWeaponId()
+	{
+		return _changeWeaponId;
+	}
+	
+	/**
+	 * @return {@code true} if the weapon is force equip, {@code false} otherwise.
+	 */
+	public boolean isForceEquip()
+	{
+		return _isForceEquip;
+	}
+	
+	/**
+	 * @return {@code true} if the weapon is attack weapon, {@code false} otherwise.
+	 */
+	public boolean isAttackWeapon()
+	{
+		return _isAttackWeapon;
+	}
+	
+	/**
+	 * @return {@code true} if the weapon is skills only, {@code false} otherwise.
+	 */
+	public boolean useWeaponSkillsOnly()
+	{
+		return _useWeaponSkillsOnly;
+	}
+	
+	/**
 	 * @param caster the L2Character pointing out the caster
 	 * @param target the L2Character pointing out the target
 	 */
@@ -310,125 +456,9 @@ public final class L2Weapon extends L2Item
 		}
 	}
 	
-	public int getBaseAttackAngle()
+	public boolean isRange()
 	{
-		return _baseAttackAngle;
-	}
-	
-	public int getBaseAttackRange()
-	{
-		return _baseAttackRange;
-	}
-	
-	/**
-	 * @return the Id in which weapon this weapon can be changed.
-	 */
-	public int getChangeWeaponId()
-	{
-		return _changeWeaponId;
-	}
-	
-	/**
-	 * @return the skill that player get when has equipped weapon +4 or more (for duals SA).
-	 */
-	@Override
-	public Skill getEnchant4Skill()
-	{
-		if (_enchant4Skill == null)
-		{
-			return null;
-		}
-		return _enchant4Skill.getSkill();
-	}
-	
-	/**
-	 * @return the ID of the Etc item after applying the mask.
-	 */
-	@Override
-	public int getItemMask()
-	{
-		return getItemType().mask();
-	}
-	
-	/**
-	 * @return the type of Weapon
-	 */
-	@Override
-	public WeaponType getItemType()
-	{
-		return _type;
-	}
-	
-	/**
-	 * @return the MP consumption with the weapon.
-	 */
-	public int getMpConsume()
-	{
-		return _mpConsume;
-	}
-	
-	/**
-	 * @return the random damage inflicted by the weapon.
-	 */
-	public int getRandomDamage()
-	{
-		return _rndDam;
-	}
-	
-	/**
-	 * @return the reduced MP consumption with the weapon.
-	 */
-	public int getReducedMpConsume()
-	{
-		return _reducedMpConsume;
-	}
-	
-	/**
-	 * @return the chance to use getReducedMpConsume()
-	 */
-	public int getReducedMpConsumeChance()
-	{
-		return _reducedMpConsumeChance;
-	}
-	
-	/**
-	 * @return the reduced quantity of SoultShot used.
-	 */
-	public int getReducedSoulShot()
-	{
-		return _reducedSoulshot;
-	}
-	
-	/**
-	 * @return the chance to use Reduced SoultShot.
-	 */
-	public int getReducedSoulShotChance()
-	{
-		return _reducedSoulshotChance;
-	}
-	
-	/**
-	 * @return the quantity of SoulShot used.
-	 */
-	public int getSoulShotCount()
-	{
-		return _soulShotCount;
-	}
-	
-	/**
-	 * @return the quantity of SpiritShot used.
-	 */
-	public int getSpiritShotCount()
-	{
-		return _spiritShotCount;
-	}
-	
-	/**
-	 * @return {@code true} if the weapon is attack weapon, {@code false} otherwise.
-	 */
-	public boolean isAttackWeapon()
-	{
-		return _isAttackWeapon;
+		return isBow() || isCrossBow();
 	}
 	
 	public boolean isBow()
@@ -439,35 +469,5 @@ public final class L2Weapon extends L2Item
 	public boolean isCrossBow()
 	{
 		return _type == WeaponType.CROSSBOW;
-	}
-	
-	/**
-	 * @return {@code true} if the weapon is force equip, {@code false} otherwise.
-	 */
-	public boolean isForceEquip()
-	{
-		return _isForceEquip;
-	}
-	
-	/**
-	 * @return {@code true} if the weapon is magic, {@code false} otherwise.
-	 */
-	@Override
-	public boolean isMagicWeapon()
-	{
-		return _isMagicWeapon;
-	}
-	
-	public boolean isRange()
-	{
-		return isBow() || isCrossBow();
-	}
-	
-	/**
-	 * @return {@code true} if the weapon is skills only, {@code false} otherwise.
-	 */
-	public boolean useWeaponSkillsOnly()
-	{
-		return _useWeaponSkillsOnly;
 	}
 }

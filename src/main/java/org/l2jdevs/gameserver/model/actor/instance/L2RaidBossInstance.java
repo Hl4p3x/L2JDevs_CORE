@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -55,6 +55,19 @@ public class L2RaidBossInstance extends L2MonsterInstance
 	}
 	
 	@Override
+	public void onSpawn()
+	{
+		setIsNoRndWalk(true);
+		super.onSpawn();
+	}
+	
+	@Override
+	protected int getMaintenanceInterval()
+	{
+		return RAIDBOSS_MAINTENANCE_INTERVAL;
+	}
+	
+	@Override
 	public boolean doDie(L2Character killer)
 	{
 		if (!super.doDie(killer))
@@ -91,49 +104,18 @@ public class L2RaidBossInstance extends L2MonsterInstance
 		return true;
 	}
 	
-	public RaidBossSpawnManager.StatusEnum getRaidStatus()
-	{
-		return _raidStatus;
-	}
-	
+	/**
+	 * Spawn all minions at a regular interval Also if boss is too far from home location at the time of this check, teleport it home.
+	 */
 	@Override
-	public float getVitalityPoints(int damage)
+	protected void startMaintenanceTask()
 	{
-		return -super.getVitalityPoints(damage) / 100;
-	}
-	
-	@Override
-	public boolean giveRaidCurse()
-	{
-		return _useRaidCurse;
-	}
-	
-	@Override
-	public void onSpawn()
-	{
-		setIsNoRndWalk(true);
-		super.onSpawn();
-	}
-	
-	public void setRaidStatus(RaidBossSpawnManager.StatusEnum status)
-	{
-		_raidStatus = status;
-	}
-	
-	public void setUseRaidCurse(boolean val)
-	{
-		_useRaidCurse = val;
-	}
-	
-	@Override
-	public boolean useVitalityRate()
-	{
-		return false;
+		_maintenanceTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(() -> checkAndReturnToSpawn(), 60000, getMaintenanceInterval() + Rnd.get(5000));
 	}
 	
 	protected void checkAndReturnToSpawn()
 	{
-		if (isDead() || isMovementDisabled() || !canReturnToSpawnPoint() || isWalker())
+		if (isDead() || isMovementDisabled() || !canReturnToSpawnPoint())
 		{
 			return;
 		}
@@ -157,18 +139,36 @@ public class L2RaidBossInstance extends L2MonsterInstance
 		}
 	}
 	
-	@Override
-	protected int getMaintenanceInterval()
+	public void setRaidStatus(RaidBossSpawnManager.StatusEnum status)
 	{
-		return RAIDBOSS_MAINTENANCE_INTERVAL;
+		_raidStatus = status;
 	}
 	
-	/**
-	 * Spawn all minions at a regular interval Also if boss is too far from home location at the time of this check, teleport it home.
-	 */
-	@Override
-	protected void startMaintenanceTask()
+	public RaidBossSpawnManager.StatusEnum getRaidStatus()
 	{
-		_maintenanceTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(() -> checkAndReturnToSpawn(), 60000, getMaintenanceInterval() + Rnd.get(5000));
+		return _raidStatus;
+	}
+	
+	@Override
+	public float getVitalityPoints(int damage)
+	{
+		return -super.getVitalityPoints(damage) / 100;
+	}
+	
+	@Override
+	public boolean useVitalityRate()
+	{
+		return false;
+	}
+	
+	public void setUseRaidCurse(boolean val)
+	{
+		_useRaidCurse = val;
+	}
+	
+	@Override
+	public boolean giveRaidCurse()
+	{
+		return _useRaidCurse;
 	}
 }

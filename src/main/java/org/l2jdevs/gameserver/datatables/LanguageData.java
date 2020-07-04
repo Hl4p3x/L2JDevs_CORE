@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -57,78 +57,6 @@ public final class LanguageData
 	public LanguageData()
 	{
 		loadFiles();
-	}
-	
-	public static LanguageData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Get all languages.
-	 * @return
-	 */
-	public Map<String, String> getLanguages()
-	{
-		return _languages;
-	}
-	
-	/**
-	 * Get message key of player to send translation.
-	 * @param player
-	 * @param text
-	 */
-	public String getMsg(L2PcInstance player, String text)
-	{
-		String lang = player.getLang();
-		if (lang == null)
-		{
-			lang = Config.L2JMOD_MULTILANG_DEFAULT;
-		}
-		
-		final StringBuilder msg = new StringBuilder(50);
-		final StringTokenizer st = new StringTokenizer(text, " ");
-		while (st.hasMoreTokens())
-		{
-			final String textLang = st.nextToken();
-			if (_msgServer.containsKey(lang + "_" + textLang))
-			{
-				msg.append(_msgServer.get(lang + "_" + textLang));
-			}
-			else if (_msgServer.containsKey("en_" + textLang))
-			{
-				msg.append(_msgServer.get("en_" + textLang));
-			}
-			else
-			{
-				LOGGER.warning("Lang System failed! Message " + textLang + " not found.");
-				msg.append(textLang);
-			}
-		}
-		
-		return msg.toString();
-	}
-	
-	/**
-	 * Get values of player
-	 * @param activeChar
-	 * @param lang
-	 */
-	public void setPlayerLang(L2PcInstance activeChar, String lang)
-	{
-		if (activeChar != null)
-		{
-			if (lang == null)
-			{
-				activeChar.setLang(Config.L2JMOD_MULTILANG_DEFAULT);
-			}
-			else
-			{
-				activeChar.setLang(lang);
-			}
-		}
-		
-		return;
 	}
 	
 	private void loadFiles()
@@ -208,6 +136,78 @@ public final class LanguageData
 		}
 		
 		LOGGER.info("Loaded language file: " + lang.toUpperCase() + " with " + count + " messages.");
+	}
+	
+	/**
+	 * Get message key of player to send translation.
+	 * @param player
+	 * @param text
+	 */
+	public String getMsg(L2PcInstance player, String text)
+	{
+		String lang = player.getLang();
+		if (lang == null)
+		{
+			lang = Config.L2JMOD_MULTILANG_DEFAULT;
+		}
+		
+		final StringBuilder msg = new StringBuilder(50);
+		final StringTokenizer st = new StringTokenizer(text, " ");
+		while (st.hasMoreTokens())
+		{
+			final String textLang = st.nextToken();
+			if (_msgServer.containsKey(lang + "_" + textLang))
+			{
+				msg.append(_msgServer.get(lang + "_" + textLang));
+			}
+			else if (_msgServer.containsKey("en_" + textLang))
+			{
+				msg.append(_msgServer.get("en_" + textLang));
+			}
+			else
+			{
+				LOGGER.warning("Lang System failed! Message " + textLang + " not found.");
+				msg.append(textLang);
+			}
+		}
+		
+		return msg.toString();
+	}
+	
+	/**
+	 * Get values of player
+	 * @param activeChar
+	 * @param lang
+	 */
+	public void setPlayerLang(L2PcInstance activeChar, String lang)
+	{
+		if (activeChar != null)
+		{
+			if (lang == null)
+			{
+				activeChar.setLang(Config.L2JMOD_MULTILANG_DEFAULT);
+			}
+			else
+			{
+				activeChar.setLang(lang);
+			}
+		}
+		
+		return;
+	}
+	
+	/**
+	 * Get all languages.
+	 * @return
+	 */
+	public Map<String, String> getLanguages()
+	{
+		return _languages;
+	}
+	
+	public static LanguageData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

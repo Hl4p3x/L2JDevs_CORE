@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -191,16 +191,21 @@ public enum PlayerClass
 	inspector(Race.KAMAEL, Fighter, Third),
 	judicator(Race.KAMAEL, Fighter, Fourth);
 	
+	private Race _race;
+	private ClassLevel _level;
+	private ClassType _type;
+	
 	private static final Set<PlayerClass> mainSubclassSet;
 	private static final Set<PlayerClass> neverSubclassed = EnumSet.of(Overlord, Warsmith);
-	private static final Set<PlayerClass> subclasseSet1 = EnumSet.of(DarkAvenger, Paladin, TempleKnight, ShillienKnight);
 	
+	private static final Set<PlayerClass> subclasseSet1 = EnumSet.of(DarkAvenger, Paladin, TempleKnight, ShillienKnight);
 	private static final Set<PlayerClass> subclasseSet2 = EnumSet.of(TreasureHunter, AbyssWalker, Plainswalker);
 	private static final Set<PlayerClass> subclasseSet3 = EnumSet.of(Hawkeye, SilverRanger, PhantomRanger);
-	
 	private static final Set<PlayerClass> subclasseSet4 = EnumSet.of(Warlock, ElementalSummoner, PhantomSummoner);
 	private static final Set<PlayerClass> subclasseSet5 = EnumSet.of(Sorceror, Spellsinger, Spellhowler);
+	
 	private static final EnumMap<PlayerClass, Set<PlayerClass>> subclassSetMap = new EnumMap<>(PlayerClass.class);
+	
 	static
 	{
 		Set<PlayerClass> subclasses = getSet(null, Third);
@@ -229,34 +234,12 @@ public enum PlayerClass
 		subclassSetMap.put(Spellsinger, subclasseSet5);
 		subclassSetMap.put(Spellhowler, subclasseSet5);
 	}
-	private Race _race;
-	
-	private ClassLevel _level;
-	
-	private ClassType _type;
 	
 	PlayerClass(Race race, ClassType pType, ClassLevel pLevel)
 	{
 		_race = race;
 		_level = pLevel;
 		_type = pType;
-	}
-	
-	public static final EnumSet<PlayerClass> getSet(Race race, ClassLevel level)
-	{
-		EnumSet<PlayerClass> allOf = EnumSet.noneOf(PlayerClass.class);
-		
-		for (PlayerClass playerClass : EnumSet.allOf(PlayerClass.class))
-		{
-			if ((race == null) || playerClass.isOfRace(race))
-			{
-				if ((level == null) || playerClass.isOfLevel(level))
-				{
-					allOf.add(playerClass);
-				}
-			}
-		}
-		return allOf;
 	}
 	
 	public final Set<PlayerClass> getAvailableSubclasses(L2PcInstance player)
@@ -318,14 +301,21 @@ public enum PlayerClass
 		return subclasses;
 	}
 	
-	public final ClassLevel getLevel()
+	public static final EnumSet<PlayerClass> getSet(Race race, ClassLevel level)
 	{
-		return _level;
-	}
-	
-	public final boolean isOfLevel(ClassLevel pLevel)
-	{
-		return _level == pLevel;
+		EnumSet<PlayerClass> allOf = EnumSet.noneOf(PlayerClass.class);
+		
+		for (PlayerClass playerClass : EnumSet.allOf(PlayerClass.class))
+		{
+			if ((race == null) || playerClass.isOfRace(race))
+			{
+				if ((level == null) || playerClass.isOfLevel(level))
+				{
+					allOf.add(playerClass);
+				}
+			}
+		}
+		return allOf;
 	}
 	
 	public final boolean isOfRace(Race pRace)
@@ -336,5 +326,15 @@ public enum PlayerClass
 	public final boolean isOfType(ClassType pType)
 	{
 		return _type == pType;
+	}
+	
+	public final boolean isOfLevel(ClassLevel pLevel)
+	{
+		return _level == pLevel;
+	}
+	
+	public final ClassLevel getLevel()
+	{
+		return _level;
 	}
 }

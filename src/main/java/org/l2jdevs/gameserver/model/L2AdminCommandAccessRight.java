@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -52,14 +52,6 @@ public class L2AdminCommandAccessRight
 	}
 	
 	/**
-	 * @return {@code true} if admin command requires confirmation before execution, {@code false} otherwise.
-	 */
-	public boolean getRequireConfirm()
-	{
-		return _requireConfirm;
-	}
-	
-	/**
 	 * @param characterAccessLevel
 	 * @return {@code true} if characterAccessLevel is allowed to use the admin command which belongs to this access right, {@code false} otherwise
 	 */
@@ -67,5 +59,13 @@ public class L2AdminCommandAccessRight
 	{
 		L2AccessLevel accessLevel = AdminData.getInstance().getAccessLevel(_accessLevel);
 		return ((accessLevel.getLevel() == characterAccessLevel.getLevel()) || characterAccessLevel.hasChildAccess(accessLevel));
+	}
+	
+	/**
+	 * @return {@code true} if admin command requires confirmation before execution, {@code false} otherwise.
+	 */
+	public boolean getRequireConfirm()
+	{
+		return _requireConfirm;
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -40,30 +40,6 @@ public class ItemHandler implements IHandler<IItemHandler, L2EtcItem>
 	}
 	
 	/**
-	 * Create ItemHandler if doesn't exist and returns ItemHandler
-	 * @return ItemHandler
-	 */
-	public static ItemHandler getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Returns the handler of the item
-	 * @param item
-	 * @return IItemHandler
-	 */
-	@Override
-	public IItemHandler getHandler(L2EtcItem item)
-	{
-		if ((item == null) || (item.getHandlerName() == null))
-		{
-			return null;
-		}
-		return _datatable.get(item.getHandlerName());
-	}
-	
-	/**
 	 * Adds handler of item type in <I>datatable</I>.<BR>
 	 * <BR>
 	 * <B><I>Concept :</I></U><BR>
@@ -83,6 +59,21 @@ public class ItemHandler implements IHandler<IItemHandler, L2EtcItem>
 	}
 	
 	/**
+	 * Returns the handler of the item
+	 * @param item
+	 * @return IItemHandler
+	 */
+	@Override
+	public IItemHandler getHandler(L2EtcItem item)
+	{
+		if ((item == null) || (item.getHandlerName() == null))
+		{
+			return null;
+		}
+		return _datatable.get(item.getHandlerName());
+	}
+	
+	/**
 	 * Returns the number of elements contained in datatable
 	 * @return int : Size of the datatable
 	 */
@@ -90,6 +81,15 @@ public class ItemHandler implements IHandler<IItemHandler, L2EtcItem>
 	public int size()
 	{
 		return _datatable.size();
+	}
+	
+	/**
+	 * Create ItemHandler if doesn't exist and returns ItemHandler
+	 * @return ItemHandler
+	 */
+	public static ItemHandler getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -52,191 +52,6 @@ public final class AdminData implements IXmlReader
 	protected AdminData()
 	{
 		load();
-	}
-	
-	/**
-	 * Gets the single instance of AdminTable.
-	 * @return AccessLevels: the one and only instance of this class<br>
-	 */
-	public static AdminData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Add a L2PcInstance player to the Set _gmList.
-	 * @param player the player
-	 * @param hidden the hidden
-	 */
-	public void addGm(L2PcInstance player, boolean hidden)
-	{
-		_gmList.put(player, hidden);
-	}
-	
-	/**
-	 * Broadcast message to GMs.
-	 * @param message the message
-	 */
-	public void broadcastMessageToGMs(String message)
-	{
-		for (L2PcInstance gm : getAllGms(true))
-		{
-			gm.sendMessage(message);
-		}
-	}
-	
-	/**
-	 * Broadcast to GMs.
-	 * @param packet the packet
-	 */
-	public void broadcastToGMs(L2GameServerPacket packet)
-	{
-		for (L2PcInstance gm : getAllGms(true))
-		{
-			gm.sendPacket(packet);
-		}
-	}
-	
-	/**
-	 * Delete a GM.
-	 * @param player the player
-	 */
-	public void deleteGm(L2PcInstance player)
-	{
-		_gmList.remove(player);
-	}
-	
-	/**
-	 * Returns the access level by characterAccessLevel.
-	 * @param accessLevelNum as int
-	 * @return the access level instance by char access level
-	 */
-	public L2AccessLevel getAccessLevel(int accessLevelNum)
-	{
-		if (accessLevelNum < 0)
-		{
-			return _accessLevels.get(-1);
-		}
-		else if (!_accessLevels.containsKey(accessLevelNum))
-		{
-			_accessLevels.put(accessLevelNum, new L2AccessLevel());
-		}
-		return _accessLevels.get(accessLevelNum);
-	}
-	
-	/**
-	 * Gets the all GM names.
-	 * @param includeHidden the include hidden
-	 * @return the all GM names
-	 */
-	public List<String> getAllGmNames(boolean includeHidden)
-	{
-		final List<String> tmpGmList = new ArrayList<>();
-		for (Entry<L2PcInstance, Boolean> entry : _gmList.entrySet())
-		{
-			if (!entry.getValue())
-			{
-				tmpGmList.add(entry.getKey().getName());
-			}
-			else if (includeHidden)
-			{
-				tmpGmList.add(entry.getKey().getName() + " (invis)");
-			}
-		}
-		return tmpGmList;
-	}
-	
-	/**
-	 * Gets the all GMs.
-	 * @param includeHidden the include hidden
-	 * @return the all GMs
-	 */
-	public List<L2PcInstance> getAllGms(boolean includeHidden)
-	{
-		final List<L2PcInstance> tmpGmList = new ArrayList<>();
-		for (Entry<L2PcInstance, Boolean> entry : _gmList.entrySet())
-		{
-			if (includeHidden || !entry.getValue())
-			{
-				tmpGmList.add(entry.getKey());
-			}
-		}
-		return tmpGmList;
-	}
-	
-	/**
-	 * Gets the master access level.
-	 * @return the master access level
-	 */
-	public L2AccessLevel getMasterAccessLevel()
-	{
-		return _accessLevels.get(_highestLevel);
-	}
-	
-	/**
-	 * Checks for access.
-	 * @param adminCommand the admin command
-	 * @param accessLevel the access level
-	 * @return {@code true}, if successful, {@code false} otherwise
-	 */
-	public boolean hasAccess(String adminCommand, L2AccessLevel accessLevel)
-	{
-		L2AdminCommandAccessRight acar = _adminCommandAccessRights.get(adminCommand);
-		if (acar == null)
-		{
-			// Trying to avoid the spam for next time when the gm would try to use the same command
-			if ((accessLevel.getLevel() > 0) && (accessLevel.getLevel() == _highestLevel))
-			{
-				acar = new L2AdminCommandAccessRight(adminCommand, true, accessLevel.getLevel());
-				_adminCommandAccessRights.put(adminCommand, acar);
-				LOG.info("{}: No rights defined for admin command {} auto setting accesslevel: {}!", getClass().getSimpleName(), adminCommand, accessLevel.getLevel());
-			}
-			else
-			{
-				LOG.info("{}: No rights defined for admin command {}!", getClass().getSimpleName(), adminCommand);
-				return false;
-			}
-		}
-		return acar.hasAccess(accessLevel);
-	}
-	
-	/**
-	 * Checks for access level.
-	 * @param id the id
-	 * @return {@code true}, if successful, {@code false} otherwise
-	 */
-	public boolean hasAccessLevel(int id)
-	{
-		return _accessLevels.containsKey(id);
-	}
-	
-	/**
-	 * GM will no longer be displayed on clients GM list.
-	 * @param player the player
-	 */
-	public void hideGm(L2PcInstance player)
-	{
-		if (_gmList.containsKey(player))
-		{
-			_gmList.put(player, true);
-		}
-	}
-	
-	/**
-	 * Checks if is GM online.
-	 * @param includeHidden the include hidden
-	 * @return true, if is GM online
-	 */
-	public boolean isGmOnline(boolean includeHidden)
-	{
-		for (Entry<L2PcInstance, Boolean> entry : _gmList.entrySet())
-		{
-			if (includeHidden || !entry.getValue())
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	@Override
@@ -296,6 +111,70 @@ public final class AdminData implements IXmlReader
 	}
 	
 	/**
+	 * Returns the access level by characterAccessLevel.
+	 * @param accessLevelNum as int
+	 * @return the access level instance by char access level
+	 */
+	public L2AccessLevel getAccessLevel(int accessLevelNum)
+	{
+		if (accessLevelNum < 0)
+		{
+			return _accessLevels.get(-1);
+		}
+		else if (!_accessLevels.containsKey(accessLevelNum))
+		{
+			_accessLevels.put(accessLevelNum, new L2AccessLevel());
+		}
+		return _accessLevels.get(accessLevelNum);
+	}
+	
+	/**
+	 * Gets the master access level.
+	 * @return the master access level
+	 */
+	public L2AccessLevel getMasterAccessLevel()
+	{
+		return _accessLevels.get(_highestLevel);
+	}
+	
+	/**
+	 * Checks for access level.
+	 * @param id the id
+	 * @return {@code true}, if successful, {@code false} otherwise
+	 */
+	public boolean hasAccessLevel(int id)
+	{
+		return _accessLevels.containsKey(id);
+	}
+	
+	/**
+	 * Checks for access.
+	 * @param adminCommand the admin command
+	 * @param accessLevel the access level
+	 * @return {@code true}, if successful, {@code false} otherwise
+	 */
+	public boolean hasAccess(String adminCommand, L2AccessLevel accessLevel)
+	{
+		L2AdminCommandAccessRight acar = _adminCommandAccessRights.get(adminCommand);
+		if (acar == null)
+		{
+			// Trying to avoid the spam for next time when the gm would try to use the same command
+			if ((accessLevel.getLevel() > 0) && (accessLevel.getLevel() == _highestLevel))
+			{
+				acar = new L2AdminCommandAccessRight(adminCommand, true, accessLevel.getLevel());
+				_adminCommandAccessRights.put(adminCommand, acar);
+				LOG.info("{}: No rights defined for admin command {} auto setting accesslevel: {}!", getClass().getSimpleName(), adminCommand, accessLevel.getLevel());
+			}
+			else
+			{
+				LOG.info("{}: No rights defined for admin command {}!", getClass().getSimpleName(), adminCommand);
+				return false;
+			}
+		}
+		return acar.hasAccess(accessLevel);
+	}
+	
+	/**
 	 * Require confirm.
 	 * @param command the command
 	 * @return {@code true}, if the command require confirmation, {@code false} otherwise
@@ -309,6 +188,106 @@ public final class AdminData implements IXmlReader
 			return false;
 		}
 		return acar.getRequireConfirm();
+	}
+	
+	/**
+	 * Gets the all GMs.
+	 * @param includeHidden the include hidden
+	 * @return the all GMs
+	 */
+	public List<L2PcInstance> getAllGms(boolean includeHidden)
+	{
+		final List<L2PcInstance> tmpGmList = new ArrayList<>();
+		for (Entry<L2PcInstance, Boolean> entry : _gmList.entrySet())
+		{
+			if (includeHidden || !entry.getValue())
+			{
+				tmpGmList.add(entry.getKey());
+			}
+		}
+		return tmpGmList;
+	}
+	
+	/**
+	 * Gets the all GM names.
+	 * @param includeHidden the include hidden
+	 * @return the all GM names
+	 */
+	public List<String> getAllGmNames(boolean includeHidden)
+	{
+		final List<String> tmpGmList = new ArrayList<>();
+		for (Entry<L2PcInstance, Boolean> entry : _gmList.entrySet())
+		{
+			if (!entry.getValue())
+			{
+				tmpGmList.add(entry.getKey().getName());
+			}
+			else if (includeHidden)
+			{
+				tmpGmList.add(entry.getKey().getName() + " (invis)");
+			}
+		}
+		return tmpGmList;
+	}
+	
+	/**
+	 * Add a L2PcInstance player to the Set _gmList.
+	 * @param player the player
+	 * @param hidden the hidden
+	 */
+	public void addGm(L2PcInstance player, boolean hidden)
+	{
+		_gmList.put(player, hidden);
+	}
+	
+	/**
+	 * Delete a GM.
+	 * @param player the player
+	 */
+	public void deleteGm(L2PcInstance player)
+	{
+		_gmList.remove(player);
+	}
+	
+	/**
+	 * GM will be displayed on clients GM list.
+	 * @param player the player
+	 */
+	public void showGm(L2PcInstance player)
+	{
+		if (_gmList.containsKey(player))
+		{
+			_gmList.put(player, false);
+		}
+	}
+	
+	/**
+	 * GM will no longer be displayed on clients GM list.
+	 * @param player the player
+	 */
+	public void hideGm(L2PcInstance player)
+	{
+		if (_gmList.containsKey(player))
+		{
+			_gmList.put(player, true);
+		}
+	}
+	
+	/**
+	 * Checks if is GM online.
+	 * @param includeHidden the include hidden
+	 * @return true, if is GM online
+	 */
+	public boolean isGmOnline(boolean includeHidden)
+	{
+		for (Entry<L2PcInstance, Boolean> entry : _gmList.entrySet())
+		{
+			if (includeHidden || !entry.getValue())
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**
@@ -335,15 +314,36 @@ public final class AdminData implements IXmlReader
 	}
 	
 	/**
-	 * GM will be displayed on clients GM list.
-	 * @param player the player
+	 * Broadcast to GMs.
+	 * @param packet the packet
 	 */
-	public void showGm(L2PcInstance player)
+	public void broadcastToGMs(L2GameServerPacket packet)
 	{
-		if (_gmList.containsKey(player))
+		for (L2PcInstance gm : getAllGms(true))
 		{
-			_gmList.put(player, false);
+			gm.sendPacket(packet);
 		}
+	}
+	
+	/**
+	 * Broadcast message to GMs.
+	 * @param message the message
+	 */
+	public void broadcastMessageToGMs(String message)
+	{
+		for (L2PcInstance gm : getAllGms(true))
+		{
+			gm.sendMessage(message);
+		}
+	}
+	
+	/**
+	 * Gets the single instance of AdminTable.
+	 * @return AccessLevels: the one and only instance of this class<br>
+	 */
+	public static AdminData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -69,87 +69,40 @@ public abstract class L2Playable extends L2Character
 		setIsInvul(false);
 	}
 	
-	/**
-	 * Handle level add.<br>
-	 * <B><U> Overridden in </U> :</B>
-	 * <li>L2PcInstance</li>
-	 * <li>L2PetInstance</li>
-	 * @param levelAdd
-	 */
-	public boolean addLevel(int levelAdd)
-	{
-		return false;
-	}
-	
-	/**
-	 * Return True.
-	 */
 	@Override
-	public boolean canBeAttacked()
+	public PlayableKnownList getKnownList()
 	{
-		return true;
+		return (PlayableKnownList) super.getKnownList();
 	}
 	
-	public boolean checkIfPvP(L2Character target)
+	@Override
+	public void initKnownList()
 	{
-		if (target == null)
-		{
-			return false; // Target is null
-		}
-		if (target == this)
-		{
-			return false; // Target is self
-		}
-		if (!target.isPlayable())
-		{
-			return false; // Target is not a L2Playable
-		}
-		
-		final L2PcInstance player = getActingPlayer();
-		if (player == null)
-		{
-			return false; // Active player is null
-		}
-		
-		if (player.getKarma() != 0)
-		{
-			return false; // Active player has karma
-		}
-		
-		final L2PcInstance targetPlayer = target.getActingPlayer();
-		if (targetPlayer == null)
-		{
-			return false; // Target player is null
-		}
-		
-		if (targetPlayer == this)
-		{
-			return false; // Target player is self
-		}
-		if (targetPlayer.getKarma() != 0)
-		{
-			return false; // Target player has karma
-		}
-		if (targetPlayer.getPvpFlag() == 0)
-		{
-			return false;
-		}
-		
-		return true;
-		// Even at war, there should be PvP flag
-		// if(
-		// player.getClan() == null ||
-		// targetPlayer.getClan() == null ||
-		// (
-		// !targetPlayer.getClan().isAtWarWith(player.getClanId()) &&
-		// targetPlayer.getWantsPeace() == 0 &&
-		// player.getWantsPeace() == 0
-		// )
-		// )
-		// {
-		// return true;
-		// }
-		// return false;
+		setKnownList(new PlayableKnownList(this));
+	}
+	
+	@Override
+	public PlayableStat getStat()
+	{
+		return (PlayableStat) super.getStat();
+	}
+	
+	@Override
+	public void initCharStat()
+	{
+		setStat(new PlayableStat(this));
+	}
+	
+	@Override
+	public PlayableStatus getStatus()
+	{
+		return (PlayableStatus) super.getStatus();
+	}
+	
+	@Override
+	public void initCharStatus()
+	{
+		setStatus(new PlayableStatus(this));
 	}
 	
 	@Override
@@ -258,103 +211,81 @@ public abstract class L2Playable extends L2Character
 		return true;
 	}
 	
-	public abstract void doPickupItem(L2Object object);
+	public boolean checkIfPvP(L2Character target)
+	{
+		if (target == null)
+		{
+			return false; // Target is null
+		}
+		if (target == this)
+		{
+			return false; // Target is self
+		}
+		if (!target.isPlayable())
+		{
+			return false; // Target is not a L2Playable
+		}
+		
+		final L2PcInstance player = getActingPlayer();
+		if (player == null)
+		{
+			return false; // Active player is null
+		}
+		
+		if (player.getKarma() != 0)
+		{
+			return false; // Active player has karma
+		}
+		
+		final L2PcInstance targetPlayer = target.getActingPlayer();
+		if (targetPlayer == null)
+		{
+			return false; // Target player is null
+		}
+		
+		if (targetPlayer == this)
+		{
+			return false; // Target player is self
+		}
+		if (targetPlayer.getKarma() != 0)
+		{
+			return false; // Target player has karma
+		}
+		if (targetPlayer.getPvpFlag() == 0)
+		{
+			return false;
+		}
+		
+		return true;
+		// Even at war, there should be PvP flag
+		// if(
+		// player.getClan() == null ||
+		// targetPlayer.getClan() == null ||
+		// (
+		// !targetPlayer.getClan().isAtWarWith(player.getClanId()) &&
+		// targetPlayer.getWantsPeace() == 0 &&
+		// player.getWantsPeace() == 0
+		// )
+		// )
+		// {
+		// return true;
+		// }
+		// return false;
+	}
 	
 	/**
-	 * <B><U> Overridden in </U> :</B>
-	 * <li>L2PcInstance</li>
-	 * <li>L2PetInstance</li>
+	 * Return True.
 	 */
-	public long getExp()
-	{
-		return 0;
-	}
-	
-	public abstract int getKarma();
-	
 	@Override
-	public PlayableKnownList getKnownList()
+	public boolean canBeAttacked()
 	{
-		return (PlayableKnownList) super.getKnownList();
-	}
-	
-	public L2Character getLockedTarget()
-	{
-		return _lockedTarget;
-	}
-	
-	public abstract byte getPvpFlag();
-	
-	/**
-	 * <B><U> Overridden in </U> :</B>
-	 * <li>L2PcInstance</li>
-	 * <li>L2PetInstance</li>
-	 * @return the SP amount
-	 */
-	public int getSp()
-	{
-		return 0;
-	}
-	
-	@Override
-	public PlayableStat getStat()
-	{
-		return (PlayableStat) super.getStat();
-	}
-	
-	@Override
-	public PlayableStatus getStatus()
-	{
-		return (PlayableStatus) super.getStatus();
-	}
-	
-	public L2PcInstance getTransferingDamageTo()
-	{
-		return transferDmgTo;
-	}
-	
-	@Override
-	public void initCharStat()
-	{
-		setStat(new PlayableStat(this));
-	}
-	
-	@Override
-	public void initCharStatus()
-	{
-		setStatus(new PlayableStatus(this));
-	}
-	
-	@Override
-	public void initKnownList()
-	{
-		setKnownList(new PlayableKnownList(this));
-	}
-	
-	public boolean isLockedTarget()
-	{
-		return _lockedTarget != null;
+		return true;
 	}
 	
 	// Support for Noblesse Blessing skill, where buffs are retained after resurrect
 	public final boolean isNoblesseBlessedAffected()
 	{
 		return isAffected(EffectFlag.NOBLESS_BLESSING);
-	}
-	
-	@Override
-	public boolean isPlayable()
-	{
-		return true;
-	}
-	
-	/**
-	 * For Newbie Protection Blessing skill, keeps you safe from an attack by a chaotic character >= 10 levels apart from you.
-	 * @return
-	 */
-	public final boolean isProtectionBlessingAffected()
-	{
-		return isAffected(EffectFlag.PROTECTION_BLESSING);
 	}
 	
 	/**
@@ -374,18 +305,29 @@ public abstract class L2Playable extends L2Character
 	}
 	
 	/**
-	 * Handle packets send on level change.<br>
-	 * <B><U> Overridden in </U> :</B>
-	 * <li>L2PcInstance</li>
-	 * <li>L2PetInstance</li>
-	 * @param levelIncreased
+	 * For Newbie Protection Blessing skill, keeps you safe from an attack by a chaotic character >= 10 levels apart from you.
+	 * @return
 	 */
-	public void onLevelChange(boolean levelIncreased)
+	public final boolean isProtectionBlessingAffected()
 	{
-		
+		return isAffected(EffectFlag.PROTECTION_BLESSING);
 	}
 	
-	public abstract void restoreEffects();
+	@Override
+	public void updateEffectIcons(boolean partyOnly)
+	{
+		getEffectList().updateEffectIcons(partyOnly);
+	}
+	
+	public boolean isLockedTarget()
+	{
+		return _lockedTarget != null;
+	}
+	
+	public L2Character getLockedTarget()
+	{
+		return _lockedTarget;
+	}
 	
 	public void setLockedTarget(L2Character cha)
 	{
@@ -397,15 +339,73 @@ public abstract class L2Playable extends L2Character
 		transferDmgTo = val;
 	}
 	
-	public abstract void storeEffect(boolean storeEffects);
+	public L2PcInstance getTransferingDamageTo()
+	{
+		return transferDmgTo;
+	}
+	
+	/**
+	 * Handle level add.<br>
+	 * <B><U> Overridden in </U> :</B>
+	 * <li>L2PcInstance</li>
+	 * <li>L2PetInstance</li>
+	 * @param levelAdd
+	 */
+	public boolean addLevel(int levelAdd)
+	{
+		return false;
+	}
+	
+	/**
+	 * <B><U> Overridden in </U> :</B>
+	 * <li>L2PcInstance</li>
+	 * <li>L2PetInstance</li>
+	 */
+	public long getExp()
+	{
+		return 0;
+	}
+	
+	/**
+	 * <B><U> Overridden in </U> :</B>
+	 * <li>L2PcInstance</li>
+	 * <li>L2PetInstance</li>
+	 * @return the SP amount
+	 */
+	public int getSp()
+	{
+		return 0;
+	}
+	
+	/**
+	 * Handle packets send on level change.<br>
+	 * <B><U> Overridden in </U> :</B>
+	 * <li>L2PcInstance</li>
+	 * <li>L2PetInstance</li>
+	 * @param levelIncreased
+	 */
+	public void onLevelChange(boolean levelIncreased)
+	{
+		
+	}
+	
+	public abstract void doPickupItem(L2Object object);
+	
+	public abstract int getKarma();
+	
+	public abstract byte getPvpFlag();
+	
+	public abstract boolean useMagic(Skill skill, boolean forceUse, boolean dontMove);
 	
 	public abstract void storeMe();
 	
-	@Override
-	public void updateEffectIcons(boolean partyOnly)
-	{
-		getEffectList().updateEffectIcons(partyOnly);
-	}
+	public abstract void storeEffect(boolean storeEffects);
 	
-	public abstract boolean useMagic(Skill skill, boolean forceUse, boolean dontMove);
+	public abstract void restoreEffects();
+	
+	@Override
+	public boolean isPlayable()
+	{
+		return true;
+	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -43,34 +43,6 @@ public class Status extends Thread
 	private String _statusPw;
 	private final int _mode;
 	private final List<LoginStatusThread> _loginStatus;
-	
-	public Status(int mode) throws IOException
-	{
-		super("Status");
-		_mode = mode;
-		Properties telnetSettings = new Properties();
-		try (InputStream is = new FileInputStream(new File(Config.TELNET_FILE)))
-		{
-			telnetSettings.load(is);
-		}
-		int statusPort = Integer.parseInt(telnetSettings.getProperty("StatusPort", "12345"));
-		_statusPw = telnetSettings.getProperty("StatusPW");
-		
-		if ((_mode == Server.MODE_GAMESERVER) || (_mode == Server.MODE_LOGINSERVER))
-		{
-			if (_statusPw == null)
-			{
-				_log.info("Server's Telnet Function Has No Password Defined!");
-				_log.info("A Password Has Been Automaticly Created!");
-				_statusPw = rndPW(10);
-				_log.info("Password Has Been Set To: " + _statusPw);
-			}
-			_log.info("Telnet StatusServer started successfully, listening on Port: " + statusPort);
-		}
-		statusServerSocket = new ServerSocket(statusPort);
-		_uptime = (int) System.currentTimeMillis();
-		_loginStatus = new ArrayList<>();
-	}
 	
 	@Override
 	public void run()
@@ -125,20 +97,32 @@ public class Status extends Thread
 		}
 	}
 	
-	public void sendMessageToTelnets(String msg)
+	public Status(int mode) throws IOException
 	{
-		List<LoginStatusThread> lsToRemove = new ArrayList<>(); // TODO(Zoey76): Unused?
-		for (LoginStatusThread ls : _loginStatus)
+		super("Status");
+		_mode = mode;
+		Properties telnetSettings = new Properties();
+		try (InputStream is = new FileInputStream(new File(Config.TELNET_FILE)))
 		{
-			if (ls.isInterrupted())
-			{
-				lsToRemove.add(ls);
-			}
-			else
-			{
-				ls.printToTelnet(msg);
-			}
+			telnetSettings.load(is);
 		}
+		int statusPort = Integer.parseInt(telnetSettings.getProperty("StatusPort", "12345"));
+		_statusPw = telnetSettings.getProperty("StatusPW");
+		
+		if ((_mode == Server.MODE_GAMESERVER) || (_mode == Server.MODE_LOGINSERVER))
+		{
+			if (_statusPw == null)
+			{
+				_log.info("Server's Telnet Function Has No Password Defined!");
+				_log.info("A Password Has Been Automaticly Created!");
+				_statusPw = rndPW(10);
+				_log.info("Password Has Been Set To: " + _statusPw);
+			}
+			_log.info("Telnet StatusServer started successfully, listening on Port: " + statusPort);
+		}
+		statusServerSocket = new ServerSocket(statusPort);
+		_uptime = (int) System.currentTimeMillis();
+		_loginStatus = new ArrayList<>();
 	}
 	
 	private String rndPW(int length)
@@ -165,5 +149,21 @@ public class Status extends Thread
 			}
 		}
 		return password.toString();
+	}
+	
+	public void sendMessageToTelnets(String msg)
+	{
+		List<LoginStatusThread> lsToRemove = new ArrayList<>(); // TODO(Zoey76): Unused?
+		for (LoginStatusThread ls : _loginStatus)
+		{
+			if (ls.isInterrupted())
+			{
+				lsToRemove.add(ls);
+			}
+			else
+			{
+				ls.printToTelnet(msg);
+			}
+		}
 	}
 }

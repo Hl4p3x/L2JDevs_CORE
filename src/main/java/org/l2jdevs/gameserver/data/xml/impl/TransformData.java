@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -47,16 +47,6 @@ public final class TransformData implements IXmlReader
 	protected TransformData()
 	{
 		load();
-	}
-	
-	public static TransformData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	public Transform getTransform(int id)
-	{
-		return _transformData.get(id);
 	}
 	
 	@Override
@@ -228,6 +218,11 @@ public final class TransformData implements IXmlReader
 		}
 	}
 	
+	public Transform getTransform(int id)
+	{
+		return _transformData.get(id);
+	}
+	
 	public boolean transformPlayer(int id, L2PcInstance player)
 	{
 		final Transform transform = getTransform(id);
@@ -236,6 +231,11 @@ public final class TransformData implements IXmlReader
 			player.transform(transform);
 		}
 		return transform != null;
+	}
+	
+	public static TransformData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

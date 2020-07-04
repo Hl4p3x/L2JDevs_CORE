@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -51,15 +51,6 @@ public abstract class BaseGameServerRegister
 {
 	private boolean _loaded = false;
 	private ResourceBundle _bundle;
-	
-	/**
-	 * Instantiates a new base game server register.
-	 * @param bundle the bundle.
-	 */
-	public BaseGameServerRegister(ResourceBundle bundle)
-	{
-		setBundle(bundle);
-	}
 	
 	/**
 	 * The main method.
@@ -214,79 +205,6 @@ public abstract class BaseGameServerRegister
 	}
 	
 	/**
-	 * Register first available.
-	 * @param outDir the out dir
-	 * @return the int
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 */
-	public static int registerFirstAvailable(String outDir) throws IOException
-	{
-		for (Entry<Integer, String> e : GameServerTable.getInstance().getServerNames().entrySet())
-		{
-			if (!GameServerTable.getInstance().hasRegisteredGameServerOnId(e.getKey()))
-			{
-				BaseGameServerRegister.registerGameServer(e.getKey(), outDir);
-				return e.getKey();
-			}
-		}
-		return -1;
-	}
-	
-	/**
-	 * Register a game server.
-	 * @param id the id of the game server.
-	 * @param outDir the out dir.
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 */
-	public static void registerGameServer(int id, String outDir) throws IOException
-	{
-		byte[] hexId = Util.generateHex(16);
-		GameServerTable.getInstance().registerServerOnDB(hexId, id, "");
-		
-		Properties hexSetting = new Properties();
-		File file = new File(outDir, "hexid.txt");
-		// Create a new empty file only if it doesn't exist
-		file.createNewFile();
-		try (OutputStream out = new FileOutputStream(file))
-		{
-			hexSetting.setProperty("ServerID", String.valueOf(id));
-			hexSetting.setProperty("HexID", new BigInteger(hexId).toString(16));
-			hexSetting.store(out, "The HexId to Auth into LoginServer");
-		}
-	}
-	
-	/**
-	 * Unregister all game servers.
-	 * @throws SQLException the SQL exception
-	 */
-	public static void unregisterAllGameServers() throws SQLException
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement s = con.createStatement())
-		{
-			s.executeUpdate("DELETE FROM gameservers");
-		}
-		GameServerTable.getInstance().getRegisteredGameServers().clear();
-	}
-	
-	/**
-	 * Unregister the game server.
-	 * @param id the game server id.
-	 * @throws SQLException the SQL exception.
-	 */
-	public static void unregisterGameServer(int id) throws SQLException
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("DELETE FROM gameservers WHERE server_id = ?"))
-		
-		{
-			ps.setInt(1, id);
-			ps.executeUpdate();
-		}
-		GameServerTable.getInstance().getRegisteredGameServers().remove(id);
-	}
-	
-	/**
 	 * Prints the help.
 	 * @param bundle the bundle
 	 */
@@ -326,23 +244,6 @@ public abstract class BaseGameServerRegister
 	}
 	
 	/**
-	 * Start the CMD.
-	 * @param bundle the bundle.
-	 */
-	private static void startCMD(final ResourceBundle bundle)
-	{
-		GameServerRegister cmdUi = new GameServerRegister(bundle);
-		try
-		{
-			cmdUi.consoleUI();
-		}
-		catch (IOException e)
-		{
-			cmdUi.showError("I/O exception trying to get input from keyboard.", e);
-		}
-	}
-	
-	/**
 	 * Start the GUI.
 	 * @param bundle the bundle.
 	 */
@@ -366,21 +267,29 @@ public abstract class BaseGameServerRegister
 	}
 	
 	/**
-	 * Gets the bundle.
-	 * @return the bundle.
+	 * Start the CMD.
+	 * @param bundle the bundle.
 	 */
-	public ResourceBundle getBundle()
+	private static void startCMD(final ResourceBundle bundle)
 	{
-		return _bundle;
+		GameServerRegister cmdUi = new GameServerRegister(bundle);
+		try
+		{
+			cmdUi.consoleUI();
+		}
+		catch (IOException e)
+		{
+			cmdUi.showError("I/O exception trying to get input from keyboard.", e);
+		}
 	}
 	
 	/**
-	 * Checks if is loaded.
-	 * @return true, if is loaded
+	 * Instantiates a new base game server register.
+	 * @param bundle the bundle.
 	 */
-	public boolean isLoaded()
+	public BaseGameServerRegister(ResourceBundle bundle)
 	{
-		return _loaded;
+		setBundle(bundle);
 	}
 	
 	/**
@@ -397,12 +306,30 @@ public abstract class BaseGameServerRegister
 	}
 	
 	/**
+	 * Checks if is loaded.
+	 * @return true, if is loaded
+	 */
+	public boolean isLoaded()
+	{
+		return _loaded;
+	}
+	
+	/**
 	 * Sets the bundle.
 	 * @param bundle the bundle to set.
 	 */
 	public void setBundle(ResourceBundle bundle)
 	{
 		_bundle = bundle;
+	}
+	
+	/**
+	 * Gets the bundle.
+	 * @return the bundle.
+	 */
+	public ResourceBundle getBundle()
+	{
+		return _bundle;
 	}
 	
 	/**
@@ -413,20 +340,84 @@ public abstract class BaseGameServerRegister
 	public abstract void showError(String msg, Throwable t);
 	
 	/**
+	 * Unregister the game server.
+	 * @param id the game server id.
+	 * @throws SQLException the SQL exception.
+	 */
+	public static void unregisterGameServer(int id) throws SQLException
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("DELETE FROM gameservers WHERE server_id = ?"))
+		
+		{
+			ps.setInt(1, id);
+			ps.executeUpdate();
+		}
+		GameServerTable.getInstance().getRegisteredGameServers().remove(id);
+	}
+	
+	/**
+	 * Unregister all game servers.
+	 * @throws SQLException the SQL exception
+	 */
+	public static void unregisterAllGameServers() throws SQLException
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement s = con.createStatement())
+		{
+			s.executeUpdate("DELETE FROM gameservers");
+		}
+		GameServerTable.getInstance().getRegisteredGameServers().clear();
+	}
+	
+	/**
+	 * Register a game server.
+	 * @param id the id of the game server.
+	 * @param outDir the out dir.
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public static void registerGameServer(int id, String outDir) throws IOException
+	{
+		byte[] hexId = Util.generateHex(16);
+		GameServerTable.getInstance().registerServerOnDB(hexId, id, "");
+		
+		Properties hexSetting = new Properties();
+		File file = new File(outDir, "hexid.txt");
+		// Create a new empty file only if it doesn't exist
+		file.createNewFile();
+		try (OutputStream out = new FileOutputStream(file))
+		{
+			hexSetting.setProperty("ServerID", String.valueOf(id));
+			hexSetting.setProperty("HexID", new BigInteger(hexId).toString(16));
+			hexSetting.store(out, "The HexId to Auth into LoginServer");
+		}
+	}
+	
+	/**
+	 * Register first available.
+	 * @param outDir the out dir
+	 * @return the int
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public static int registerFirstAvailable(String outDir) throws IOException
+	{
+		for (Entry<Integer, String> e : GameServerTable.getInstance().getServerNames().entrySet())
+		{
+			if (!GameServerTable.getInstance().hasRegisteredGameServerOnId(e.getKey()))
+			{
+				BaseGameServerRegister.registerGameServer(e.getKey(), outDir);
+				return e.getKey();
+			}
+		}
+		return -1;
+	}
+	
+	/**
 	 * The Class BaseTask.
 	 */
 	protected static abstract class BaseTask implements Runnable
 	{
 		private ResourceBundle _bundle;
-		
-		/**
-		 * Gets the bundle.
-		 * @return Returns the bundle.
-		 */
-		public ResourceBundle getBundle()
-		{
-			return _bundle;
-		}
 		
 		/**
 		 * Sets the bundle.
@@ -435,6 +426,15 @@ public abstract class BaseGameServerRegister
 		public void setBundle(ResourceBundle bundle)
 		{
 			_bundle = bundle;
+		}
+		
+		/**
+		 * Gets the bundle.
+		 * @return Returns the bundle.
+		 */
+		public ResourceBundle getBundle()
+		{
+			return _bundle;
 		}
 		
 		/**
@@ -460,25 +460,6 @@ public abstract class BaseGameServerRegister
 	}
 	
 	/**
-	 * The Class UnregisterAllTask.
-	 */
-	protected static class UnregisterAllTask extends BaseTask
-	{
-		@Override
-		public void run()
-		{
-			try
-			{
-				BaseGameServerRegister.unregisterAllGameServers();
-			}
-			catch (SQLException e)
-			{
-				showError(getBundle().getString("sqlErrorUnregisterAll"), e);
-			}
-		}
-	}
-	
-	/**
 	 * The Class RegisterTask.
 	 */
 	private static class RegisterTask extends BaseTask
@@ -499,6 +480,18 @@ public abstract class BaseGameServerRegister
 		{
 			_id = id;
 			_outDir = outDir;
+			_force = force;
+			_fallback = fallback;
+		}
+		
+		/**
+		 * Sets the actions.
+		 * @param force the force.
+		 * @param fallback the fallback.
+		 */
+		@SuppressWarnings("unused")
+		public void setActions(boolean force, boolean fallback)
+		{
 			_force = force;
 			_fallback = fallback;
 		}
@@ -569,18 +562,6 @@ public abstract class BaseGameServerRegister
 				showError(getBundle().getString("ioErrorRegister"), e);
 			}
 		}
-		
-		/**
-		 * Sets the actions.
-		 * @param force the force.
-		 * @param fallback the fallback.
-		 */
-		@SuppressWarnings("unused")
-		public void setActions(boolean force, boolean fallback)
-		{
-			_force = force;
-			_fallback = fallback;
-		}
 	}
 	
 	/**
@@ -611,6 +592,25 @@ public abstract class BaseGameServerRegister
 			catch (SQLException e)
 			{
 				showError(getBundle().getString("sqlErrorRegister"), e);
+			}
+		}
+	}
+	
+	/**
+	 * The Class UnregisterAllTask.
+	 */
+	protected static class UnregisterAllTask extends BaseTask
+	{
+		@Override
+		public void run()
+		{
+			try
+			{
+				BaseGameServerRegister.unregisterAllGameServers();
+			}
+			catch (SQLException e)
+			{
+				showError(getBundle().getString("sqlErrorUnregisterAll"), e);
 			}
 		}
 	}

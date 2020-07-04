@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -35,6 +35,8 @@ public interface IChanceMultiplierStrategy
 	
 	public static final IChanceMultiplierStrategy QUEST = (item, victim) ->
 	{
+            if(!Config.L2JMOD_CHAMPION_ENABLE || victim == null || !victim.isChampion())
+                return Config.RATE_QUEST_DROP;
 		double championmult;
 		if ((item.getItemId() == Inventory.ADENA_ID) || (item.getItemId() == Inventory.ANCIENT_ADENA_ID))
 		{
@@ -44,19 +46,24 @@ public interface IChanceMultiplierStrategy
 		{
 			championmult = Config.L2JMOD_CHAMPION_REWARDS_CHANCE;
 		}
-		
-		return (Config.L2JMOD_CHAMPION_ENABLE && (victim != null) && victim.isChampion()) ? (Config.RATE_QUEST_DROP * championmult) : Config.RATE_QUEST_DROP;
+            if(championmult > 1)
+                championmult = 1 + victim.getPowerMultiplier(championmult - 1);
+            return Config.RATE_QUEST_DROP * championmult;
 	};
 	
 	public static IChanceMultiplierStrategy DEFAULT_STRATEGY(final double defaultMultiplier)
 	{
 		return (item, victim) ->
 		{
-			float multiplier = 1;
+			double multiplier;
 			if (victim.isChampion())
 			{
-				multiplier *= item.getItemId() != Inventory.ADENA_ID ? Config.L2JMOD_CHAMPION_REWARDS_CHANCE : Config.L2JMOD_CHAMPION_ADENAS_REWARDS_CHANCE;
+				multiplier = item.getItemId() != Inventory.ADENA_ID ? Config.L2JMOD_CHAMPION_REWARDS_CHANCE : Config.L2JMOD_CHAMPION_ADENAS_REWARDS_CHANCE;
+                                if(multiplier > 1)
+                                    multiplier = 1 + ((float) victim.getPowerMultiplier(multiplier - 1));
 			}
+                        else
+                            multiplier = victim.getPower();
 			Float dropChanceMultiplier = Config.RATE_DROP_CHANCE_MULTIPLIER.get(item.getItemId());
 			if (dropChanceMultiplier != null)
 			{
@@ -74,7 +81,7 @@ public interface IChanceMultiplierStrategy
 			{
 				multiplier *= defaultMultiplier;
 			}
-			return multiplier;
+			return (float) multiplier;
 		};
 	}
 	

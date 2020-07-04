@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -31,20 +31,6 @@ public class ItemInfo
 	private final int _elementPower;
 	private final int[] _elementals = new int[6];
 	
-	public ItemInfo(int enchantLevel)
-	{
-		_enchantLevel = enchantLevel;
-		_augmentId = 0;
-		_elementId = Elementals.NONE;
-		_elementPower = 0;
-		_elementals[0] = 0;
-		_elementals[1] = 0;
-		_elementals[2] = 0;
-		_elementals[3] = 0;
-		_elementals[4] = 0;
-		_elementals[5] = 0;
-	}
-	
 	public ItemInfo(L2ItemInstance item)
 	{
 		_enchantLevel = item.getEnchantLevel();
@@ -59,14 +45,28 @@ public class ItemInfo
 		_elementals[5] = item.getElementDefAttr(Elementals.DARK);
 	}
 	
+	public ItemInfo(int enchantLevel)
+	{
+		_enchantLevel = enchantLevel;
+		_augmentId = 0;
+		_elementId = Elementals.NONE;
+		_elementPower = 0;
+		_elementals[0] = 0;
+		_elementals[1] = 0;
+		_elementals[2] = 0;
+		_elementals[3] = 0;
+		_elementals[4] = 0;
+		_elementals[5] = 0;
+	}
+	
+	public final int getEnchantLevel()
+	{
+		return _enchantLevel;
+	}
+	
 	public final int getAugmentId()
 	{
 		return _augmentId;
-	}
-	
-	public final int[] getElementals()
-	{
-		return _elementals;
 	}
 	
 	public final byte getElementId()
@@ -79,8 +79,8 @@ public class ItemInfo
 		return _elementPower;
 	}
 	
-	public final int getEnchantLevel()
+	public final int[] getElementals()
 	{
-		return _enchantLevel;
+		return _elementals;
 	}
 }

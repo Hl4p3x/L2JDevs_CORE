@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -100,115 +100,6 @@ public final class SiegableHall extends ClanHall
 		}
 	}
 	
-	public final void addAttacker(final L2Clan clan)
-	{
-		if (getSiege() != null)
-		{
-			getSiege().getAttackers().put(clan.getId(), new L2SiegeClan(clan.getId(), SiegeClanType.ATTACKER));
-		}
-	}
-	
-	public final long getNextSiegeTime()
-	{
-		return _nextSiege.getTimeInMillis();
-	}
-	
-	public final ClanHallSiegeEngine getSiege()
-	{
-		return _siege;
-	}
-	
-	public final Calendar getSiegeDate()
-	{
-		return _nextSiege;
-	}
-	
-	public long getSiegeLenght()
-	{
-		return _siegeLength;
-	}
-	
-	public SiegeStatus getSiegeStatus()
-	{
-		return _status;
-	}
-	
-	public final L2SiegeZone getSiegeZone()
-	{
-		return _siegeZone;
-	}
-	
-	@Override
-	public L2SiegableHallZone getZone()
-	{
-		return (L2SiegableHallZone) super.getZone();
-	}
-	
-	public final boolean isInSiege()
-	{
-		return _status == SiegeStatus.RUNNING;
-	}
-	
-	public final boolean isRegistered(L2Clan clan)
-	{
-		if (getSiege() == null)
-		{
-			return false;
-		}
-		
-		return getSiege().checkIsAttacker(clan);
-	}
-	
-	public final boolean isRegistering()
-	{
-		return _status == SiegeStatus.REGISTERING;
-	}
-	
-	@Override
-	public final boolean isSiegableHall()
-	{
-		return true;
-	}
-	
-	public final boolean isWaitingBattle()
-	{
-		return _status == SiegeStatus.WAITING_BATTLE;
-	}
-	
-	public final void removeAttacker(final L2Clan clan)
-	{
-		if (getSiege() != null)
-		{
-			getSiege().getAttackers().remove(clan.getId());
-		}
-	}
-	
-	public final void setNextSiegeDate(final Calendar c)
-	{
-		_nextSiege = c;
-	}
-	
-	public final void setNextSiegeDate(long date)
-	{
-		_nextSiege.setTimeInMillis(date);
-	}
-	
-	public final void setSiege(final ClanHallSiegeEngine siegable)
-	{
-		_siege = siegable;
-		_siegeZone.setSiegeInstance(siegable);
-	}
-	
-	public final void setSiegeZone(L2SiegeZone zone)
-	{
-		_siegeZone = zone;
-	}
-	
-	public final void showSiegeInfo(L2PcInstance player)
-	{
-		player.sendPacket(new SiegeInfo(this));
-	}
-	
 	public void spawnDoor()
 	{
 		spawnDoor(false);
@@ -255,6 +146,42 @@ public final class SiegableHall extends ClanHall
 		}
 	}
 	
+	public final void setSiege(final ClanHallSiegeEngine siegable)
+	{
+		_siege = siegable;
+		_siegeZone.setSiegeInstance(siegable);
+	}
+	
+	public final ClanHallSiegeEngine getSiege()
+	{
+		return _siege;
+	}
+	
+	public final Calendar getSiegeDate()
+	{
+		return _nextSiege;
+	}
+	
+	public final long getNextSiegeTime()
+	{
+		return _nextSiege.getTimeInMillis();
+	}
+	
+	public long getSiegeLenght()
+	{
+		return _siegeLength;
+	}
+	
+	public final void setNextSiegeDate(long date)
+	{
+		_nextSiege.setTimeInMillis(date);
+	}
+	
+	public final void setNextSiegeDate(final Calendar c)
+	{
+		_nextSiege = c;
+	}
+	
 	public final void updateNextSiege()
 	{
 		Calendar c = Calendar.getInstance();
@@ -268,13 +195,86 @@ public final class SiegableHall extends ClanHall
 		updateDb();
 	}
 	
+	public final void addAttacker(final L2Clan clan)
+	{
+		if (getSiege() != null)
+		{
+			getSiege().getAttackers().put(clan.getId(), new L2SiegeClan(clan.getId(), SiegeClanType.ATTACKER));
+		}
+	}
+	
+	public final void removeAttacker(final L2Clan clan)
+	{
+		if (getSiege() != null)
+		{
+			getSiege().getAttackers().remove(clan.getId());
+		}
+	}
+	
+	public final boolean isRegistered(L2Clan clan)
+	{
+		if (getSiege() == null)
+		{
+			return false;
+		}
+		
+		return getSiege().checkIsAttacker(clan);
+	}
+	
+	public SiegeStatus getSiegeStatus()
+	{
+		return _status;
+	}
+	
+	public final boolean isRegistering()
+	{
+		return _status == SiegeStatus.REGISTERING;
+	}
+	
+	public final boolean isInSiege()
+	{
+		return _status == SiegeStatus.RUNNING;
+	}
+	
+	public final boolean isWaitingBattle()
+	{
+		return _status == SiegeStatus.WAITING_BATTLE;
+	}
+	
 	public final void updateSiegeStatus(SiegeStatus status)
 	{
 		_status = status;
 	}
 	
+	public final L2SiegeZone getSiegeZone()
+	{
+		return _siegeZone;
+	}
+	
+	public final void setSiegeZone(L2SiegeZone zone)
+	{
+		_siegeZone = zone;
+	}
+	
 	public final void updateSiegeZone(boolean active)
 	{
 		_siegeZone.setIsActive(active);
+	}
+	
+	public final void showSiegeInfo(L2PcInstance player)
+	{
+		player.sendPacket(new SiegeInfo(this));
+	}
+	
+	@Override
+	public final boolean isSiegableHall()
+	{
+		return true;
+	}
+	
+	@Override
+	public L2SiegableHallZone getZone()
+	{
+		return (L2SiegableHallZone) super.getZone();
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,33 +38,6 @@ public class PcRefund extends ItemContainer
 	}
 	
 	@Override
-	public void deleteMe()
-	{
-		try
-		{
-			for (L2ItemInstance item : _items)
-			{
-				if (item != null)
-				{
-					ItemTable.getInstance().destroyItem("ClearRefund", item, getOwner(), null);
-					item.updateDatabase(true);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.SEVERE, "deleteMe()", e);
-		}
-		_items.clear();
-	}
-	
-	@Override
-	public ItemLocation getBaseLocation()
-	{
-		return ItemLocation.REFUND;
-	}
-	
-	@Override
 	public String getName()
 	{
 		return "Refund";
@@ -77,13 +50,9 @@ public class PcRefund extends ItemContainer
 	}
 	
 	@Override
-	public void refreshWeight()
+	public ItemLocation getBaseLocation()
 	{
-	}
-	
-	@Override
-	public void restore()
-	{
+		return ItemLocation.REFUND;
 	}
 	
 	@Override
@@ -106,5 +75,36 @@ public class PcRefund extends ItemContainer
 		{
 			_log.log(Level.SEVERE, "addItem()", e);
 		}
+	}
+	
+	@Override
+	public void refreshWeight()
+	{
+	}
+	
+	@Override
+	public void deleteMe()
+	{
+		try
+		{
+			for (L2ItemInstance item : _items)
+			{
+				if (item != null)
+				{
+					ItemTable.getInstance().destroyItem("ClearRefund", item, getOwner(), null);
+					item.updateDatabase(true);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.SEVERE, "deleteMe()", e);
+		}
+		_items.clear();
+	}
+	
+	@Override
+	public void restore()
+	{
 	}
 }

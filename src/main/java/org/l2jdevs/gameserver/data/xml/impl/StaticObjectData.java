@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -45,24 +45,6 @@ public final class StaticObjectData implements IXmlReader
 	protected StaticObjectData()
 	{
 		load();
-	}
-	
-	/**
-	 * Gets the single instance of StaticObjects.
-	 * @return single instance of StaticObjects
-	 */
-	public static StaticObjectData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Gets the static objects.
-	 * @return a collection of static objects.
-	 */
-	public Collection<L2StaticObjectInstance> getStaticObjects()
-	{
-		return _staticObjects.values();
 	}
 	
 	@Override
@@ -110,6 +92,24 @@ public final class StaticObjectData implements IXmlReader
 		obj.setMap(set.getString("texture", "none"), set.getInt("map_x", 0), set.getInt("map_y", 0));
 		obj.spawnMe(set.getInt("x"), set.getInt("y"), set.getInt("z"));
 		_staticObjects.put(obj.getObjectId(), obj);
+	}
+	
+	/**
+	 * Gets the static objects.
+	 * @return a collection of static objects.
+	 */
+	public Collection<L2StaticObjectInstance> getStaticObjects()
+	{
+		return _staticObjects.values();
+	}
+	
+	/**
+	 * Gets the single instance of StaticObjects.
+	 * @return single instance of StaticObjects
+	 */
+	public static StaticObjectData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

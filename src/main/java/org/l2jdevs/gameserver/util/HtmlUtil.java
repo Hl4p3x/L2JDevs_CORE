@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -31,71 +31,6 @@ import org.l2jdevs.util.StringUtil;
  */
 public class HtmlUtil
 {
-	public static <T> PageResult createPage(Collection<T> elements, int page, int elementsPerPage, Function<Integer, String> pagerFunction, Function<T, String> bodyFunction)
-	{
-		return createPage(elements, elements.size(), page, elementsPerPage, pagerFunction, bodyFunction);
-	}
-	
-	public static <T> PageResult createPage(Iterable<T> elements, int size, int page, int elementsPerPage, Function<Integer, String> pagerFunction, Function<T, String> bodyFunction)
-	{
-		int pages = size / elementsPerPage;
-		if ((elementsPerPage * pages) < size)
-		{
-			pages++;
-		}
-		
-		final StringBuilder pagerTemplate = new StringBuilder();
-		if (pages > 1)
-		{
-			int breakit = 0;
-			for (int i = 0; i < pages; i++)
-			{
-				pagerTemplate.append(pagerFunction.apply(i));
-				breakit++;
-				
-				if (breakit > 5)
-				{
-					pagerTemplate.append("</tr><tr>");
-					breakit = 0;
-				}
-			}
-		}
-		
-		if (page >= pages)
-		{
-			page = pages - 1;
-		}
-		
-		int start = 0;
-		if (page > 0)
-		{
-			start = elementsPerPage * page;
-		}
-		
-		final StringBuilder sb = new StringBuilder();
-		int i = 0;
-		for (T element : elements)
-		{
-			if (i++ < start)
-			{
-				continue;
-			}
-			
-			sb.append(bodyFunction.apply(element));
-			
-			if (i >= (elementsPerPage + start))
-			{
-				break;
-			}
-		}
-		return new PageResult(pages, pagerTemplate, sb);
-	}
-	
-	public static <T> PageResult createPage(T[] elements, int page, int elementsPerPage, Function<Integer, String> pagerFunction, Function<T, String> bodyFunction)
-	{
-		return createPage(Arrays.asList(elements), elements.length, page, elementsPerPage, pagerFunction, bodyFunction);
-	}
-	
 	/**
 	 * Gets the HTML representation of CP gauge.
 	 * @param width the width
@@ -107,45 +42,6 @@ public class HtmlUtil
 	public static String getCpGauge(int width, long current, long max, boolean displayAsPercentage)
 	{
 		return getGauge(width, current, max, displayAsPercentage, "L2UI_CT1.Gauges.Gauge_DF_Large_CP_bg_Center", "L2UI_CT1.Gauges.Gauge_DF_Large_CP_Center", 17, -13);
-	}
-	
-	/**
-	 * Gets the HTML representation of EXP Warn gauge.
-	 * @param width the width
-	 * @param current the current value
-	 * @param max the max value
-	 * @param displayAsPercentage if {@code true} the text in middle will be displayed as percent else it will be displayed as "current / max"
-	 * @return the HTML
-	 */
-	public static String getExpGauge(int width, long current, long max, boolean displayAsPercentage)
-	{
-		return getGauge(width, current, max, displayAsPercentage, "L2UI_CT1.Gauges.Gauge_DF_Large_EXP_bg_Center", "L2UI_CT1.Gauges.Gauge_DF_Large_EXP_Center", 17, -13);
-	}
-	
-	/**
-	 * Gets the HTML representation of Food gauge.
-	 * @param width the width
-	 * @param current the current value
-	 * @param max the max value
-	 * @param displayAsPercentage if {@code true} the text in middle will be displayed as percent else it will be displayed as "current / max"
-	 * @return the HTML
-	 */
-	public static String getFoodGauge(int width, long current, long max, boolean displayAsPercentage)
-	{
-		return getGauge(width, current, max, displayAsPercentage, "L2UI_CT1.Gauges.Gauge_DF_Large_Food_Bg_Center", "L2UI_CT1.Gauges.Gauge_DF_Large_Food_Center", 17, -13);
-	}
-	
-	/**
-	 * Gets the HTML representation of HP Fill gauge.
-	 * @param width the width
-	 * @param current the current value
-	 * @param max the max value
-	 * @param displayAsPercentage if {@code true} the text in middle will be displayed as percent else it will be displayed as "current / max"
-	 * @return the HTML
-	 */
-	public static String getHpFillGauge(int width, long current, long max, boolean displayAsPercentage)
-	{
-		return getGauge(width, current, max, displayAsPercentage, "L2UI_CT1.Gauges.Gauge_DF_Large_HPFill_bg_Center", "L2UI_CT1.Gauges.Gauge_DF_Large_HPFill_Center", 17, -13);
 	}
 	
 	/**
@@ -175,6 +71,19 @@ public class HtmlUtil
 	}
 	
 	/**
+	 * Gets the HTML representation of HP Fill gauge.
+	 * @param width the width
+	 * @param current the current value
+	 * @param max the max value
+	 * @param displayAsPercentage if {@code true} the text in middle will be displayed as percent else it will be displayed as "current / max"
+	 * @return the HTML
+	 */
+	public static String getHpFillGauge(int width, long current, long max, boolean displayAsPercentage)
+	{
+		return getGauge(width, current, max, displayAsPercentage, "L2UI_CT1.Gauges.Gauge_DF_Large_HPFill_bg_Center", "L2UI_CT1.Gauges.Gauge_DF_Large_HPFill_Center", 17, -13);
+	}
+	
+	/**
 	 * Gets the HTML representation of MP Warn gauge.
 	 * @param width the width
 	 * @param current the current value
@@ -185,6 +94,32 @@ public class HtmlUtil
 	public static String getMpGauge(int width, long current, long max, boolean displayAsPercentage)
 	{
 		return getGauge(width, current, max, displayAsPercentage, "L2UI_CT1.Gauges.Gauge_DF_Large_MP_bg_Center", "L2UI_CT1.Gauges.Gauge_DF_Large_MP_Center", 17, -13);
+	}
+	
+	/**
+	 * Gets the HTML representation of EXP Warn gauge.
+	 * @param width the width
+	 * @param current the current value
+	 * @param max the max value
+	 * @param displayAsPercentage if {@code true} the text in middle will be displayed as percent else it will be displayed as "current / max"
+	 * @return the HTML
+	 */
+	public static String getExpGauge(int width, long current, long max, boolean displayAsPercentage)
+	{
+		return getGauge(width, current, max, displayAsPercentage, "L2UI_CT1.Gauges.Gauge_DF_Large_EXP_bg_Center", "L2UI_CT1.Gauges.Gauge_DF_Large_EXP_Center", 17, -13);
+	}
+	
+	/**
+	 * Gets the HTML representation of Food gauge.
+	 * @param width the width
+	 * @param current the current value
+	 * @param max the max value
+	 * @param displayAsPercentage if {@code true} the text in middle will be displayed as percent else it will be displayed as "current / max"
+	 * @return the HTML
+	 */
+	public static String getFoodGauge(int width, long current, long max, boolean displayAsPercentage)
+	{
+		return getGauge(width, current, max, displayAsPercentage, "L2UI_CT1.Gauges.Gauge_DF_Large_Food_Bg_Center", "L2UI_CT1.Gauges.Gauge_DF_Large_Food_Center", 17, -13);
 	}
 	
 	/**
@@ -245,5 +180,70 @@ public class HtmlUtil
 		}
 		StringUtil.append(sb, "</td></tr></table></td></tr></table>");
 		return sb.toString();
+	}
+	
+	public static <T> PageResult createPage(Collection<T> elements, int page, int elementsPerPage, Function<Integer, String> pagerFunction, Function<T, String> bodyFunction)
+	{
+		return createPage(elements, elements.size(), page, elementsPerPage, pagerFunction, bodyFunction);
+	}
+	
+	public static <T> PageResult createPage(T[] elements, int page, int elementsPerPage, Function<Integer, String> pagerFunction, Function<T, String> bodyFunction)
+	{
+		return createPage(Arrays.asList(elements), elements.length, page, elementsPerPage, pagerFunction, bodyFunction);
+	}
+	
+	public static <T> PageResult createPage(Iterable<T> elements, int size, int page, int elementsPerPage, Function<Integer, String> pagerFunction, Function<T, String> bodyFunction)
+	{
+		int pages = size / elementsPerPage;
+		if ((elementsPerPage * pages) < size)
+		{
+			pages++;
+		}
+		
+		final StringBuilder pagerTemplate = new StringBuilder();
+		if (pages > 1)
+		{
+			int breakit = 0;
+			for (int i = 0; i < pages; i++)
+			{
+				pagerTemplate.append(pagerFunction.apply(i));
+				breakit++;
+				
+				if (breakit > 5)
+				{
+					pagerTemplate.append("</tr><tr>");
+					breakit = 0;
+				}
+			}
+		}
+		
+		if (page >= pages)
+		{
+			page = pages - 1;
+		}
+		
+		int start = 0;
+		if (page > 0)
+		{
+			start = elementsPerPage * page;
+		}
+		
+		final StringBuilder sb = new StringBuilder();
+		int i = 0;
+		for (T element : elements)
+		{
+			if (i++ < start)
+			{
+				continue;
+			}
+			
+			sb.append(bodyFunction.apply(element));
+			
+			if (i >= (elementsPerPage + start))
+			{
+				break;
+			}
+		}
+		return new PageResult(pages, pagerTemplate, sb);
 	}
 }

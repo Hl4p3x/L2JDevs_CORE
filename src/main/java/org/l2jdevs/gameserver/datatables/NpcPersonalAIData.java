@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -42,12 +42,22 @@ public class NpcPersonalAIData
 	}
 	
 	/**
-	 * Gets the single instance of NpcTable.
-	 * @return single instance of NpcTable
+	 * Stores data for given spawn.
+	 * @param spawnDat spawn to process
+	 * @param data Map of AI values
 	 */
-	public static NpcPersonalAIData getInstance()
+	public void storeData(L2Spawn spawnDat, Map<String, Integer> data)
 	{
-		return SingletonHolder._instance;
+		if ((data != null) && !data.isEmpty())
+		{
+			// check for spawn name. Since spawn name is key for AI Data, generate random name, if spawn name isn't specified
+			if (spawnDat.getName() == null)
+			{
+				spawnDat.setName(Long.toString(Rnd.nextLong()));
+			}
+			
+			_AIData.put(spawnDat.getName(), data);
+		}
 	}
 	
 	/**
@@ -108,22 +118,12 @@ public class NpcPersonalAIData
 	}
 	
 	/**
-	 * Stores data for given spawn.
-	 * @param spawnDat spawn to process
-	 * @param data Map of AI values
+	 * Gets the single instance of NpcTable.
+	 * @return single instance of NpcTable
 	 */
-	public void storeData(L2Spawn spawnDat, Map<String, Integer> data)
+	public static NpcPersonalAIData getInstance()
 	{
-		if ((data != null) && !data.isEmpty())
-		{
-			// check for spawn name. Since spawn name is key for AI Data, generate random name, if spawn name isn't specified
-			if (spawnDat.getName() == null)
-			{
-				spawnDat.setName(Long.toString(Rnd.nextLong()));
-			}
-			
-			_AIData.put(spawnDat.getName(), data);
-		}
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

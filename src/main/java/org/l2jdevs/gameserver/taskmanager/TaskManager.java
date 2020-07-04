@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -60,6 +60,9 @@ public final class TaskManager
 {
 	protected static final Logger _log = Logger.getLogger(TaskManager.class.getName());
 	
+	private final Map<Integer, Task> _tasks = new ConcurrentHashMap<>();
+	protected final List<ExecutedTask> _currentTasks = new CopyOnWriteArrayList<>();
+	
 	protected static final String[] SQL_STATEMENTS =
 	{
 		"SELECT id,task,type,last_activation,param1,param2,param3 FROM global_tasks",
@@ -67,9 +70,6 @@ public final class TaskManager
 		"SELECT id FROM global_tasks WHERE task=?",
 		"INSERT INTO global_tasks (task,type,last_activation,param1,param2,param3) VALUES(?,?,?,?,?,?)"
 	};
-	private final Map<Integer, Task> _tasks = new ConcurrentHashMap<>();
-	
-	protected final List<ExecutedTask> _currentTasks = new CopyOnWriteArrayList<>();
 	
 	protected TaskManager()
 	{
@@ -78,81 +78,109 @@ public final class TaskManager
 		_log.log(Level.INFO, getClass().getSimpleName() + ": Loaded: " + _tasks.size() + " Tasks");
 	}
 	
-	public static boolean addTask(String task, TaskTypes type, String param1, String param2, String param3)
+	public class ExecutedTask implements Runnable
 	{
-		return addTask(task, type, param1, param2, param3, 0);
-	}
-	
-	public static boolean addTask(String task, TaskTypes type, String param1, String param2, String param3, long lastActivation)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement statement = con.prepareStatement(SQL_STATEMENTS[3]))
+		int id;
+		long lastActivation;
+		Task task;
+		TaskTypes type;
+		String[] params;
+		ScheduledFuture<?> scheduled;
+		
+		public ExecutedTask(Task ptask, TaskTypes ptype, ResultSet rset) throws SQLException
 		{
-			statement.setString(1, task);
-			statement.setString(2, type.toString());
-			statement.setLong(3, lastActivation);
-			statement.setString(4, param1);
-			statement.setString(5, param2);
-			statement.setString(6, param3);
-			statement.execute();
-			return true;
-		}
-		catch (SQLException e)
-		{
-			_log.log(Level.WARNING, TaskManager.class.getSimpleName() + ": Cannot add the task:  " + e.getMessage(), e);
-		}
-		return false;
-	}
-	
-	public static boolean addUniqueTask(String task, TaskTypes type, String param1, String param2, String param3)
-	{
-		return addUniqueTask(task, type, param1, param2, param3, 0);
-	}
-	
-	public static boolean addUniqueTask(String task, TaskTypes type, String param1, String param2, String param3, long lastActivation)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps1 = con.prepareStatement(SQL_STATEMENTS[2]))
-		{
-			ps1.setString(1, task);
-			try (ResultSet rs = ps1.executeQuery())
+			task = ptask;
+			type = ptype;
+			id = rset.getInt("id");
+			lastActivation = rset.getLong("last_activation");
+			params = new String[]
 			{
-				if (!rs.next())
-				{
-					try (PreparedStatement ps2 = con.prepareStatement(SQL_STATEMENTS[3]))
-					{
-						ps2.setString(1, task);
-						ps2.setString(2, type.toString());
-						ps2.setLong(3, lastActivation);
-						ps2.setString(4, param1);
-						ps2.setString(5, param2);
-						ps2.setString(6, param3);
-						ps2.execute();
-					}
-				}
+				rset.getString("param1"),
+				rset.getString("param2"),
+				rset.getString("param3")
+			};
+		}
+		
+		@Override
+		public void run()
+		{
+			task.onTimeElapsed(this);
+			lastActivation = System.currentTimeMillis();
+			try (Connection con = ConnectionFactory.getInstance().getConnection();
+				PreparedStatement statement = con.prepareStatement(SQL_STATEMENTS[1]))
+			{
+				statement.setLong(1, lastActivation);
+				statement.setInt(2, id);
+				statement.executeUpdate();
 			}
-			return true;
+			catch (SQLException e)
+			{
+				_log.log(Level.WARNING, getClass().getSimpleName() + ": Cannot updated the Global Task " + id + ": " + e.getMessage(), e);
+			}
+			
+			if ((type == TYPE_SHEDULED) || (type == TYPE_TIME))
+			{
+				stopTask();
+			}
 		}
-		catch (SQLException e)
+		
+		@Override
+		public boolean equals(Object object)
 		{
-			_log.log(Level.WARNING, TaskManager.class.getSimpleName() + ": Cannot add the unique task: " + e.getMessage(), e);
+			if (this == object)
+			{
+				return true;
+			}
+			if (!(object instanceof ExecutedTask))
+			{
+				return false;
+			}
+			return id == ((ExecutedTask) object).id;
 		}
-		return false;
-	}
-	
-	public static TaskManager getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	public void registerTask(Task task)
-	{
-		int key = task.getName().hashCode();
-		_tasks.computeIfAbsent(key, k ->
+		
+		@Override
+		public int hashCode()
 		{
-			task.initializate();
+			return id;
+		}
+		
+		public Task getTask()
+		{
 			return task;
-		});
+		}
+		
+		public TaskTypes getType()
+		{
+			return type;
+		}
+		
+		public int getId()
+		{
+			return id;
+		}
+		
+		public String[] getParams()
+		{
+			return params;
+		}
+		
+		public long getLastActivation()
+		{
+			return lastActivation;
+		}
+		
+		public void stopTask()
+		{
+			task.onDestroy();
+			
+			if (scheduled != null)
+			{
+				scheduled.cancel(true);
+			}
+			
+			_currentTasks.remove(this);
+		}
+		
 	}
 	
 	private void initializate()
@@ -170,6 +198,47 @@ public final class TaskManager
 		registerTask(new TaskScript());
 		registerTask(new TaskSevenSignsUpdate());
 		registerTask(new TaskShutdown());
+	}
+	
+	public void registerTask(Task task)
+	{
+		int key = task.getName().hashCode();
+		_tasks.computeIfAbsent(key, k ->
+		{
+			task.initializate();
+			return task;
+		});
+	}
+	
+	private void startAllTasks()
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement statement = con.prepareStatement(SQL_STATEMENTS[0]);
+			ResultSet rset = statement.executeQuery())
+		{
+			while (rset.next())
+			{
+				Task task = _tasks.get(rset.getString("task").trim().toLowerCase().hashCode());
+				if (task == null)
+				{
+					continue;
+				}
+				
+				final TaskTypes type = TaskTypes.valueOf(rset.getString("type"));
+				if (type != TYPE_NONE)
+				{
+					ExecutedTask current = new ExecutedTask(task, type, rset);
+					if (launchTask(current))
+					{
+						_currentTasks.add(current);
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.SEVERE, getClass().getSimpleName() + ": Error while loading Global Task table: " + e.getMessage(), e);
+		}
 	}
 	
 	private boolean launchTask(ExecutedTask task)
@@ -255,140 +324,71 @@ public final class TaskManager
 		return false;
 	}
 	
-	private void startAllTasks()
+	public static boolean addUniqueTask(String task, TaskTypes type, String param1, String param2, String param3)
+	{
+		return addUniqueTask(task, type, param1, param2, param3, 0);
+	}
+	
+	public static boolean addUniqueTask(String task, TaskTypes type, String param1, String param2, String param3, long lastActivation)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement statement = con.prepareStatement(SQL_STATEMENTS[0]);
-			ResultSet rset = statement.executeQuery())
+			PreparedStatement ps1 = con.prepareStatement(SQL_STATEMENTS[2]))
 		{
-			while (rset.next())
+			ps1.setString(1, task);
+			try (ResultSet rs = ps1.executeQuery())
 			{
-				Task task = _tasks.get(rset.getString("task").trim().toLowerCase().hashCode());
-				if (task == null)
+				if (!rs.next())
 				{
-					continue;
-				}
-				
-				final TaskTypes type = TaskTypes.valueOf(rset.getString("type"));
-				if (type != TYPE_NONE)
-				{
-					ExecutedTask current = new ExecutedTask(task, type, rset);
-					if (launchTask(current))
+					try (PreparedStatement ps2 = con.prepareStatement(SQL_STATEMENTS[3]))
 					{
-						_currentTasks.add(current);
+						ps2.setString(1, task);
+						ps2.setString(2, type.toString());
+						ps2.setLong(3, lastActivation);
+						ps2.setString(4, param1);
+						ps2.setString(5, param2);
+						ps2.setString(6, param3);
+						ps2.execute();
 					}
 				}
 			}
+			return true;
 		}
-		catch (Exception e)
+		catch (SQLException e)
 		{
-			_log.log(Level.SEVERE, getClass().getSimpleName() + ": Error while loading Global Task table: " + e.getMessage(), e);
+			_log.log(Level.WARNING, TaskManager.class.getSimpleName() + ": Cannot add the unique task: " + e.getMessage(), e);
 		}
+		return false;
 	}
 	
-	public class ExecutedTask implements Runnable
+	public static boolean addTask(String task, TaskTypes type, String param1, String param2, String param3)
 	{
-		int id;
-		long lastActivation;
-		Task task;
-		TaskTypes type;
-		String[] params;
-		ScheduledFuture<?> scheduled;
-		
-		public ExecutedTask(Task ptask, TaskTypes ptype, ResultSet rset) throws SQLException
+		return addTask(task, type, param1, param2, param3, 0);
+	}
+	
+	public static boolean addTask(String task, TaskTypes type, String param1, String param2, String param3, long lastActivation)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement statement = con.prepareStatement(SQL_STATEMENTS[3]))
 		{
-			task = ptask;
-			type = ptype;
-			id = rset.getInt("id");
-			lastActivation = rset.getLong("last_activation");
-			params = new String[]
-			{
-				rset.getString("param1"),
-				rset.getString("param2"),
-				rset.getString("param3")
-			};
+			statement.setString(1, task);
+			statement.setString(2, type.toString());
+			statement.setLong(3, lastActivation);
+			statement.setString(4, param1);
+			statement.setString(5, param2);
+			statement.setString(6, param3);
+			statement.execute();
+			return true;
 		}
-		
-		@Override
-		public boolean equals(Object object)
+		catch (SQLException e)
 		{
-			if (this == object)
-			{
-				return true;
-			}
-			if (!(object instanceof ExecutedTask))
-			{
-				return false;
-			}
-			return id == ((ExecutedTask) object).id;
+			_log.log(Level.WARNING, TaskManager.class.getSimpleName() + ": Cannot add the task:  " + e.getMessage(), e);
 		}
-		
-		public int getId()
-		{
-			return id;
-		}
-		
-		public long getLastActivation()
-		{
-			return lastActivation;
-		}
-		
-		public String[] getParams()
-		{
-			return params;
-		}
-		
-		public Task getTask()
-		{
-			return task;
-		}
-		
-		public TaskTypes getType()
-		{
-			return type;
-		}
-		
-		@Override
-		public int hashCode()
-		{
-			return id;
-		}
-		
-		@Override
-		public void run()
-		{
-			task.onTimeElapsed(this);
-			lastActivation = System.currentTimeMillis();
-			try (Connection con = ConnectionFactory.getInstance().getConnection();
-				PreparedStatement statement = con.prepareStatement(SQL_STATEMENTS[1]))
-			{
-				statement.setLong(1, lastActivation);
-				statement.setInt(2, id);
-				statement.executeUpdate();
-			}
-			catch (SQLException e)
-			{
-				_log.log(Level.WARNING, getClass().getSimpleName() + ": Cannot updated the Global Task " + id + ": " + e.getMessage(), e);
-			}
-			
-			if ((type == TYPE_SHEDULED) || (type == TYPE_TIME))
-			{
-				stopTask();
-			}
-		}
-		
-		public void stopTask()
-		{
-			task.onDestroy();
-			
-			if (scheduled != null)
-			{
-				scheduled.cancel(true);
-			}
-			
-			_currentTasks.remove(this);
-		}
-		
+		return false;
+	}
+	
+	public static TaskManager getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

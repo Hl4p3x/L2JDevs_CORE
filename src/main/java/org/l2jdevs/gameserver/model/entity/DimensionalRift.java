@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -43,10 +43,10 @@ import org.l2jdevs.util.Rnd;
  */
 public class DimensionalRift
 {
-	private static final long seconds_5 = 5000L;
 	protected byte _type;
 	protected L2Party _party;
 	protected List<Byte> _completedRooms = new ArrayList<>();
+	private static final long seconds_5 = 5000L;
 	// private static final int MILLISECONDS_IN_MINUTE = 60000;
 	protected byte jumps_current = 0;
 	
@@ -92,260 +92,14 @@ public class DimensionalRift
 		createTeleporterTimer(true);
 	}
 	
-	public void checkBossRoom(byte room)
-	{
-		isBossRoom = DimensionalRiftManager.getInstance().getRoom(_type, room).isBossRoom();
-	}
-	
-	public void createSpawnTimer(final byte room)
-	{
-		if (spawnTimerTask != null)
-		{
-			spawnTimerTask.cancel();
-			spawnTimerTask = null;
-		}
-		
-		if (spawnTimer != null)
-		{
-			spawnTimer.cancel();
-			spawnTimer = null;
-		}
-		
-		spawnTimer = new Timer();
-		spawnTimerTask = new TimerTask()
-		{
-			@Override
-			public void run()
-			{
-				DimensionalRiftManager.getInstance().getRoom(_type, room).spawn();
-			}
-		};
-		
-		spawnTimer.schedule(spawnTimerTask, Config.RIFT_SPAWN_DELAY);
-	}
-	
-	public byte getCurrentRoom()
-	{
-		return _choosenRoom;
-	}
-	
-	public List<L2PcInstance> getDeadMemberList()
-	{
-		return _deadPlayers;
-	}
-	
-	public byte getMaxJumps()
-	{
-		if ((Config.RIFT_MAX_JUMPS <= 8) && (Config.RIFT_MAX_JUMPS >= 1))
-		{
-			return (byte) Config.RIFT_MAX_JUMPS;
-		}
-		return 4;
-	}
-	
-	public List<L2PcInstance> getRevivedAtWaitingRoom()
-	{
-		return _revivedInWaitingRoom;
-	}
-	
-	public Location getRoomCoord(byte room)
-	{
-		return DimensionalRiftManager.getInstance().getRoom(_type, room).getTeleportCoorinates();
-	}
-	
-	public Timer getSpawnTimer()
-	{
-		return spawnTimer;
-	}
-	
-	public TimerTask getSpawnTimerTask()
-	{
-		return spawnTimerTask;
-	}
-	
-	public Timer getTeleportTimer()
-	{
-		return teleporterTimer;
-	}
-	
-	public TimerTask getTeleportTimerTask()
-	{
-		return teleporterTimerTask;
-	}
-	
 	public byte getType()
 	{
 		return _type;
 	}
 	
-	public void killRift()
+	public byte getCurrentRoom()
 	{
-		_completedRooms.clear();
-		
-		if (_party != null)
-		{
-			_party.setDimensionalRift(null);
-		}
-		
-		_party = null;
-		_revivedInWaitingRoom = null;
-		_deadPlayers = null;
-		
-		if (earthQuakeTask != null)
-		{
-			earthQuakeTask.cancel(false);
-			earthQuakeTask = null;
-		}
-		
-		DimensionalRiftManager.getInstance().getRoom(_type, _choosenRoom).unspawn().setPartyInside(false);
-		DimensionalRiftManager.getInstance().killRift(this);
-	}
-	
-	public void manualExitRift(L2PcInstance player, L2Npc npc)
-	{
-		if (!player.isInParty() || !player.getParty().isInDimensionalRift())
-		{
-			return;
-		}
-		
-		if (player.getObjectId() != player.getParty().getLeaderObjectId())
-		{
-			DimensionalRiftManager.getInstance().showHtmlFile(player, "data/html/seven_signs/rift/NotPartyLeader.htm", npc);
-			return;
-		}
-		
-		for (L2PcInstance p : player.getParty().getMembers())
-		{
-			teleportToWaitingRoom(p);
-		}
-		killRift();
-	}
-	
-	public void manualTeleport(L2PcInstance player, L2Npc npc)
-	{
-		if (!player.isInParty() || !player.getParty().isInDimensionalRift())
-		{
-			return;
-		}
-		
-		if (player.getObjectId() != player.getParty().getLeaderObjectId())
-		{
-			DimensionalRiftManager.getInstance().showHtmlFile(player, "data/html/seven_signs/rift/NotPartyLeader.htm", npc);
-			return;
-		}
-		
-		if (_hasJumped)
-		{
-			DimensionalRiftManager.getInstance().showHtmlFile(player, "data/html/seven_signs/rift/AlreadyTeleported.htm", npc);
-			return;
-		}
-		
-		_hasJumped = true;
-		DimensionalRiftManager.getInstance().getRoom(_type, _choosenRoom).unspawn().setPartyInside(false);
-		_completedRooms.add(_choosenRoom);
-		_choosenRoom = -1;
-		
-		for (L2PcInstance p : _party.getMembers())
-		{
-			teleportToNextRoom(p);
-		}
-		
-		DimensionalRiftManager.getInstance().getRoom(_type, _choosenRoom).setPartyInside(true);
-		
-		createSpawnTimer(_choosenRoom);
-		createTeleporterTimer(true);
-	}
-	
-	public void memberDead(L2PcInstance player)
-	{
-		if (!_deadPlayers.contains(player))
-		{
-			_deadPlayers.add(player);
-		}
-	}
-	
-	public void memberRessurected(L2PcInstance player)
-	{
-		if (_deadPlayers.contains(player))
-		{
-			_deadPlayers.remove(player);
-		}
-	}
-	
-	public void partyMemberExited(L2PcInstance player)
-	{
-		if (_deadPlayers.contains(player))
-		{
-			_deadPlayers.remove(player);
-		}
-		
-		if (_revivedInWaitingRoom.contains(player))
-		{
-			_revivedInWaitingRoom.remove(player);
-		}
-		
-		if ((_party.getMemberCount() < Config.RIFT_MIN_PARTY_SIZE) || (_party.getMemberCount() == 1))
-		{
-			for (L2PcInstance p : _party.getMembers())
-			{
-				teleportToWaitingRoom(p);
-			}
-			killRift();
-		}
-	}
-	
-	public void partyMemberInvited()
-	{
-		createTeleporterTimer(false);
-	}
-	
-	public void setSpawnTimer(Timer t)
-	{
-		spawnTimer = t;
-	}
-	
-	public void setSpawnTimerTask(TimerTask st)
-	{
-		spawnTimerTask = st;
-	}
-	
-	public void setTeleportTimer(Timer t)
-	{
-		teleporterTimer = t;
-	}
-	
-	public void setTeleportTimerTask(TimerTask tt)
-	{
-		teleporterTimerTask = tt;
-	}
-	
-	public void usedTeleport(L2PcInstance player)
-	{
-		if (!_revivedInWaitingRoom.contains(player))
-		{
-			_revivedInWaitingRoom.add(player);
-		}
-		
-		if (!_deadPlayers.contains(player))
-		{
-			_deadPlayers.add(player);
-		}
-		
-		if ((_party.getMemberCount() - _revivedInWaitingRoom.size()) < Config.RIFT_MIN_PARTY_SIZE)
-		{
-			// int pcm = _party.getMemberCount();
-			// int rev = revivedInWaitingRoom.size();
-			// int min = Config.RIFT_MIN_PARTY_SIZE;
-			
-			for (L2PcInstance p : _party.getMembers())
-			{
-				if ((p != null) && !_revivedInWaitingRoom.contains(p))
-				{
-					teleportToWaitingRoom(p);
-				}
-			}
-			killRift();
-		}
+		return _choosenRoom;
 	}
 	
 	protected void createTeleporterTimer(final boolean reasonTP)
@@ -438,6 +192,115 @@ public class DimensionalRift
 		}
 	}
 	
+	public void createSpawnTimer(final byte room)
+	{
+		if (spawnTimerTask != null)
+		{
+			spawnTimerTask.cancel();
+			spawnTimerTask = null;
+		}
+		
+		if (spawnTimer != null)
+		{
+			spawnTimer.cancel();
+			spawnTimer = null;
+		}
+		
+		spawnTimer = new Timer();
+		spawnTimerTask = new TimerTask()
+		{
+			@Override
+			public void run()
+			{
+				DimensionalRiftManager.getInstance().getRoom(_type, room).spawn();
+			}
+		};
+		
+		spawnTimer.schedule(spawnTimerTask, Config.RIFT_SPAWN_DELAY);
+	}
+	
+	public void partyMemberInvited()
+	{
+		createTeleporterTimer(false);
+	}
+	
+	public void partyMemberExited(L2PcInstance player)
+	{
+		if (_deadPlayers.contains(player))
+		{
+			_deadPlayers.remove(player);
+		}
+		
+		if (_revivedInWaitingRoom.contains(player))
+		{
+			_revivedInWaitingRoom.remove(player);
+		}
+		
+		if ((_party.getMemberCount() < Config.RIFT_MIN_PARTY_SIZE) || (_party.getMemberCount() == 1))
+		{
+			for (L2PcInstance p : _party.getMembers())
+			{
+				teleportToWaitingRoom(p);
+			}
+			killRift();
+		}
+	}
+	
+	public void manualTeleport(L2PcInstance player, L2Npc npc)
+	{
+		if (!player.isInParty() || !player.getParty().isInDimensionalRift())
+		{
+			return;
+		}
+		
+		if (player.getObjectId() != player.getParty().getLeaderObjectId())
+		{
+			DimensionalRiftManager.getInstance().showHtmlFile(player, "data/html/seven_signs/rift/NotPartyLeader.htm", npc);
+			return;
+		}
+		
+		if (_hasJumped)
+		{
+			DimensionalRiftManager.getInstance().showHtmlFile(player, "data/html/seven_signs/rift/AlreadyTeleported.htm", npc);
+			return;
+		}
+		
+		_hasJumped = true;
+		DimensionalRiftManager.getInstance().getRoom(_type, _choosenRoom).unspawn().setPartyInside(false);
+		_completedRooms.add(_choosenRoom);
+		_choosenRoom = -1;
+		
+		for (L2PcInstance p : _party.getMembers())
+		{
+			teleportToNextRoom(p);
+		}
+		
+		DimensionalRiftManager.getInstance().getRoom(_type, _choosenRoom).setPartyInside(true);
+		
+		createSpawnTimer(_choosenRoom);
+		createTeleporterTimer(true);
+	}
+	
+	public void manualExitRift(L2PcInstance player, L2Npc npc)
+	{
+		if (!player.isInParty() || !player.getParty().isInDimensionalRift())
+		{
+			return;
+		}
+		
+		if (player.getObjectId() != player.getParty().getLeaderObjectId())
+		{
+			DimensionalRiftManager.getInstance().showHtmlFile(player, "data/html/seven_signs/rift/NotPartyLeader.htm", npc);
+			return;
+		}
+		
+		for (L2PcInstance p : player.getParty().getMembers())
+		{
+			teleportToWaitingRoom(p);
+		}
+		killRift();
+	}
+	
 	protected void teleportToNextRoom(L2PcInstance player)
 	{
 		if (_choosenRoom == -1)
@@ -477,6 +340,69 @@ public class DimensionalRift
 		}
 	}
 	
+	public void killRift()
+	{
+		_completedRooms.clear();
+		
+		if (_party != null)
+		{
+			_party.setDimensionalRift(null);
+		}
+		
+		_party = null;
+		_revivedInWaitingRoom = null;
+		_deadPlayers = null;
+		
+		if (earthQuakeTask != null)
+		{
+			earthQuakeTask.cancel(false);
+			earthQuakeTask = null;
+		}
+		
+		DimensionalRiftManager.getInstance().getRoom(_type, _choosenRoom).unspawn().setPartyInside(false);
+		DimensionalRiftManager.getInstance().killRift(this);
+	}
+	
+	public Timer getTeleportTimer()
+	{
+		return teleporterTimer;
+	}
+	
+	public TimerTask getTeleportTimerTask()
+	{
+		return teleporterTimerTask;
+	}
+	
+	public Timer getSpawnTimer()
+	{
+		return spawnTimer;
+	}
+	
+	public TimerTask getSpawnTimerTask()
+	{
+		return spawnTimerTask;
+	}
+	
+	public void setTeleportTimer(Timer t)
+	{
+		teleporterTimer = t;
+	}
+	
+	public void setTeleportTimerTask(TimerTask tt)
+	{
+		teleporterTimerTask = tt;
+	}
+	
+	public void setSpawnTimer(Timer t)
+	{
+		spawnTimer = t;
+	}
+	
+	public void setSpawnTimerTask(TimerTask st)
+	{
+		spawnTimerTask = st;
+	}
+	
 	private long calcTimeToNextJump()
 	{
 		int time = Rnd.get(Config.RIFT_AUTO_JUMPS_TIME_MIN, Config.RIFT_AUTO_JUMPS_TIME_MAX) * 1000;
@@ -486,5 +412,79 @@ public class DimensionalRift
 			return (long) (time * Config.RIFT_BOSS_ROOM_TIME_MUTIPLY);
 		}
 		return time;
+	}
+	
+	public void memberDead(L2PcInstance player)
+	{
+		if (!_deadPlayers.contains(player))
+		{
+			_deadPlayers.add(player);
+		}
+	}
+	
+	public void memberRessurected(L2PcInstance player)
+	{
+		if (_deadPlayers.contains(player))
+		{
+			_deadPlayers.remove(player);
+		}
+	}
+	
+	public void usedTeleport(L2PcInstance player)
+	{
+		if (!_revivedInWaitingRoom.contains(player))
+		{
+			_revivedInWaitingRoom.add(player);
+		}
+		
+		if (!_deadPlayers.contains(player))
+		{
+			_deadPlayers.add(player);
+		}
+		
+		if ((_party.getMemberCount() - _revivedInWaitingRoom.size()) < Config.RIFT_MIN_PARTY_SIZE)
+		{
+			// int pcm = _party.getMemberCount();
+			// int rev = revivedInWaitingRoom.size();
+			// int min = Config.RIFT_MIN_PARTY_SIZE;
+			
+			for (L2PcInstance p : _party.getMembers())
+			{
+				if ((p != null) && !_revivedInWaitingRoom.contains(p))
+				{
+					teleportToWaitingRoom(p);
+				}
+			}
+			killRift();
+		}
+	}
+	
+	public List<L2PcInstance> getDeadMemberList()
+	{
+		return _deadPlayers;
+	}
+	
+	public List<L2PcInstance> getRevivedAtWaitingRoom()
+	{
+		return _revivedInWaitingRoom;
+	}
+	
+	public void checkBossRoom(byte room)
+	{
+		isBossRoom = DimensionalRiftManager.getInstance().getRoom(_type, room).isBossRoom();
+	}
+	
+	public Location getRoomCoord(byte room)
+	{
+		return DimensionalRiftManager.getInstance().getRoom(_type, room).getTeleportCoorinates();
+	}
+	
+	public byte getMaxJumps()
+	{
+		if ((Config.RIFT_MAX_JUMPS <= 8) && (Config.RIFT_MAX_JUMPS >= 1))
+		{
+			return (byte) Config.RIFT_MAX_JUMPS;
+		}
+		return 4;
 	}
 }

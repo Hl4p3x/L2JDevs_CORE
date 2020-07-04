@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -119,6 +119,24 @@ public final class ItemAuctionManager
 		}
 	}
 	
+	public final void shutdown()
+	{
+		for (ItemAuctionInstance instance : _managerInstances.values())
+		{
+			instance.shutdown();
+		}
+	}
+	
+	public final ItemAuctionInstance getManagerInstance(final int instanceId)
+	{
+		return _managerInstances.get(instanceId);
+	}
+	
+	public final int getNextAuctionId()
+	{
+		return _auctionIds.getAndIncrement();
+	}
+	
 	public static final void deleteAuction(final int auctionId)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection())
@@ -148,24 +166,6 @@ public final class ItemAuctionManager
 	public static final ItemAuctionManager getInstance()
 	{
 		return SingletonHolder.INSTANCE;
-	}
-	
-	public final ItemAuctionInstance getManagerInstance(final int instanceId)
-	{
-		return _managerInstances.get(instanceId);
-	}
-	
-	public final int getNextAuctionId()
-	{
-		return _auctionIds.getAndIncrement();
-	}
-	
-	public final void shutdown()
-	{
-		for (ItemAuctionInstance instance : _managerInstances.values())
-		{
-			instance.shutdown();
-		}
 	}
 	
 	private static class SingletonHolder

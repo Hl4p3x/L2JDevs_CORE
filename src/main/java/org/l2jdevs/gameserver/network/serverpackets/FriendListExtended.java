@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,6 +38,24 @@ import org.l2jdevs.gameserver.model.actor.instance.L2PcInstance;
 public class FriendListExtended extends L2GameServerPacket
 {
 	private List<FriendInfo> _info;
+	
+	private static class FriendInfo
+	{
+		int _objId;
+		String _name;
+		boolean _online;
+		int _classid;
+		int _level;
+		
+		FriendInfo(int objId, String name, boolean online, int classid, int level)
+		{
+			_objId = objId;
+			_name = name;
+			_online = online;
+			_classid = classid;
+			_level = level;
+		}
+	}
 	
 	public FriendListExtended(L2PcInstance player)
 	{
@@ -89,24 +107,6 @@ public class FriendListExtended extends L2GameServerPacket
 			writeD(info._online ? info._objId : 0x00); // object id if online
 			writeD(info._classid);
 			writeD(info._level);
-		}
-	}
-	
-	private static class FriendInfo
-	{
-		int _objId;
-		String _name;
-		boolean _online;
-		int _classid;
-		int _level;
-		
-		FriendInfo(int objId, String name, boolean online, int classid, int level)
-		{
-			_objId = objId;
-			_name = name;
-			_online = online;
-			_classid = classid;
-			_level = level;
 		}
 	}
 }

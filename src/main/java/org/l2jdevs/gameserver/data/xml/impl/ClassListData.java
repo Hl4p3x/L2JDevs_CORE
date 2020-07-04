@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -45,45 +45,6 @@ public final class ClassListData implements IXmlReader
 		load();
 	}
 	
-	/**
-	 * Gets the single instance of ClassListData.
-	 * @return single instance of ClassListData
-	 */
-	public static ClassListData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Gets the class info.
-	 * @param classId the class ID
-	 * @return the class info related to the given {@code classId}
-	 */
-	public ClassInfo getClass(ClassId classId)
-	{
-		return _classData.get(classId);
-	}
-	
-	/**
-	 * Gets the class info.
-	 * @param classId the class Id as integer
-	 * @return the class info related to the given {@code classId}
-	 */
-	public ClassInfo getClass(int classId)
-	{
-		final ClassId id = ClassId.getClassId(classId);
-		return (id != null) ? _classData.get(id) : null;
-	}
-	
-	/**
-	 * Gets the class list.
-	 * @return the complete class list
-	 */
-	public Map<ClassId, ClassInfo> getClassList()
-	{
-		return _classData;
-	}
-	
 	@Override
 	public void load()
 	{
@@ -115,6 +76,45 @@ public final class ClassListData implements IXmlReader
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Gets the class list.
+	 * @return the complete class list
+	 */
+	public Map<ClassId, ClassInfo> getClassList()
+	{
+		return _classData;
+	}
+	
+	/**
+	 * Gets the class info.
+	 * @param classId the class ID
+	 * @return the class info related to the given {@code classId}
+	 */
+	public ClassInfo getClass(ClassId classId)
+	{
+		return _classData.get(classId);
+	}
+	
+	/**
+	 * Gets the class info.
+	 * @param classId the class Id as integer
+	 * @return the class info related to the given {@code classId}
+	 */
+	public ClassInfo getClass(int classId)
+	{
+		final ClassId id = ClassId.getClassId(classId);
+		return (id != null) ? _classData.get(id) : null;
+	}
+	
+	/**
+	 * Gets the single instance of ClassListData.
+	 * @return single instance of ClassListData
+	 */
+	public static ClassListData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

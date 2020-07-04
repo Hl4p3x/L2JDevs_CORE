@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -35,6 +35,53 @@ public class GeoNodeLoc extends AbstractNodeLoc
 		_x = x;
 		_y = y;
 		_z = z;
+	}
+	
+	@Override
+	public int getX()
+	{
+		return L2World.MAP_MIN_X + (_x * 128) + 48;
+	}
+	
+	@Override
+	public int getY()
+	{
+		return L2World.MAP_MIN_Y + (_y * 128) + 48;
+	}
+	
+	@Override
+	public int getZ()
+	{
+		return _z;
+	}
+	
+	@Override
+	public void setZ(short z)
+	{
+		//
+	}
+	
+	@Override
+	public int getNodeX()
+	{
+		return _x;
+	}
+	
+	@Override
+	public int getNodeY()
+	{
+		return _y;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + _x;
+		result = (prime * result) + _y;
+		result = (prime * result) + _z;
+		return result;
 	}
 	
 	@Override
@@ -66,52 +113,5 @@ public class GeoNodeLoc extends AbstractNodeLoc
 			return false;
 		}
 		return true;
-	}
-	
-	@Override
-	public int getNodeX()
-	{
-		return _x;
-	}
-	
-	@Override
-	public int getNodeY()
-	{
-		return _y;
-	}
-	
-	@Override
-	public int getX()
-	{
-		return L2World.MAP_MIN_X + (_x * 128) + 48;
-	}
-	
-	@Override
-	public int getY()
-	{
-		return L2World.MAP_MIN_Y + (_y * 128) + 48;
-	}
-	
-	@Override
-	public int getZ()
-	{
-		return _z;
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + _x;
-		result = (prime * result) + _y;
-		result = (prime * result) + _z;
-		return result;
-	}
-	
-	@Override
-	public void setZ(short z)
-	{
-		//
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -61,13 +61,82 @@ public class L2OlympiadStadiumZone extends L2ZoneRespawn
 		setSettings(settings);
 	}
 	
-	public final void broadcastPacketToObservers(L2GameServerPacket packet)
+	public final class Settings extends AbstractZoneSettings
 	{
-		for (L2Character character : getCharactersInside())
+		private OlympiadGameTask _task = null;
+		
+		protected Settings()
 		{
-			if ((character != null) && character.isPlayer() && character.getActingPlayer().inObserverMode())
+		}
+		
+		public OlympiadGameTask getOlympiadTask()
+		{
+			return _task;
+		}
+		
+		protected void setTask(OlympiadGameTask task)
+		{
+			_task = task;
+		}
+		
+		@Override
+		public void clear()
+		{
+			_task = null;
+		}
+	}
+	
+	@Override
+	public Settings getSettings()
+	{
+		return (Settings) super.getSettings();
+	}
+	
+	public final void registerTask(OlympiadGameTask task)
+	{
+		getSettings().setTask(task);
+	}
+	
+	public final void openDoors()
+	{
+		for (L2DoorInstance door : InstanceManager.getInstance().getInstance(getInstanceId()).getDoors())
+		{
+			if ((door != null) && !door.getOpen())
 			{
-				character.sendPacket(packet);
+				door.openMe();
+			}
+		}
+	}
+	
+	public final void closeDoors()
+	{
+		for (L2DoorInstance door : InstanceManager.getInstance().getInstance(getInstanceId()).getDoors())
+		{
+			if ((door != null) && door.getOpen())
+			{
+				door.closeMe();
+			}
+		}
+	}
+	
+	public final void spawnBuffers()
+	{
+		for (L2Npc buffer : InstanceManager.getInstance().getInstance(getInstanceId()).getNpcs())
+		{
+			if ((buffer instanceof L2OlympiadManagerInstance) && !buffer.isVisible())
+			{
+				buffer.spawnMe();
+			}
+		}
+	}
+	
+	public final void deleteBuffers()
+	{
+		for (L2Npc buffer : InstanceManager.getInstance().getInstance(getInstanceId()).getNpcs())
+		{
+			if ((buffer instanceof L2OlympiadManagerInstance) && buffer.isVisible())
+			{
+				buffer.decayMe();
 			}
 		}
 	}
@@ -84,124 +153,13 @@ public class L2OlympiadStadiumZone extends L2ZoneRespawn
 		}
 	}
 	
-	public final void closeDoors()
+	public final void broadcastPacketToObservers(L2GameServerPacket packet)
 	{
-		for (L2DoorInstance door : InstanceManager.getInstance().getInstance(getInstanceId()).getDoors())
-		{
-			if ((door != null) && door.getOpen())
-			{
-				door.closeMe();
-			}
-		}
-	}
-	
-	public final void deleteBuffers()
-	{
-		for (L2Npc buffer : InstanceManager.getInstance().getInstance(getInstanceId()).getNpcs())
-		{
-			if ((buffer instanceof L2OlympiadManagerInstance) && buffer.isVisible())
-			{
-				buffer.decayMe();
-			}
-		}
-	}
-	
-	@Override
-	public Settings getSettings()
-	{
-		return (Settings) super.getSettings();
-	}
-	
-	public List<Location> getSpectatorSpawns()
-	{
-		return _spectatorLocations;
-	}
-	
-	public final void openDoors()
-	{
-		for (L2DoorInstance door : InstanceManager.getInstance().getInstance(getInstanceId()).getDoors())
-		{
-			if ((door != null) && !door.getOpen())
-			{
-				door.openMe();
-			}
-		}
-	}
-	
-	@Override
-	public void parseLoc(int x, int y, int z, String type)
-	{
-		if ((type != null) && type.equals("spectatorSpawn"))
-		{
-			if (_spectatorLocations == null)
-			{
-				_spectatorLocations = new ArrayList<>();
-			}
-			_spectatorLocations.add(new Location(x, y, z));
-		}
-		else
-		{
-			super.parseLoc(x, y, z, type);
-		}
-	}
-	
-	public final void registerTask(OlympiadGameTask task)
-	{
-		getSettings().setTask(task);
-	}
-	
-	public final void spawnBuffers()
-	{
-		for (L2Npc buffer : InstanceManager.getInstance().getInstance(getInstanceId()).getNpcs())
-		{
-			if ((buffer instanceof L2OlympiadManagerInstance) && !buffer.isVisible())
-			{
-				buffer.spawnMe();
-			}
-		}
-	}
-	
-	public final void updateZoneStatusForCharactersInside()
-	{
-		if (getSettings().getOlympiadTask() == null)
-		{
-			return;
-		}
-		
-		final boolean battleStarted = getSettings().getOlympiadTask().isBattleStarted();
-		final SystemMessage sm;
-		if (battleStarted)
-		{
-			sm = SystemMessage.getSystemMessage(SystemMessageId.ENTERED_COMBAT_ZONE);
-		}
-		else
-		{
-			sm = SystemMessage.getSystemMessage(SystemMessageId.LEFT_COMBAT_ZONE);
-		}
-		
 		for (L2Character character : getCharactersInside())
 		{
-			if (character == null)
+			if ((character != null) && character.isPlayer() && character.getActingPlayer().inObserverMode())
 			{
-				continue;
-			}
-			
-			if (battleStarted)
-			{
-				character.setInsideZone(ZoneId.PVP, true);
-				if (character.isPlayer())
-				{
-					character.sendPacket(sm);
-				}
-			}
-			else
-			{
-				character.setInsideZone(ZoneId.PVP, false);
-				if (character.isPlayer())
-				{
-					character.sendPacket(sm);
-					character.sendPacket(ExOlympiadMatchEnd.STATIC_PACKET);
-				}
+				character.sendPacket(packet);
 			}
 		}
 	}
@@ -261,28 +219,48 @@ public class L2OlympiadStadiumZone extends L2ZoneRespawn
 		}
 	}
 	
-	public final class Settings extends AbstractZoneSettings
+	public final void updateZoneStatusForCharactersInside()
 	{
-		private OlympiadGameTask _task = null;
-		
-		protected Settings()
+		if (getSettings().getOlympiadTask() == null)
 		{
+			return;
 		}
 		
-		@Override
-		public void clear()
+		final boolean battleStarted = getSettings().getOlympiadTask().isBattleStarted();
+		final SystemMessage sm;
+		if (battleStarted)
 		{
-			_task = null;
+			sm = SystemMessage.getSystemMessage(SystemMessageId.ENTERED_COMBAT_ZONE);
+		}
+		else
+		{
+			sm = SystemMessage.getSystemMessage(SystemMessageId.LEFT_COMBAT_ZONE);
 		}
 		
-		public OlympiadGameTask getOlympiadTask()
+		for (L2Character character : getCharactersInside())
 		{
-			return _task;
-		}
-		
-		protected void setTask(OlympiadGameTask task)
-		{
-			_task = task;
+			if (character == null)
+			{
+				continue;
+			}
+			
+			if (battleStarted)
+			{
+				character.setInsideZone(ZoneId.PVP, true);
+				if (character.isPlayer())
+				{
+					character.sendPacket(sm);
+				}
+			}
+			else
+			{
+				character.setInsideZone(ZoneId.PVP, false);
+				if (character.isPlayer())
+				{
+					character.sendPacket(sm);
+					character.sendPacket(ExOlympiadMatchEnd.STATIC_PACKET);
+				}
+			}
 		}
 	}
 	
@@ -310,5 +288,27 @@ public class L2OlympiadStadiumZone extends L2ZoneRespawn
 				_player = null;
 			}
 		}
+	}
+	
+	@Override
+	public void parseLoc(int x, int y, int z, String type)
+	{
+		if ((type != null) && type.equals("spectatorSpawn"))
+		{
+			if (_spectatorLocations == null)
+			{
+				_spectatorLocations = new ArrayList<>();
+			}
+			_spectatorLocations.add(new Location(x, y, z));
+		}
+		else
+		{
+			super.parseLoc(x, y, z, type);
+		}
+	}
+	
+	public List<Location> getSpectatorSpawns()
+	{
+		return _spectatorLocations;
 	}
 }

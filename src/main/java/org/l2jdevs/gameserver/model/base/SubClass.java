@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -41,19 +41,14 @@ public final class SubClass
 		_stats.setLevel(Config.BASE_SUBCLASS_LEVEL);
 	}
 	
-	public void addExp(long exp)
-	{
-		_stats.addExp(exp);
-	}
-	
 	public PlayerClass getClassDefinition()
 	{
 		return _class;
 	}
 	
-	public int getClassId()
+	public void setClassIndex(int classIndex)
 	{
-		return _class.ordinal();
+		_classIndex = classIndex;
 	}
 	
 	/**
@@ -63,6 +58,16 @@ public final class SubClass
 	public int getClassIndex()
 	{
 		return _classIndex;
+	}
+	
+	public void setClassId(int classId)
+	{
+		_class = PlayerClass.values()[classId];
+	}
+	
+	public int getClassId()
+	{
+		return _class.ordinal();
 	}
 	
 	public long getExp()
@@ -80,19 +85,9 @@ public final class SubClass
 		return _stats.getSp();
 	}
 	
-	public PcStat getStat()
+	public void setSp(int sp)
 	{
-		return _stats;
-	}
-	
-	public void setClassId(int classId)
-	{
-		_class = PlayerClass.values()[classId];
-	}
-	
-	public void setClassIndex(int classIndex)
-	{
-		_classIndex = classIndex;
+		_stats.setSp(sp);
 	}
 	
 	public void setExp(long exp)
@@ -105,8 +100,13 @@ public final class SubClass
 		_stats.setLevel(level);
 	}
 	
-	public void setSp(int sp)
+	public void addExp(long exp)
 	{
-		_stats.setSp(sp);
+		_stats.addExp(exp);
+	}
+	
+	public PcStat getStat()
+	{
+		return _stats;
 	}
 }

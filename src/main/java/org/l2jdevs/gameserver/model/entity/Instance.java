@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -117,6 +117,149 @@ public final class Instance
 	}
 	
 	/**
+	 * @return the ID of this instance.
+	 */
+	public int getId()
+	{
+		return _id;
+	}
+	
+	/**
+	 * @return the name of this instance
+	 */
+	public String getName()
+	{
+		return _name;
+	}
+	
+	public void setName(String name)
+	{
+		_name = name;
+	}
+	
+	/**
+	 * @return the eject time
+	 */
+	public int getEjectTime()
+	{
+		return _ejectTime;
+	}
+	
+	/**
+	 * @param ejectTime the player eject time upon death
+	 */
+	public void setEjectTime(int ejectTime)
+	{
+		_ejectTime = ejectTime;
+	}
+	
+	/**
+	 * @return whether summon friend type skills are allowed for this instance
+	 */
+	public boolean isSummonAllowed()
+	{
+		return _allowSummon;
+	}
+	
+	/**
+	 * Sets the status for the instance for summon friend type skills
+	 * @param b
+	 */
+	public void setAllowSummon(boolean b)
+	{
+		_allowSummon = b;
+	}
+	
+	/**
+	 * Returns true if entire instance is PvP zone
+	 * @return
+	 */
+	public boolean isPvPInstance()
+	{
+		return _isPvPInstance;
+	}
+	
+	/**
+	 * Sets PvP zone status of the instance
+	 * @param b
+	 */
+	public void setPvPInstance(boolean b)
+	{
+		_isPvPInstance = b;
+	}
+	
+	/**
+	 * Set the instance duration task
+	 * @param duration in milliseconds
+	 */
+	public void setDuration(int duration)
+	{
+		if (_checkTimeUpTask != null)
+		{
+			_checkTimeUpTask.cancel(true);
+		}
+		
+		_checkTimeUpTask = ThreadPoolManager.getInstance().scheduleGeneral(new CheckTimeUp(duration), 500);
+		_instanceEndTime = System.currentTimeMillis() + duration + 500;
+	}
+	
+	/**
+	 * Set time before empty instance will be removed
+	 * @param time in milliseconds
+	 */
+	public void setEmptyDestroyTime(long time)
+	{
+		_emptyDestroyTime = time;
+	}
+	
+	/**
+	 * Checks if the player exists within this instance
+	 * @param objectId
+	 * @return true if player exists in instance
+	 */
+	public boolean containsPlayer(int objectId)
+	{
+		return _players.contains(objectId);
+	}
+	
+	/**
+	 * Adds the specified player to the instance
+	 * @param objectId Players object ID
+	 */
+	public void addPlayer(int objectId)
+	{
+		_players.add(objectId);
+	}
+	
+	/**
+	 * Removes the specified player from the instance list.
+	 * @param objectId the player's object Id
+	 */
+	public void removePlayer(Integer objectId)
+	{
+		_players.remove(objectId);
+		if (_players.isEmpty() && (_emptyDestroyTime >= 0))
+		{
+			_lastLeft = System.currentTimeMillis();
+			setDuration((int) (_instanceEndTime - System.currentTimeMillis() - 500));
+		}
+	}
+	
+	public void addNpc(L2Npc npc)
+	{
+		_npcs.add(npc);
+	}
+	
+	public void removeNpc(L2Npc npc)
+	{
+		if (npc.getSpawn() != null)
+		{
+			npc.getSpawn().stopRespawn();
+		}
+		_npcs.remove(npc);
+	}
+	
+	/**
 	 * Adds a door into the instance
 	 * @param doorId - from doors.xml
 	 * @param set - StatsSet for initializing door
@@ -136,86 +279,14 @@ public final class Instance
 		_doors.put(doorId, newdoor);
 	}
 	
-	public void addEjectDeadTask(L2PcInstance player)
+	public List<Integer> getPlayers()
 	{
-		if ((player != null))
-		{
-			_ejectDeadTasks.put(player.getObjectId(), ThreadPoolManager.getInstance().scheduleGeneral(() ->
-			{
-				if (player.isDead() && (player.getInstanceId() == getId()))
-				{
-					player.setInstanceId(0);
-					if (getExitLoc() != null)
-					{
-						player.teleToLocation(getExitLoc(), true);
-					}
-					else
-					{
-						player.teleToLocation(TeleportWhereType.TOWN);
-					}
-				}
-			}, _ejectTime));
-		}
+		return _players;
 	}
 	
-	/**
-	 * Sets the spawn location for this instance to be used when enter in instance
-	 * @param loc
-	 */
-	public void addEnterLoc(Location loc)
+	public List<L2Npc> getNpcs()
 	{
-		_enterLocations.add(loc);
-	}
-	
-	public void addNpc(L2Npc npc)
-	{
-		_npcs.add(npc);
-	}
-	
-	/**
-	 * Adds the specified player to the instance
-	 * @param objectId Players object ID
-	 */
-	public void addPlayer(int objectId)
-	{
-		_players.add(objectId);
-	}
-	
-	public void cancelEjectDeadPlayer(L2PcInstance player)
-	{
-		final ScheduledFuture<?> task = _ejectDeadTasks.remove(player.getObjectId());
-		if (task != null)
-		{
-			task.cancel(true);
-		}
-	}
-	
-	public void cancelTimer()
-	{
-		if (_checkTimeUpTask != null)
-		{
-			_checkTimeUpTask.cancel(true);
-		}
-	}
-	
-	/**
-	 * Checks if the player exists within this instance
-	 * @param objectId
-	 * @return true if player exists in instance
-	 */
-	public boolean containsPlayer(int objectId)
-	{
-		return _players.contains(objectId);
-	}
-	
-	public List<Integer> getBuffExceptionList()
-	{
-		return _exceptionList;
-	}
-	
-	public L2DoorInstance getDoor(int id)
-	{
-		return _doors.get(id);
+		return _npcs;
 	}
 	
 	public Collection<L2DoorInstance> getDoors()
@@ -223,36 +294,9 @@ public final class Instance
 		return _doors.values();
 	}
 	
-	/**
-	 * @return the eject time
-	 */
-	public int getEjectTime()
+	public L2DoorInstance getDoor(int id)
 	{
-		return _ejectTime;
-	}
-	
-	/**
-	 * @return the spawn location for this instance to be used when enter in instance
-	 */
-	public List<Location> getEnterLocs()
-	{
-		return _enterLocations;
-	}
-	
-	/**
-	 * @return the spawn location for this instance to be used when leaving the instance
-	 */
-	public Location getExitLoc()
-	{
-		return _exitLocation;
-	}
-	
-	/**
-	 * @return the ID of this instance.
-	 */
-	public int getId()
-	{
-		return _id;
+		return _doors.get(id);
 	}
 	
 	public long getInstanceEndTime()
@@ -265,37 +309,14 @@ public final class Instance
 		return _instanceStartTime;
 	}
 	
-	/**
-	 * @return the name of this instance
-	 */
-	public String getName()
+	public boolean isShowTimer()
 	{
-		return _name;
+		return _showTimer;
 	}
 	
-	public List<L2Npc> getNpcs()
+	public boolean isTimerIncrease()
 	{
-		return _npcs;
-	}
-	
-	public List<Integer> getPlayers()
-	{
-		return _players;
-	}
-	
-	public List<InstanceReenterTimeHolder> getReenterData()
-	{
-		return _resetData;
-	}
-	
-	public InstanceReenterType getReenterType()
-	{
-		return _type;
-	}
-	
-	public InstanceRemoveBuffType getRemoveBuffType()
-	{
-		return _removeBuffType;
+		return _isTimerIncrease;
 	}
 	
 	public String getTimerText()
@@ -304,35 +325,122 @@ public final class Instance
 	}
 	
 	/**
-	 * Returns true if entire instance is PvP zone
-	 * @return
+	 * @return the spawn location for this instance to be used when enter in instance
 	 */
-	public boolean isPvPInstance()
+	public List<Location> getEnterLocs()
 	{
-		return _isPvPInstance;
-	}
-	
-	public boolean isRemoveBuffEnabled()
-	{
-		return getRemoveBuffType() != InstanceRemoveBuffType.NONE;
-	}
-	
-	public boolean isShowTimer()
-	{
-		return _showTimer;
+		return _enterLocations;
 	}
 	
 	/**
-	 * @return whether summon friend type skills are allowed for this instance
+	 * Sets the spawn location for this instance to be used when enter in instance
+	 * @param loc
 	 */
-	public boolean isSummonAllowed()
+	public void addEnterLoc(Location loc)
 	{
-		return _allowSummon;
+		_enterLocations.add(loc);
 	}
 	
-	public boolean isTimerIncrease()
+	/**
+	 * @return the spawn location for this instance to be used when leaving the instance
+	 */
+	public Location getExitLoc()
 	{
-		return _isTimerIncrease;
+		return _exitLocation;
+	}
+	
+	/**
+	 * Sets the spawn location for this instance to be used when leaving the instance
+	 * @param loc
+	 */
+	public void setExitLoc(Location loc)
+	{
+		_exitLocation = loc;
+	}
+	
+	public void removePlayers()
+	{
+		for (Integer objectId : _players)
+		{
+			final L2PcInstance player = L2World.getInstance().getPlayer(objectId);
+			if ((player != null) && (player.getInstanceId() == getId()))
+			{
+				player.setInstanceId(0);
+				if (getExitLoc() != null)
+				{
+					player.teleToLocation(getExitLoc(), true);
+				}
+				else
+				{
+					player.teleToLocation(TeleportWhereType.TOWN);
+				}
+			}
+		}
+		_players.clear();
+	}
+	
+	public void removeNpcs()
+	{
+		for (L2Npc mob : _npcs)
+		{
+			if (mob != null)
+			{
+				if (mob.getSpawn() != null)
+				{
+					mob.getSpawn().stopRespawn();
+				}
+				mob.deleteMe();
+			}
+		}
+		_npcs.clear();
+		_manualSpawn.clear();
+	}
+	
+	public void removeDoors()
+	{
+		for (L2DoorInstance door : _doors.values())
+		{
+			if (door != null)
+			{
+				L2WorldRegion region = door.getWorldRegion();
+				door.decayMe();
+				
+				if (region != null)
+				{
+					region.removeVisibleObject(door);
+				}
+				
+				door.getKnownList().removeAllKnownObjects();
+				L2World.getInstance().removeObject(door);
+			}
+		}
+		_doors.clear();
+	}
+	
+	/**
+	 * Spawns group of instance NPC's
+	 * @param groupName - name of group from XML definition to spawn
+	 * @return list of spawned NPC's
+	 */
+	public List<L2Npc> spawnGroup(String groupName)
+	{
+		List<L2Npc> ret = null;
+		if (_manualSpawn.containsKey(groupName))
+		{
+			final List<L2Spawn> manualSpawn = _manualSpawn.get(groupName);
+			ret = new ArrayList<>(manualSpawn.size());
+			
+			for (L2Spawn spawnDat : manualSpawn)
+			{
+				ret.add(spawnDat.doSpawn());
+			}
+		}
+		else
+		{
+			_log.warning(getName() + " instance: cannot spawn NPC's, wrong group name: " + groupName);
+		}
+		
+		return ret;
 	}
 	
 	public void loadInstanceTemplate(String filename)
@@ -362,291 +470,6 @@ public final class Instance
 		catch (Exception e)
 		{
 			_log.log(Level.WARNING, "Instance: error while loading " + xml.getAbsolutePath() + " ! " + e.getMessage(), e);
-		}
-	}
-	
-	/**
-	 * @param killer the character that killed the {@code victim}
-	 * @param victim the character that was killed by the {@code killer}
-	 */
-	public final void notifyDeath(L2Character killer, L2Character victim)
-	{
-		final InstanceWorld instance = InstanceManager.getInstance().getPlayerWorld(victim.getActingPlayer());
-		if (instance != null)
-		{
-			instance.onDeath(killer, victim);
-		}
-	}
-	
-	public void removeDoors()
-	{
-		for (L2DoorInstance door : _doors.values())
-		{
-			if (door != null)
-			{
-				L2WorldRegion region = door.getWorldRegion();
-				door.decayMe();
-				
-				if (region != null)
-				{
-					region.removeVisibleObject(door);
-				}
-				
-				door.getKnownList().removeAllKnownObjects();
-				L2World.getInstance().removeObject(door);
-			}
-		}
-		_doors.clear();
-	}
-	
-	public void removeNpc(L2Npc npc)
-	{
-		if (npc.getSpawn() != null)
-		{
-			npc.getSpawn().stopRespawn();
-		}
-		_npcs.remove(npc);
-	}
-	
-	public void removeNpcs()
-	{
-		for (L2Npc mob : _npcs)
-		{
-			if (mob != null)
-			{
-				if (mob.getSpawn() != null)
-				{
-					mob.getSpawn().stopRespawn();
-				}
-				mob.deleteMe();
-			}
-		}
-		_npcs.clear();
-		_manualSpawn.clear();
-	}
-	
-	/**
-	 * Removes the specified player from the instance list.
-	 * @param objectId the player's object Id
-	 */
-	public void removePlayer(Integer objectId)
-	{
-		_players.remove(objectId);
-		if (_players.isEmpty() && (_emptyDestroyTime >= 0))
-		{
-			_lastLeft = System.currentTimeMillis();
-			setDuration((int) (_instanceEndTime - System.currentTimeMillis() - 500));
-		}
-	}
-	
-	public void removePlayers()
-	{
-		for (Integer objectId : _players)
-		{
-			final L2PcInstance player = L2World.getInstance().getPlayer(objectId);
-			if ((player != null) && (player.getInstanceId() == getId()))
-			{
-				player.setInstanceId(0);
-				if (getExitLoc() != null)
-				{
-					player.teleToLocation(getExitLoc(), true);
-				}
-				else
-				{
-					player.teleToLocation(TeleportWhereType.TOWN);
-				}
-			}
-		}
-		_players.clear();
-	}
-	
-	/**
-	 * Sets the status for the instance for summon friend type skills
-	 * @param b
-	 */
-	public void setAllowSummon(boolean b)
-	{
-		_allowSummon = b;
-	}
-	
-	/**
-	 * Set the instance duration task
-	 * @param duration in milliseconds
-	 */
-	public void setDuration(int duration)
-	{
-		if (_checkTimeUpTask != null)
-		{
-			_checkTimeUpTask.cancel(true);
-		}
-		
-		_checkTimeUpTask = ThreadPoolManager.getInstance().scheduleGeneral(new CheckTimeUp(duration), 500);
-		_instanceEndTime = System.currentTimeMillis() + duration + 500;
-	}
-	
-	/**
-	 * @param ejectTime the player eject time upon death
-	 */
-	public void setEjectTime(int ejectTime)
-	{
-		_ejectTime = ejectTime;
-	}
-	
-	/**
-	 * Set time before empty instance will be removed
-	 * @param time in milliseconds
-	 */
-	public void setEmptyDestroyTime(long time)
-	{
-		_emptyDestroyTime = time;
-	}
-	
-	/**
-	 * Sets the spawn location for this instance to be used when leaving the instance
-	 * @param loc
-	 */
-	public void setExitLoc(Location loc)
-	{
-		_exitLocation = loc;
-	}
-	
-	public void setName(String name)
-	{
-		_name = name;
-	}
-	
-	/**
-	 * Sets PvP zone status of the instance
-	 * @param b
-	 */
-	public void setPvPInstance(boolean b)
-	{
-		_isPvPInstance = b;
-	}
-	
-	public void setReenterType(InstanceReenterType type)
-	{
-		_type = type;
-	}
-	
-	/**
-	 * Spawns group of instance NPC's
-	 * @param groupName - name of group from XML definition to spawn
-	 * @return list of spawned NPC's
-	 */
-	public List<L2Npc> spawnGroup(String groupName)
-	{
-		List<L2Npc> ret = null;
-		if (_manualSpawn.containsKey(groupName))
-		{
-			final List<L2Spawn> manualSpawn = _manualSpawn.get(groupName);
-			ret = new ArrayList<>(manualSpawn.size());
-			
-			for (L2Spawn spawnDat : manualSpawn)
-			{
-				ret.add(spawnDat.doSpawn());
-			}
-		}
-		else
-		{
-			_log.warning(getName() + " instance: cannot spawn NPC's, wrong group name: " + groupName);
-		}
-		
-		return ret;
-	}
-	
-	protected void doCheckTimeUp(int remaining)
-	{
-		CreatureSay cs = null;
-		int timeLeft;
-		int interval;
-		
-		if (_players.isEmpty() && (_emptyDestroyTime == 0))
-		{
-			remaining = 0;
-			interval = 500;
-		}
-		else if (_players.isEmpty() && (_emptyDestroyTime > 0))
-		{
-			
-			Long emptyTimeLeft = (_lastLeft + _emptyDestroyTime) - System.currentTimeMillis();
-			if (emptyTimeLeft <= 0)
-			{
-				interval = 0;
-				remaining = 0;
-			}
-			else if ((remaining > 300000) && (emptyTimeLeft > 300000))
-			{
-				interval = 300000;
-				remaining = remaining - 300000;
-			}
-			else if ((remaining > 60000) && (emptyTimeLeft > 60000))
-			{
-				interval = 60000;
-				remaining = remaining - 60000;
-			}
-			else if ((remaining > 30000) && (emptyTimeLeft > 30000))
-			{
-				interval = 30000;
-				remaining = remaining - 30000;
-			}
-			else
-			{
-				interval = 10000;
-				remaining = remaining - 10000;
-			}
-		}
-		else if (remaining > 300000)
-		{
-			timeLeft = remaining / 60000;
-			interval = 300000;
-			SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.DUNGEON_EXPIRES_IN_S1_MINUTES);
-			sm.addString(Integer.toString(timeLeft));
-			Broadcast.toPlayersInInstance(sm, getId());
-			remaining = remaining - 300000;
-		}
-		else if (remaining > 60000)
-		{
-			timeLeft = remaining / 60000;
-			interval = 60000;
-			SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.DUNGEON_EXPIRES_IN_S1_MINUTES);
-			sm.addString(Integer.toString(timeLeft));
-			Broadcast.toPlayersInInstance(sm, getId());
-			remaining = remaining - 60000;
-		}
-		else if (remaining > 30000)
-		{
-			timeLeft = remaining / 1000;
-			interval = 30000;
-			cs = new CreatureSay(0, Say2.ALLIANCE, "Notice", timeLeft + " seconds left.");
-			remaining = remaining - 30000;
-		}
-		else
-		{
-			timeLeft = remaining / 1000;
-			interval = 10000;
-			cs = new CreatureSay(0, Say2.ALLIANCE, "Notice", timeLeft + " seconds left.");
-			remaining = remaining - 10000;
-		}
-		if (cs != null)
-		{
-			for (Integer objectId : _players)
-			{
-				final L2PcInstance player = L2World.getInstance().getPlayer(objectId);
-				if ((player != null) && (player.getInstanceId() == getId()))
-				{
-					player.sendPacket(cs);
-				}
-			}
-		}
-		cancelTimer();
-		if (remaining >= 10000)
-		{
-			_checkTimeUpTask = ThreadPoolManager.getInstance().scheduleGeneral(new CheckTimeUp(remaining), interval);
-		}
-		else
-		{
-			_checkTimeUpTask = ThreadPoolManager.getInstance().scheduleGeneral(new TimeUp(), interval);
 		}
 	}
 	
@@ -962,6 +785,153 @@ public final class Instance
 		}
 	}
 	
+	protected void doCheckTimeUp(int remaining)
+	{
+		CreatureSay cs = null;
+		int timeLeft;
+		int interval;
+		
+		if (_players.isEmpty() && (_emptyDestroyTime == 0))
+		{
+			remaining = 0;
+			interval = 500;
+		}
+		else if (_players.isEmpty() && (_emptyDestroyTime > 0))
+		{
+			
+			Long emptyTimeLeft = (_lastLeft + _emptyDestroyTime) - System.currentTimeMillis();
+			if (emptyTimeLeft <= 0)
+			{
+				interval = 0;
+				remaining = 0;
+			}
+			else if ((remaining > 300000) && (emptyTimeLeft > 300000))
+			{
+				interval = 300000;
+				remaining = remaining - 300000;
+			}
+			else if ((remaining > 60000) && (emptyTimeLeft > 60000))
+			{
+				interval = 60000;
+				remaining = remaining - 60000;
+			}
+			else if ((remaining > 30000) && (emptyTimeLeft > 30000))
+			{
+				interval = 30000;
+				remaining = remaining - 30000;
+			}
+			else
+			{
+				interval = 10000;
+				remaining = remaining - 10000;
+			}
+		}
+		else if (remaining > 300000)
+		{
+			timeLeft = remaining / 60000;
+			interval = 300000;
+			SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.DUNGEON_EXPIRES_IN_S1_MINUTES);
+			sm.addString(Integer.toString(timeLeft));
+			Broadcast.toPlayersInInstance(sm, getId());
+			remaining = remaining - 300000;
+		}
+		else if (remaining > 60000)
+		{
+			timeLeft = remaining / 60000;
+			interval = 60000;
+			SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.DUNGEON_EXPIRES_IN_S1_MINUTES);
+			sm.addString(Integer.toString(timeLeft));
+			Broadcast.toPlayersInInstance(sm, getId());
+			remaining = remaining - 60000;
+		}
+		else if (remaining > 30000)
+		{
+			timeLeft = remaining / 1000;
+			interval = 30000;
+			cs = new CreatureSay(0, Say2.ALLIANCE, "Notice", timeLeft + " seconds left.");
+			remaining = remaining - 30000;
+		}
+		else
+		{
+			timeLeft = remaining / 1000;
+			interval = 10000;
+			cs = new CreatureSay(0, Say2.ALLIANCE, "Notice", timeLeft + " seconds left.");
+			remaining = remaining - 10000;
+		}
+		if (cs != null)
+		{
+			for (Integer objectId : _players)
+			{
+				final L2PcInstance player = L2World.getInstance().getPlayer(objectId);
+				if ((player != null) && (player.getInstanceId() == getId()))
+				{
+					player.sendPacket(cs);
+				}
+			}
+		}
+		cancelTimer();
+		if (remaining >= 10000)
+		{
+			_checkTimeUpTask = ThreadPoolManager.getInstance().scheduleGeneral(new CheckTimeUp(remaining), interval);
+		}
+		else
+		{
+			_checkTimeUpTask = ThreadPoolManager.getInstance().scheduleGeneral(new TimeUp(), interval);
+		}
+	}
+	
+	public void cancelTimer()
+	{
+		if (_checkTimeUpTask != null)
+		{
+			_checkTimeUpTask.cancel(true);
+		}
+	}
+	
+	public void cancelEjectDeadPlayer(L2PcInstance player)
+	{
+		final ScheduledFuture<?> task = _ejectDeadTasks.remove(player.getObjectId());
+		if (task != null)
+		{
+			task.cancel(true);
+		}
+	}
+	
+	public void addEjectDeadTask(L2PcInstance player)
+	{
+		if ((player != null))
+		{
+			_ejectDeadTasks.put(player.getObjectId(), ThreadPoolManager.getInstance().scheduleGeneral(() ->
+			{
+				if (player.isDead() && (player.getInstanceId() == getId()))
+				{
+					player.setInstanceId(0);
+					if (getExitLoc() != null)
+					{
+						player.teleToLocation(getExitLoc(), true);
+					}
+					else
+					{
+						player.teleToLocation(TeleportWhereType.TOWN);
+					}
+				}
+			}, _ejectTime));
+		}
+	}
+	
+	/**
+	 * @param killer the character that killed the {@code victim}
+	 * @param victim the character that was killed by the {@code killer}
+	 */
+	public final void notifyDeath(L2Character killer, L2Character victim)
+	{
+		final InstanceWorld instance = InstanceManager.getInstance().getPlayerWorld(victim.getActingPlayer());
+		if (instance != null)
+		{
+			instance.onDeath(killer, victim);
+		}
+	}
+	
 	public class CheckTimeUp implements Runnable
 	{
 		private final int _remaining;
@@ -985,5 +955,35 @@ public final class Instance
 		{
 			InstanceManager.getInstance().destroyInstance(getId());
 		}
+	}
+	
+	public InstanceReenterType getReenterType()
+	{
+		return _type;
+	}
+	
+	public void setReenterType(InstanceReenterType type)
+	{
+		_type = type;
+	}
+	
+	public List<InstanceReenterTimeHolder> getReenterData()
+	{
+		return _resetData;
+	}
+	
+	public boolean isRemoveBuffEnabled()
+	{
+		return getRemoveBuffType() != InstanceRemoveBuffType.NONE;
+	}
+	
+	public InstanceRemoveBuffType getRemoveBuffType()
+	{
+		return _removeBuffType;
+	}
+	
+	public List<Integer> getBuffExceptionList()
+	{
+		return _exceptionList;
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -35,14 +35,14 @@ public class GeoNode extends AbstractNode<GeoNodeLoc>
 		_neighborsIdx = Neighbors_idx;
 	}
 	
-	public void attachNeighbors(GeoNode[] neighbors)
-	{
-		_neighbors = neighbors;
-	}
-	
 	public short getCost()
 	{
 		return _cost;
+	}
+	
+	public void setCost(int cost)
+	{
+		_cost = (short) cost;
 	}
 	
 	public GeoNode[] getNeighbors()
@@ -50,13 +50,13 @@ public class GeoNode extends AbstractNode<GeoNodeLoc>
 		return _neighbors;
 	}
 	
+	public void attachNeighbors(GeoNode[] neighbors)
+	{
+		_neighbors = neighbors;
+	}
+	
 	public int getNeighborsIdx()
 	{
 		return _neighborsIdx;
-	}
-	
-	public void setCost(int cost)
-	{
-		_cost = (short) cost;
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -39,20 +39,6 @@ public class TeleportLocationTable
 	protected TeleportLocationTable()
 	{
 		reloadAll();
-	}
-	
-	public static TeleportLocationTable getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * @param id
-	 * @return
-	 */
-	public L2TeleportLocation getTemplate(int id)
-	{
-		return _teleports.get(id);
 	}
 	
 	public void reloadAll()
@@ -116,6 +102,20 @@ public class TeleportLocationTable
 				LOGGER.log(Level.WARNING, getClass().getSimpleName() + ": Error while creating custom teleport table " + e.getMessage(), e);
 			}
 		}
+	}
+	
+	/**
+	 * @param id
+	 * @return
+	 */
+	public L2TeleportLocation getTemplate(int id)
+	{
+		return _teleports.get(id);
+	}
+	
+	public static TeleportLocationTable getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

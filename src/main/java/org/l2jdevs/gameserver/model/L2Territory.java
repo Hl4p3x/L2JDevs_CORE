@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -32,8 +32,21 @@ public class L2Territory
 {
 	private static Logger _log = Logger.getLogger(L2Territory.class.getName());
 	
-	private final List<Point> _points = new CopyOnWriteArrayList<>();
+	protected static class Point
+	{
+		protected int _x, _y, _zmin, _zmax, _proc;
+		
+		Point(int x, int y, int zmin, int zmax, int proc)
+		{
+			_x = x;
+			_y = y;
+			_zmin = zmin;
+			_zmax = zmax;
+			_proc = proc;
+		}
+	}
 	
+	private final List<Point> _points = new CopyOnWriteArrayList<>();
 	private final int _terr;
 	private int _xMin;
 	private int _xMax;
@@ -42,6 +55,7 @@ public class L2Territory
 	private int _zMin;
 	private int _zMax;
 	private int _procMax;
+	
 	public L2Territory(int terr)
 	{
 		_terr = terr;
@@ -84,9 +98,49 @@ public class L2Territory
 		_procMax += proc;
 	}
 	
-	public int getProcMax()
+	public boolean isIntersect(int x, int y, Point p1, Point p2)
 	{
-		return _procMax;
+		double dy1 = p1._y - y;
+		double dy2 = p2._y - y;
+		
+		if (Math.abs(Math.signum(dy1) - Math.signum(dy2)) <= 1e-6)
+		{
+			return false;
+		}
+		
+		double dx1 = p1._x - x;
+		double dx2 = p2._x - x;
+		
+		if ((dx1 >= 0) && (dx2 >= 0))
+		{
+			return true;
+		}
+		
+		if ((dx1 < 0) && (dx2 < 0))
+		{
+			return false;
+		}
+		
+		double dx0 = (dy1 * (p1._x - p2._x)) / (p1._y - p2._y);
+		
+		return dx0 <= dx1;
+	}
+	
+	public boolean isInside(int x, int y)
+	{
+		int intersect_count = 0;
+		for (int i = 0; i < _points.size(); i++)
+		{
+			Point p1 = _points.get(i > 0 ? i - 1 : _points.size() - 1);
+			Point p2 = _points.get(i);
+			
+			if (isIntersect(x, y, p1, p2))
+			{
+				intersect_count++;
+			}
+		}
+		
+		return (intersect_count % 2) == 1;
 	}
 	
 	public Location getRandomPoint()
@@ -129,62 +183,8 @@ public class L2Territory
 		return null;
 	}
 	
-	public boolean isInside(int x, int y)
+	public int getProcMax()
 	{
-		int intersect_count = 0;
-		for (int i = 0; i < _points.size(); i++)
-		{
-			Point p1 = _points.get(i > 0 ? i - 1 : _points.size() - 1);
-			Point p2 = _points.get(i);
-			
-			if (isIntersect(x, y, p1, p2))
-			{
-				intersect_count++;
-			}
-		}
-		
-		return (intersect_count % 2) == 1;
-	}
-	
-	public boolean isIntersect(int x, int y, Point p1, Point p2)
-	{
-		double dy1 = p1._y - y;
-		double dy2 = p2._y - y;
-		
-		if (Math.abs(Math.signum(dy1) - Math.signum(dy2)) <= 1e-6)
-		{
-			return false;
-		}
-		
-		double dx1 = p1._x - x;
-		double dx2 = p2._x - x;
-		
-		if ((dx1 >= 0) && (dx2 >= 0))
-		{
-			return true;
-		}
-		
-		if ((dx1 < 0) && (dx2 < 0))
-		{
-			return false;
-		}
-		
-		double dx0 = (dy1 * (p1._x - p2._x)) / (p1._y - p2._y);
-		
-		return dx0 <= dx1;
-	}
-	
-	protected static class Point
-	{
-		protected int _x, _y, _zmin, _zmax, _proc;
-		
-		Point(int x, int y, int zmin, int zmax, int proc)
-		{
-			_x = x;
-			_y = y;
-			_zmin = zmin;
-			_zmax = zmax;
-			_proc = proc;
-		}
+		return _procMax;
 	}
 }

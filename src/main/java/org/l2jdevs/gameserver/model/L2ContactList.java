@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -41,18 +41,49 @@ import org.l2jdevs.gameserver.network.serverpackets.SystemMessage;
  */
 public class L2ContactList
 {
-	private static final String QUERY_ADD = "INSERT INTO character_contacts (charId, contactId) VALUES (?, ?)";
-	private static final String QUERY_REMOVE = "DELETE FROM character_contacts WHERE charId = ? and contactId = ?";
-	private static final String QUERY_LOAD = "SELECT contactId FROM character_contacts WHERE charId = ?";
-	
 	private final Logger _log = Logger.getLogger(getClass().getName());
 	private final L2PcInstance activeChar;
 	private final List<String> _contacts = new CopyOnWriteArrayList<>();
+	
+	private static final String QUERY_ADD = "INSERT INTO character_contacts (charId, contactId) VALUES (?, ?)";
+	private static final String QUERY_REMOVE = "DELETE FROM character_contacts WHERE charId = ? and contactId = ?";
+	private static final String QUERY_LOAD = "SELECT contactId FROM character_contacts WHERE charId = ?";
 	
 	public L2ContactList(L2PcInstance player)
 	{
 		activeChar = player;
 		restore();
+	}
+	
+	public void restore()
+	{
+		_contacts.clear();
+		
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(QUERY_LOAD))
+		{
+			ps.setInt(1, activeChar.getObjectId());
+			try (ResultSet rs = ps.executeQuery())
+			{
+				int contactId;
+				String contactName;
+				while (rs.next())
+				{
+					contactId = rs.getInt(1);
+					contactName = CharNameTable.getInstance().getNameById(contactId);
+					if ((contactName == null) || contactName.equals(activeChar.getName()) || (contactId == activeChar.getObjectId()))
+					{
+						continue;
+					}
+					
+					_contacts.add(contactName);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			_log.log(Level.WARNING, "Error found in " + activeChar.getName() + "'s ContactsList: " + e.getMessage(), e);
+		}
 	}
 	
 	public boolean add(String name)
@@ -112,11 +143,6 @@ public class L2ContactList
 		return true;
 	}
 	
-	public List<String> getAllContacts()
-	{
-		return _contacts;
-	}
-	
 	public void remove(String name)
 	{
 		int contactId = CharNameTable.getInstance().getIdByName(name);
@@ -151,34 +177,8 @@ public class L2ContactList
 		}
 	}
 	
-	public void restore()
+	public List<String> getAllContacts()
 	{
-		_contacts.clear();
-		
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(QUERY_LOAD))
-		{
-			ps.setInt(1, activeChar.getObjectId());
-			try (ResultSet rs = ps.executeQuery())
-			{
-				int contactId;
-				String contactName;
-				while (rs.next())
-				{
-					contactId = rs.getInt(1);
-					contactName = CharNameTable.getInstance().getNameById(contactId);
-					if ((contactName == null) || contactName.equals(activeChar.getName()) || (contactId == activeChar.getObjectId()))
-					{
-						continue;
-					}
-					
-					_contacts.add(contactName);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			_log.log(Level.WARNING, "Error found in " + activeChar.getName() + "'s ContactsList: " + e.getMessage(), e);
-		}
+		return _contacts;
 	}
 }

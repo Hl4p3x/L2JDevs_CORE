@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -43,6 +43,23 @@ public class L2Request
 		_player = player;
 	}
 	
+	protected void clear()
+	{
+		_partner = null;
+		_requestPacket = null;
+		_isRequestor = false;
+		_isAnswerer = false;
+	}
+	
+	/**
+	 * Set the L2PcInstance member of a transaction (ex : FriendInvite, JoinAlly, JoinParty...).
+	 * @param partner
+	 */
+	private synchronized void setPartner(L2PcInstance partner)
+	{
+		_partner = partner;
+	}
+	
 	/**
 	 * @return the L2PcInstance member of a transaction (ex : FriendInvite, JoinAlly, JoinParty...).
 	 */
@@ -52,32 +69,21 @@ public class L2Request
 	}
 	
 	/**
+	 * Set the packet incomed from requester.
+	 * @param packet
+	 */
+	private synchronized void setRequestPacket(L2GameClientPacket packet)
+	{
+		_requestPacket = packet;
+	}
+	
+	/**
 	 * Return the packet originally incomed from requester.
 	 * @return
 	 */
 	public L2GameClientPacket getRequestPacket()
 	{
 		return _requestPacket;
-	}
-	
-	/**
-	 * @return {@code true} if a transaction is in progress.
-	 */
-	public boolean isProcessingRequest()
-	{
-		return _partner != null;
-	}
-	
-	/**
-	 * Clears PC request state. Should be called after answer packet receive.
-	 */
-	public void onRequestResponse()
-	{
-		if (_partner != null)
-		{
-			_partner.getRequest().clear();
-		}
-		clear();
 	}
 	
 	/**
@@ -115,14 +121,6 @@ public class L2Request
 		return true;
 	}
 	
-	protected void clear()
-	{
-		_partner = null;
-		_requestPacket = null;
-		_isRequestor = false;
-		_isAnswerer = false;
-	}
-	
 	private void setOnRequestTimer(boolean isRequestor)
 	{
 		_isRequestor = isRequestor ? true : false;
@@ -131,20 +129,22 @@ public class L2Request
 	}
 	
 	/**
-	 * Set the L2PcInstance member of a transaction (ex : FriendInvite, JoinAlly, JoinParty...).
-	 * @param partner
+	 * Clears PC request state. Should be called after answer packet receive.
 	 */
-	private synchronized void setPartner(L2PcInstance partner)
+	public void onRequestResponse()
 	{
-		_partner = partner;
+		if (_partner != null)
+		{
+			_partner.getRequest().clear();
+		}
+		clear();
 	}
 	
 	/**
-	 * Set the packet incomed from requester.
-	 * @param packet
+	 * @return {@code true} if a transaction is in progress.
 	 */
-	private synchronized void setRequestPacket(L2GameClientPacket packet)
+	public boolean isProcessingRequest()
 	{
-		_requestPacket = packet;
+		return _partner != null;
 	}
 }

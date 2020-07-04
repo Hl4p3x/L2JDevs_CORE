@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -47,10 +47,6 @@ public class HexUtils
 	};
 	private static final char[] _NEW_LINE_CHARS = System.getProperty("line.separator").toCharArray();
 	
-	private static final int _HEX_ED_BPL = 16;
-	
-	private static final int _HEX_ED_CPB = 2;
-	
 	/**
 	 * Method to generate the hexadecimal character presentation of a byte<br>
 	 * This call is equivalent to {@link HexUtils#b2HexChars(byte, char[], int)} with parameters (data, null, 0)
@@ -85,32 +81,36 @@ public class HexUtils
 		return dstHexChars;
 	}
 	
-	public static char[] bArr2AsciiChars(byte[] data, final int offset, final int len)
+	/**
+	 * Method to generate the hexadecimal character presentation of an integer This call is equivalent to {@link HexUtils#int2HexChars(int, char[], int)} with parameters (data, null, 0)
+	 * @param data integer to generate the hexadecimal character presentation from
+	 * @return new char array with 8 elements
+	 */
+	public static char[] int2HexChars(final int data)
 	{
-		return bArr2AsciiChars(data, offset, len, new char[len], 0);
+		return int2HexChars(data, new char[8], 0);
 	}
 	
-	public static char[] bArr2AsciiChars(byte[] data, final int offset, final int len, char[] dstAsciiChars, int dstOffset)
+	/**
+	 * Method to generate the hexadecimal character presentation of an integer
+	 * @param data integer to generate the hexadecimal character presentation from
+	 * @param dstHexChars the char array the hexadecimal character presentation should be copied to, if this is null, dstOffset is ignored and a new char array with 8 elements is created
+	 * @param dstOffset offset at which the hexadecimal character presentation is copied to dstHexChars
+	 * @return the char array the hexadecimal character presentation was copied to
+	 */
+	public static char[] int2HexChars(final int data, char[] dstHexChars, int dstOffset)
 	{
-		if (dstAsciiChars == null)
+		if (dstHexChars == null)
 		{
-			dstAsciiChars = new char[len];
+			dstHexChars = new char[8];
 			dstOffset = 0;
 		}
 		
-		for (int dataIdx = offset, charsIdx = dstOffset; dataIdx < (len + offset); ++dataIdx, ++charsIdx)
-		{
-			if ((data[dataIdx] > 0x1f) && (data[dataIdx] < 0x80))
-			{
-				dstAsciiChars[charsIdx] = (char) data[dataIdx];
-			}
-			else
-			{
-				dstAsciiChars[charsIdx] = '.';
-			}
-		}
-		
-		return dstAsciiChars;
+		b2HexChars((byte) ((data & 0xFF000000) >> 24), dstHexChars, dstOffset);
+		b2HexChars((byte) ((data & 0x00FF0000) >> 16), dstHexChars, dstOffset + 2);
+		b2HexChars((byte) ((data & 0x0000FF00) >> 8), dstHexChars, dstOffset + 4);
+		b2HexChars((byte) (data & 0x000000FF), dstHexChars, dstOffset + 6);
+		return dstHexChars;
 	}
 	
 	/**
@@ -153,6 +153,37 @@ public class HexUtils
 		
 		return dstHexChars;
 	}
+	
+	public static char[] bArr2AsciiChars(byte[] data, final int offset, final int len)
+	{
+		return bArr2AsciiChars(data, offset, len, new char[len], 0);
+	}
+	
+	public static char[] bArr2AsciiChars(byte[] data, final int offset, final int len, char[] dstAsciiChars, int dstOffset)
+	{
+		if (dstAsciiChars == null)
+		{
+			dstAsciiChars = new char[len];
+			dstOffset = 0;
+		}
+		
+		for (int dataIdx = offset, charsIdx = dstOffset; dataIdx < (len + offset); ++dataIdx, ++charsIdx)
+		{
+			if ((data[dataIdx] > 0x1f) && (data[dataIdx] < 0x80))
+			{
+				dstAsciiChars[charsIdx] = (char) data[dataIdx];
+			}
+			else
+			{
+				dstAsciiChars[charsIdx] = '.';
+			}
+		}
+		
+		return dstAsciiChars;
+	}
+	
+	private static final int _HEX_ED_BPL = 16;
+	private static final int _HEX_ED_CPB = 2;
 	
 	/**
 	 * Method to generate the hexadecimal character representation of a byte array like in a hex editor<br>
@@ -227,36 +258,5 @@ public class HexUtils
 			}
 		}
 		return textData;
-	}
-	/**
-	 * Method to generate the hexadecimal character presentation of an integer This call is equivalent to {@link HexUtils#int2HexChars(int, char[], int)} with parameters (data, null, 0)
-	 * @param data integer to generate the hexadecimal character presentation from
-	 * @return new char array with 8 elements
-	 */
-	public static char[] int2HexChars(final int data)
-	{
-		return int2HexChars(data, new char[8], 0);
-	}
-	
-	/**
-	 * Method to generate the hexadecimal character presentation of an integer
-	 * @param data integer to generate the hexadecimal character presentation from
-	 * @param dstHexChars the char array the hexadecimal character presentation should be copied to, if this is null, dstOffset is ignored and a new char array with 8 elements is created
-	 * @param dstOffset offset at which the hexadecimal character presentation is copied to dstHexChars
-	 * @return the char array the hexadecimal character presentation was copied to
-	 */
-	public static char[] int2HexChars(final int data, char[] dstHexChars, int dstOffset)
-	{
-		if (dstHexChars == null)
-		{
-			dstHexChars = new char[8];
-			dstOffset = 0;
-		}
-		
-		b2HexChars((byte) ((data & 0xFF000000) >> 24), dstHexChars, dstOffset);
-		b2HexChars((byte) ((data & 0x00FF0000) >> 16), dstHexChars, dstOffset + 2);
-		b2HexChars((byte) ((data & 0x0000FF00) >> 8), dstHexChars, dstOffset + 4);
-		b2HexChars((byte) (data & 0x000000FF), dstHexChars, dstOffset + 6);
-		return dstHexChars;
 	}
 }

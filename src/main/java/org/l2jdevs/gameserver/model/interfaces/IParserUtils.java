@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -29,17 +29,17 @@ public interface IParserUtils
 	
 	public byte getByte(String key, byte defaultValue);
 	
-	public double getDouble(String key, double defaultValue);
-	
-	public <T extends Enum<T>> T getEnum(String key, Class<T> clazz, T defaultValue);
-	
-	public float getFloat(String key, float defaultValue);
+	public short getShort(String key, short defaultValue);
 	
 	public int getInt(String key, int defaultValue);
 	
 	public long getLong(String key, long defaultValue);
 	
-	public short getShort(String key, short defaultValue);
+	public float getFloat(String key, float defaultValue);
+	
+	public double getDouble(String key, double defaultValue);
 	
 	public String getString(String key, String defaultValue);
+	
+	public <T extends Enum<T>> T getEnum(String key, Class<T> clazz, T defaultValue);
 }

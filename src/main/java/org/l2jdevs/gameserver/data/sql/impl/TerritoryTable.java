@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -49,12 +49,13 @@ public class TerritoryTable
 	}
 	
 	/**
-	 * Gets the single instance of Territory.
-	 * @return single instance of Territory
+	 * Gets the random point.
+	 * @param terr the territory Id?
+	 * @return the random point
 	 */
-	public static TerritoryTable getInstance()
+	public Location getRandomPoint(int terr)
 	{
-		return SingletonHolder._instance;
+		return _territory.get(terr).getRandomPoint();
 	}
 	
 	/**
@@ -65,16 +66,6 @@ public class TerritoryTable
 	public int getProcMax(int terr)
 	{
 		return _territory.get(terr).getProcMax();
-	}
-	
-	/**
-	 * Gets the random point.
-	 * @param terr the territory Id?
-	 * @return the random point
-	 */
-	public Location getRandomPoint(int terr)
-	{
-		return _territory.get(terr).getRandomPoint();
 	}
 	
 	/**
@@ -104,6 +95,15 @@ public class TerritoryTable
 		{
 			LOGGER.log(Level.SEVERE, "TerritoryTable: Failed to load territories from database!", e);
 		}
+	}
+	
+	/**
+	 * Gets the single instance of Territory.
+	 * @return single instance of Territory
+	 */
+	public static TerritoryTable getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

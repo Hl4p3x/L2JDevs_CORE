@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -48,6 +48,11 @@ public class L2PlayerAI extends L2PlayableAI
 		super(creature);
 	}
 	
+	void saveNextIntention(CtrlIntention intention, Object arg0, Object arg1)
+	{
+		_nextIntention = new IntentionCommand(intention, arg0, arg1);
+	}
+	
 	@Override
 	public IntentionCommand getNextIntention()
 	{
@@ -83,13 +88,23 @@ public class L2PlayerAI extends L2PlayableAI
 		super.changeIntention(intention, arg0, arg1);
 	}
 	
+	/**
+	 * Launch actions corresponding to the Event ReadyToAct.<br>
+	 * <B><U> Actions</U> :</B>
+	 * <ul>
+	 * <li>Launch actions corresponding to the Event Think</li>
+	 * </ul>
+	 */
 	@Override
-	protected void clientNotifyDead()
+	protected void onEvtReadyToAct()
 	{
-		_clientMovingToPawnOffset = 0;
-		_clientMoving = false;
-		
-		super.clientNotifyDead();
+		// Launch actions corresponding to the Event Think
+		if (_nextIntention != null)
+		{
+			setIntention(_nextIntention._crtlIntention, _nextIntention._arg0, _nextIntention._arg1);
+			_nextIntention = null;
+		}
+		super.onEvtReadyToAct();
 	}
 	
 	/**
@@ -139,56 +154,18 @@ public class L2PlayerAI extends L2PlayableAI
 		}
 	}
 	
-	/**
-	 * Launch actions corresponding to the Event ReadyToAct.<br>
-	 * <B><U> Actions</U> :</B>
-	 * <ul>
-	 * <li>Launch actions corresponding to the Event Think</li>
-	 * </ul>
-	 */
 	@Override
-	protected void onEvtReadyToAct()
+	protected void onIntentionRest()
 	{
-		// Launch actions corresponding to the Event Think
-		if (_nextIntention != null)
+		if (getIntention() != AI_INTENTION_REST)
 		{
-			setIntention(_nextIntention._crtlIntention, _nextIntention._arg0, _nextIntention._arg1);
-			_nextIntention = null;
-		}
-		super.onEvtReadyToAct();
-	}
-	
-	@Override
-	protected void onEvtThink()
-	{
-		if (_thinking && (getIntention() != AI_INTENTION_CAST))
-		{
-			return;
-		}
-		
-		_thinking = true;
-		try
-		{
-			if (getIntention() == AI_INTENTION_ATTACK)
+			changeIntention(AI_INTENTION_REST, null, null);
+			setTarget(null);
+			if (getAttackTarget() != null)
 			{
-				thinkAttack();
+				setAttackTarget(null);
 			}
-			else if (getIntention() == AI_INTENTION_CAST)
-			{
-				thinkCast();
-			}
-			else if (getIntention() == AI_INTENTION_PICK_UP)
-			{
-				thinkPickUp();
-			}
-			else if (getIntention() == AI_INTENTION_INTERACT)
-			{
-				thinkInteract();
-			}
-		}
-		finally
-		{
-			_thinking = false;
+			clientStopMoving(null);
 		}
 	}
 	
@@ -243,23 +220,12 @@ public class L2PlayerAI extends L2PlayableAI
 	}
 	
 	@Override
-	protected void onIntentionRest()
+	protected void clientNotifyDead()
 	{
-		if (getIntention() != AI_INTENTION_REST)
-		{
-			changeIntention(AI_INTENTION_REST, null, null);
-			setTarget(null);
-			if (getAttackTarget() != null)
-			{
-				setAttackTarget(null);
-			}
-			clientStopMoving(null);
-		}
-	}
-	
-	void saveNextIntention(CtrlIntention intention, Object arg0, Object arg1)
-	{
-		_nextIntention = new IntentionCommand(intention, arg0, arg1);
+		_clientMovingToPawnOffset = 0;
+		_clientMoving = false;
+		
+		super.clientNotifyDead();
 	}
 	
 	private void thinkAttack()
@@ -322,6 +288,25 @@ public class L2PlayerAI extends L2PlayableAI
 		_actor.doCast(_skill);
 	}
 	
+	private void thinkPickUp()
+	{
+		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow())
+		{
+			return;
+		}
+		L2Object target = getTarget();
+		if (checkTargetLost(target))
+		{
+			return;
+		}
+		if (maybeMoveToPawn(target, 36))
+		{
+			return;
+		}
+		setIntention(AI_INTENTION_IDLE);
+		_actor.getActingPlayer().doPickupItem(target);
+	}
+	
 	private void thinkInteract()
 	{
 		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow())
@@ -344,22 +329,37 @@ public class L2PlayerAI extends L2PlayableAI
 		setIntention(AI_INTENTION_IDLE);
 	}
 	
-	private void thinkPickUp()
+	@Override
+	protected void onEvtThink()
 	{
-		if (_actor.isAllSkillsDisabled() || _actor.isCastingNow())
+		if (_thinking && (getIntention() != AI_INTENTION_CAST))
 		{
 			return;
 		}
-		L2Object target = getTarget();
-		if (checkTargetLost(target))
+		
+		_thinking = true;
+		try
 		{
-			return;
+			if (getIntention() == AI_INTENTION_ATTACK)
+			{
+				thinkAttack();
+			}
+			else if (getIntention() == AI_INTENTION_CAST)
+			{
+				thinkCast();
+			}
+			else if (getIntention() == AI_INTENTION_PICK_UP)
+			{
+				thinkPickUp();
+			}
+			else if (getIntention() == AI_INTENTION_INTERACT)
+			{
+				thinkInteract();
+			}
 		}
-		if (maybeMoveToPawn(target, 36))
+		finally
 		{
-			return;
+			_thinking = false;
 		}
-		setIntention(AI_INTENTION_IDLE);
-		_actor.getActingPlayer().doPickupItem(target);
 	}
 }

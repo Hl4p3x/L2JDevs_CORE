@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -111,36 +111,6 @@ public class L2DoorTemplate extends L2CharTemplate implements IIdentifiable
 		_stealth = set.getBoolean("stealth", false);
 	}
 	
-	public int getChildDoorId()
-	{
-		return _childDoorId;
-	}
-	
-	public int getClanHallId()
-	{
-		return _clanhallId;
-	}
-	
-	public int getCloseTime()
-	{
-		return _closeTime;
-	}
-	
-	public int getEmmiter()
-	{
-		return _emmiter;
-	}
-	
-	public String getGroupName()
-	{
-		return _groupName;
-	}
-	
-	public int getHeight()
-	{
-		return _height;
-	}
-	
 	/**
 	 * Gets the door ID.
 	 * @return the door ID
@@ -149,21 +119,6 @@ public class L2DoorTemplate extends L2CharTemplate implements IIdentifiable
 	public int getId()
 	{
 		return _doorId;
-	}
-	
-	public int getLevel()
-	{
-		return _level;
-	}
-	
-	public byte getMasterDoorClose()
-	{
-		return _masterDoorClose;
-	}
-	
-	public byte getMasterDoorOpen()
-	{
-		return _masterDoorOpen;
 	}
 	
 	public String getName()
@@ -186,19 +141,9 @@ public class L2DoorTemplate extends L2CharTemplate implements IIdentifiable
 		return _nodeZ;
 	}
 	
-	public int getOpenTime()
+	public int getHeight()
 	{
-		return _openTime;
-	}
-	
-	public int getOpenType()
-	{
-		return _openType;
-	}
-	
-	public int getRandomTime()
-	{
-		return _randomTime;
+		return _height;
 	}
 	
 	public int getX()
@@ -216,19 +161,19 @@ public class L2DoorTemplate extends L2CharTemplate implements IIdentifiable
 		return _posZ;
 	}
 	
-	public boolean isAttackable()
+	public int getEmmiter()
 	{
-		return _isAttackableDoor;
+		return _emmiter;
 	}
 	
-	public boolean isCheckCollision()
+	public int getChildDoorId()
 	{
-		return _checkCollision;
+		return _childDoorId;
 	}
 	
-	public boolean isOpenByDefault()
+	public String getGroupName()
 	{
-		return _default_status;
+		return _groupName;
 	}
 	
 	public boolean isShowHp()
@@ -236,9 +181,19 @@ public class L2DoorTemplate extends L2CharTemplate implements IIdentifiable
 		return _showHp;
 	}
 	
-	public boolean isStealth()
+	public boolean isWall()
 	{
-		return _stealth;
+		return _isWall;
+	}
+	
+	public byte getMasterDoorOpen()
+	{
+		return _masterDoorOpen;
+	}
+	
+	public byte getMasterDoorClose()
+	{
+		return _masterDoorClose;
 	}
 	
 	public boolean isTargetable()
@@ -246,8 +201,53 @@ public class L2DoorTemplate extends L2CharTemplate implements IIdentifiable
 		return _isTargetable;
 	}
 	
-	public boolean isWall()
+	public boolean isOpenByDefault()
 	{
-		return _isWall;
+		return _default_status;
+	}
+	
+	public int getOpenTime()
+	{
+		return _openTime;
+	}
+	
+	public int getRandomTime()
+	{
+		return _randomTime;
+	}
+	
+	public int getCloseTime()
+	{
+		return _closeTime;
+	}
+	
+	public int getLevel()
+	{
+		return _level;
+	}
+	
+	public int getOpenType()
+	{
+		return _openType;
+	}
+	
+	public boolean isCheckCollision()
+	{
+		return _checkCollision;
+	}
+	
+	public boolean isAttackable()
+	{
+		return _isAttackableDoor;
+	}
+	
+	public int getClanHallId()
+	{
+		return _clanhallId;
+	}
+	
+	public boolean isStealth()
+	{
+		return _stealth;
 	}
 }

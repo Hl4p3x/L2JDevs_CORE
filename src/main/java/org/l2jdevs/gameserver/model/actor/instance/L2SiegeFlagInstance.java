@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -112,6 +112,12 @@ public class L2SiegeFlagInstance extends L2Npc
 	}
 	
 	@Override
+	public boolean isAutoAttackable(L2Character attacker)
+	{
+		return !(isInvul() || isHpBlocked());
+	}
+	
+	@Override
 	public boolean doDie(L2Character killer)
 	{
 		if (!super.doDie(killer))
@@ -134,26 +140,9 @@ public class L2SiegeFlagInstance extends L2Npc
 	}
 	
 	@Override
-	public SiegeFlagStatus getStatus()
+	public void onForcedAttack(L2PcInstance player)
 	{
-		return (SiegeFlagStatus) super.getStatus();
-	}
-	
-	@Override
-	public void initCharStatus()
-	{
-		setStatus(new SiegeFlagStatus(this));
-	}
-	
-	public boolean isAdvancedHeadquarter()
-	{
-		return _isAdvanced;
-	}
-	
-	@Override
-	public boolean isAutoAttackable(L2Character attacker)
-	{
-		return !(isInvul() || isHpBlocked());
+		onAction(player);
 	}
 	
 	@Override
@@ -184,10 +173,21 @@ public class L2SiegeFlagInstance extends L2Npc
 		}
 	}
 	
-	@Override
-	public void onForcedAttack(L2PcInstance player)
+	public boolean isAdvancedHeadquarter()
 	{
-		onAction(player);
+		return _isAdvanced;
+	}
+	
+	@Override
+	public SiegeFlagStatus getStatus()
+	{
+		return (SiegeFlagStatus) super.getStatus();
+	}
+	
+	@Override
+	public void initCharStatus()
+	{
+		setStatus(new SiegeFlagStatus(this));
 	}
 	
 	@Override
@@ -209,16 +209,6 @@ public class L2SiegeFlagInstance extends L2Npc
 		}
 	}
 	
-	void setCanTalk(boolean val)
-	{
-		_canTalk = val;
-	}
-	
-	private boolean canTalk()
-	{
-		return _canTalk;
-	}
-	
 	private class ScheduleTalkTask implements Runnable
 	{
 		
@@ -231,5 +221,15 @@ public class L2SiegeFlagInstance extends L2Npc
 		{
 			setCanTalk(true);
 		}
+	}
+	
+	void setCanTalk(boolean val)
+	{
+		_canTalk = val;
+	}
+	
+	private boolean canTalk()
+	{
+		return _canTalk;
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -44,6 +44,11 @@ public class Location implements IPositionable
 		this(x, y, z, heading, -1);
 	}
 	
+	public Location(L2Object obj)
+	{
+		this(obj.getX(), obj.getY(), obj.getZ(), obj.getHeading(), obj.getInstanceId());
+	}
+	
 	public Location(int x, int y, int z, int heading, int instanceId)
 	{
 		_x = x;
@@ -51,48 +56,6 @@ public class Location implements IPositionable
 		_z = z;
 		_heading = heading;
 		_instanceId = instanceId;
-	}
-	
-	public Location(L2Object obj)
-	{
-		this(obj.getX(), obj.getY(), obj.getZ(), obj.getHeading(), obj.getInstanceId());
-	}
-	
-	@Override
-	public boolean equals(Object obj)
-	{
-		if ((obj != null) && (obj instanceof Location))
-		{
-			final Location loc = (Location) obj;
-			return (getX() == loc.getX()) && (getY() == loc.getY()) && (getZ() == loc.getZ()) && (getHeading() == loc.getHeading()) && (getInstanceId() == loc.getInstanceId());
-		}
-		return false;
-	}
-	
-	/**
-	 * Get the heading.
-	 * @return the heading
-	 */
-	@Override
-	public int getHeading()
-	{
-		return _heading;
-	}
-	
-	/**
-	 * Get the instance Id.
-	 * @return the instance Id
-	 */
-	@Override
-	public int getInstanceId()
-	{
-		return _instanceId;
-	}
-	
-	@Override
-	public IPositionable getLocation()
-	{
-		return this;
 	}
 	
 	/**
@@ -106,6 +69,16 @@ public class Location implements IPositionable
 	}
 	
 	/**
+	 * Set the x coordinate.
+	 * @param x the x coordinate
+	 */
+	@Override
+	public void setX(int x)
+	{
+		_x = x;
+	}
+	
+	/**
 	 * Get the y coordinate.
 	 * @return the y coordinate
 	 */
@@ -113,6 +86,16 @@ public class Location implements IPositionable
 	public int getY()
 	{
 		return _y;
+	}
+	
+	/**
+	 * Set the y coordinate.
+	 * @param y the x coordinate
+	 */
+	@Override
+	public void setY(int y)
+	{
+		_y = y;
 	}
 	
 	/**
@@ -126,53 +109,13 @@ public class Location implements IPositionable
 	}
 	
 	/**
-	 * Set the heading.
-	 * @param heading the heading
+	 * Set the z coordinate.
+	 * @param z the z coordinate
 	 */
 	@Override
-	public void setHeading(int heading)
+	public void setZ(int z)
 	{
-		_heading = heading;
-	}
-	
-	/**
-	 * Set the instance Id.
-	 * @param instanceId the instance Id to set
-	 */
-	@Override
-	public void setInstanceId(int instanceId)
-	{
-		_instanceId = instanceId;
-	}
-	
-	@Override
-	public void setLocation(Location loc)
-	{
-		_x = loc.getX();
-		_y = loc.getY();
-		_z = loc.getZ();
-		_heading = loc.getHeading();
-		_instanceId = loc.getInstanceId();
-	}
-	
-	/**
-	 * Set the x coordinate.
-	 * @param x the x coordinate
-	 */
-	@Override
-	public void setX(int x)
-	{
-		_x = x;
-	}
-	
-	/**
-	 * Set the x, y, z coordinates.
-	 * @param loc The location.
-	 */
-	@Override
-	public void setXYZ(ILocational loc)
-	{
-		setXYZ(loc.getX(), loc.getY(), loc.getZ());
+		_z = z;
 	}
 	
 	/**
@@ -190,23 +133,80 @@ public class Location implements IPositionable
 	}
 	
 	/**
-	 * Set the y coordinate.
-	 * @param y the x coordinate
+	 * Set the x, y, z coordinates.
+	 * @param loc The location.
 	 */
 	@Override
-	public void setY(int y)
+	public void setXYZ(ILocational loc)
 	{
-		_y = y;
+		setXYZ(loc.getX(), loc.getY(), loc.getZ());
 	}
 	
 	/**
-	 * Set the z coordinate.
-	 * @param z the z coordinate
+	 * Get the heading.
+	 * @return the heading
 	 */
 	@Override
-	public void setZ(int z)
+	public int getHeading()
 	{
-		_z = z;
+		return _heading;
+	}
+	
+	/**
+	 * Set the heading.
+	 * @param heading the heading
+	 */
+	@Override
+	public void setHeading(int heading)
+	{
+		_heading = heading;
+	}
+	
+	/**
+	 * Get the instance Id.
+	 * @return the instance Id
+	 */
+	@Override
+	public int getInstanceId()
+	{
+		return _instanceId;
+	}
+	
+	/**
+	 * Set the instance Id.
+	 * @param instanceId the instance Id to set
+	 */
+	@Override
+	public void setInstanceId(int instanceId)
+	{
+		_instanceId = instanceId;
+	}
+	
+	@Override
+	public IPositionable getLocation()
+	{
+		return this;
+	}
+	
+	@Override
+	public void setLocation(Location loc)
+	{
+		_x = loc.getX();
+		_y = loc.getY();
+		_z = loc.getZ();
+		_heading = loc.getHeading();
+		_instanceId = loc.getInstanceId();
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if ((obj != null) && (obj instanceof Location))
+		{
+			final Location loc = (Location) obj;
+			return (getX() == loc.getX()) && (getY() == loc.getY()) && (getZ() == loc.getZ()) && (getHeading() == loc.getHeading()) && (getInstanceId() == loc.getInstanceId());
+		}
+		return false;
 	}
 	
 	@Override

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -38,6 +38,50 @@ public final class ClanWarehouse extends Warehouse
 	}
 	
 	@Override
+	public String getName()
+	{
+		return "ClanWarehouse";
+	}
+	
+	@Override
+	public int getOwnerId()
+	{
+		return _clan.getId();
+	}
+	
+	@Override
+	public L2PcInstance getOwner()
+	{
+		return _clan.getLeader().getPlayerInstance();
+	}
+	
+	@Override
+	public ItemLocation getBaseLocation()
+	{
+		return ItemLocation.CLANWH;
+	}
+	
+	public String getLocationId()
+	{
+		return "0";
+	}
+	
+	public int getLocationId(boolean dummy)
+	{
+		return 0;
+	}
+	
+	public void setLocationId(L2PcInstance dummy)
+	{
+	}
+	
+	@Override
+	public boolean validateCapacity(long slots)
+	{
+		return ((_items.size() + slots) <= Config.WAREHOUSE_SLOTS_CLAN);
+	}
+	
+	@Override
 	public L2ItemInstance addItem(String process, int itemId, long count, int enchantLevel, L2PcInstance actor, Object reference)
 	{
 		final L2ItemInstance item = super.addItem(process, itemId, count, enchantLevel, actor, reference);
@@ -64,44 +108,6 @@ public final class ClanWarehouse extends Warehouse
 	}
 	
 	@Override
-	public ItemLocation getBaseLocation()
-	{
-		return ItemLocation.CLANWH;
-	}
-	
-	public String getLocationId()
-	{
-		return "0";
-	}
-	
-	public int getLocationId(boolean dummy)
-	{
-		return 0;
-	}
-	
-	@Override
-	public String getName()
-	{
-		return "ClanWarehouse";
-	}
-	
-	@Override
-	public L2PcInstance getOwner()
-	{
-		return _clan.getLeader().getPlayerInstance();
-	}
-	
-	@Override
-	public int getOwnerId()
-	{
-		return _clan.getId();
-	}
-	
-	public void setLocationId(L2PcInstance dummy)
-	{
-	}
-	
-	@Override
 	public L2ItemInstance transferItem(String process, int objectId, long count, ItemContainer target, L2PcInstance actor, Object reference)
 	{
 		final L2ItemInstance item = getItemByObjectId(objectId);
@@ -109,11 +115,5 @@ public final class ClanWarehouse extends Warehouse
 		// Notify to scripts
 		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerClanWHItemTransfer(process, actor, item, count, target), item.getItem());
 		return super.transferItem(process, objectId, count, target, actor, reference);
-	}
-	
-	@Override
-	public boolean validateCapacity(long slots)
-	{
-		return ((_items.size() + slots) <= Config.WAREHOUSE_SLOTS_CLAN);
 	}
 }

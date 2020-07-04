@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -44,6 +44,22 @@ public class WalkInfo
 	public WalkInfo(String routeName)
 	{
 		_routeName = routeName;
+	}
+	
+	/**
+	 * @return name of route of this WalkInfo.
+	 */
+	public L2WalkRoute getRoute()
+	{
+		return WalkingManager.getInstance().getRoute(_routeName);
+	}
+	
+	/**
+	 * @return current node of this WalkInfo.
+	 */
+	public L2NpcWalkerNode getCurrentNode()
+	{
+		return getRoute().getNodeList().get(_currentNode);
 	}
 	
 	/**
@@ -118,11 +134,51 @@ public class WalkInfo
 	}
 	
 	/**
-	 * @return current node of this WalkInfo.
+	 * @return {@code true} if walking task is blocked, {@code false} otherwise,
 	 */
-	public L2NpcWalkerNode getCurrentNode()
+	public boolean isBlocked()
 	{
-		return getRoute().getNodeList().get(_currentNode);
+		return _blocked;
+	}
+	
+	/**
+	 * @param val
+	 */
+	public void setBlocked(boolean val)
+	{
+		_blocked = val;
+	}
+	
+	/**
+	 * @return {@code true} if walking task is suspended, {@code false} otherwise,
+	 */
+	public boolean isSuspended()
+	{
+		return _suspended;
+	}
+	
+	/**
+	 * @param val
+	 */
+	public void setSuspended(boolean val)
+	{
+		_suspended = val;
+	}
+	
+	/**
+	 * @return {@code true} if walking task shall be stopped by attack, {@code false} otherwise,
+	 */
+	public boolean isStoppedByAttack()
+	{
+		return _stoppedByAttack;
+	}
+	
+	/**
+	 * @param val
+	 */
+	public void setStoppedByAttack(boolean val)
+	{
+		_stoppedByAttack = val;
 	}
 	
 	/**
@@ -142,54 +198,6 @@ public class WalkInfo
 	}
 	
 	/**
-	 * @return name of route of this WalkInfo.
-	 */
-	public L2WalkRoute getRoute()
-	{
-		return WalkingManager.getInstance().getRoute(_routeName);
-	}
-	
-	/**
-	 * @return walking check task.
-	 */
-	public ScheduledFuture<?> getWalkCheckTask()
-	{
-		return _walkCheckTask;
-	}
-	
-	/**
-	 * @return {@code true} if walking task is blocked, {@code false} otherwise,
-	 */
-	public boolean isBlocked()
-	{
-		return _blocked;
-	}
-	
-	/**
-	 * @return {@code true} if walking task shall be stopped by attack, {@code false} otherwise,
-	 */
-	public boolean isStoppedByAttack()
-	{
-		return _stoppedByAttack;
-	}
-	
-	/**
-	 * @return {@code true} if walking task is suspended, {@code false} otherwise,
-	 */
-	public boolean isSuspended()
-	{
-		return _suspended;
-	}
-	
-	/**
-	 * @param val
-	 */
-	public void setBlocked(boolean val)
-	{
-		_blocked = val;
-	}
-	
-	/**
 	 * @param val
 	 */
 	public void setLastAction(long val)
@@ -198,19 +206,11 @@ public class WalkInfo
 	}
 	
 	/**
-	 * @param val
+	 * @return walking check task.
 	 */
-	public void setStoppedByAttack(boolean val)
+	public ScheduledFuture<?> getWalkCheckTask()
 	{
-		_stoppedByAttack = val;
-	}
-	
-	/**
-	 * @param val
-	 */
-	public void setSuspended(boolean val)
-	{
-		_suspended = val;
+		return _walkCheckTask;
 	}
 	
 	/**

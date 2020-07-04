@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -58,44 +58,6 @@ public class CompactionIDFactory extends IdFactory
 		{
 			_log.severe(getClass().getSimpleName() + ": Could not initialize properly: " + e.getMessage());
 		}
-	}
-	
-	@Override
-	public synchronized int getNextId()
-	{
-		// @formatter:off
-		/*
-		 * if (_freeSize == 0)
-		 */
-			return _curOID++;
-		/*
-		 * else
-		 * 	return _freeOIDs[--_freeSize];
-		 */
-		// @formatter:on
-	}
-	
-	@Override
-	public synchronized void releaseId(int id)
-	{
-		// Don't release Ids until we are sure it isn't messing up
-		// @formatter:off
-		/*
-		 if (_freeSize >= _freeOIDs.length)
-		 {
-		 	int[] tmp = new int[_freeSize + STACK_SIZE_INCREMENT];
-		 	System.arraycopy(_freeOIDs, 0, tmp, 0, _freeSize);
-		 	_freeOIDs = tmp;
-		 }
-		 _freeOIDs[_freeSize++] = id;
-		 */
-		// @formatter:on
-	}
-	
-	@Override
-	public int size()
-	{
-		return (_freeSize + LAST_OID) - FIRST_OID;
 	}
 	
 	private int insertUntil(Integer[] tmp_obj_ids, int idx, int N, Connection con) throws SQLException
@@ -153,5 +115,43 @@ public class CompactionIDFactory extends IdFactory
 			_curOID++;
 		}
 		return N - hole;
+	}
+	
+	@Override
+	public synchronized int getNextId()
+	{
+		// @formatter:off
+		/*
+		 * if (_freeSize == 0)
+		 */
+			return _curOID++;
+		/*
+		 * else
+		 * 	return _freeOIDs[--_freeSize];
+		 */
+		// @formatter:on
+	}
+	
+	@Override
+	public synchronized void releaseId(int id)
+	{
+		// Don't release Ids until we are sure it isn't messing up
+		// @formatter:off
+		/*
+		 if (_freeSize >= _freeOIDs.length)
+		 {
+		 	int[] tmp = new int[_freeSize + STACK_SIZE_INCREMENT];
+		 	System.arraycopy(_freeOIDs, 0, tmp, 0, _freeSize);
+		 	_freeOIDs = tmp;
+		 }
+		 _freeOIDs[_freeSize++] = id;
+		 */
+		// @formatter:on
+	}
+	
+	@Override
+	public int size()
+	{
+		return (_freeSize + LAST_OID) - FIRST_OID;
 	}
 }

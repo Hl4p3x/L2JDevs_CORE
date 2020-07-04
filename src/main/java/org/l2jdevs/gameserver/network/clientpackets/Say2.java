@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -37,6 +37,7 @@ import org.l2jdevs.gameserver.model.items.instance.L2ItemInstance;
 import org.l2jdevs.gameserver.network.SystemMessageId;
 import org.l2jdevs.gameserver.network.serverpackets.ActionFailed;
 import org.l2jdevs.gameserver.util.Util;
+import org.l2jdevs.roguelike.UserDotCommands;
 
 /**
  * This class ...
@@ -142,12 +143,6 @@ public final class Say2 extends L2GameClientPacket
 	private String _target;
 	
 	@Override
-	public String getType()
-	{
-		return _C__49_SAY2;
-	}
-	
-	@Override
 	protected void readImpl()
 	{
 		_text = readS();
@@ -205,6 +200,11 @@ public final class Say2 extends L2GameClientPacket
 			activeChar.sendPacket(SystemMessageId.SHOUT_AND_TRADE_CHAT_CANNOT_BE_USED_WHILE_POSSESSING_CURSED_WEAPON);
 			return;
 		}
+
+                // eval user's 'dot' commands
+                if(_text.charAt(0) == '.' //
+                   && UserDotCommands.processChatLine(activeChar, _text))
+                    return;
 		
 		if (activeChar.isChatBanned() && (_text.charAt(0) != '.'))
 		{
@@ -295,12 +295,6 @@ public final class Say2 extends L2GameClientPacket
 		}
 	}
 	
-	@Override
-	protected boolean triggersOnActionRequest()
-	{
-		return false;
-	}
-	
 	private boolean checkBot(String text)
 	{
 		for (String botCommand : WALKER_COMMAND_LIST)
@@ -363,5 +357,17 @@ public final class Say2 extends L2GameClientPacket
 			}
 		}
 		return true;
+	}
+	
+	@Override
+	public String getType()
+	{
+		return _C__49_SAY2;
+	}
+	
+	@Override
+	protected boolean triggersOnActionRequest()
+	{
+		return false;
 	}
 }

@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -45,31 +45,22 @@ public final class CommunityBoardHandler implements IHandler<IParseBoardHandler,
 		// Prevent external initialization.
 	}
 	
-	public static CommunityBoardHandler getInstance()
+	@Override
+	public void registerHandler(IParseBoardHandler handler)
 	{
-		return SingletonHolder._instance;
+		for (String cmd : handler.getCommunityBoardCommands())
+		{
+			_datatable.put(cmd.toLowerCase(), handler);
+		}
 	}
 	
-	/**
-	 * Separates and send an HTML into multiple packets, to display into the community board.<br>
-	 * The limit is 16383 characters.
-	 * @param html the HTML to send
-	 * @param player the player
-	 */
-	public static void separateAndSend(String html, L2PcInstance player)
+	@Override
+	public synchronized void removeHandler(IParseBoardHandler handler)
 	{
-		Util.sendCBHtml(player, html);
-	}
-	
-	/**
-	 * Sets the last bypass used by the player.
-	 * @param player the player
-	 * @param title the title
-	 * @param bypass the bypass
-	 */
-	public void addBypass(L2PcInstance player, String title, String bypass)
-	{
-		_bypasses.put(player.getObjectId(), title + "&" + bypass);
+		for (String cmd : handler.getCommunityBoardCommands())
+		{
+			_datatable.remove(cmd.toLowerCase());
+		}
 	}
 	
 	@Override
@@ -86,6 +77,22 @@ public final class CommunityBoardHandler implements IHandler<IParseBoardHandler,
 			}
 		}
 		return null;
+	}
+	
+	@Override
+	public int size()
+	{
+		return _datatable.size();
+	}
+	
+	/**
+	 * Verifies if the string is a registered community board command.
+	 * @param cmd the command to verify
+	 * @return {@code true} if the command has been registered, {@code false} otherwise
+	 */
+	public boolean isCommunityBoardCommand(String cmd)
+	{
+		return getHandler(cmd) != null;
 	}
 	
 	/**
@@ -185,22 +192,14 @@ public final class CommunityBoardHandler implements IHandler<IParseBoardHandler,
 	}
 	
 	/**
-	 * Verifies if the string is a registered community board command.
-	 * @param cmd the command to verify
-	 * @return {@code true} if the command has been registered, {@code false} otherwise
+	 * Sets the last bypass used by the player.
+	 * @param player the player
+	 * @param title the title
+	 * @param bypass the bypass
 	 */
-	public boolean isCommunityBoardCommand(String cmd)
+	public void addBypass(L2PcInstance player, String title, String bypass)
 	{
-		return getHandler(cmd) != null;
-	}
-	
-	@Override
-	public void registerHandler(IParseBoardHandler handler)
-	{
-		for (String cmd : handler.getCommunityBoardCommands())
-		{
-			_datatable.put(cmd.toLowerCase(), handler);
-		}
+		_bypasses.put(player.getObjectId(), title + "&" + bypass);
 	}
 	
 	/**
@@ -213,19 +212,20 @@ public final class CommunityBoardHandler implements IHandler<IParseBoardHandler,
 		return _bypasses.remove(player.getObjectId());
 	}
 	
-	@Override
-	public synchronized void removeHandler(IParseBoardHandler handler)
+	/**
+	 * Separates and send an HTML into multiple packets, to display into the community board.<br>
+	 * The limit is 16383 characters.
+	 * @param html the HTML to send
+	 * @param player the player
+	 */
+	public static void separateAndSend(String html, L2PcInstance player)
 	{
-		for (String cmd : handler.getCommunityBoardCommands())
-		{
-			_datatable.remove(cmd.toLowerCase());
-		}
+		Util.sendCBHtml(player, html);
 	}
 	
-	@Override
-	public int size()
+	public static CommunityBoardHandler getInstance()
 	{
-		return _datatable.size();
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

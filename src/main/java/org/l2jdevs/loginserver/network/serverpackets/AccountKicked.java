@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -23,23 +23,6 @@ package org.l2jdevs.loginserver.network.serverpackets;
  */
 public final class AccountKicked extends L2LoginServerPacket
 {
-	private final AccountKickedReason _reason;
-	
-	/**
-	 * @param reason
-	 */
-	public AccountKicked(AccountKickedReason reason)
-	{
-		_reason = reason;
-	}
-	
-	@Override
-	protected void write()
-	{
-		writeC(0x02);
-		writeD(_reason.getCode());
-	}
-	
 	public static enum AccountKickedReason
 	{
 		REASON_DATA_STEALER(0x01),
@@ -58,5 +41,22 @@ public final class AccountKicked extends L2LoginServerPacket
 		{
 			return _code;
 		}
+	}
+	
+	private final AccountKickedReason _reason;
+	
+	/**
+	 * @param reason
+	 */
+	public AccountKicked(AccountKickedReason reason)
+	{
+		_reason = reason;
+	}
+	
+	@Override
+	protected void write()
+	{
+		writeC(0x02);
+		writeD(_reason.getCode());
 	}
 }

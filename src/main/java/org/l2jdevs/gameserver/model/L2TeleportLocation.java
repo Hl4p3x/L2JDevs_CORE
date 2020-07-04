@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -33,19 +33,67 @@ public class L2TeleportLocation
 	private int _itemId;
 	
 	/**
-	 * @return
+	 * @param id
 	 */
-	public boolean getIsForNoble()
+	public void setTeleId(int id)
 	{
-		return _forNoble;
+		_teleId = id;
+	}
+	
+	/**
+	 * @param locX
+	 */
+	public void setLocX(int locX)
+	{
+		_locX = locX;
+	}
+	
+	/**
+	 * @param locY
+	 */
+	public void setLocY(int locY)
+	{
+		_locY = locY;
+	}
+	
+	/**
+	 * @param locZ
+	 */
+	public void setLocZ(int locZ)
+	{
+		_locZ = locZ;
+	}
+	
+	/**
+	 * @param price
+	 */
+	public void setPrice(int price)
+	{
+		_price = price;
+	}
+	
+	/**
+	 * @param val
+	 */
+	public void setIsForNoble(boolean val)
+	{
+		_forNoble = val;
+	}
+	
+	/**
+	 * @param val
+	 */
+	public void setItemId(int val)
+	{
+		_itemId = val;
 	}
 	
 	/**
 	 * @return
 	 */
-	public int getItemId()
+	public int getTeleId()
 	{
-		return _itemId;
+		return _teleId;
 	}
 	
 	/**
@@ -83,64 +131,16 @@ public class L2TeleportLocation
 	/**
 	 * @return
 	 */
-	public int getTeleId()
+	public boolean getIsForNoble()
 	{
-		return _teleId;
+		return _forNoble;
 	}
 	
 	/**
-	 * @param val
+	 * @return
 	 */
-	public void setIsForNoble(boolean val)
+	public int getItemId()
 	{
-		_forNoble = val;
-	}
-	
-	/**
-	 * @param val
-	 */
-	public void setItemId(int val)
-	{
-		_itemId = val;
-	}
-	
-	/**
-	 * @param locX
-	 */
-	public void setLocX(int locX)
-	{
-		_locX = locX;
-	}
-	
-	/**
-	 * @param locY
-	 */
-	public void setLocY(int locY)
-	{
-		_locY = locY;
-	}
-	
-	/**
-	 * @param locZ
-	 */
-	public void setLocZ(int locZ)
-	{
-		_locZ = locZ;
-	}
-	
-	/**
-	 * @param price
-	 */
-	public void setPrice(int price)
-	{
-		_price = price;
-	}
-	
-	/**
-	 * @param id
-	 */
-	public void setTeleId(int id)
-	{
-		_teleId = id;
+		return _itemId;
 	}
 }

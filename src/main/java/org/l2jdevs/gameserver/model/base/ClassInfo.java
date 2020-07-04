@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -60,6 +60,27 @@ public final class ClassInfo
 	}
 	
 	/**
+	 * @return the class client ID
+	 */
+	private int getClassClientId()
+	{
+		int classClientId = _classId.getId();
+		if ((classClientId >= 0) && (classClientId <= 57))
+		{
+			classClientId += 247;
+		}
+		else if ((classClientId >= 88) && (classClientId <= 118))
+		{
+			classClientId += 1071;
+		}
+		else if ((classClientId >= 123) && (classClientId <= 136))
+		{
+			classClientId += 1438;
+		}
+		return classClientId;
+	}
+	
+	/**
 	 * @return the class client ID formatted to be displayed on a HTML.
 	 */
 	public String getClientCode()
@@ -81,26 +102,5 @@ public final class ClassInfo
 	public ClassId getParentClassId()
 	{
 		return _parentClassId;
-	}
-	
-	/**
-	 * @return the class client ID
-	 */
-	private int getClassClientId()
-	{
-		int classClientId = _classId.getId();
-		if ((classClientId >= 0) && (classClientId <= 57))
-		{
-			classClientId += 247;
-		}
-		else if ((classClientId >= 88) && (classClientId <= 118))
-		{
-			classClientId += 1071;
-		}
-		else if ((classClientId >= 123) && (classClientId <= 136))
-		{
-			classClientId += 1438;
-		}
-		return classClientId;
 	}
 }

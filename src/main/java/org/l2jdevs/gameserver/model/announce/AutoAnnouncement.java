@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -63,14 +63,14 @@ public final class AutoAnnouncement extends Announcement implements Runnable
 		restartMe();
 	}
 	
-	@Override
-	public boolean deleteMe()
+	public long getInitial()
 	{
-		if ((_task != null) && !_task.isCancelled())
-		{
-			_task.cancel(false);
-		}
-		return super.deleteMe();
+		return _initial;
+	}
+	
+	public void setInitial(long initial)
+	{
+		_initial = initial;
 	}
 	
 	public long getDelay()
@@ -78,53 +78,14 @@ public final class AutoAnnouncement extends Announcement implements Runnable
 		return _delay;
 	}
 	
-	public long getInitial()
-	{
-		return _initial;
-	}
-	
-	public int getRepeat()
-	{
-		return _repeat;
-	}
-	
-	public void restartMe()
-	{
-		if ((_task != null) && !_task.isCancelled())
-		{
-			_task.cancel(false);
-		}
-		_currentState = _repeat;
-		_task = ThreadPoolManager.getInstance().scheduleGeneral(this, _initial);
-	}
-	
-	@Override
-	public void run()
-	{
-		if ((_currentState == -1) || (_currentState > 0))
-		{
-			for (String content : getContent().split(Config.EOL))
-			{
-				Broadcast.toAllOnlinePlayers(content, (getType() == AnnouncementType.AUTO_CRITICAL));
-			}
-			
-			if (_currentState != -1)
-			{
-				_currentState--;
-			}
-			
-			_task = ThreadPoolManager.getInstance().scheduleGeneral(this, _delay);
-		}
-	}
-	
 	public void setDelay(long delay)
 	{
 		_delay = delay;
 	}
 	
-	public void setInitial(long initial)
+	public int getRepeat()
 	{
-		_initial = initial;
+		return _repeat;
 	}
 	
 	public void setRepeat(int repeat)
@@ -182,5 +143,44 @@ public final class AutoAnnouncement extends Announcement implements Runnable
 			return false;
 		}
 		return true;
+	}
+	
+	@Override
+	public boolean deleteMe()
+	{
+		if ((_task != null) && !_task.isCancelled())
+		{
+			_task.cancel(false);
+		}
+		return super.deleteMe();
+	}
+	
+	public void restartMe()
+	{
+		if ((_task != null) && !_task.isCancelled())
+		{
+			_task.cancel(false);
+		}
+		_currentState = _repeat;
+		_task = ThreadPoolManager.getInstance().scheduleGeneral(this, _initial);
+	}
+	
+	@Override
+	public void run()
+	{
+		if ((_currentState == -1) || (_currentState > 0))
+		{
+			for (String content : getContent().split(Config.EOL))
+			{
+				Broadcast.toAllOnlinePlayers(content, (getType() == AnnouncementType.AUTO_CRITICAL));
+			}
+			
+			if (_currentState != -1)
+			{
+				_currentState--;
+			}
+			
+			_task = ThreadPoolManager.getInstance().scheduleGeneral(this, _delay);
+		}
 	}
 }

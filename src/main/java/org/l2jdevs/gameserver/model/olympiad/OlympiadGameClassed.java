@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -31,6 +31,30 @@ public class OlympiadGameClassed extends OlympiadGameNormal
 	private OlympiadGameClassed(int id, Participant[] opponents)
 	{
 		super(id, opponents);
+	}
+	
+	@Override
+	public final CompetitionType getType()
+	{
+		return CompetitionType.CLASSED;
+	}
+	
+	@Override
+	protected final int getDivider()
+	{
+		return Config.ALT_OLY_DIVIDER_CLASSED;
+	}
+	
+	@Override
+	protected final int[][] getReward()
+	{
+		return Config.ALT_OLY_CLASSED_REWARD;
+	}
+	
+	@Override
+	protected final String getWeeklyMatchType()
+	{
+		return COMP_DONE_WEEK_CLASSED;
 	}
 	
 	protected static final OlympiadGameClassed createGame(int id, List<List<Integer>> classList)
@@ -61,29 +85,5 @@ public class OlympiadGameClassed extends OlympiadGameNormal
 			return new OlympiadGameClassed(id, opponents);
 		}
 		return null;
-	}
-	
-	@Override
-	public final CompetitionType getType()
-	{
-		return CompetitionType.CLASSED;
-	}
-	
-	@Override
-	protected final int getDivider()
-	{
-		return Config.ALT_OLY_DIVIDER_CLASSED;
-	}
-	
-	@Override
-	protected final int[][] getReward()
-	{
-		return Config.ALT_OLY_CLASSED_REWARD;
-	}
-	
-	@Override
-	protected final String getWeeklyMatchType()
-	{
-		return COMP_DONE_WEEK_CLASSED;
 	}
 }

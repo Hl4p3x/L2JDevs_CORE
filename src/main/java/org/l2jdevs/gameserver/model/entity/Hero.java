@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -102,163 +102,129 @@ public class Hero
 		init();
 	}
 	
-	public static Hero getInstance()
+	private void init()
 	{
-		return SingletonHolder.INSTANCE;
-	}
-	
-	/**
-	 * Claims the hero status for the given player.
-	 * @param player the player to become hero
-	 */
-	public void claimHero(L2PcInstance player)
-	{
-		StatsSet hero = HEROES.get(player.getObjectId());
-		if (hero == null)
-		{
-			hero = new StatsSet();
-			HEROES.put(player.getObjectId(), hero);
-		}
-		
-		hero.set(CLAIMED, true);
-		
-		final L2Clan clan = player.getClan();
-		if ((clan != null) && (clan.getLevel() >= 5))
-		{
-			clan.addReputationScore(Config.HERO_POINTS, true);
-			final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.CLAN_MEMBER_C1_BECAME_HERO_AND_GAINED_S2_REPUTATION_POINTS);
-			sm.addString(CharNameTable.getInstance().getNameById(player.getObjectId()));
-			sm.addInt(Config.HERO_POINTS);
-			clan.broadcastToOnlineMembers(sm);
-		}
-		
-		player.setHero(true);
-		player.broadcastPacket(new SocialAction(player.getObjectId(), 20016)); // Hero Animation
-		player.sendPacket(new UserInfo(player));
-		player.sendPacket(new ExBrExtraUserInfo(player));
-		player.broadcastUserInfo();
-		// Set Gained hero and reload data
-		setHeroGained(player.getObjectId());
-		loadFights(player.getObjectId());
-		loadDiary(player.getObjectId());
-		HERO_MESSAGE.put(player.getObjectId(), "");
-		
-		updateHeroes(false);
-	}
-	
-	public synchronized void computeNewHeroes(List<StatsSet> newHeroes)
-	{
-		updateHeroes(true);
-		
-		for (Integer objectId : HEROES.keySet())
-		{
-			final L2PcInstance player = L2World.getInstance().getPlayer(objectId);
-			if (player == null)
-			{
-				continue;
-			}
-			
-			player.setHero(false);
-			
-			for (int i = 0; i < Inventory.PAPERDOLL_TOTALSLOTS; i++)
-			{
-				L2ItemInstance equippedItem = player.getInventory().getPaperdollItem(i);
-				if ((equippedItem != null) && equippedItem.isHeroItem())
-				{
-					player.getInventory().unEquipItemInSlot(i);
-				}
-			}
-			
-			final InventoryUpdate iu = new InventoryUpdate();
-			for (L2ItemInstance item : player.getInventory().getItems())
-			{
-				if ((item != null) && item.isHeroItem())
-				{
-					player.destroyItem("Hero", item, null, true);
-					iu.addRemovedItem(item);
-				}
-			}
-			
-			if (!iu.getItems().isEmpty())
-			{
-				player.sendPacket(iu);
-			}
-			
-			player.broadcastUserInfo();
-		}
-		
-		deleteItemsInDb();
-		
 		HEROES.clear();
+		COMPLETE_HEROS.clear();
+		HERO_COUNTS.clear();
+		HERO_FIGHTS.clear();
+		HERO_DIARY.clear();
+		HERO_MESSAGE.clear();
 		
-		if (newHeroes.isEmpty())
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			Statement s1 = con.createStatement();
+			ResultSet rset = s1.executeQuery(GET_HEROES);
+			PreparedStatement ps = con.prepareStatement(GET_CLAN_ALLY);
+			Statement s2 = con.createStatement();
+			ResultSet rset2 = s2.executeQuery(GET_ALL_HEROES))
 		{
-			return;
-		}
-		
-		for (StatsSet hero : newHeroes)
-		{
-			int charId = hero.getInt(Olympiad.CHAR_ID);
+			while (rset.next())
+			{
+				StatsSet hero = new StatsSet();
+				int charId = rset.getInt(Olympiad.CHAR_ID);
+				hero.set(Olympiad.CHAR_NAME, rset.getString(Olympiad.CHAR_NAME));
+				hero.set(Olympiad.CLASS_ID, rset.getInt(Olympiad.CLASS_ID));
+				hero.set(COUNT, rset.getInt(COUNT));
+				hero.set(PLAYED, rset.getInt(PLAYED));
+				hero.set(CLAIMED, Boolean.parseBoolean(rset.getString(CLAIMED)));
+				
+				loadFights(charId);
+				loadDiary(charId);
+				loadMessage(charId);
+				
+				processHeros(ps, charId, hero);
+				
+				HEROES.put(charId, hero);
+			}
 			
-			if (COMPLETE_HEROS.containsKey(charId))
+			while (rset2.next())
 			{
-				StatsSet oldHero = COMPLETE_HEROS.get(charId);
-				int count = oldHero.getInt(COUNT);
-				oldHero.set(COUNT, count + 1);
-				oldHero.set(PLAYED, 1);
-				oldHero.set(CLAIMED, false);
-				HEROES.put(charId, oldHero);
+				StatsSet hero = new StatsSet();
+				int charId = rset2.getInt(Olympiad.CHAR_ID);
+				hero.set(Olympiad.CHAR_NAME, rset2.getString(Olympiad.CHAR_NAME));
+				hero.set(Olympiad.CLASS_ID, rset2.getInt(Olympiad.CLASS_ID));
+				hero.set(COUNT, rset2.getInt(COUNT));
+				hero.set(PLAYED, rset2.getInt(PLAYED));
+				hero.set(CLAIMED, Boolean.parseBoolean(rset2.getString(CLAIMED)));
+				
+				processHeros(ps, charId, hero);
+				
+				COMPLETE_HEROS.put(charId, hero);
 			}
-			else
-			{
-				StatsSet newHero = new StatsSet();
-				newHero.set(Olympiad.CHAR_NAME, hero.getString(Olympiad.CHAR_NAME));
-				newHero.set(Olympiad.CLASS_ID, hero.getInt(Olympiad.CLASS_ID));
-				newHero.set(COUNT, 1);
-				newHero.set(PLAYED, 1);
-				newHero.set(CLAIMED, false);
-				HEROES.put(charId, newHero);
-			}
+		}
+		catch (SQLException e)
+		{
+			_log.warning("Hero System: Couldnt load Heroes: " + e.getMessage());
 		}
 		
-		updateHeroes(false);
+		_log.info("Hero System: Loaded " + HEROES.size() + " Heroes.");
+		_log.info("Hero System: Loaded " + COMPLETE_HEROS.size() + " all time Heroes.");
 	}
 	
-	public int getHeroByClass(int classid)
+	private void processHeros(PreparedStatement ps, int charId, StatsSet hero) throws SQLException
 	{
-		for (Entry<Integer, StatsSet> e : HEROES.entrySet())
+		ps.setInt(1, charId);
+		try (ResultSet rs = ps.executeQuery())
 		{
-			if (e.getValue().getInt(Olympiad.CLASS_ID) == classid)
+			if (rs.next())
 			{
-				return e.getKey();
+				int clanId = rs.getInt("clanid");
+				int allyId = rs.getInt("allyId");
+				String clanName = "";
+				String allyName = "";
+				int clanCrest = 0;
+				int allyCrest = 0;
+				if (clanId > 0)
+				{
+					clanName = ClanTable.getInstance().getClan(clanId).getName();
+					clanCrest = ClanTable.getInstance().getClan(clanId).getCrestId();
+					if (allyId > 0)
+					{
+						allyName = ClanTable.getInstance().getClan(clanId).getAllyName();
+						allyCrest = ClanTable.getInstance().getClan(clanId).getAllyCrestId();
+					}
+				}
+				hero.set(CLAN_CREST, clanCrest);
+				hero.set(CLAN_NAME, clanName);
+				hero.set(ALLY_CREST, allyCrest);
+				hero.set(ALLY_NAME, allyName);
+			}
+			ps.clearParameters();
+		}
+	}
+	
+	private String calcFightTime(long FightTime)
+	{
+		String format = String.format("%%0%dd", 2);
+		FightTime = FightTime / 1000;
+		String seconds = String.format(format, FightTime % 60);
+		String minutes = String.format(format, (FightTime % 3600) / 60);
+		String time = minutes + ":" + seconds;
+		return time;
+	}
+	
+	/**
+	 * Restore hero message from Db.
+	 * @param charId
+	 */
+	public void loadMessage(int charId)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT message FROM heroes WHERE charId=?"))
+		{
+			ps.setInt(1, charId);
+			try (ResultSet rset = ps.executeQuery())
+			{
+				if (rset.next())
+				{
+					HERO_MESSAGE.put(charId, rset.getString("message"));
+				}
 			}
 		}
-		return 0;
-	}
-	
-	public Map<Integer, StatsSet> getHeroes()
-	{
-		return HEROES;
-	}
-	
-	/**
-	 * Verifies if the given object ID belongs to a claimed hero.
-	 * @param objectId the player's object ID to verify
-	 * @return {@code true} if there are heros and the player is in the list, {@code false} otherwise
-	 */
-	public boolean isHero(int objectId)
-	{
-		return HEROES.containsKey(objectId) && HEROES.get(objectId).getBoolean(CLAIMED);
-	}
-	
-	/**
-	 * Verifies if the given object ID belongs to an unclaimed hero.
-	 * @param objectId the player's object ID to verify
-	 * @return {@code true} if player is unclaimed hero
-	 */
-	public boolean isUnclaimedHero(int objectId)
-	{
-		return HEROES.containsKey(objectId) && !HEROES.get(objectId).getBoolean(CLAIMED);
+		catch (SQLException e)
+		{
+			_log.warning("Hero System: Couldnt load Hero Message for CharId: " + charId + ": " + e.getMessage());
+		}
 	}
 	
 	public void loadDiary(int charId)
@@ -449,28 +415,21 @@ public class Hero
 		}
 	}
 	
-	/**
-	 * Restore hero message from Db.
-	 * @param charId
-	 */
-	public void loadMessage(int charId)
+	public Map<Integer, StatsSet> getHeroes()
 	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT message FROM heroes WHERE charId=?"))
+		return HEROES;
+	}
+	
+	public int getHeroByClass(int classid)
+	{
+		for (Entry<Integer, StatsSet> e : HEROES.entrySet())
 		{
-			ps.setInt(1, charId);
-			try (ResultSet rset = ps.executeQuery())
+			if (e.getValue().getInt(Olympiad.CLASS_ID) == classid)
 			{
-				if (rset.next())
-				{
-					HERO_MESSAGE.put(charId, rset.getString("message"));
-				}
+				return e.getKey();
 			}
 		}
-		catch (SQLException e)
-		{
-			_log.warning("Hero System: Couldnt load Hero Message for CharId: " + charId + ": " + e.getMessage());
-		}
+		return 0;
 	}
 	
 	public void resetData()
@@ -479,98 +438,6 @@ public class Hero
 		HERO_FIGHTS.clear();
 		HERO_COUNTS.clear();
 		HERO_MESSAGE.clear();
-	}
-	
-	/**
-	 * Update hero message in database
-	 * @param charId character objid
-	 */
-	public void saveHeroMessage(int charId)
-	{
-		if (HERO_MESSAGE.containsKey(charId))
-		{
-			return;
-		}
-		
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("UPDATE heroes SET message=? WHERE charId=?;"))
-		{
-			ps.setString(1, HERO_MESSAGE.get(charId));
-			ps.setInt(2, charId);
-			ps.execute();
-		}
-		catch (SQLException e)
-		{
-			_log.severe("SQL exception while saving HeroMessage:" + e.getMessage());
-		}
-	}
-	
-	public void setCastleTaken(int charId, int castleId)
-	{
-		setDiaryData(charId, ACTION_CASTLE_TAKEN, castleId);
-		
-		final Castle castle = CastleManager.getInstance().getCastleById(castleId);
-		final List<StatsSet> list = HERO_DIARY.get(charId);
-		if ((list != null) && (castle != null))
-		{
-			// Prepare new data
-			final StatsSet diaryEntry = new StatsSet();
-			final String date = (new SimpleDateFormat("yyyy-MM-dd HH")).format(new Date(System.currentTimeMillis()));
-			diaryEntry.set("date", date);
-			diaryEntry.set("action", castle.getName() + " Castle was successfuly taken");
-			// Add to old list
-			list.add(diaryEntry);
-		}
-	}
-	
-	public void setDiaryData(int charId, int action, int param)
-	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement("INSERT INTO heroes_diary (charId, time, action, param) values(?,?,?,?)"))
-		{
-			ps.setInt(1, charId);
-			ps.setLong(2, System.currentTimeMillis());
-			ps.setInt(3, action);
-			ps.setInt(4, param);
-			ps.execute();
-		}
-		catch (SQLException e)
-		{
-			_log.severe("SQL exception while saving DiaryData: " + e.getMessage());
-		}
-	}
-	
-	public void setHeroGained(int charId)
-	{
-		setDiaryData(charId, ACTION_HERO_GAINED, 0);
-	}
-	
-	/**
-	 * Set new hero message for hero
-	 * @param player the player instance
-	 * @param message String to set
-	 */
-	public void setHeroMessage(L2PcInstance player, String message)
-	{
-		HERO_MESSAGE.put(player.getObjectId(), message);
-	}
-	
-	public void setRBkilled(int charId, int npcId)
-	{
-		setDiaryData(charId, ACTION_RAID_KILLED, npcId);
-		
-		final L2NpcTemplate template = NpcData.getInstance().getTemplate(npcId);
-		final List<StatsSet> list = HERO_DIARY.get(charId);
-		if ((list != null) && (template != null))
-		{
-			// Prepare new data
-			final StatsSet diaryEntry = new StatsSet();
-			final String date = (new SimpleDateFormat("yyyy-MM-dd HH")).format(new Date(System.currentTimeMillis()));
-			diaryEntry.set("date", date);
-			diaryEntry.set("action", template.getName() + " was defeated");
-			// Add to old list
-			list.add(diaryEntry);
-		}
 	}
 	
 	public void showHeroDiary(L2PcInstance activeChar, int heroclass, int charid, int page)
@@ -749,13 +616,82 @@ public class Hero
 		}
 	}
 	
-	/**
-	 * Saving task for {@link Hero}<BR>
-	 * Save all hero messages to DB.
-	 */
-	public void shutdown()
+	public synchronized void computeNewHeroes(List<StatsSet> newHeroes)
 	{
-		HERO_MESSAGE.keySet().forEach(c -> saveHeroMessage(c));
+		updateHeroes(true);
+		
+		for (Integer objectId : HEROES.keySet())
+		{
+			final L2PcInstance player = L2World.getInstance().getPlayer(objectId);
+			if (player == null)
+			{
+				continue;
+			}
+			
+			player.setHero(false);
+			
+			for (int i = 0; i < Inventory.PAPERDOLL_TOTALSLOTS; i++)
+			{
+				L2ItemInstance equippedItem = player.getInventory().getPaperdollItem(i);
+				if ((equippedItem != null) && equippedItem.isHeroItem())
+				{
+					player.getInventory().unEquipItemInSlot(i);
+				}
+			}
+			
+			final InventoryUpdate iu = new InventoryUpdate();
+			for (L2ItemInstance item : player.getInventory().getItems())
+			{
+				if ((item != null) && item.isHeroItem())
+				{
+					player.destroyItem("Hero", item, null, true);
+					iu.addRemovedItem(item);
+				}
+			}
+			
+			if (!iu.getItems().isEmpty())
+			{
+				player.sendPacket(iu);
+			}
+			
+			player.broadcastUserInfo();
+		}
+		
+		deleteItemsInDb();
+		
+		HEROES.clear();
+		
+		if (newHeroes.isEmpty())
+		{
+			return;
+		}
+		
+		for (StatsSet hero : newHeroes)
+		{
+			int charId = hero.getInt(Olympiad.CHAR_ID);
+			
+			if (COMPLETE_HEROS.containsKey(charId))
+			{
+				StatsSet oldHero = COMPLETE_HEROS.get(charId);
+				int count = oldHero.getInt(COUNT);
+				oldHero.set(COUNT, count + 1);
+				oldHero.set(PLAYED, 1);
+				oldHero.set(CLAIMED, false);
+				HEROES.put(charId, oldHero);
+			}
+			else
+			{
+				StatsSet newHero = new StatsSet();
+				newHero.set(Olympiad.CHAR_NAME, hero.getString(Olympiad.CHAR_NAME));
+				newHero.set(Olympiad.CLASS_ID, hero.getInt(Olympiad.CLASS_ID));
+				newHero.set(COUNT, 1);
+				newHero.set(PLAYED, 1);
+				newHero.set(CLAIMED, false);
+				HEROES.put(charId, newHero);
+			}
+		}
+		
+		updateHeroes(false);
 	}
 	
 	public void updateHeroes(boolean setDefault)
@@ -848,14 +784,96 @@ public class Hero
 		}
 	}
 	
-	private String calcFightTime(long FightTime)
+	public void setHeroGained(int charId)
 	{
-		String format = String.format("%%0%dd", 2);
-		FightTime = FightTime / 1000;
-		String seconds = String.format(format, FightTime % 60);
-		String minutes = String.format(format, (FightTime % 3600) / 60);
-		String time = minutes + ":" + seconds;
-		return time;
+		setDiaryData(charId, ACTION_HERO_GAINED, 0);
+	}
+	
+	public void setRBkilled(int charId, int npcId)
+	{
+		setDiaryData(charId, ACTION_RAID_KILLED, npcId);
+		
+		final L2NpcTemplate template = NpcData.getInstance().getTemplate(npcId);
+		final List<StatsSet> list = HERO_DIARY.get(charId);
+		if ((list != null) && (template != null))
+		{
+			// Prepare new data
+			final StatsSet diaryEntry = new StatsSet();
+			final String date = (new SimpleDateFormat("yyyy-MM-dd HH")).format(new Date(System.currentTimeMillis()));
+			diaryEntry.set("date", date);
+			diaryEntry.set("action", template.getName() + " was defeated");
+			// Add to old list
+			list.add(diaryEntry);
+		}
+	}
+	
+	public void setCastleTaken(int charId, int castleId)
+	{
+		setDiaryData(charId, ACTION_CASTLE_TAKEN, castleId);
+		
+		final Castle castle = CastleManager.getInstance().getCastleById(castleId);
+		final List<StatsSet> list = HERO_DIARY.get(charId);
+		if ((list != null) && (castle != null))
+		{
+			// Prepare new data
+			final StatsSet diaryEntry = new StatsSet();
+			final String date = (new SimpleDateFormat("yyyy-MM-dd HH")).format(new Date(System.currentTimeMillis()));
+			diaryEntry.set("date", date);
+			diaryEntry.set("action", castle.getName() + " Castle was successfuly taken");
+			// Add to old list
+			list.add(diaryEntry);
+		}
+	}
+	
+	public void setDiaryData(int charId, int action, int param)
+	{
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("INSERT INTO heroes_diary (charId, time, action, param) values(?,?,?,?)"))
+		{
+			ps.setInt(1, charId);
+			ps.setLong(2, System.currentTimeMillis());
+			ps.setInt(3, action);
+			ps.setInt(4, param);
+			ps.execute();
+		}
+		catch (SQLException e)
+		{
+			_log.severe("SQL exception while saving DiaryData: " + e.getMessage());
+		}
+	}
+	
+	/**
+	 * Set new hero message for hero
+	 * @param player the player instance
+	 * @param message String to set
+	 */
+	public void setHeroMessage(L2PcInstance player, String message)
+	{
+		HERO_MESSAGE.put(player.getObjectId(), message);
+	}
+	
+	/**
+	 * Update hero message in database
+	 * @param charId character objid
+	 */
+	public void saveHeroMessage(int charId)
+	{
+		if (HERO_MESSAGE.containsKey(charId))
+		{
+			return;
+		}
+		
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement("UPDATE heroes SET message=? WHERE charId=?;"))
+		{
+			ps.setString(1, HERO_MESSAGE.get(charId));
+			ps.setInt(2, charId);
+			ps.execute();
+		}
+		catch (SQLException e)
+		{
+			_log.severe("SQL exception while saving HeroMessage:" + e.getMessage());
+		}
 	}
 	
 	private void deleteItemsInDb()
@@ -871,95 +889,77 @@ public class Hero
 		}
 	}
 	
-	private void init()
+	/**
+	 * Saving task for {@link Hero}<BR>
+	 * Save all hero messages to DB.
+	 */
+	public void shutdown()
 	{
-		HEROES.clear();
-		COMPLETE_HEROS.clear();
-		HERO_COUNTS.clear();
-		HERO_FIGHTS.clear();
-		HERO_DIARY.clear();
-		HERO_MESSAGE.clear();
-		
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			Statement s1 = con.createStatement();
-			ResultSet rset = s1.executeQuery(GET_HEROES);
-			PreparedStatement ps = con.prepareStatement(GET_CLAN_ALLY);
-			Statement s2 = con.createStatement();
-			ResultSet rset2 = s2.executeQuery(GET_ALL_HEROES))
-		{
-			while (rset.next())
-			{
-				StatsSet hero = new StatsSet();
-				int charId = rset.getInt(Olympiad.CHAR_ID);
-				hero.set(Olympiad.CHAR_NAME, rset.getString(Olympiad.CHAR_NAME));
-				hero.set(Olympiad.CLASS_ID, rset.getInt(Olympiad.CLASS_ID));
-				hero.set(COUNT, rset.getInt(COUNT));
-				hero.set(PLAYED, rset.getInt(PLAYED));
-				hero.set(CLAIMED, Boolean.parseBoolean(rset.getString(CLAIMED)));
-				
-				loadFights(charId);
-				loadDiary(charId);
-				loadMessage(charId);
-				
-				processHeros(ps, charId, hero);
-				
-				HEROES.put(charId, hero);
-			}
-			
-			while (rset2.next())
-			{
-				StatsSet hero = new StatsSet();
-				int charId = rset2.getInt(Olympiad.CHAR_ID);
-				hero.set(Olympiad.CHAR_NAME, rset2.getString(Olympiad.CHAR_NAME));
-				hero.set(Olympiad.CLASS_ID, rset2.getInt(Olympiad.CLASS_ID));
-				hero.set(COUNT, rset2.getInt(COUNT));
-				hero.set(PLAYED, rset2.getInt(PLAYED));
-				hero.set(CLAIMED, Boolean.parseBoolean(rset2.getString(CLAIMED)));
-				
-				processHeros(ps, charId, hero);
-				
-				COMPLETE_HEROS.put(charId, hero);
-			}
-		}
-		catch (SQLException e)
-		{
-			_log.warning("Hero System: Couldnt load Heroes: " + e.getMessage());
-		}
-		
-		_log.info("Hero System: Loaded " + HEROES.size() + " Heroes.");
-		_log.info("Hero System: Loaded " + COMPLETE_HEROS.size() + " all time Heroes.");
+		HERO_MESSAGE.keySet().forEach(c -> saveHeroMessage(c));
 	}
 	
-	private void processHeros(PreparedStatement ps, int charId, StatsSet hero) throws SQLException
+	/**
+	 * Verifies if the given object ID belongs to a claimed hero.
+	 * @param objectId the player's object ID to verify
+	 * @return {@code true} if there are heros and the player is in the list, {@code false} otherwise
+	 */
+	public boolean isHero(int objectId)
 	{
-		ps.setInt(1, charId);
-		try (ResultSet rs = ps.executeQuery())
+		return HEROES.containsKey(objectId) && HEROES.get(objectId).getBoolean(CLAIMED);
+	}
+	
+	/**
+	 * Verifies if the given object ID belongs to an unclaimed hero.
+	 * @param objectId the player's object ID to verify
+	 * @return {@code true} if player is unclaimed hero
+	 */
+	public boolean isUnclaimedHero(int objectId)
+	{
+		return HEROES.containsKey(objectId) && !HEROES.get(objectId).getBoolean(CLAIMED);
+	}
+	
+	/**
+	 * Claims the hero status for the given player.
+	 * @param player the player to become hero
+	 */
+	public void claimHero(L2PcInstance player)
+	{
+		StatsSet hero = HEROES.get(player.getObjectId());
+		if (hero == null)
 		{
-			if (rs.next())
-			{
-				int clanId = rs.getInt("clanid");
-				int allyId = rs.getInt("allyId");
-				String clanName = "";
-				String allyName = "";
-				int clanCrest = 0;
-				int allyCrest = 0;
-				if (clanId > 0)
-				{
-					clanName = ClanTable.getInstance().getClan(clanId).getName();
-					clanCrest = ClanTable.getInstance().getClan(clanId).getCrestId();
-					if (allyId > 0)
-					{
-						allyName = ClanTable.getInstance().getClan(clanId).getAllyName();
-						allyCrest = ClanTable.getInstance().getClan(clanId).getAllyCrestId();
-					}
-				}
-				hero.set(CLAN_CREST, clanCrest);
-				hero.set(CLAN_NAME, clanName);
-				hero.set(ALLY_CREST, allyCrest);
-				hero.set(ALLY_NAME, allyName);
-			}
-			ps.clearParameters();
+			hero = new StatsSet();
+			HEROES.put(player.getObjectId(), hero);
 		}
+		
+		hero.set(CLAIMED, true);
+		
+		final L2Clan clan = player.getClan();
+		if ((clan != null) && (clan.getLevel() >= 5))
+		{
+			clan.addReputationScore(Config.HERO_POINTS, true);
+			final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.CLAN_MEMBER_C1_BECAME_HERO_AND_GAINED_S2_REPUTATION_POINTS);
+			sm.addString(CharNameTable.getInstance().getNameById(player.getObjectId()));
+			sm.addInt(Config.HERO_POINTS);
+			clan.broadcastToOnlineMembers(sm);
+		}
+		
+		player.setHero(true);
+		player.broadcastPacket(new SocialAction(player.getObjectId(), 20016)); // Hero Animation
+		player.sendPacket(new UserInfo(player));
+		player.sendPacket(new ExBrExtraUserInfo(player));
+		player.broadcastUserInfo();
+		// Set Gained hero and reload data
+		setHeroGained(player.getObjectId());
+		loadFights(player.getObjectId());
+		loadDiary(player.getObjectId());
+		HERO_MESSAGE.put(player.getObjectId(), "");
+		
+		updateHeroes(false);
+	}
+	
+	public static Hero getInstance()
+	{
+		return SingletonHolder.INSTANCE;
 	}
 	
 	private static class SingletonHolder

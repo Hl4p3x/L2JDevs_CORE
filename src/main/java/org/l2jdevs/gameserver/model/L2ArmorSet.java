@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -67,6 +67,46 @@ public final class L2ArmorSet
 		_chestId = id;
 	}
 	
+	public void addLegs(int id)
+	{
+		_legs.add(id);
+	}
+	
+	public void addHead(int id)
+	{
+		_head.add(id);
+	}
+	
+	public void addGloves(int id)
+	{
+		_gloves.add(id);
+	}
+	
+	public void addFeet(int id)
+	{
+		_feet.add(id);
+	}
+	
+	public void addShield(int id)
+	{
+		_shield.add(id);
+	}
+	
+	public void addSkill(SkillHolder holder)
+	{
+		_skills.add(holder);
+	}
+	
+	public void addShieldSkill(SkillHolder holder)
+	{
+		_shieldSkills.add(holder);
+	}
+	
+	public void addEnchant6Skill(SkillHolder holder)
+	{
+		_enchant6Skill.add(holder);
+	}
+	
 	public void addCon(int val)
 	{
 		_con = val;
@@ -77,34 +117,9 @@ public final class L2ArmorSet
 		_dex = val;
 	}
 	
-	public void addEnchant6Skill(SkillHolder holder)
+	public void addStr(int val)
 	{
-		_enchant6Skill.add(holder);
-	}
-	
-	public void addFeet(int id)
-	{
-		_feet.add(id);
-	}
-	
-	public void addGloves(int id)
-	{
-		_gloves.add(id);
-	}
-	
-	public void addHead(int id)
-	{
-		_head.add(id);
-	}
-	
-	public void addInt(int val)
-	{
-		_int = val;
-	}
-	
-	public void addLegs(int id)
-	{
-		_legs.add(id);
+		_str = val;
 	}
 	
 	public void addMen(int val)
@@ -112,55 +127,14 @@ public final class L2ArmorSet
 		_men = val;
 	}
 	
-	public void addShield(int id)
-	{
-		_shield.add(id);
-	}
-	
-	public void addShieldSkill(SkillHolder holder)
-	{
-		_shieldSkills.add(holder);
-	}
-	
-	public void addSkill(SkillHolder holder)
-	{
-		_skills.add(holder);
-	}
-	
-	public void addStr(int val)
-	{
-		_str = val;
-	}
-	
 	public void addWit(int val)
 	{
 		_wit = val;
 	}
 	
-	public boolean containAll(int chest, int legs, int head, int gloves, int feet)
+	public void addInt(int val)
 	{
-		if ((_chestId != 0) && (_chestId != chest))
-		{
-			return false;
-		}
-		if (!_legs.isEmpty() && !_legs.contains(legs))
-		{
-			return false;
-		}
-		if (!_head.isEmpty() && !_head.contains(head))
-		{
-			return false;
-		}
-		if (!_gloves.isEmpty() && !_gloves.contains(gloves))
-		{
-			return false;
-		}
-		if (!_feet.isEmpty() && !_feet.contains(feet))
-		{
-			return false;
-		}
-		
-		return true;
+		_int = val;
 	}
 	
 	/**
@@ -202,6 +176,32 @@ public final class L2ArmorSet
 		return containAll(_chestId, legs, head, gloves, feet);
 	}
 	
+	public boolean containAll(int chest, int legs, int head, int gloves, int feet)
+	{
+		if ((_chestId != 0) && (_chestId != chest))
+		{
+			return false;
+		}
+		if (!_legs.isEmpty() && !_legs.contains(legs))
+		{
+			return false;
+		}
+		if (!_head.isEmpty() && !_head.contains(head))
+		{
+			return false;
+		}
+		if (!_gloves.isEmpty() && !_gloves.contains(gloves))
+		{
+			return false;
+		}
+		if (!_feet.isEmpty() && !_feet.contains(feet))
+		{
+			return false;
+		}
+		
+		return true;
+	}
+	
 	public boolean containItem(int slot, int itemId)
 	{
 		switch (slot)
@@ -221,14 +221,14 @@ public final class L2ArmorSet
 		}
 	}
 	
-	public boolean containShield(int shield_id)
+	public int getChestId()
 	{
-		if (_shield.isEmpty())
-		{
-			return false;
-		}
-		
-		return _shield.contains(Integer.valueOf(shield_id));
+		return _chestId;
+	}
+	
+	public List<SkillHolder> getSkills()
+	{
+		return _skills;
 	}
 	
 	public boolean containShield(L2PcInstance player)
@@ -239,34 +239,14 @@ public final class L2ArmorSet
 		return ((shieldItem != null) && _shield.contains(Integer.valueOf(shieldItem.getId())));
 	}
 	
-	public int getChestId()
+	public boolean containShield(int shield_id)
 	{
-		return _chestId;
-	}
-	
-	public int getCON()
-	{
-		return _con;
-	}
-	
-	public int getDEX()
-	{
-		return _dex;
-	}
-	
-	public List<SkillHolder> getEnchant6skillId()
-	{
-		return _enchant6Skill;
-	}
-	
-	public int getINT()
-	{
-		return _int;
-	}
-	
-	public int getMEN()
-	{
-		return _men;
+		if (_shield.isEmpty())
+		{
+			return false;
+		}
+		
+		return _shield.contains(Integer.valueOf(shield_id));
 	}
 	
 	public List<SkillHolder> getShieldSkillId()
@@ -274,19 +254,9 @@ public final class L2ArmorSet
 		return _shieldSkills;
 	}
 	
-	public List<SkillHolder> getSkills()
+	public List<SkillHolder> getEnchant6skillId()
 	{
-		return _skills;
-	}
-	
-	public int getSTR()
-	{
-		return _str;
-	}
-	
-	public int getWIT()
-	{
-		return _wit;
+		return _enchant6Skill;
 	}
 	
 	/**
@@ -331,5 +301,35 @@ public final class L2ArmorSet
 		}
 		
 		return true;
+	}
+	
+	public int getCON()
+	{
+		return _con;
+	}
+	
+	public int getDEX()
+	{
+		return _dex;
+	}
+	
+	public int getSTR()
+	{
+		return _str;
+	}
+	
+	public int getMEN()
+	{
+		return _men;
+	}
+	
+	public int getWIT()
+	{
+		return _wit;
+	}
+	
+	public int getINT()
+	{
+		return _int;
 	}
 }

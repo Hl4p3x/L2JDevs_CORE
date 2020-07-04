@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -88,10 +88,13 @@ public class L2BlockInstance extends L2MonsterInstance
 		}
 	}
 	
-	@Override
-	public boolean doDie(L2Character killer)
+	/**
+	 * Sets if the block is red or blue. Mainly used in block spawn
+	 * @param isRed
+	 */
+	public void setRed(boolean isRed)
 	{
-		return false;
+		_colorEffect = isRed ? 0x53 : 0x00;
 	}
 	
 	/**
@@ -111,6 +114,12 @@ public class L2BlockInstance extends L2MonsterInstance
 			return (attacker.getActingPlayer() != null) && (attacker.getActingPlayer().getBlockCheckerArena() > -1);
 		}
 		return true;
+	}
+	
+	@Override
+	public boolean doDie(L2Character killer)
+	{
+		return false;
 	}
 	
 	@Override
@@ -134,27 +143,6 @@ public class L2BlockInstance extends L2MonsterInstance
 		}
 	}
 	
-	/**
-	 * Sets if the block is red or blue. Mainly used in block spawn
-	 * @param isRed
-	 */
-	public void setRed(boolean isRed)
-	{
-		_colorEffect = isRed ? 0x53 : 0x00;
-	}
-	
-	private void dropItem(int id, BlockCheckerEngine eng, L2PcInstance player)
-	{
-		L2ItemInstance drop = ItemTable.getInstance().createItem("Loot", id, 1, player, this);
-		int x = getX() + Rnd.get(50);
-		int y = getY() + Rnd.get(50);
-		int z = getZ();
-		
-		drop.dropMe(this, x, y, z);
-		
-		eng.addNewDrop(drop);
-	}
-	
 	private void increaseTeamPointsAndSend(L2PcInstance player, int team, BlockCheckerEngine eng)
 	{
 		eng.increasePlayerPoints(player, team);
@@ -167,5 +155,17 @@ public class L2BlockInstance extends L2MonsterInstance
 		
 		eng.getHolder().broadCastPacketToTeam(changePoints);
 		eng.getHolder().broadCastPacketToTeam(secretPoints);
+	}
+	
+	private void dropItem(int id, BlockCheckerEngine eng, L2PcInstance player)
+	{
+		L2ItemInstance drop = ItemTable.getInstance().createItem("Loot", id, 1, player, this);
+		int x = getX() + Rnd.get(50);
+		int y = getY() + Rnd.get(50);
+		int z = getZ();
+		
+		drop.dropMe(this, x, y, z);
+		
+		eng.addNewDrop(drop);
 	}
 }

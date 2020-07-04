@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -98,127 +98,12 @@ public class L2WarehouseItem
 		_enchantOptions = item.getEnchantOptions();
 	}
 	
-	public int getAttackElementPower()
-	{
-		return _elemAtkPower;
-	}
-	
-	public int getAttackElementType()
-	{
-		return _elemAtkType;
-	}
-	
-	/**
-	 * @return the augmentation If.
-	 */
-	public int getAugmentationId()
-	{
-		return _augmentationId;
-	}
-	
-	/**
-	 * @return the part of body used with this item.
-	 */
-	public final int getBodyPart()
-	{
-		return _item.getBodyPart();
-	}
-	
-	/**
-	 * @return the count.
-	 */
-	public final long getCount()
-	{
-		return _count;
-	}
-	
-	public final int getCustomType1()
-	{
-		return _customType1;
-	}
-	
-	public final int getCustomType2()
-	{
-		return _customType2;
-	}
-	
-	public int getElementDefAttr(byte i)
-	{
-		return _elemDefAttr[i];
-	}
-	
-	/**
-	 * @return the enchant level.
-	 */
-	public final int getEnchantLevel()
-	{
-		return _enchant;
-	}
-	
-	public int[] getEnchantOptions()
-	{
-		return _enchantOptions;
-	}
-	
 	/**
 	 * @return the item.
 	 */
 	public L2Item getItem()
 	{
 		return _item;
-	}
-	
-	/**
-	 * @return the item grade
-	 */
-	public final CrystalType getItemGrade()
-	{
-		return _grade;
-	}
-	
-	/**
-	 * @return the ItemId.
-	 */
-	public final int getItemId()
-	{
-		return _item.getId();
-	}
-	
-	/**
-	 * @return the name of the item
-	 */
-	public String getItemName()
-	{
-		return _item.getName();
-	}
-	
-	/**
-	 * @return the second type.
-	 */
-	public final ItemType getItemType()
-	{
-		return _item.getItemType();
-	}
-	
-	/**
-	 * @return the location slot.
-	 */
-	public final int getLocationSlot()
-	{
-		return _locationSlot;
-	}
-	
-	public final int getMana()
-	{
-		return _mana;
-	}
-	
-	/**
-	 * @return the name of the item
-	 */
-	public String getName()
-	{
-		return _item.getName();
 	}
 	
 	/**
@@ -237,9 +122,20 @@ public class L2WarehouseItem
 		return _owner;
 	}
 	
-	public int getTime()
+	/**
+	 * @return the location slot.
+	 */
+	public final int getLocationSlot()
 	{
-		return _time;
+		return _locationSlot;
+	}
+	
+	/**
+	 * @return the count.
+	 */
+	public final long getCount()
+	{
+		return _count;
 	}
 	
 	/**
@@ -259,19 +155,59 @@ public class L2WarehouseItem
 	}
 	
 	/**
+	 * @return the second type.
+	 */
+	public final ItemType getItemType()
+	{
+		return _item.getItemType();
+	}
+	
+	/**
+	 * @return the ItemId.
+	 */
+	public final int getItemId()
+	{
+		return _item.getId();
+	}
+	
+	/**
+	 * @return the part of body used with this item.
+	 */
+	public final int getBodyPart()
+	{
+		return _item.getBodyPart();
+	}
+	
+	/**
+	 * @return the enchant level.
+	 */
+	public final int getEnchantLevel()
+	{
+		return _enchant;
+	}
+	
+	/**
+	 * @return the item grade
+	 */
+	public final CrystalType getItemGrade()
+	{
+		return _grade;
+	}
+	
+	/**
+	 * @return {@code true} if the item is a weapon, {@code false} otherwise.
+	 */
+	public final boolean isWeapon()
+	{
+		return (_item instanceof L2Weapon);
+	}
+	
+	/**
 	 * @return {@code true} if the item is an armor, {@code false} otherwise.
 	 */
 	public final boolean isArmor()
 	{
 		return (_item instanceof L2Armor);
-	}
-	
-	/**
-	 * @return {@code true} if the item is augmented, {@code false} otherwise.
-	 */
-	public boolean isAugmented()
-	{
-		return _isAugmented;
 	}
 	
 	/**
@@ -283,11 +219,75 @@ public class L2WarehouseItem
 	}
 	
 	/**
-	 * @return {@code true} if the item is a weapon, {@code false} otherwise.
+	 * @return the name of the item
 	 */
-	public final boolean isWeapon()
+	public String getItemName()
 	{
-		return (_item instanceof L2Weapon);
+		return _item.getName();
+	}
+	
+	/**
+	 * @return {@code true} if the item is augmented, {@code false} otherwise.
+	 */
+	public boolean isAugmented()
+	{
+		return _isAugmented;
+	}
+	
+	/**
+	 * @return the augmentation If.
+	 */
+	public int getAugmentationId()
+	{
+		return _augmentationId;
+	}
+	
+	/**
+	 * @return the name of the item
+	 */
+	public String getName()
+	{
+		return _item.getName();
+	}
+	
+	public final int getCustomType1()
+	{
+		return _customType1;
+	}
+	
+	public final int getCustomType2()
+	{
+		return _customType2;
+	}
+	
+	public final int getMana()
+	{
+		return _mana;
+	}
+	
+	public int getAttackElementType()
+	{
+		return _elemAtkType;
+	}
+	
+	public int getAttackElementPower()
+	{
+		return _elemAtkPower;
+	}
+	
+	public int getElementDefAttr(byte i)
+	{
+		return _elemDefAttr[i];
+	}
+	
+	public int[] getEnchantOptions()
+	{
+		return _enchantOptions;
+	}
+	
+	public int getTime()
+	{
+		return _time;
 	}
 	
 	/**

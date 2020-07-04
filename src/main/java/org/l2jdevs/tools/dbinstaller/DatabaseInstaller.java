@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -45,44 +45,6 @@ public final class DatabaseInstaller
 		_defaultDatabase = defaultDatabase;
 	}
 	
-	public static IApplicationFrontend getFrontend()
-	{
-		return _frontend;
-	}
-	
-	protected static String getArg(String arg, String[] args)
-	{
-		try
-		{
-			int i = 0;
-			do
-			{
-				// Nothing is missing here.
-			}
-			while (!arg.equalsIgnoreCase(args[i++]));
-			return args[i];
-		}
-		catch (Exception e)
-		{
-			return null;
-		}
-	}
-	
-	public String getCleanScript()
-	{
-		return _cleanScript;
-	}
-	
-	public String getDefaultDatabase()
-	{
-		return _defaultDatabase;
-	}
-	
-	public String getPath()
-	{
-		return _installScriptsPath;
-	}
-	
 	public void run(String args[])
 	{
 		if ((args != null) && (args.length > 0))
@@ -103,6 +65,44 @@ public final class DatabaseInstaller
 		catch (Throwable t)
 		{
 			t.printStackTrace();
+		}
+	}
+	
+	public String getPath()
+	{
+		return _installScriptsPath;
+	}
+	
+	public String getCleanScript()
+	{
+		return _cleanScript;
+	}
+	
+	public String getDefaultDatabase()
+	{
+		return _defaultDatabase;
+	}
+	
+	public static IApplicationFrontend getFrontend()
+	{
+		return _frontend;
+	}
+	
+	protected static String getArg(String arg, String[] args)
+	{
+		try
+		{
+			int i = 0;
+			do
+			{
+				// Nothing is missing here.
+			}
+			while (!arg.equalsIgnoreCase(args[i++]));
+			return args[i];
+		}
+		catch (Exception e)
+		{
+			return null;
 		}
 	}
 }

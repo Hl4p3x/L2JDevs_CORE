@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -26,16 +26,9 @@ import org.l2jdevs.gameserver.model.actor.instance.L2PcInstance;
 public interface IEventListener
 {
 	/**
-	 * @return {@code true} if player can revive after death, {@code false} otherwise.
+	 * @return {@code true} if player is on event, {@code false} otherwise.
 	 */
-	public boolean canRevive();
-	
-	public L2PcInstance getPlayer();
-	
-	/**
-	 * @return {@code true} if player is blocked from receiving death penalty upon death, {@code false} otherwise.
-	 */
-	public boolean isBlockingDeathPenalty();
+	public boolean isOnEvent();
 	
 	/**
 	 * @return {@code true} if player is blocked from leaving the game, {@code false} otherwise.
@@ -43,7 +36,14 @@ public interface IEventListener
 	public boolean isBlockingExit();
 	
 	/**
-	 * @return {@code true} if player is on event, {@code false} otherwise.
+	 * @return {@code true} if player is blocked from receiving death penalty upon death, {@code false} otherwise.
 	 */
-	public boolean isOnEvent();
+	public boolean isBlockingDeathPenalty();
+	
+	/**
+	 * @return {@code true} if player can revive after death, {@code false} otherwise.
+	 */
+	public boolean canRevive();
+	
+	public L2PcInstance getPlayer();
 }

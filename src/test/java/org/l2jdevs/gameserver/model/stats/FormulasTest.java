@@ -1,9 +1,9 @@
 package org.l2jdevs.gameserver.model.stats;
 
-import static java.lang.Double.NaN;
-import static java.lang.Double.POSITIVE_INFINITY;
 import static org.l2jdevs.gameserver.enums.ShotType.BLESSED_SPIRITSHOTS;
 import static org.l2jdevs.gameserver.enums.ShotType.SPIRITSHOTS;
+import static java.lang.Double.NaN;
+import static java.lang.Double.POSITIVE_INFINITY;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -37,6 +37,18 @@ public class FormulasTest
 	
 	private static final Integer HP_REGENERATE_PERIOD_DOOR = 300000;
 	
+	@BeforeClass
+	private void init()
+	{
+		Config.DATAPACK_ROOT = new File("src/test/resources");
+	}
+	
+	@Test(dataProvider = PROVIDE_CHARACTERS)
+	public void testGetRegeneratePeriod(L2Character character, Integer expected)
+	{
+		assertEquals(Formulas.getRegeneratePeriod(character), expected.intValue());
+	}
+	
 	@Test(dataProvider = PROVIDE_SPEED_SKILL_TIME)
 	public void testCalcAtkSpd(int hitTime, boolean isChanneling, int channelingSkillId, boolean isStatic, boolean isMagic, //
 		int mAtkSpeed, double pAtkSpeed, boolean isChargedSpiritshots, boolean isChargedBlessedSpiritShots, double expected)
@@ -60,16 +72,22 @@ public class FormulasTest
 		assertEquals(Formulas.calcCastTime(character, skill), expected);
 	}
 	
-	@Test(dataProvider = PROVIDE_CHARACTERS)
-	public void testGetRegeneratePeriod(L2Character character, Integer expected)
+	@DataProvider(name = PROVIDE_CHARACTERS)
+	private Iterator<Object[]> provideCharacters()
 	{
-		assertEquals(Formulas.getRegeneratePeriod(character), expected.intValue());
-	}
-	
-	@BeforeClass
-	private void init()
-	{
-		Config.DATAPACK_ROOT = new File("src/test/resources");
+		final List<Object[]> result = new LinkedList<>();
+		final L2Character c1 = mock(L2Character.class);
+		when(c1.isDoor()).thenReturn(true);
+		
+		final L2Character c2 = mock(L2Character.class);
+		when(c2.isDoor()).thenReturn(false);
+		
+		// @formatter:off
+		result.add(new Object[]{ c1, HP_REGENERATE_PERIOD_DOOR });
+		result.add(new Object[]{ c2, HP_REGENERATE_PERIOD_CHARACTER });
+		// @formatter:on
+		
+		return result.iterator();
 	}
 	
 	@DataProvider(name = PROVIDE_SPEED_SKILL_TIME)
@@ -92,24 +110,6 @@ public class FormulasTest
 		result.add(new Object[]{ 1400, false, 0, true, true, 0, 0.0, true, false, 840.0 });
 		result.add(new Object[]{ 1400, false, 0, true, true, 0, 0.0, false, true, 840.0 });
 		// @formatter:on
-		return result.iterator();
-	}
-	
-	@DataProvider(name = PROVIDE_CHARACTERS)
-	private Iterator<Object[]> provideCharacters()
-	{
-		final List<Object[]> result = new LinkedList<>();
-		final L2Character c1 = mock(L2Character.class);
-		when(c1.isDoor()).thenReturn(true);
-		
-		final L2Character c2 = mock(L2Character.class);
-		when(c2.isDoor()).thenReturn(false);
-		
-		// @formatter:off
-		result.add(new Object[]{ c1, HP_REGENERATE_PERIOD_DOOR });
-		result.add(new Object[]{ c2, HP_REGENERATE_PERIOD_CHARACTER });
-		// @formatter:on
-		
 		return result.iterator();
 	}
 }

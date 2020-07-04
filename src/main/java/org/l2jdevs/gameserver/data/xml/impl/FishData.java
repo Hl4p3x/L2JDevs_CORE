@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -47,66 +47,6 @@ public final class FishData implements IXmlReader
 	protected FishData()
 	{
 		load();
-	}
-	
-	/**
-	 * Gets the single instance of FishData.
-	 * @return single instance of FishData
-	 */
-	public static FishData getInstance()
-	{
-		return SingletonHolder._instance;
-	}
-	
-	/**
-	 * Gets the fish.
-	 * @param level the fish Level
-	 * @param group the fish Group
-	 * @param grade the fish Grade
-	 * @return List of Fish that can be fished
-	 */
-	public List<L2Fish> getFish(int level, int group, int grade)
-	{
-		final ArrayList<L2Fish> result = new ArrayList<>();
-		Map<Integer, L2Fish> fish = null;
-		switch (grade)
-		{
-			case 0:
-			{
-				fish = _fishEasy;
-				break;
-			}
-			case 1:
-			{
-				fish = _fishNormal;
-				break;
-			}
-			case 2:
-			{
-				fish = _fishHard;
-				break;
-			}
-			default:
-			{
-				LOG.warn("{}: Unmanaged fish grade!", getClass().getSimpleName());
-				return result;
-			}
-		}
-		
-		for (L2Fish f : fish.values())
-		{
-			if ((f.getFishLevel() != level) || (f.getFishGroup() != group))
-			{
-				continue;
-			}
-			result.add(f);
-		}
-		
-		if (result.isEmpty())
-		{
-			LOG.warn("{}: Cannot find any fish for level: {} group: {} and grade: {}!", getClass().getSimpleName(), level, group, grade);
-		}
-		return result;
 	}
 	
 	@Override
@@ -162,6 +102,66 @@ public final class FishData implements IXmlReader
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Gets the fish.
+	 * @param level the fish Level
+	 * @param group the fish Group
+	 * @param grade the fish Grade
+	 * @return List of Fish that can be fished
+	 */
+	public List<L2Fish> getFish(int level, int group, int grade)
+	{
+		final ArrayList<L2Fish> result = new ArrayList<>();
+		Map<Integer, L2Fish> fish = null;
+		switch (grade)
+		{
+			case 0:
+			{
+				fish = _fishEasy;
+				break;
+			}
+			case 1:
+			{
+				fish = _fishNormal;
+				break;
+			}
+			case 2:
+			{
+				fish = _fishHard;
+				break;
+			}
+			default:
+			{
+				LOG.warn("{}: Unmanaged fish grade!", getClass().getSimpleName());
+				return result;
+			}
+		}
+		
+		for (L2Fish f : fish.values())
+		{
+			if ((f.getFishLevel() != level) || (f.getFishGroup() != group))
+			{
+				continue;
+			}
+			result.add(f);
+		}
+		
+		if (result.isEmpty())
+		{
+			LOG.warn("{}: Cannot find any fish for level: {} group: {} and grade: {}!", getClass().getSimpleName(), level, group, grade);
+		}
+		return result;
+	}
+	
+	/**
+	 * Gets the single instance of FishData.
+	 * @return single instance of FishData
+	 */
+	public static FishData getInstance()
+	{
+		return SingletonHolder._instance;
 	}
 	
 	private static class SingletonHolder

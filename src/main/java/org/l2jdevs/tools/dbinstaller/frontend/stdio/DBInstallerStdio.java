@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -113,35 +113,49 @@ public class DBInstallerStdio implements IApplicationFrontend
 		run(dir, cleanUpScript, database, mode);
 	}
 	
-	@Override
-	public void close()
+	private void run(String dir, String cleanUpScript, String database, String mode)
 	{
-	}
-	
-	@Override
-	public void reportError(boolean drawAttention, String message)
-	{
-		System.err.println(message);
-		if (drawAttention)
+		try
 		{
-			drawReportAttention(System.err);
+			SQLUtil.ensureDatabaseUsage(_con, database);
+		}
+		catch (Exception e)
+		{
+			reportError(true, e, MessageFormat.format("Failed to ensure that the database {0} exists and is in use!", database));
+			return;
+		}
+		
+		if ((mode != null) && ("c".equalsIgnoreCase(mode) || "u".equalsIgnoreCase(mode)))
+		{
+			final RunTasks rt = new RunTasks(this, _con, database, dir, cleanUpScript, "c".equalsIgnoreCase(mode));
+			rt.run();
 		}
 	}
 	
-	@Override
-	public void reportError(boolean drawAttention, Throwable t, String message)
+	private void clearPendingInput()
 	{
-		if (t != null)
+		try
 		{
-			message += MessageFormat.format("\n\nReason:\n{0}", t.getMessage());
+			System.in.read(new byte[System.in.available()]);
 		}
-		reportError(drawAttention, message);
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
-	@Override
-	public void reportError(boolean drawAttention, Throwable t, String message, Object... args)
+	private void drawReportAttention(PrintStream ps)
 	{
-		reportError(drawAttention, t, MessageFormat.format(message, args));
+		ps.println("Press any key to continue...");
+		try
+		{
+			clearPendingInput();
+			System.in.read();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -177,16 +191,29 @@ public class DBInstallerStdio implements IApplicationFrontend
 	}
 	
 	@Override
-	public boolean requestUserConfirm(String message, Object... args)
+	public void reportError(boolean drawAttention, String message)
 	{
-		clearPendingInput();
-		System.out.print(MessageFormat.format(message, args));
-		String res = "";
-		try (Scanner scn = new Scanner(new CloseShieldedInputStream(System.in)))
+		System.err.println(message);
+		if (drawAttention)
 		{
-			res = scn.next();
+			drawReportAttention(System.err);
 		}
-		return res.equalsIgnoreCase("y") ? true : false;
+	}
+	
+	@Override
+	public void reportError(boolean drawAttention, Throwable t, String message)
+	{
+		if (t != null)
+		{
+			message += MessageFormat.format("\n\nReason:\n{0}", t.getMessage());
+		}
+		reportError(drawAttention, message);
+	}
+	
+	@Override
+	public void reportError(boolean drawAttention, Throwable t, String message, Object... args)
+	{
+		reportError(drawAttention, t, MessageFormat.format(message, args));
 	}
 	
 	@Override
@@ -202,48 +229,21 @@ public class DBInstallerStdio implements IApplicationFrontend
 		return res;
 	}
 	
-	private void clearPendingInput()
+	@Override
+	public boolean requestUserConfirm(String message, Object... args)
 	{
-		try
+		clearPendingInput();
+		System.out.print(MessageFormat.format(message, args));
+		String res = "";
+		try (Scanner scn = new Scanner(new CloseShieldedInputStream(System.in)))
 		{
-			System.in.read(new byte[System.in.available()]);
+			res = scn.next();
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		return res.equalsIgnoreCase("y") ? true : false;
 	}
 	
-	private void drawReportAttention(PrintStream ps)
+	@Override
+	public void close()
 	{
-		ps.println("Press any key to continue...");
-		try
-		{
-			clearPendingInput();
-			System.in.read();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	private void run(String dir, String cleanUpScript, String database, String mode)
-	{
-		try
-		{
-			SQLUtil.ensureDatabaseUsage(_con, database);
-		}
-		catch (Exception e)
-		{
-			reportError(true, e, MessageFormat.format("Failed to ensure that the database {0} exists and is in use!", database));
-			return;
-		}
-		
-		if ((mode != null) && ("c".equalsIgnoreCase(mode) || "u".equalsIgnoreCase(mode)))
-		{
-			final RunTasks rt = new RunTasks(this, _con, database, dir, cleanUpScript, "c".equalsIgnoreCase(mode));
-			rt.run();
-		}
 	}
 }

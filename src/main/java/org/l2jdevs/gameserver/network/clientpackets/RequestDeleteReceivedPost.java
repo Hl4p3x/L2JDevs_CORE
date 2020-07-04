@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -39,9 +39,19 @@ public final class RequestDeleteReceivedPost extends L2GameClientPacket
 	int[] _msgIds = null;
 	
 	@Override
-	public String getType()
+	protected void readImpl()
 	{
-		return _C__D0_68_REQUESTDELETERECEIVEDPOST;
+		int count = readD();
+		if ((count <= 0) || (count > Config.MAX_ITEM_IN_PACKET) || ((count * BATCH_LENGTH) != _buf.remaining()))
+		{
+			return;
+		}
+		
+		_msgIds = new int[count];
+		for (int i = 0; i < count; i++)
+		{
+			_msgIds[i] = readD();
+		}
 	}
 	
 	@Override
@@ -83,19 +93,9 @@ public final class RequestDeleteReceivedPost extends L2GameClientPacket
 	}
 	
 	@Override
-	protected void readImpl()
+	public String getType()
 	{
-		int count = readD();
-		if ((count <= 0) || (count > Config.MAX_ITEM_IN_PACKET) || ((count * BATCH_LENGTH) != _buf.remaining()))
-		{
-			return;
-		}
-		
-		_msgIds = new int[count];
-		for (int i = 0; i < count; i++)
-		{
-			_msgIds[i] = readD();
-		}
+		return _C__D0_68_REQUESTDELETERECEIVEDPOST;
 	}
 	
 	@Override

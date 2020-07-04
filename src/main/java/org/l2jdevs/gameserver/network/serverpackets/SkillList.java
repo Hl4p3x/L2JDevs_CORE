@@ -1,14 +1,14 @@
 /*
- * Copyright © 2004-2019 L2JDevs
+ * Copyright © 2004-2019 L2J Server
  * 
- * This file is part of L2JDevs.
+ * This file is part of L2J Server.
  * 
- * L2JDevs is free software: you can redistribute it and/or modify
+ * L2J Server is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * L2JDevs is distributed in the hope that it will be useful,
+ * L2J Server is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
@@ -24,6 +24,24 @@ import java.util.List;
 public final class SkillList extends L2GameServerPacket
 {
 	private final List<Skill> _skills = new ArrayList<>();
+	
+	static class Skill
+	{
+		public int id;
+		public int level;
+		public boolean passive;
+		public boolean disabled;
+		public boolean enchanted;
+		
+		Skill(int pId, int pLevel, boolean pPassive, boolean pDisabled, boolean pEnchanted)
+		{
+			id = pId;
+			level = pLevel;
+			passive = pPassive;
+			disabled = pDisabled;
+			enchanted = pEnchanted;
+		}
+	}
 	
 	public void addSkill(int id, int level, boolean passive, boolean disabled, boolean enchanted)
 	{
@@ -43,24 +61,6 @@ public final class SkillList extends L2GameServerPacket
 			writeD(temp.id);
 			writeC(temp.disabled ? 1 : 0);
 			writeC(temp.enchanted ? 1 : 0);
-		}
-	}
-	
-	static class Skill
-	{
-		public int id;
-		public int level;
-		public boolean passive;
-		public boolean disabled;
-		public boolean enchanted;
-		
-		Skill(int pId, int pLevel, boolean pPassive, boolean pDisabled, boolean pEnchanted)
-		{
-			id = pId;
-			level = pLevel;
-			passive = pPassive;
-			disabled = pDisabled;
-			enchanted = pEnchanted;
 		}
 	}
 }
