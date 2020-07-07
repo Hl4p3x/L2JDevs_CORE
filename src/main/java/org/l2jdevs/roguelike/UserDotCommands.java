@@ -28,7 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * User chat 'dot' commands, such as `.gcq` and so
+ * User chat 'dot' commands handlers, such as `.gcq` and so.
+ *
+ * todo: refactor it to chain of responsibility
  *
  * @author RKorskov
  */
@@ -47,19 +49,27 @@ public class UserDotCommands {
         switch(text.toUpperCase()) {
         case ".GQC":
         case ".GETQUESTSCOMPLETED":
-        case ".GET_QUESTS_COMPLETED":
+        case ".GET_QUESTS_COMPLETED": {
             evalListQuestsCompleted(pc, text);
             return true;
+        }
         case ".UPTIME":
-        case ".UPT":
+        case ".UPT": {
             evalPCUptime(pc);
             return true;
+        }
+        case ".I":
+        case ".INV": {
+            evalListInventory(pc);
+            return true;
+        }
         case ".HELP":
         case ".LSC":
         case ".LISTOFCOMMANDS":
-        case ".LIST_OF_COMMANDS":
+        case ".LIST_OF_COMMANDS": {
             evalListOfCommands(pc);
             break;
+        }
         }
         return false;
     }
@@ -98,6 +108,12 @@ public class UserDotCommands {
         if(um > 59) um %= 60;
         String msg = String.format("uptime %d:%02d", uh, um);
         handler.handleChat(CHAT_TYPE_TELL, pc, pc.getName(), msg);
+    }
+
+    private static void evalListInventory(final L2PcInstance pc) {
+        StringBuilder msg = new StringBuilder("<html><title>Inventory</title><body><table border=\"0\" width=\"100%\">");
+        msg.append("</table></body></html>");
+        Util.sendHtml(pc, msg.toString());
     }
 
     private static void evalListOfCommands(final L2PcInstance pc) {
