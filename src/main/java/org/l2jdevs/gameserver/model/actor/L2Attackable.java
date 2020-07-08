@@ -125,17 +125,17 @@ public class L2Attackable extends L2Npc
 	private boolean _mustGiveExpSp;
 	protected int _onKillDelay = 5000;
 
-        // L2JMod Championhood and around
-        protected static final int NAME_LENGTH_MIN = 4;
-        protected static final float CHAMPION_POWER_MIN = 0.2F; // (1+CHAMPION_POWER_MIN), actually
-        protected static final int _nameColor = NAME_COLOR_DEFAULT;
-        protected boolean _champion = false;
-        protected float _scaleXP = 1, // scale factor in XP/SP/... calculations [CHAMPION_POWER_MIN,1)
-            _scaleHP = 1, // scale factor of HP [1,Config.L2JMOD_CHAMPION_HP]
-            _powerJitter = 1; // personal mob non-HP/XP scale factor (0,maxInt]
-        protected int _aggro;
-        protected String _name = ""; // nameless mob
-        // protected hp, attack_speed, damage, xp, sp, ...; // and so on
+    // L2JMod Championhood and around
+	protected static final int NAME_LENGTH_MIN = 4;
+	protected static final float CHAMPION_POWER_MIN = 0.2F; // (1+CHAMPION_POWER_MIN), actually
+	protected static final int _nameColor = NAME_COLOR_DEFAULT;
+	protected boolean _champion = false;
+	protected float _scaleXP = 1, // scale factor in XP/SP/... calculations [CHAMPION_POWER_MIN,1)
+		_scaleHP = 1, // scale factor of HP [1,Config.L2JMOD_CHAMPION_HP]
+		_powerJitter = 1; // personal mob non-HP/XP scale factor (0,maxInt]
+	protected int _aggro;
+	protected String _name = ""; // nameless mob
+	// protected hp, attack_speed, damage, xp, sp, ...; // and so on
 	
 	/**
 	 * Creates an attackable NPC.

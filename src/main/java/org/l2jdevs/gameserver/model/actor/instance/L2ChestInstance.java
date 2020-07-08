@@ -19,7 +19,6 @@
 package org.l2jdevs.gameserver.model.actor.instance;
 
 import org.l2jdevs.Config;
-import org.l2jdevs.gameserver.SevenSignsFestival;
 import org.l2jdevs.gameserver.data.xml.impl.NpcData;
 import org.l2jdevs.gameserver.enums.InstanceType;
 import org.l2jdevs.gameserver.handler.BypassHandler;
@@ -41,6 +40,7 @@ import org.slf4j.LoggerFactory;
 public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
     private static final Logger LOG = LoggerFactory.getLogger(L2ChestInstance.class);
     private volatile boolean _specialDrop;
+    private boolean trapped;
 
     /**
      * Creates a chest.
@@ -54,6 +54,15 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
         setBusyMessage("Object occupied");
         setAutoAttackable(false);
         _specialDrop = false;
+        trapped = false;
+    }
+
+    public boolean isTrapped() {
+        return trapped;
+    }
+
+    public void setTrapped(final boolean trapped) {
+        this.trapped = trapped;
     }
 
     @Override
@@ -115,13 +124,13 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
      * </ul>
      *
      * @param pc
-     * @param command The command string received from client
+     * @param cmd The command string received from client
      */
     @Override
     public void onBypassFeedback(final L2PcInstance pc, final String cmd) {
         // if (canInteract(player))
         {
-            LOG.error("chest onBypassFeedback cmd=" + cmd);
+            LOG.error("chest onBypassFeedback cmd = " + cmd);
             if (isBusy() && (getBusyMessage().length() > 0)) {
                 chestIsBusy(this, pc);
                 return;
@@ -161,6 +170,11 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
     }
 
     @Override
+    public void showChatWindow(final L2PcInstance pc) {
+        showChatWindow(pc,-1);
+    }
+
+    @Override
     /**
      * Open a chat window on client with the text of the L2NpcInstance.<br>
      * <B><U>Actions</U>:</B>
@@ -172,7 +186,7 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
      * @param player The L2PcInstance that talk with the L2NpcInstance
      * @param val The number of the page of the L2NpcInstance to display
      */
-    public void showChatWindow(L2PcInstance pc, int val) {
+    public void showChatWindow(final L2PcInstance pc, final int val) {
         if (!isTalking()) {
             pc.sendPacket(ActionFailed.STATIC_PACKET);
             return;
@@ -192,16 +206,25 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
         pc.sendPacket(ActionFailed.STATIC_PACKET);
     }
 
+    @Override
+    public void showChatWindow(final L2PcInstance pc, final String str) {
+        openChest(this, pc, str);
+        pc.sendPacket(ActionFailed.STATIC_PACKET);
+    }
+
     private static boolean openChest(final L2ChestInstance obj, final L2PcInstance pc, final String cmd) {
-        // fixme: stub
-        StringBuilder msg = new StringBuilder("<html><title>Chest</title><body>");
+        // fixme: test stub
+        StringBuilder msg = new StringBuilder("<html><title>L2ChestInstance openChest</title><body>");
         msg.append("Actions:<br1/><table>");
-        msg.append("<tr><td><button value=\"Open\" width=40 height=25 action=\"bypass -h npc_");
+        msg.append("<tr><td align=\"center\"><button value=\"Open chest\" width=120 height=25 action=\"bypass L2Chest ");
         msg.append(obj.getId());
-        msg.append("_chest open\"/></td></tr>");
-        msg.append("<tr><td><button value=\"Leave\" width=40 height=25 action=\"bypass -h npc_");
+        msg.append(" open\"/></td></tr>");
+        msg.append("<tr><td align=\"center\"><button value=\"Check 4 traps chest\" width=120 height=25 action=\"bypass L2Chest ");
         msg.append(obj.getId());
-        msg.append("_chest leave\"/></td></tr>");
+        msg.append(" untrap\"/></td></tr>");
+        msg.append("<tr><td align=\"center\"><button value=\"Leave chest\" width=120 height=25 action=\"bypass L2Chest ");
+        msg.append(obj.getId());
+        msg.append(" leave\"/></td></tr>");
         msg.append("</table><br1/>Server command was: <br>");
         msg.append(cmd);
         msg.append("</body></html>");
