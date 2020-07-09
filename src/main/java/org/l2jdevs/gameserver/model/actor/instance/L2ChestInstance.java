@@ -39,9 +39,9 @@ import org.slf4j.LoggerFactory;
  * <p>
  * TODO:
  * 1. drop loot on open (drop list disabled somehow for L2Attackable?);
- * 2. verify trap checking logic;
+ * 2. implement busy mutex;
  * 3. remove fire ring;
- * 4. implement lockpick puzzles;
+ * 4. implement lockpick puzzle stub;
  * 5. implement use of skill Unlock;
  * 6. implement use of Deluxe Key;
  *
@@ -381,35 +381,32 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
     public static void openChestDialog(final L2PcInstance pc, final L2ChestInstance chest) {
         // fixme: test stub
         StringBuilder msg = new StringBuilder("<html><title>L2ChestInstance</title><body>");
-        int oid;
+        int oid = -1;
         if (chest != null) {
             oid = chest.getObjectId();
-            msg.append("Object ID : " + oid + "<br1/><table>");
+            msg.append("<table>");
             msg.append("<tr><td width=64>Lock</td><td>" + chest.getLockState() + "</td></tr>");
             msg.append("<tr><td width=64>Trap</td><td>" + chest.getTrapState() + "</td></tr>");
             msg.append("</table><br1/>");
-        } else {
-            msg.append("ObjectID : NULL (object not found)<br1/>");
-            oid = -1;
         }
         msg.append("Actions:<br1/><table>");
         if (chest.isTrapKnown()) {
             if (chest.isTrapped())
-                msg.append("<tr><td align=\"center\"><button value=\"Untrap\" width=120 height=25 action=\"bypass L2Chest " + oid + " untrap\"/></td></tr>");
+                msg.append("<tr><td align=\"center\"><button value=\"Untrap\" width=140 height=25 action=\"bypass L2Chest " + oid + " untrap\"/></td></tr>");
         } else
-            msg.append("<tr><td align=center><button value=\"Check for traps\" width=120 height=25 action=\"bypass L2Chest " + oid + " check\"/></td></tr>");
+            msg.append("<tr><td align=center><button value=\"Check for traps\" width=140 height=25 action=\"bypass L2Chest " + oid + " check\"/></td></tr>");
         if (chest.locked || chest.lockJam) {
             if (!chest.lockJam) {
                 if (hasDeluxeKey(pc))
-                    msg.append("<tr><td align=center><button value=\"Open with Deluxe Key\" width=120 height=25 action=\"bypass L2Chest " + oid + " deluxe_key\"/></td></tr>");
+                    msg.append("<tr><td align=center><button value=\"Open with Deluxe Key\" width=140 height=25 action=\"bypass L2Chest " + oid + " deluxe_key\"/></td></tr>");
                 if (hasSkillUnlock(pc))
-                    msg.append("<tr><td align=center><button value=\"Open with skill Unlock\" width=120 height=25 action=\"bypass L2Chest " + oid + " unlock\"/></td></tr>");
-                msg.append("<tr><td align=center><button value=\"Pick lock\" width=120 height=25 action=\"bypass L2Chest " + oid + " pick\"/></td></tr>");
+                    msg.append("<tr><td align=center><button value=\"Open with skill Unlock\" width=140 height=25 action=\"bypass L2Chest " + oid + " unlock\"/></td></tr>");
+                msg.append("<tr><td align=center><button value=\"Pick lock\" width=140 height=25 action=\"bypass L2Chest " + oid + " pick\"/></td></tr>");
             }
-            msg.append("<tr><td align=center><button value=\"Force lock\" width=120 height=25 action=\"bypass L2Chest " + oid + " force\"/></td></tr>");
+            msg.append("<tr><td align=center><button value=\"Force lock\" width=140 height=25 action=\"bypass L2Chest " + oid + " force\"/></td></tr>");
         } else
-            msg.append("<tr><td align=center><button value=\"Open and loot\" width=120 height=25 action=\"bypass L2Chest " + oid + " open\"/></td></tr>");
-        msg.append("<tr><td align=center><button value=\"Leave it be\" width=120 height=25 action=\"bypass L2Chest " + oid + " leave\"/></td></tr>");
+            msg.append("<tr><td align=center><button value=\"Open and loot\" width=140 height=25 action=\"bypass L2Chest " + oid + " open\"/></td></tr>");
+        msg.append("<tr><td align=center><button value=\"Leave it be\" width=140 height=25 action=\"bypass L2Chest " + oid + " leave\"/></td></tr>");
         msg.append("</table>");
         msg.append("</body></html>");
         Util.sendHtml(pc, msg.toString());
