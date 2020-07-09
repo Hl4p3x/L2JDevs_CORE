@@ -26,6 +26,7 @@ import org.l2jdevs.gameserver.handler.IBypassHandler;
 import org.l2jdevs.gameserver.model.actor.L2Attackable;
 import org.l2jdevs.gameserver.model.actor.L2Character;
 import org.l2jdevs.gameserver.model.actor.templates.L2NpcTemplate;
+import org.l2jdevs.gameserver.model.items.instance.L2ItemInstance;
 import org.l2jdevs.gameserver.network.serverpackets.ActionFailed;
 import org.l2jdevs.gameserver.network.serverpackets.NpcHtmlMessage;
 import org.l2jdevs.gameserver.util.Util;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class manages all chest.
- *
+ * <p>
  * TODO:
  * 1. drop loot on open (drop list disabled somehow for L2Attackable?);
  * 2. verify trap checking logic;
@@ -44,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * 5. implement use of skill Unlock;
  * 6. implement use of Deluxe Key;
  *
- * @author Julian
+ * @author Julian (L2JDevs)
  * @author RKorskov
  */
 public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
@@ -158,7 +159,7 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
 
     @Override
     public void showChatWindow(final L2PcInstance pc) {
-        showChatWindow(pc,-1);
+        showChatWindow(pc, -1);
     }
 
     @Override
@@ -201,17 +202,29 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
         pc.sendPacket(ActionFailed.STATIC_PACKET);
     }
 
-    public boolean isTrapped() { return trapped; }
+    public boolean isTrapped() {
+        return trapped;
+    }
 
-    public void setTrapped(final boolean trapped) { this.trapped = trapped; }
+    public void setTrapped(final boolean trapped) {
+        this.trapped = trapped;
+    }
 
-    public boolean isTrapKnown() { return trapKnown; }
+    public boolean isTrapKnown() {
+        return trapKnown;
+    }
 
-    public void setTrapKnown(boolean trapKnown) { this.trapKnown = trapKnown; }
+    public void setTrapKnown(boolean trapKnown) {
+        this.trapKnown = trapKnown;
+    }
+
+    public void setTrapKnown() {
+        this.trapKnown = true;
+    }
 
     public String getLockState() {
-        if(locked) {
-            if(lockJam)
+        if (locked) {
+            if (lockJam)
                 return "jammed";
             return "locked";
         }
@@ -219,7 +232,7 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
     }
 
     public String getTrapState() {
-        if(trapKnown) {
+        if (trapKnown) {
             if (trapped)
                 return "trapped";
             return "untrapped";
@@ -227,21 +240,22 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
         return "unknown";
     }
 
-    public boolean isLockJammed() { return lockJam; }
+    public boolean isLockJammed() {
+        return lockJam;
+    }
 
     public boolean lockOpen(final L2PcInstance pc) {
         // fixme : stub
         LOG.error("L2ChestInstance : lock open");
-        if(lockJam)
+        if (lockJam)
             return false;
-        if(locked) {
+        if (locked) {
             int n = pc.getLevel() - level;
-            if(n > 0) {
+            if (n > 0) {
                 locked = false;
                 doChestOpen(pc);
                 return true;
-            }
-            else if(n < -17)
+            } else if (n < -17)
                 lockJam = true;
         }
         return false;
@@ -250,22 +264,21 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
     public boolean lockForce(final L2PcInstance pc) {
         // fixme : stub
         LOG.error("L2ChestInstance : lock force");
-        if(trapped) {
+        if (trapped) {
             evalTrap(pc);
             return false;
         }
-        if(!locked) {
+        if (!locked) {
             doChestOpen(pc);
             return true;
         }
         int n = pc.getLevel() - level;
-        if(n > 7) {
+        if (n > 7) {
             locked = false;
             doChestOpen(pc);
             return true;
-        }
-        else {
-            if(n < -7)
+        } else {
+            if (n < -7)
                 lockJam = true;
         }
         return false;
@@ -274,7 +287,7 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
     private void doChestOpen(L2PcInstance pc) {
         // fixme : replace with corpse
         LOG.error("L2ChestInstance : add adena xp sp, kill NPC");
-        pc.addAdena("Loot",level + Rnd.get(level * 8), this, true);
+        pc.addAdena("Loot", level + Rnd.get(level * 8), this, true);
         pc.addExpAndSp(level + Rnd.get(level * 8), level + Rnd.get(level * 8));
         reduceCurrentHp(Integer.MAX_VALUE, pc, null);
         //doDie(pc); // ... and drop contents (if any)
@@ -286,7 +299,7 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
         pc.say("Oops...");
         int n = level * 16 + Rnd.get(level * 48);
         pc.reduceCurrentHp(n, this, null);
-        pc.addExpAndSp(n, n/2);
+        pc.addExpAndSp(n, n / 2);
         // pc.say("chest contents was destroyed by explosion");
         trapped = false;
         trapKnown = true;
@@ -308,6 +321,47 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
         trapKnown = false; // per PC?
     }
 
+    private static int[] __DELUXE_CHEST_KEY = {6665, 6666, 6667, 6668, 6669, 6670, 6671, 6672};
+
+    /**
+     * check of if PC have any amount of any Deluxe Chest Key(s)
+     * 6665 Deluxe Chest Key - Grade 1
+     * 6666 Deluxe Chest Key - Grade 2
+     * 6667 Deluxe Chest Key - Grade 3
+     * 6668 Deluxe Chest Key - Grade 4
+     * 6669 Deluxe Chest Key - Grade 5
+     * 6670 Deluxe Chest Key - Grade 6
+     * 6671 Deluxe Chest Key - Grade 7
+     * 6672 Deluxe Chest Key - Grade 8
+     *
+     * @param pc
+     * @return true if PC has any Deluxe Chest Key
+     */
+    private static boolean hasDeluxeKey(final L2PcInstance pc) {
+        boolean f = false;
+        for (int i : __DELUXE_CHEST_KEY) {
+            L2ItemInstance[] keys = pc.getInventory().getAllItemsByItemId(i);
+            for (L2ItemInstance k : keys) {
+                long n = k.getCount();
+                LOG.error("L2ChestInstance : hasDeluxeKey : key " + i + " of " + n);
+                f |= n > 0;
+            }
+        }
+        return f;
+    }
+
+    /**
+     * check of if PC knows skill Unlock (id=27)
+     *
+     * @param pc
+     * @return true if PC has skill "Unlock" level 1 or more
+     */
+    private static boolean hasSkillUnlock(final L2PcInstance pc) {
+        int i = pc.getSkillLevel(27);
+        LOG.error("L2ChestInstance : hasSkillUnlock : skill UNLOCK(id=27) level = " + i);
+        return i > 0;
+    }
+
     public static void openChestDialog(final L2PcInstance pc, final L2ChestInstance chest, final String str) {
         openChestDialog(pc, chest);
     }
@@ -326,7 +380,7 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
      */
     public static void openChestDialog(final L2PcInstance pc, final L2ChestInstance chest) {
         // fixme: test stub
-        StringBuilder msg = new StringBuilder("<html><title>L2Chest</title><body>");
+        StringBuilder msg = new StringBuilder("<html><title>L2ChestInstance</title><body>");
         int oid;
         if (chest != null) {
             oid = chest.getObjectId();
@@ -339,18 +393,26 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
             oid = -1;
         }
         msg.append("Actions:<br1/><table>");
-        msg.append("<tr><td align=center><button value=\"Open lock\" width=120 height=25 action=\"bypass L2Chest " + oid + " open\"/></td></tr>");
-        msg.append("<tr><td align=center><button value=\"Pick lock\" width=120 height=25 action=\"bypass L2Chest " + oid + " pick\"/></td></tr>");
-        msg.append("<tr><td align=center><button value=\"Force lock\" width=120 height=25 action=\"bypass L2Chest " + oid + " force\"/></td></tr>");
         if (chest.isTrapKnown()) {
             if (chest.isTrapped())
                 msg.append("<tr><td align=\"center\"><button value=\"Untrap\" width=120 height=25 action=\"bypass L2Chest " + oid + " untrap\"/></td></tr>");
-        }
-        else
+        } else
             msg.append("<tr><td align=center><button value=\"Check for traps\" width=120 height=25 action=\"bypass L2Chest " + oid + " check\"/></td></tr>");
+        if (chest.locked || chest.lockJam) {
+            if (!chest.lockJam) {
+                if (hasDeluxeKey(pc))
+                    msg.append("<tr><td align=center><button value=\"Open with Deluxe Key\" width=120 height=25 action=\"bypass L2Chest " + oid + " deluxe_key\"/></td></tr>");
+                if (hasSkillUnlock(pc))
+                    msg.append("<tr><td align=center><button value=\"Open with skill Unlock\" width=120 height=25 action=\"bypass L2Chest " + oid + " unlock\"/></td></tr>");
+                msg.append("<tr><td align=center><button value=\"Pick lock\" width=120 height=25 action=\"bypass L2Chest " + oid + " pick\"/></td></tr>");
+            }
+            msg.append("<tr><td align=center><button value=\"Force lock\" width=120 height=25 action=\"bypass L2Chest " + oid + " force\"/></td></tr>");
+        } else
+            msg.append("<tr><td align=center><button value=\"Open and loot\" width=120 height=25 action=\"bypass L2Chest " + oid + " open\"/></td></tr>");
         msg.append("<tr><td align=center><button value=\"Leave it be\" width=120 height=25 action=\"bypass L2Chest " + oid + " leave\"/></td></tr>");
         msg.append("</table>");
         msg.append("</body></html>");
         Util.sendHtml(pc, msg.toString());
     }
+
 }
