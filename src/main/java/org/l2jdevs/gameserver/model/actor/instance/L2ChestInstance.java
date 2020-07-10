@@ -30,6 +30,7 @@ import org.l2jdevs.gameserver.model.items.instance.L2ItemInstance;
 import org.l2jdevs.gameserver.network.serverpackets.ActionFailed;
 import org.l2jdevs.gameserver.network.serverpackets.NpcHtmlMessage;
 import org.l2jdevs.gameserver.util.Util;
+import org.l2jdevs.roguelike.DeluxeKeyUtils;
 import org.l2jdevs.util.Rnd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
         trapKnown = false;
         lockJam = false;
         locked = true;
-        level = getTemplate().getLevel(); // + 5 - Rnd.get(15);
+        level = getTemplate().getLevel() + Rnd.get(10);
     }
 
     @Override
@@ -127,6 +128,10 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
         return false;
     }
 
+    public int getEffectiveLevel() {
+        return level;
+    }
+
     /**
      * Open a quest or chat window on client with the text of the L2NpcInstance in function of the command.<br>
      * <B><U> Example of use </U> :</B>
@@ -149,11 +154,10 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
             IBypassHandler handler = BypassHandler.getInstance().getHandler(cmd);
             if (handler != null) {
                 handler.useBypass(cmd, pc, this);
-                return;
             } else {
                 LOG.error("Unknown NPC bypass: \"{}\" NpcId: {}", cmd, getId()); // info
-                return;
             }
+            return;
         }
     }
 
@@ -244,6 +248,22 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
         return lockJam;
     }
 
+    public boolean lockOpen(final L2PcInstance pc, final L2ItemInstance key) {
+        // fixme : stub
+        LOG.error("L2ChestInstance : lock open with key");
+        if (lockJam)
+            return false;
+        if (locked) {
+            final int keyLevel = DeluxeKeyUtils.getKeyLevel(key);
+            key.setCount(key.getCount()-1);
+            if(keyLevel >= level)
+                return true;
+            final int chance = 100 + keyLevel - level;
+            return Rnd.get(100) < chance;
+        }
+        return false;
+    }
+
     public boolean lockOpen(final L2PcInstance pc) {
         // fixme : stub
         LOG.error("L2ChestInstance : lock open");
@@ -321,35 +341,6 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
         trapKnown = false; // per PC?
     }
 
-    private static int[] __DELUXE_CHEST_KEY = {6665, 6666, 6667, 6668, 6669, 6670, 6671, 6672};
-
-    /**
-     * check of if PC have any amount of any Deluxe Chest Key(s)
-     * 6665 Deluxe Chest Key - Grade 1
-     * 6666 Deluxe Chest Key - Grade 2
-     * 6667 Deluxe Chest Key - Grade 3
-     * 6668 Deluxe Chest Key - Grade 4
-     * 6669 Deluxe Chest Key - Grade 5
-     * 6670 Deluxe Chest Key - Grade 6
-     * 6671 Deluxe Chest Key - Grade 7
-     * 6672 Deluxe Chest Key - Grade 8
-     *
-     * @param pc
-     * @return true if PC has any Deluxe Chest Key
-     */
-    private static boolean hasDeluxeKey(final L2PcInstance pc) {
-        boolean f = false;
-        for (int i : __DELUXE_CHEST_KEY) {
-            L2ItemInstance[] keys = pc.getInventory().getAllItemsByItemId(i);
-            for (L2ItemInstance k : keys) {
-                long n = k.getCount();
-                LOG.error("L2ChestInstance : hasDeluxeKey : key " + i + " of " + n);
-                f |= n > 0;
-            }
-        }
-        return f;
-    }
-
     /**
      * check of if PC knows skill Unlock (id=27)
      *
@@ -397,7 +388,7 @@ public final class L2ChestInstance extends L2Attackable { // L2MonsterInstance
             msg.append("<tr><td align=center><button value=\"Check for traps\" width=140 height=25 action=\"bypass L2Chest " + oid + " check\"/></td></tr>");
         if (chest.locked || chest.lockJam) {
             if (!chest.lockJam) {
-                if (hasDeluxeKey(pc))
+                if (DeluxeKeyUtils.hasDeluxeKey(pc))
                     msg.append("<tr><td align=center><button value=\"Open with Deluxe Key\" width=140 height=25 action=\"bypass L2Chest " + oid + " deluxe_key\"/></td></tr>");
                 if (hasSkillUnlock(pc))
                     msg.append("<tr><td align=center><button value=\"Open with skill Unlock\" width=140 height=25 action=\"bypass L2Chest " + oid + " unlock\"/></td></tr>");
